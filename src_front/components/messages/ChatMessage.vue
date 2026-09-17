@@ -430,7 +430,7 @@ const storeAuth = useStoreAuth();
 const storeParams = useStoreParams();
 const storeChat = useStoreChat();
 const storeAccessibility = useStoreAccessibility();
-const { t } = useI18n();
+const { t, tm } = useI18n();
 
 const channelInfo = ref<TwitchatDataTypes.UserChannelInfo | null>(null);
 const recipient = ref<TwitchatDataTypes.TwitchatUser | null>(null);
@@ -728,9 +728,12 @@ onBeforeMount(() => {
 	if (props.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 		const chatMess = props.messageData;
 		isAd.value = chatMess.is_ad === true;
+		const categoryToReason = tm("chat.message.automod_categories") as Record<string, string>;
 		//Manage twitch automod content
 		if (chatMess.twitch_automod) {
-			automodReasons.value = chatMess.twitch_automod.reasons.join(", ");
+			automodReasons.value = chatMess.twitch_automod.reasons
+				.map((v) => categoryToReason[v] || v)
+				.join(", ");
 			highlightedWords.push(...chatMess.twitch_automod.words);
 		}
 		//Manage hype chat content

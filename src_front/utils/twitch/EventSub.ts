@@ -2281,6 +2281,7 @@ export default class EventSub {
 		topic: TwitchEventSubDataTypes.SubscriptionStringTypes,
 		event: TwitchEventSubDataTypes.AutomodMessageHeldEvent,
 	): Promise<void> {
+		console.log(event);
 		// const reasons:string[] = [];
 		// for (let i = 0; i < event.fragments.length; i++) {
 		// 	const f = event.fragments[i];
@@ -2363,7 +2364,9 @@ export default class EventSub {
 			message_size: 0,
 			twitch_automod: {
 				reasons: [
-					event.reason == "blocked_term" ? "blocked term" : event.automod?.category || "",
+					event.reason == "blocked_term"
+						? "blocked term"
+						: event.automod?.category || event.reason,
 				],
 				words,
 			},

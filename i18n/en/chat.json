@@ -192,6 +192,16 @@
 			"automod_acceptBt_aria": "Accept automoded message",
 			"automod_rejectBt_aria": "Reject automoded message",
 			"automod_rule": "Rule:",
+			"automod_categories": {
+				"namecalling": "name calling",
+				"swearing": "swearing",
+				"ableism": "ableism",
+				"misogyny": "misogyny",
+				"sexwords": "sex words",
+				"racism": "racism",
+				"smartdetection": "smart detection",
+				"blocked_link": "blocked link"
+			},
 			"announcement": "Announcement",
 			"occurrences": "Number of times this message has been sent",
 			"no_follow": "Not a follower",

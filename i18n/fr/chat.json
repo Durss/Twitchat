@@ -192,6 +192,16 @@
 			"automod_acceptBt_aria": "Accepter le message",
 			"automod_rejectBt_aria": "Refuser le message",
 			"automod_rule": "Règle:",
+			"automod_categories": {
+				"namecalling": "insultes",
+				"swearing": "propos injurieux",
+				"ableism": "propos validistes",
+				"misogyny": "propos misogynes",
+				"sexwords": "propos sexuels",
+				"racism": "propos racistes",
+				"smartdetection": "détection intelligente",
+				"blocked_link": "lien bloqué"
+			},
 			"announcement": "Annonce",
 			"occurrences": "Nombre de fois que ce message a été envoyé",
 			"no_follow": "Ne vous follow pas",

@@ -676,7 +676,7 @@ export namespace TwitchEventSubDataTypes {
 			text: string;
 			fragments: MessageFragments;
 		};
-		reason: "automod" | "blocked_term";
+		reason: "automod" | "blocked_term" | "blocked_link";
 		automod?: {
 			category: string;
 			level: number;
