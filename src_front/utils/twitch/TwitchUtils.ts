@@ -2069,7 +2069,7 @@ export default class TwitchUtils {
 
 		let headers: RequestInit["headers"] = {};
 		if (sendAsBot && StoreProxy.twitchBot.connected && StoreProxy.twitchBot.userInfos) {
-			url.searchParams.set("moderator_id", StoreProxy.twitchBot.userInfos.user_id);
+			url.searchParams.set("moderator_id", StoreProxy.twitchBot.userInfos.id);
 			headers["Authorization"] = "Bearer " + StoreProxy.twitchBot.authToken!.access_token;
 		}
 
@@ -3324,7 +3324,7 @@ export default class TwitchUtils {
 
 			let headers: RequestInit["headers"] = {};
 			if (sendAsBot && StoreProxy.twitchBot.connected && StoreProxy.twitchBot.userInfos) {
-				body.sender_id = StoreProxy.twitchBot.userInfos.user_id;
+				body.sender_id = StoreProxy.twitchBot.userInfos.id;
 				headers["Authorization"] = "Bearer " + StoreProxy.twitchBot.authToken!.access_token;
 			}
 

@@ -237,8 +237,10 @@ export default class AuthController extends AbstractController {
 		url.searchParams.set("grant_type", "refresh_token");
 
 		let json: { access_token?: string };
+		let status: number;
 		try {
 			const res = await fetch(url, { method: "POST" });
+			status = res.status;
 			json = (await res.json()) as typeof json;
 		} catch (_error) {
 			response.header("Content-Type", "application/json");
@@ -252,7 +254,7 @@ export default class AuthController extends AbstractController {
 		}
 
 		response.header("Content-Type", "application/json");
-		response.status(200);
+		response.status(status);
 		response.send(JSON.stringify(json));
 	}
 

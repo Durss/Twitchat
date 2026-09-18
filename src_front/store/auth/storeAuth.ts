@@ -65,7 +65,9 @@ export const storeAuth = defineStore("auth", {
 							const res = await ApiHelper.call("auth/twitch/refreshtoken", "GET", {
 								token: twitchAuthResult.refresh_token,
 							});
-							if (res.status != 200) throw "invalid refresh result";
+							if (res.status != 200 || !res.json || !res.json.access_token) {
+								throw "invalid refresh result";
+							}
 							twitchAuthResult = res.json;
 						} catch (_error) {
 							refreshTokenFailCount++;
