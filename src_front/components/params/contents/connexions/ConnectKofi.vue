@@ -32,11 +32,6 @@
 				</li>
 
 				<li class="card-item">
-					<span class="index">3.</span>
-					<span>{{ t("kofi.find_key") }}</span>
-				</li>
-
-				<li class="card-item">
 					<span class="index">4.</span>
 					<span>{{ t("kofi.set_token") }}</span>
 					<input type="text" v-model="token" />

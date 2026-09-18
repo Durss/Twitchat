@@ -220,6 +220,7 @@ export default class KofiController extends AbstractController {
 			}
 			if (userFileContent) {
 				const data = JSON.parse(userFileContent);
+				// Proxy event if requested by the user
 				if (data.kofiConfigs?.webhooks && Array.isArray(data.kofiConfigs?.webhooks)) {
 					for (let i = 0; i < data.kofiConfigs.webhooks.length; i++) {
 						const webhook = data.kofiConfigs.webhooks[i] as {
