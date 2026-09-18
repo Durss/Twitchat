@@ -60,15 +60,16 @@ export const storeTwitchBot = defineStore("switchbot", {
 
 				const expired =
 					isNaN(this.authToken.expires_at) || this.authToken.expires_at <= Date.now();
-				const userRes = expired
+				const tokenValidateRes = expired
 					? null
 					: await TwitchUtils.validateToken(this.authToken.access_token);
-				if (!userRes || isNaN((userRes as TwitchDataTypes.Token).expires_in)) {
+				if (!tokenValidateRes || "status" in tokenValidateRes) {
 					this.disconnect();
 					toast(StoreProxy.i18n.t("error.twitch_bot_disconnected"), { autoClose: false });
 					return false;
 				}
-				this.userInfos = userRes as TwitchDataTypes.Token;
+				const userRes = await TwitchUtils.getUserInfo([tokenValidateRes.user_id]);
+				this.userInfos = userRes && userRes.length > 0 ? userRes[0]! : null;
 
 				//Schedule next refresh 10min before expiry. Retry in 5s if the last
 				//refresh failed.

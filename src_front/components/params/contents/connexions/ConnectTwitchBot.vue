@@ -35,9 +35,12 @@
 		</section>
 
 		<section v-if="storeTwitchBot.connected">
-			<TTButton alert @click="storeTwitchBot.disconnect()"
-				>{{ t("global.disconnect") }} - {{ storeTwitchBot.userInfos?.login }}</TTButton
-			>
+			<ProfileInfoCard
+				:name="storeTwitchBot.userInfos?.login"
+				:avatar="storeTwitchBot.userInfos?.profile_image_url"
+				:url="'https://twitch.tv/' + storeTwitchBot.userInfos?.login"
+				@logout="storeTwitchBot.disconnect()"
+			/>
 		</section>
 
 		<section v-if="storeTwitchBot.connected && missingRole" class="card-item secondary info">
@@ -60,6 +63,7 @@ import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import ProfileInfoCard from "../ProfileInfoCard.vue";
 
 const { t, locale } = useI18n();
 const storeAuth = useStoreAuth();
@@ -80,7 +84,7 @@ async function addMod(): Promise<void> {
 	storeUsers.getUserFrom(
 		"twitch",
 		chanId,
-		storeTwitchBot.userInfos?.user_id,
+		storeTwitchBot.userInfos?.id,
 		storeTwitchBot.userInfos?.login,
 		undefined,
 		async (user) => {
@@ -98,7 +102,7 @@ async function addVip(): Promise<void> {
 	storeUsers.getUserFrom(
 		"twitch",
 		chanId,
-		storeTwitchBot.userInfos?.user_id,
+		storeTwitchBot.userInfos?.id,
 		storeTwitchBot.userInfos?.login,
 		undefined,
 		async (user) => {
@@ -116,7 +120,7 @@ function checkRoles(): void {
 	storeUsers.getUserFrom(
 		"twitch",
 		chanId,
-		storeTwitchBot.userInfos?.user_id,
+		storeTwitchBot.userInfos?.id,
 		storeTwitchBot.userInfos?.login,
 		undefined,
 		async (user) => {

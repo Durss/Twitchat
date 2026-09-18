@@ -4036,7 +4036,7 @@ export interface ITwitchBotState {
 	connected: boolean;
 	connecting: boolean;
 	authToken: TwitchDataTypes.AuthTokenResult | null;
-	userInfos: TwitchDataTypes.Token | null;
+	userInfos: TwitchDataTypes.UserInfo | null;
 }
 
 export interface ITwitchBotGetters {}

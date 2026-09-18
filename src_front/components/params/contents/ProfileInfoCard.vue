@@ -65,6 +65,9 @@ const props = defineProps<{
 			width: 3em;
 			height: 3em;
 			border-radius: 50%;
+			&.icon {
+				width: auto;
+			}
 		}
 		.name {
 			font-weight: bold;
