@@ -3292,13 +3292,13 @@ export default class TwitchUtils {
 	 *
 	 * @param channelID
 	 * @param message
-	 * @param replyToID
+	 * @param replyTo
 	 * @param sendAsBot
 	 */
 	public static async sendMessage(
 		channelID: string,
 		message: string,
-		replyToID?: string,
+		replyTo?: TwitchatDataTypes.MessageChatData,
 		sendAsBot: boolean = true,
 		pin: boolean = false,
 	): Promise<boolean> {
@@ -3307,19 +3307,27 @@ export default class TwitchUtils {
 		// Avoid potentially leaking private stuff by misstyping a /command
 		// Twitch now strip the command and sends the message to tchat
 		if (message.startsWith("/") && !message.startsWith("/me")) return false;
+		let maxLength = 500;
+		if (replyTo) {
+			const name = Math.max(
+				replyTo.user.login.length,
+				(replyTo.user.displayNameOriginal || "").length,
+			);
+			maxLength -= name + 2; //+2 = "@" before and "space" after added by twitch
+		}
 
 		while (message.length > 0) {
 			const url = new URL(Config.instance.TWITCH_API_PATH + "chat/messages");
 			const body: { [key: string]: string | number | boolean } = {
 				broadcaster_id: channelID,
 				sender_id: this.uid,
-				message: message.substring(0, 499),
+				message: message.substring(0, maxLength),
 			};
 			if (pin) {
 				body.pin = true;
 			}
-			if (replyToID) {
-				body.reply_parent_message_id = replyToID;
+			if (replyTo) {
+				body.reply_parent_message_id = replyTo.id;
 			}
 
 			let headers: RequestInit["headers"] = {};
@@ -3334,7 +3342,7 @@ export default class TwitchUtils {
 				body: JSON.stringify(body),
 			});
 			if (res.status == 200 || res.status == 204) {
-				message = message.substring(499);
+				message = message.substring(maxLength);
 				if (pin) {
 					void this.getPinnedMessage(channelID);
 				}
@@ -3343,7 +3351,7 @@ export default class TwitchUtils {
 
 			if (res.status == 429) {
 				await this.onRateLimit(res.headers);
-				return this.sendMessage(channelID, message, replyToID, sendAsBot);
+				return this.sendMessage(channelID, message, replyTo, sendAsBot);
 			}
 
 			return false;

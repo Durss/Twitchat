@@ -664,7 +664,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if (replyTo) {
 			//@ts-ignore
 			// this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
-			await TwitchUtils.sendMessage(channelId, text, replyTo.id, sendAsBot);
+			await TwitchUtils.sendMessage(channelId, text, replyTo, sendAsBot);
 		} else {
 			if (pinMessage) {
 				if (!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) {
