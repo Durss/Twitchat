@@ -33,9 +33,11 @@
 		</section>
 
 		<section v-else>
-			<TTButton alert @click="disconnect()" icon="offline">{{
-				t("global.disconnect")
-			}}</TTButton>
+			<ProfileInfoCard
+				:avatar="storeTipeee.me?.avatar"
+				:name="storeTipeee.me?.username"
+				@logout="storeTipeee.disconnect()"
+			/>
 		</section>
 
 		<section class="examples">
@@ -60,6 +62,7 @@ import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { onBeforeMount, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import ProfileInfoCard from "../ProfileInfoCard.vue";
 
 const { t } = useI18n();
 const storeAuth = useStoreAuth();

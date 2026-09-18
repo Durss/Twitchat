@@ -44,10 +44,6 @@ export default class TipeeeController extends AbstractController {
 		const result = await super.twitchUserGuard(request, response);
 		if (result == false) return;
 
-		const headers = {
-			"Content-Type": "application/json",
-		};
-
 		const params = request.body as { code: string };
 		const body = JSON.stringify({
 			client_id: Config.credentials.tipeee_client_id,
@@ -60,7 +56,9 @@ export default class TipeeeController extends AbstractController {
 		try {
 			const query = await fetch("https://api.tipeeestream.com/oauth/v2/token", {
 				method: "POST",
-				headers,
+				headers: {
+					"Content-Type": "application/json",
+				},
 				body,
 			});
 			const json = (await query.json()) as {

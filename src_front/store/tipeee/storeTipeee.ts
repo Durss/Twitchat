@@ -19,6 +19,7 @@ let autoReconnect: boolean = false;
 
 export const storeTipeee = defineStore("tipeee", {
 	state: (): ITipeeeState => ({
+		me: null,
 		accessToken: "",
 		refreshToken: "",
 		connected: false,
@@ -66,7 +67,7 @@ export const storeTipeee = defineStore("tipeee", {
 			const csrfToken = await ApiHelper.call("auth/CSRFToken", "GET");
 			const origin = Config.instance.IS_PROD
 				? document.location.origin
-				: "https://twitchat.fr";
+				: "https://dev.twitchat.fr";
 			const redirectURI = origin + StoreProxy.router.resolve({ name: "tipeee/auth" }).href;
 			const url = new URL("https://api.tipeeestream.com/oauth/v2/auth");
 			url.searchParams.set("client_id", Config.instance.TIPEEE_CLIENT_ID);
@@ -116,7 +117,15 @@ export const storeTipeee = defineStore("tipeee", {
 			const meUrl = new URL("https://api.tipeeestream.com/v1.0/me.json");
 			meUrl.searchParams.set("access_token", this.accessToken);
 			const meQuery = await fetch(meUrl, { method: "GET" });
-			const meJSON = (await meQuery.json()) as { username: string };
+			const meJSON = (await meQuery.json()) as TipeeeMeData;
+			this.me = {
+				avatar:
+					"https://www.tipeeestream.com/cdn-cgi/image/onerror=redirect,width=64,height=64,fit=cover/" +
+					meJSON.avatar.original_path.replace(/\\\//, "/"),
+				currency: meJSON.currency.code,
+				id: meJSON.id,
+				username: meJSON.username,
+			};
 
 			//Get user's API key
 			const accessTokenUrl = new URL("https://api.tipeeestream.com/v1.0/me/api.json");
@@ -390,3 +399,42 @@ interface TipeeeEventData {
 		};
 	};
 }
+
+export type TipeeeMeData = {
+	locked: boolean;
+	hash_id: number;
+	hash: string;
+	avatar: {
+		id: number;
+		path: string;
+		code: string;
+		is_converted: boolean;
+		original_path: string;
+	};
+	hasPayment: boolean;
+	currency: {
+		code: string;
+		symbol: string;
+		label: string;
+		available: boolean;
+	};
+	country: string;
+	campaignActivation: number;
+	id: number;
+	providers: Array<{
+		connectedAt: string;
+		code: string;
+		id: string;
+		username: string;
+		master: boolean;
+		followers: number;
+		created_at: string;
+		channel: string;
+		expiration_at: string;
+	}>;
+	username: string;
+	pseudo: string;
+	created_at: string;
+	session_at: string;
+	parameters: Array<any>;
+};
