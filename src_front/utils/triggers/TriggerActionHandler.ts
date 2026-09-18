@@ -2686,14 +2686,16 @@ export default class TriggerActionHandler {
 		const triggers = this.triggerType2Triggers[key];
 		if (!triggers || triggers.length == 0) return false;
 
+		const sourceChanId = message.twitchSharedChatSourceId || message.channel_id;
+
 		//Execute all triggers related to the current trigger event type
 		for (const trigger of triggers) {
 			if (trigger.enableForRemoteChans !== true || !isPremium) {
 				//Allow trigger exec only for our own chan or from tiktok
 				if (
-					message.channel_id != StoreProxy.auth.twitch.user.id &&
-					message.channel_id != StoreProxy.auth.youtube?.user.id &&
-					message.channel_id != StoreProxy.auth.bluesky?.user.id &&
+					sourceChanId != StoreProxy.auth.twitch.user.id &&
+					sourceChanId != StoreProxy.auth.youtube?.user.id &&
+					sourceChanId != StoreProxy.auth.bluesky?.user.id &&
 					message.platform != "tiktok"
 				)
 					continue;

@@ -178,10 +178,11 @@ export default class Database {
 		if (!this._db || !this._ready) return Promise.reject("Database not ready");
 		message = toRaw(message);
 		const sAuth = StoreProxy.auth;
+		const sourceChanId = message.twitchSharedChatSourceId || message.channel_id;
 		const isFromRemoteChan =
-			message.channel_id != sAuth.twitch.user.id &&
-			message.channel_id != sAuth.youtube?.user.id &&
-			message.channel_id != sAuth.bluesky?.user.id;
+			sourceChanId != sAuth.twitch.user.id &&
+			sourceChanId != sAuth.youtube?.user.id &&
+			sourceChanId != sAuth.bluesky?.user.id;
 		//Don't save messages from remote channels
 		if (isFromRemoteChan) return Promise.resolve();
 

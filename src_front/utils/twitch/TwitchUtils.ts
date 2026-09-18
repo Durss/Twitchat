@@ -4109,6 +4109,8 @@ export default class TwitchUtils {
 		//Not a shared chat event, keep it
 		if (!sourceChannelId || sourceChannelId == localChannelId) return false;
 
+		if (sourceChannelId === StoreProxy.auth.twitch.user.id) return true;
+
 		return StoreProxy.stream.connectedTwitchChans.some((v) => v.user.id === sourceChannelId);
 	}
 
