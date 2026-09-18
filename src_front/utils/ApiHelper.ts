@@ -905,6 +905,8 @@ type ApiEndpoints = {
 			response: {
 				success: boolean;
 				accessToken?: string;
+				refreshToken?: string;
+				expiresIn?: number;
 				socketToken?: string;
 				error?: string;
 				errorCode?: string;
@@ -913,11 +915,25 @@ type ApiEndpoints = {
 	};
 	"streamlabs/socketToken": {
 		GET: {
-			//Token travels in the X-Streamlabs-Token header, not the query string
 			parameters: void;
 			response: {
 				success: boolean;
 				socketToken?: string;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
+	"streamlabs/token/refresh": {
+		POST: {
+			parameters: {
+				refreshToken: string;
+			};
+			response: {
+				success: boolean;
+				accessToken?: string;
+				refreshToken?: string;
+				expiresIn?: number;
 				error?: string;
 				errorCode?: string;
 			};

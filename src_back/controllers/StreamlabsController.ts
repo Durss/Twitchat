@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fetch from "node-fetch";
 import Config from "../utils/Config.js";
+import Logger from "../utils/Logger.js";
 import AbstractController from "./AbstractController.js";
 
 /**
@@ -26,6 +27,10 @@ export default class StreamlabsController extends AbstractController {
 		this.server.post(
 			"/api/streamlabs/auth",
 			async (request, response) => await this.postAuth(request, response),
+		);
+		this.server.post(
+			"/api/streamlabs/token/refresh",
+			async (request, response) => await this.postRefreshToken(request, response),
 		);
 	}
 
@@ -64,6 +69,21 @@ export default class StreamlabsController extends AbstractController {
 				method: "GET",
 				headers,
 			});
+
+			if (socketRes.status === 401) {
+				response
+					.header("Content-Type", "application/json")
+					.status(401)
+					.send(
+						JSON.stringify({
+							success: false,
+							errorCode: "UNAUTHORIZED",
+							error: "Streamlabs access token has been rejected",
+						}),
+					);
+				return;
+			}
+
 			const socketJson = (await socketRes.json()) as { socket_token: string };
 
 			response
@@ -142,10 +162,107 @@ export default class StreamlabsController extends AbstractController {
 					JSON.stringify({
 						success: json.access_token !== undefined,
 						accessToken: json.access_token,
+						refreshToken: json.refresh_token,
+						expiresIn: json.expires_in,
 						socketToken: socketJson.socket_token,
 					}),
 				);
 		} catch (error) {
+			console.log(error);
+			response
+				.header("Content-Type", "application/json")
+				.status(500)
+				.send(
+					JSON.stringify({
+						success: false,
+						errorCode: "JSON_PARSING_FAILED",
+						error: "json parsing failed",
+					}),
+				);
+		}
+	}
+
+	/**
+	 * Refresh user's token.
+	 * @param request
+	 * @param response
+	 * @returns
+	 */
+	private async postRefreshToken(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const result = await super.twitchUserGuard(request, response);
+		if (result == false) return;
+
+		const refreshToken = (request.body as any).refreshToken as string;
+		if (!refreshToken) {
+			response
+				.header("Content-Type", "application/json")
+				.status(401)
+				.send(
+					JSON.stringify({
+						success: false,
+						errorCode: "UNAUTHORIZED",
+						error: "Invalid or missing refresh token",
+					}),
+				);
+			return;
+		}
+
+		const headers = {
+			"Content-Type": "application/json",
+			"X-Requested-With": "XMLHttpRequest",
+		};
+		const body = {
+			grant_type: "refresh_token",
+			client_id: Config.credentials.streamlabs_client_id,
+			client_secret: Config.credentials.streamlabs_client_secret,
+			redirect_uri: Config.credentials.streamlabs_redirect_uri,
+			refresh_token: refreshToken,
+		};
+
+		let text = "";
+		try {
+			const slRes = await fetch("https://streamlabs.com/api/v2.0/token", {
+				method: "POST",
+				headers,
+				body: JSON.stringify(body),
+			});
+			text = await slRes.text();
+			const json = JSON.parse(text) as {
+				access_token?: string;
+				refresh_token?: string;
+				expires_in?: number;
+				error_description?: string;
+			};
+
+			if (!json.access_token) {
+				Logger.error("Unable to refresh streamlabs token");
+				console.log(text);
+				response
+					.header("Content-Type", "application/json")
+					.status(500)
+					.send(
+						JSON.stringify({
+							success: false,
+							errorCode: "UNKNOWN",
+							error: json.error_description || "unknown error",
+						}),
+					);
+				return;
+			}
+
+			response
+				.header("Content-Type", "application/json")
+				.status(200)
+				.send(
+					JSON.stringify({
+						success: true,
+						accessToken: json.access_token,
+						refreshToken: json.refresh_token,
+						expiresIn: json.expires_in,
+					}),
+				);
+		} catch (error) {
+			Logger.error("Unable to refresh streamlabs token");
 			console.log(error);
 			response
 				.header("Content-Type", "application/json")

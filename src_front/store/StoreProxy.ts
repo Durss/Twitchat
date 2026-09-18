@@ -3098,6 +3098,8 @@ export interface IDiscordActions {
 
 export interface IStreamlabsState {
 	accessToken: string;
+	refreshToken: string;
+	tokenExpirationDate: number;
 	socketToken: string;
 	profile: {
 		name: string;
@@ -3165,6 +3167,11 @@ export interface IStreamlabsActions {
 	 * Authenticate to streamlabs after getting oAuth code
 	 */
 	getAccessToken(): Promise<boolean>;
+	/**
+	 * Refresh access token.
+	 * Returns false if no refresh token is available or if it failed
+	 */
+	refreshAccessToken(): Promise<boolean>;
 	/**
 	 * Connects to given streamlabs charity campaign
 	 * if url is omitted, reloads current campaign info

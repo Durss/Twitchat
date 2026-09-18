@@ -3,6 +3,7 @@ import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
+import { toast } from "@/utils/toast/toast";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import * as Sentry from "@sentry/vue";
@@ -20,10 +21,13 @@ let isAutoInit: boolean = false;
 let autoReconnect: boolean = false;
 let donationPageIndex: number = 0;
 let donationPrevPagesTotal: number = 0;
+const tokenRefreshMargin: number = 24 * 60 * 60 * 1000;
 
 export const storeStreamlabs = defineStore("streamlabs", {
 	state: (): IStreamlabsState => ({
 		accessToken: "",
+		refreshToken: "",
+		tokenExpirationDate: 0,
 		socketToken: "",
 		profile: null,
 		connected: false,
@@ -50,24 +54,49 @@ export const storeStreamlabs = defineStore("streamlabs", {
 			if (sessionJSON) {
 				const json = JSON.parse(sessionJSON) as StreamlabsStoreData;
 				this.accessToken = json.accessToken;
+				this.refreshToken = json.refreshToken || "";
+				this.tokenExpirationDate = json.tokenExpirationDate || 0;
 				this.charityTeam = json.charityTeam;
 				if (this.accessToken) {
 					isAutoInit = true;
-					const result = await ApiHelper.call(
-						"streamlabs/socketToken",
-						"GET",
-						undefined,
-						false,
-						undefined,
-						{ "X-Streamlabs-Token": this.accessToken },
-					);
+
+					// is refresh token is expired or about to expire?
+					if (
+						this.refreshToken &&
+						this.tokenExpirationDate > 0 &&
+						Date.now() > this.tokenExpirationDate - tokenRefreshMargin
+					) {
+						await this.refreshAccessToken();
+					}
+
+					const requestSocketToken = () => {
+						return ApiHelper.call(
+							"streamlabs/socketToken",
+							"GET",
+							undefined,
+							false,
+							undefined,
+							{ "X-Streamlabs-Token": this.accessToken },
+						);
+					};
+
+					let result = await requestSocketToken();
+
+					// failed getting token, attempt to refresh and try again
+					if (!result.json.success && result.status == 401) {
+						if (await this.refreshAccessToken()) {
+							result = await requestSocketToken();
+						}
+					}
+
 					if (result.json.success) {
 						this.socketToken = result.json.socketToken || "";
 						void this.connect(this.socketToken);
 					} else {
-						StoreProxy.common.alert(
-							StoreProxy.i18n.t("error.streamlabs_connect_failed"),
-						);
+						toast(StoreProxy.i18n.t("error.streamlabs_connect_failed"), {
+							type: "error",
+							autoClose: false,
+						});
 					}
 				}
 				if (this.charityTeam) {
@@ -118,11 +147,38 @@ export const storeStreamlabs = defineStore("streamlabs", {
 				);
 				if (result.json.success) {
 					this.accessToken = result.json.accessToken!;
+					this.refreshToken = result.json.refreshToken || "";
+					this.tokenExpirationDate = result.json.expiresIn
+						? Date.now() + result.json.expiresIn * 1000
+						: 0;
 					this.socketToken = "";
 					this.saveData();
 					return await this.connect(result.json.socketToken!);
 				}
 				return false;
+			} catch (_error) {
+				return false;
+			}
+		},
+
+		async refreshAccessToken(): Promise<boolean> {
+			if (!this.refreshToken) return false;
+			try {
+				const result = await ApiHelper.call(
+					"streamlabs/token/refresh",
+					"POST",
+					{ refreshToken: this.refreshToken },
+					false,
+				);
+				if (!result.json.success || !result.json.accessToken) return false;
+				this.accessToken = result.json.accessToken;
+				//Streamlabs may or may not rotate the refresh token, keep the old one if it doesn't
+				if (result.json.refreshToken) this.refreshToken = result.json.refreshToken;
+				this.tokenExpirationDate = result.json.expiresIn
+					? Date.now() + result.json.expiresIn * 1000
+					: 0;
+				this.saveData();
+				return true;
 			} catch (_error) {
 				return false;
 			}
@@ -141,13 +197,30 @@ export const storeStreamlabs = defineStore("streamlabs", {
 				this.saveData();
 			}
 
+			// is refresh token is expired or about to expire?
+			if (
+				this.refreshToken &&
+				this.tokenExpirationDate > 0 &&
+				Date.now() > this.tokenExpirationDate - tokenRefreshMargin
+			) {
+				await this.refreshAccessToken();
+			}
+
 			try {
-				let opts = {
-					headers: { Authorization: "Bearer " + this.accessToken },
-					method: "GET",
+				const loadProfile = () => {
+					return fetch("https://streamlabs.com/api/v2.0/user", {
+						headers: { Authorization: "Bearer " + this.accessToken },
+						method: "GET",
+					});
 				};
-				// console.log("STREAMELEMENTS: checking token validity...")
-				let profileResult = await fetch("https://streamlabs.com/api/v2.0/user", opts);
+
+				let profileResult = await loadProfile();
+
+				// profile loading fail, refresh token and try again
+				if (profileResult.status == 401 && (await this.refreshAccessToken())) {
+					profileResult = await loadProfile();
+				}
+
 				if (profileResult.status == 200) {
 					const json = (await profileResult.json()) as StreamlabsUserData;
 					if (json.streamlabs) {
@@ -199,9 +272,10 @@ export const storeStreamlabs = defineStore("streamlabs", {
 						if (code == "44") {
 							//Show error on top of page
 							if (isAutoInit) {
-								StoreProxy.common.alert(
-									StoreProxy.i18n.t("error.streamlabs_connect_failed"),
-								);
+								toast(StoreProxy.i18n.t("error.streamlabs_connect_failed"), {
+									type: "error",
+									autoClose: false,
+								});
 							}
 							this.disconnect(false);
 							resolve(false);
@@ -440,6 +514,8 @@ export const storeStreamlabs = defineStore("streamlabs", {
 			if (clearStore) {
 				this.socketToken = "";
 				this.accessToken = "";
+				this.refreshToken = "";
+				this.tokenExpirationDate = 0;
 				this.charityTeam = null;
 				this.saveData();
 			}
@@ -452,6 +528,8 @@ export const storeStreamlabs = defineStore("streamlabs", {
 		saveData(): void {
 			const data: StreamlabsStoreData = {
 				accessToken: this.accessToken,
+				refreshToken: this.refreshToken,
+				tokenExpirationDate: this.tokenExpirationDate,
 				socketToken: this.socketToken,
 				charityTeam: this.charityTeam,
 			};
@@ -741,6 +819,8 @@ if (import.meta.hot) {
 
 interface StreamlabsStoreData {
 	accessToken: string;
+	refreshToken?: string;
+	tokenExpirationDate?: number;
 	socketToken: string;
 	charityTeam: typeof StoreProxy.streamlabs.charityTeam;
 }
