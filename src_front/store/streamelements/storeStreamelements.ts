@@ -5,6 +5,7 @@ import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import Utils from "@/utils/Utils";
+import { toast } from "@/utils/toast/toast";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
@@ -21,6 +22,7 @@ let reconnectTimeout: number = -1;
 let reconnectAttempts: number = 0;
 let isAutoInit: boolean = false;
 let autoReconnect: boolean = false;
+let unauthorizedRetried: boolean = false;
 
 export const storeStreamelements = defineStore("streamelements", {
 	state: (): IStreamelementsState => ({
@@ -86,6 +88,14 @@ export const storeStreamelements = defineStore("streamelements", {
 				if (this.accessToken) {
 					isAutoInit = true;
 					void this.connect(this.accessToken);
+				} else if (this.refreshToken) {
+					// previous version was clearing "accessToken" but not restoring
+					// session from refresh token, attempt to restore the session.
+					isAutoInit = true;
+					void this.refreshAccessToken().then((success) => {
+						if (success) void this.connect(this.accessToken);
+						else this.disconnect();
+					});
 				}
 			}
 		},
@@ -100,6 +110,7 @@ export const storeStreamelements = defineStore("streamelements", {
 			let statePrefix = "";
 			if (/^localhost|127\.0\.0\.1/gi.test(document.location.host)) statePrefix = "local-";
 			if (/^beta/gi.test(document.location.host)) statePrefix = "beta-";
+			if (/^dev/gi.test(document.location.host)) statePrefix = "dev-";
 			if (/^alpha/gi.test(document.location.host)) statePrefix = "alpha-";
 
 			const url = new URL("https://api.streamelements.com/oauth2/authorize");
@@ -131,9 +142,35 @@ export const storeStreamelements = defineStore("streamelements", {
 				if (result.json.success) {
 					this.accessToken = result.json.accessToken!;
 					this.refreshToken = result.json.refreshToken!;
+					unauthorizedRetried = false;
 					return await this.connect(result.json.accessToken!);
 				}
 				return false;
+			} catch (_error) {
+				return false;
+			}
+		},
+
+		async refreshAccessToken(): Promise<boolean> {
+			if (!this.refreshToken) return false;
+			try {
+				// console.log("STREAMELEMENTS: token not valid, get fresh new one");
+				const result = await ApiHelper.call(
+					"streamelements/token/refresh",
+					"POST",
+					{ refreshToken: this.refreshToken },
+					false,
+				);
+				if (!result.json.success || !result.json.accessToken) {
+					// console.log("STREAMELEMENTS: failed getting a new token");
+					return false;
+				}
+				this.accessToken = result.json.accessToken;
+				//Streamelements may or may not rotate the refresh token, keep the old one if it doesn't
+				if (result.json.refreshToken) this.refreshToken = result.json.refreshToken;
+				this.saveData();
+				// console.log("STREAMELEMENTS: got new token", this.accessToken);
+				return true;
 			} catch (_error) {
 				return false;
 			}
@@ -148,7 +185,7 @@ export const storeStreamelements = defineStore("streamelements", {
 				return false;
 			}
 
-			if (!this.connected && !isReconnect) this.disconnect();
+			if (!this.connected && !isReconnect) this.disconnect(false);
 
 			if (!isReconnect) {
 				this.accessToken = token;
@@ -159,7 +196,7 @@ export const storeStreamelements = defineStore("streamelements", {
 			let tokenValid = false;
 			try {
 				let opts = {
-					headers: { Authorization: "OAuth " + token },
+					headers: { Authorization: "OAuth " + this.accessToken },
 					method: "GET",
 				};
 				// console.log("STREAMELEMENTS: checking token validity...")
@@ -183,32 +220,26 @@ export const storeStreamelements = defineStore("streamelements", {
 			//Token expired or will expire soon?
 			//Refresh it
 			if (!tokenValid) {
-				if (!this.refreshToken) return false;
-				try {
-					// console.log("STREAMELEMENTS: token not valid, get fresh new one");
-					const result = await ApiHelper.call(
-						"streamelements/token/refresh",
-						"POST",
-						{ refreshToken: this.refreshToken },
-						false,
-					);
-					if (result.json.success) {
-						this.accessToken = result.json.accessToken!;
-						this.refreshToken = result.json.refreshToken!;
-						this.saveData();
-						// console.log("STREAMELEMENTS: got new token", this.accessToken);
-					} else {
-						// console.log("STREAMELEMENTS: failed getting a new token");
-						return false;
+				if (!(await this.refreshAccessToken())) {
+					if (this.refreshToken) {
+						// refresh failed, try again
+						reconnectAttempts++;
+						clearTimeout(reconnectTimeout);
+						reconnectTimeout = window.setTimeout(
+							() => {
+								socket = undefined;
+								void this.connect(this.accessToken, true);
+							},
+							Math.min(5000 * reconnectAttempts, 60000),
+						);
 					}
-				} catch (_error) {
 					return false;
 				}
 			}
 
 			try {
 				let opts = {
-					headers: { Authorization: "OAuth " + token },
+					headers: { Authorization: "OAuth " + this.accessToken },
 					method: "GET",
 				};
 				// console.log("STREAMELEMENTS: checking token validity...")
@@ -228,11 +259,23 @@ export const storeStreamelements = defineStore("streamelements", {
 				}
 			} catch (_error) {}
 
+			// Called if auth failed and we can't recover
+			const onAuthFailed = (showAlert: boolean) => {
+				//Session needs a manual re-auth, don't auto close the toast
+				if (showAlert) {
+					toast(StoreProxy.i18n.t("error.streamelements_connect_failed"), {
+						autoClose: false,
+					});
+				}
+				this.disconnect();
+			};
+
 			//Connect to websocket
 			return new Promise<boolean>((resolve, _reject) => {
 				socket = new WebSocket(
 					`wss://realtime.streamelements.com/socket.io/?EIO=3&transport=websocket`,
 				);
+				const localSocket = socket;
 
 				socket.onopen = async () => {
 					reconnectAttempts = 0;
@@ -297,21 +340,29 @@ export const storeStreamelements = defineStore("streamelements", {
 							});
 							switch (action) {
 								case "unauthorized": {
-									//Show error on top of page
-									if (isAutoInit) {
-										StoreProxy.common.alert(
-											StoreProxy.i18n.t(
-												"error.Streamelements_connect_failed",
-											),
-										);
+									const wasAutoInit = isAutoInit;
+									if (!unauthorizedRetried && this.refreshToken) {
+										unauthorizedRetried = true;
+										this.disconnect(false);
+										void this.refreshAccessToken().then((success) => {
+											isAutoInit = wasAutoInit;
+											if (success) {
+												void this.connect(this.accessToken);
+											} else {
+												onAuthFailed(wasAutoInit);
+											}
+										});
+										resolve(false);
+										break;
 									}
-									this.disconnect();
+									onAuthFailed(wasAutoInit);
 									resolve(false);
 									break;
 								}
 
 								case "authenticated": {
 									this.connected = true;
+									unauthorizedRetried = false;
 									rebuildPlaceholdersCache();
 									resolve(true);
 									break;
@@ -483,6 +534,8 @@ export const storeStreamelements = defineStore("streamelements", {
 					// console.log(token, this.accessToken);
 					// console.log(autoReconnect);
 					// console.log(event);
+					// do not reconnect if socket got replaced
+					if (socket && socket != localSocket) return;
 					//Do not reconnect if token changed
 					if (token != this.accessToken) return;
 					if (!autoReconnect) return;
@@ -503,8 +556,12 @@ export const storeStreamelements = defineStore("streamelements", {
 				socket.onerror = (_error) => {
 					// console.log("STREAMELEMENTS: onerror:", error);
 					resolve(false);
+					// do not reconnect if socket got replaced
+					if (socket && socket != localSocket) return;
 					this.connected = false;
 					rebuildPlaceholdersCache();
+					// do not reconnect if token changed
+					if (token != this.accessToken) return;
 					if (!autoReconnect) return;
 					reconnectAttempts++;
 					if (pingInterval) SetIntervalWorker.instance.delete(pingInterval);
@@ -518,15 +575,20 @@ export const storeStreamelements = defineStore("streamelements", {
 			});
 		},
 
-		disconnect(): void {
+		disconnect(clearStore: boolean = true): void {
 			autoReconnect = false;
 			this.connected = false;
-			this.accessToken = "";
-			this.saveData();
+			if (clearStore) {
+				this.accessToken = "";
+				this.refreshToken = "";
+				this.profile = null;
+				unauthorizedRetried = false;
+				this.saveData();
+			}
 			if (pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 			pingInterval = "";
 			clearTimeout(reconnectTimeout);
-			if (socket && !this.connected) socket.close();
+			if (socket) socket.close();
 		},
 
 		saveData(): void {
@@ -793,3 +855,4 @@ interface StreamelementsProfileData {
 	createdAt: string;
 	updatedAt: string;
 }
+

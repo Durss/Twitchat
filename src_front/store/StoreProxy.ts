@@ -3265,25 +3265,30 @@ export interface IStreamelementsActions {
 	 */
 	connect(token: string, isReconnect?: boolean): Promise<boolean>;
 	/**
-	 * Disconnects from streamlabs
+	 * Disconnects from streamelements
 	 */
-	disconnect(): void;
+	disconnect(clearStore?: boolean): void;
 	/**
 	 * Saves current data to server
 	 */
 	saveData(): void;
 	/**
-	 * Get the oAuth URL for streamlabs
+	 * Get the oAuth URL for streamelements
 	 */
 	getOAuthURL(): Promise<string>;
 	/**
-	 * Called after authenticating with Streamlabs
+	 * Called after authenticating with Streamelements
 	 */
 	setAuthResult(code: string, csrf: string): void;
 	/**
-	 * Authenticate to streamlabs after getting oAuth code
+	 * Authenticate to streamelements after getting oAuth code
 	 */
 	getAccessToken(): Promise<boolean>;
+	/**
+	 * Requests a fresh new access token from the stored refresh token.
+	 * Returns false if there's no refresh token or if streamelements refused it.
+	 */
+	refreshAccessToken(): Promise<boolean>;
 }
 
 export interface IKofiState {
@@ -3372,6 +3377,12 @@ export interface ILumiaActions {
 }
 
 export interface ITipeeeState {
+	me: {
+		id: number;
+		username: string;
+		currency: string;
+		avatar: string;
+	} | null;
 	accessToken: string;
 	refreshToken: string;
 	connected: boolean;
