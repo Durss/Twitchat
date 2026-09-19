@@ -19,11 +19,11 @@ import ParamItem from "@/components/params/ParamItem.vue";
 import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
 import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
 import {
-	TriggerTypes,
 	type ITriggerPlaceholder,
 	type TriggerActionHeatClickData,
 	type TriggerData,
 } from "@/types/TriggerActionDataTypes";
+import { TriggerTypes } from "@/types/TriggerTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, onBeforeMount, ref } from "vue";
 

@@ -6,7 +6,6 @@ import {
 	ANY_VALUE,
 	TriggerEventPlaceholders,
 	TriggerTypeDefinitionFromType,
-	TriggerTypes,
 	type ITriggerPlaceholder,
 	type TriggerActionData,
 	type TriggerData,
@@ -17,6 +16,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
 import { TwitchScopes } from "./twitch/TwitchScopes";
 import TwitchUtils from "./twitch/TwitchUtils";
+import { TriggerTypes } from "@/types/TriggerTypes";
 
 /**
  * Created : 31/05/2024

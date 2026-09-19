@@ -101,7 +101,7 @@
 <script setup lang="ts">
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TTSUtils from "@/utils/TTSUtils";

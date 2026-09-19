@@ -16,11 +16,9 @@ import {
 	TriggerEventPlaceholdersByTag,
 	TriggerEventUserIdPlaceholder,
 	TriggerMusicTypes,
-	TriggerTypes,
 	TriggerTypesDefinitionList,
 	type ITriggerPlaceholder,
 	type TriggerData,
-	type TriggerTypesValue,
 } from "../../types/TriggerActionDataTypes";
 import type { SearchTrackItem } from "../../types/spotify/SpotifyDataTypes";
 import ApiHelper from "../ApiHelper";
@@ -49,6 +47,7 @@ import { evalMath } from "../utils/evalMath";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
 import ChatCommandCaptureUtils from "./ChatCommandCaptureUtils";
+import { TriggerTypes, type TriggerTypesValue } from "@/types/TriggerTypes";
 
 /**
  * Condition operators reading nothing but the value they're given.
@@ -1516,7 +1515,7 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.QNA_START:
 			case TwitchatDataTypes.TwitchatMessageType.QNA_STOP:
 			case TwitchatDataTypes.TwitchatMessageType.QNA_DELETE: {
-				let type: TriggerActionDataTypes.TriggerTypesValue = TriggerTypes.QNA_START;
+				let type: TriggerTypesValue = TriggerTypes.QNA_START;
 				if (message.type == TwitchatDataTypes.TwitchatMessageType.QNA_STOP)
 					type = TriggerTypes.QNA_STOP;
 				if (message.type == TwitchatDataTypes.TwitchatMessageType.QNA_DELETE)
@@ -9724,8 +9723,8 @@ export default class TriggerActionHandler {
 					cleanSubevent &&
 					typeof value == "string" &&
 					subEvent_reg &&
-					(trigger.type == TriggerActionDataTypes.TriggerTypes.CHAT_COMMAND ||
-						trigger.type == TriggerActionDataTypes.TriggerTypes.SLASH_COMMAND)
+					(trigger.type == TriggerTypes.CHAT_COMMAND ||
+						trigger.type == TriggerTypes.SLASH_COMMAND)
 				) {
 					value = value.replace(subEvent_reg, "").trim();
 				}

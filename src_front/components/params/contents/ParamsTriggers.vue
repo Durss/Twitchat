@@ -188,11 +188,9 @@ import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { storeValues as useStoreValues } from "@/store/values/storeValues";
 import {
 	TriggerTypeDefinitionFromType,
-	TriggerTypes,
 	TriggerTypesDefinitionList,
 	type TriggerData,
 	type TriggerTypeDefinition,
-	type TriggerTypesValue,
 } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -209,6 +207,7 @@ import TriggerActionList from "./triggers/TriggerActionList.vue";
 import TriggerCreateForm from "./triggers/TriggerCreateForm.vue";
 import TriggerList from "./triggers/TriggerList.vue";
 import Config from "@/utils/Config";
+import { TriggerTypes, type TriggerTypesValue } from "@/types/TriggerTypes.js";
 
 const { t } = useI18n();
 const storeAuth = useStoreAuth();

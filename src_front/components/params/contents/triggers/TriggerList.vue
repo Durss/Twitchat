@@ -46,7 +46,6 @@ import {
 	type TriggerData,
 	type TriggerTreeItemData,
 	type TriggerTypeDefinition,
-	type TriggerTypesValue,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -58,6 +57,7 @@ import SearchForm from "../SearchForm.vue";
 import TriggerListFolderItem from "./TriggerListFolderItem.vue";
 import { onBeforeMount } from "vue";
 import Config from "@/utils/Config";
+import type { TriggerTypesValue } from "@/types/TriggerTypes.js";
 
 const { t } = useI18n();
 const { confirm } = useConfirm();

@@ -397,7 +397,7 @@ import DonorBadge from "@/components/user/DonorBadge.vue";
 import WhispersState from "@/components/whispers/WhispersState.vue";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import type { TriggerImportData } from "@/types/TriggerActionDataTypes";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";

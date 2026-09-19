@@ -167,7 +167,7 @@ import PremiumLimitMessage from "@/components/params/PremiumLimitMessage.vue";
 import TTButton from "@/components/TTButton.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeQuiz as useStoreQuiz } from "@/store/quiz/storeQuiz";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import { toast } from "@/utils/toast/toast";
 import Utils from "@/utils/Utils";

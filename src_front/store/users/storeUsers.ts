@@ -2,7 +2,6 @@ import EventBus from "@/events/EventBus";
 import GlobalEvent from "@/events/GlobalEvent";
 import {
 	setTriggerEventPlaceholderValues,
-	TriggerTypes,
 	USER_CUSTOM_BADGES,
 } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -18,6 +17,7 @@ import { reactive } from "vue";
 import DataStore from "../DataStore";
 import type { IUsersActions, IUsersGetters, IUsersState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
+import { TriggerTypes } from "@/types/TriggerTypes";
 
 interface BatchItem {
 	channelId?: string;

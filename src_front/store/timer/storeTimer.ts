@@ -1,4 +1,4 @@
-import TwitchatEvent from "@/events/TwitchatEvent";
+import type TwitchatEvent from "@/events/TwitchatEvent";
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";

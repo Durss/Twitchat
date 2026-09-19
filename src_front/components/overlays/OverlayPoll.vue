@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import TwitchatEvent from "@/events/TwitchatEvent";
+import type TwitchatEvent from "@/events/TwitchatEvent";
 import type { PollOverlayParamStoreData } from "@/store/poll/storePoll";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";

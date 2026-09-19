@@ -217,7 +217,6 @@ import {
 	ANY_OBS_SCENE,
 	ANY_VALUE,
 	TriggerEventTypeCategories,
-	TriggerTypes,
 	TriggerTypesDefinitionList,
 	type TriggerData,
 	type TriggerTypeDefinition,
@@ -234,6 +233,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { computed, onBeforeMount, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import SearchForm from "../SearchForm.vue";
+import { TriggerTypes } from "@/types/TriggerTypes.js";
 
 const { t, tm, availableLocales } = useI18n();
 const { getAsset } = asset();

@@ -67,7 +67,7 @@ import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";

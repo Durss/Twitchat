@@ -1,5 +1,5 @@
-import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
-import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
+import type * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
+import { type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
@@ -10,6 +10,7 @@ import type { JsonValue } from "type-fest";
 import DataStoreCommon from "./DataStoreCommon";
 import StoreProxy from "./StoreProxy";
 import type { CustomTrainStoreData } from "./customtrain/storeCustomTrain";
+import { TriggerTypes } from "@/types/TriggerTypes";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available

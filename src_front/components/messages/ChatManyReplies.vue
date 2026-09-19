@@ -24,7 +24,7 @@
 
 <script lang="ts" setup>
 import { useChatMessage } from "@/composables/useChatMessage";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { useTemplateRef } from "vue";
 import ToggleBlock from "../ToggleBlock.vue";
 import ChatMessage from "./ChatMessage.vue";

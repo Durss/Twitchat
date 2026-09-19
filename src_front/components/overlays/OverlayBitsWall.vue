@@ -24,7 +24,7 @@ import cheer1000_tex from "@/assets/img/bitswall/1000_tex.png";
 import cheer100_tex from "@/assets/img/bitswall/100_tex.png";
 import cheer1_tex from "@/assets/img/bitswall/1_tex.png";
 import cheer5000_tex from "@/assets/img/bitswall/5000_tex.png";
-import TwitchatEvent from "@/events/TwitchatEvent";
+import type TwitchatEvent from "@/events/TwitchatEvent";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";

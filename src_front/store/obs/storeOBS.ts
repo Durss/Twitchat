@@ -1,7 +1,7 @@
 import type { StoreActions } from "@/types/pinia-helpers";
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
-import { rebuildPlaceholdersCache, TriggerTypes } from "@/types/TriggerActionDataTypes";
+import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket, { type OBSInputItem } from "@/utils/OBSWebsocket";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
@@ -10,6 +10,7 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
 import type { IOBSActions, IOBSGetters, IOBSState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
+import { TriggerTypes } from "@/types/TriggerTypes";
 
 export const storeOBS = defineStore("obs", {
 	state: (): IOBSState => ({

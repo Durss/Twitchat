@@ -24,7 +24,7 @@ import { toNative, Component, Vue } from "vue-facing-decorator";
 import AbstractOverlay from "./AbstractOverlay";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { PollOverlayParamStoreData } from "@/store/poll/storePoll";
-import TwitchatEvent from "@/events/TwitchatEvent";
+import type TwitchatEvent from "@/events/TwitchatEvent";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import PollRenderer from "./poll/PollRenderer.vue";

@@ -255,7 +255,7 @@ import SwitchButton from "@/components/SwitchButton.vue";
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import ToggleButton from "@/components/ToggleButton.vue";
-import StoreProxy from "@/store/StoreProxy";
+import type StoreProxy from "@/store/StoreProxy";
 import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";

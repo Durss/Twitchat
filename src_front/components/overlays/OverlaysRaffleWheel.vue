@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import TwitchatEvent from "@/events/TwitchatEvent";
+import type TwitchatEvent from "@/events/TwitchatEvent";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";

@@ -273,11 +273,9 @@ import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
 import {
 	TriggerSubTypeLabel,
-	TriggerTypes,
 	type TriggerActionEmptyData,
 	type TriggerActionTypes,
 	type TriggerData,
-	type TriggerTypesValue,
 } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -314,6 +312,7 @@ import { useConfirm } from "@/composables/useConfirm";
 import EmoteSelector from "@/components/chatform/EmoteSelector.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { TriggerTypes, type TriggerTypesValue } from "@/types/TriggerTypes.js";
 
 const { t, te } = useI18n();
 const { confirm } = useConfirm();

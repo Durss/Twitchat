@@ -749,7 +749,7 @@ import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import type { IPatreonTier } from "@/store/patreon/storePatreon";
 import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
-import { TriggerEventPlaceholders, TriggerTypes } from "@/types/TriggerActionDataTypes";
+import { TriggerEventPlaceholders } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
@@ -763,6 +763,7 @@ import OverlayInstaller from "./OverlayInstaller.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import TTButton from "@/components/TTButton.vue";
 import ParamItem from "@/components/params/ParamItem.vue";
+import { TriggerTypes } from "@/types/TriggerTypes.js";
 
 const { t } = useI18n();
 const { confirm } = useConfirm();

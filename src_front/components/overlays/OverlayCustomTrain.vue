@@ -59,7 +59,7 @@
 import { Component, toNative } from "vue-facing-decorator";
 import AbstractOverlay from "./AbstractOverlay";
 import PublicAPI from "@/utils/PublicAPI";
-import TwitchatEvent from "@/events/TwitchatEvent";
+import type TwitchatEvent from "@/events/TwitchatEvent";
 import OverlayCustomTrainRenderer from "./custom_train/OverlayCustomTrainRenderer.vue";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";

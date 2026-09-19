@@ -929,7 +929,6 @@ import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
 import {
 	TriggerEventPlaceholders,
 	TriggerEventUserIdPlaceholder,
-	TriggerTypes,
 	type TriggerActionAnimatedTextData,
 	type TriggerActionBingoGridData,
 	type TriggerActionCustomTrainData,
@@ -1002,6 +1001,7 @@ import TriggerActionVibratePhoneEntry from "./entries/TriggerActionVibratePhoneE
 import TriggerActionVoicemodEntry from "./entries/TriggerActionVoicemodEntry.vue";
 import TriggerActionWSEntry from "./entries/TriggerActionWSEntry.vue";
 import TriggerActionMeldStudioEntry from "./entries/TriggerActionMeldStudioEntry.vue";
+import { TriggerTypes } from "@/types/TriggerTypes.js";
 
 const { t } = useI18n();
 

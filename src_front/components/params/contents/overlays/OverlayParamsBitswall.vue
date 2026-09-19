@@ -172,7 +172,7 @@ import TTButton from "@/components/TTButton.vue";
 import DataStore from "@/store/DataStore";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import StoreProxy from "@/store/StoreProxy";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";

@@ -155,7 +155,7 @@ import PlacementSelector from "@/components/PlacementSelector.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import { storeChatPoll as useStoreChatPoll } from "@/store/chat_poll/storeChatPoll";
 import type { PollOverlayParamStoreData } from "@/store/poll/storePoll";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import { onBeforeMount, onBeforeUnmount, ref } from "vue";

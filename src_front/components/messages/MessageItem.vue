@@ -60,7 +60,7 @@
 <script setup lang="ts">
 import ChatMessage from "@/components/messages/ChatMessage.vue";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, type Component as VueComponent } from "vue";
 import ChatAd from "./ChatAd.vue";
 import ChatAdBreakStarted from "./ChatAdBreakStarted.vue";

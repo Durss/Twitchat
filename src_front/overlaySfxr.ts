@@ -6,8 +6,6 @@
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import OBSWebSocket from "obs-websocket-js";
 import SFXRUtils from "./utils/SFXRUtils";
-import StreamdeckSocket, { StreamdeckSocketEvent } from "./utils/StreamdeckSocket";
-import Utils from "./utils/Utils";
 import { isLocalNetworkHost } from "./utils/utils/isLocalHost";
 
 const urlParams = new URLSearchParams(document.location.search);
@@ -79,24 +77,6 @@ function createConnectionTunnel(): void {
 		};
 	}
 	void connectToOBS();
-	connectToStreamDeck();
-}
-
-function connectToStreamDeck(): void {
-	StreamdeckSocket.instance.addEventListener(
-		StreamdeckSocketEvent.MESSAGE,
-		(e: StreamdeckSocketEvent) => {
-			if (e.data) {
-				const event = {
-					id: Utils.getUUID(),
-					origin: "twitchat",
-					type: e.data.action,
-					data: e.data.data,
-				} as IEnvelope;
-				onMessage(event);
-			}
-		},
-	);
 }
 
 /**

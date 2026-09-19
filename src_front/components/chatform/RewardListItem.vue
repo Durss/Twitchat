@@ -88,7 +88,6 @@ import { useConfirm } from "@/composables/useConfirm";
 import StoreProxy from "@/store/StoreProxy";
 import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
-import { TriggerTypes } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Utils from "@/utils/Utils";
@@ -112,6 +111,7 @@ import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
 import ToggleButton from "../ToggleButton.vue";
 import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards.js";
+import { TriggerTypes } from "@/types/TriggerTypes.js";
 
 const props = defineProps<{
 	reward: TwitchDataTypes.Reward | TwitchDataTypes.CustomPowerUp;

@@ -17,8 +17,6 @@ import {
 	unescapeLiteralPlaceholders,
 	type IPlaceholderModifier,
 } from "./utils/PlaceholderModifiers";
-import StreamdeckSocket, { StreamdeckSocketEvent } from "./utils/StreamdeckSocket";
-import Utils from "./utils/Utils";
 import { isLocalNetworkHost } from "./utils/utils/isLocalHost";
 
 const urlParams = new URLSearchParams(document.location.search);
@@ -100,23 +98,6 @@ async function connectToOBS(): Promise<void> {
 	}
 }
 
-function connectToStreamDeck(): void {
-	StreamdeckSocket.instance.addEventListener(
-		StreamdeckSocketEvent.MESSAGE,
-		(e: StreamdeckSocketEvent) => {
-			if (e.data) {
-				const event = {
-					id: Utils.getUUID(),
-					origin: "twitchat",
-					type: e.data.action,
-					data: e.data.data,
-				} as IEnvelope;
-				onMessage(event);
-			}
-		},
-	);
-}
-
 /**
  * initialize connection with twitchat
  */
@@ -128,7 +109,6 @@ function createConnectionTunnel(): void {
 		};
 	}
 	void connectToOBS();
-	connectToStreamDeck();
 }
 
 /**

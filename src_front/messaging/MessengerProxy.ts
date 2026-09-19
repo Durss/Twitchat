@@ -1,6 +1,5 @@
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
-import { TriggerTypes } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
@@ -17,6 +16,7 @@ import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
 import TTSUtils from "@/utils/TTSUtils";
 import { toast } from "@/utils/toast/toast";
+import { TriggerTypes } from "@/types/TriggerTypes";
 /**
  * Created : 26/09/2022
  */

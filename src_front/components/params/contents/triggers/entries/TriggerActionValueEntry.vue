@@ -94,7 +94,7 @@ import {
 	type TriggerActionValueData,
 	type TriggerData,
 } from "@/types/TriggerActionDataTypes";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { watch } from "vue";
 import { Component, Prop, toNative } from "vue-facing-decorator";
 import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";

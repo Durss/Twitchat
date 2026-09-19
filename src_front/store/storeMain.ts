@@ -2,7 +2,6 @@ import GoXLRSocketEvent from "@/events/GoXLRSocketEvent";
 import SSEEvent from "@/events/SSEEvent";
 import router from "@/router";
 import {
-	TriggerTypes,
 	rebuildPlaceholdersCache,
 	type TriggerActionChatData,
 	type TriggerCallStack,
@@ -34,6 +33,7 @@ import DataStore from "./DataStore";
 import Database from "./Database";
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from "./StoreProxy";
 import type TwitchatEvent from "@/events/TwitchatEvent";
+import { TriggerTypes } from "@/types/TriggerTypes";
 
 export const storeMain = defineStore("main", {
 	state: (): IMainState => ({

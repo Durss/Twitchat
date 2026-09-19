@@ -43,11 +43,12 @@
 <script lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
-import { TriggerEventPlaceholders, TriggerTypes } from "@/types/TriggerActionDataTypes";
+import { TriggerEventPlaceholders } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 import { Component, Vue, toNative } from "vue-facing-decorator";
 import ParamItem from "../../ParamItem.vue";
+import { TriggerTypes } from "@/types/TriggerTypes.js";
 
 @Component({
 	components: {

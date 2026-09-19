@@ -55,13 +55,13 @@ import {
 	type TriggerActionRewardDataState,
 	type TriggerData,
 	type ITriggerPlaceholder,
-	TriggerTypes,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { toNative, Component, Prop } from "vue-facing-decorator";
 import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";
+import { TriggerTypes } from "@/types/TriggerTypes";
 
 @Component({
 	components: {

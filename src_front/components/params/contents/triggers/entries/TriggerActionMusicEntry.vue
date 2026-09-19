@@ -85,13 +85,13 @@ import {
 	TriggerActionPlaceholders,
 	TriggerEventPlaceholders,
 	TriggerMusicTypes,
-	TriggerTypes,
 	type ITriggerPlaceholder,
 	type TriggerActionMusicEntryData,
 	type TriggerActionMusicEntryDataSelection,
 	type TriggerData,
 	type TriggerMusicTypesValue,
 } from "@/types/TriggerActionDataTypes";
+import { TriggerTypes } from "@/types/TriggerTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import { computed, onBeforeMount, ref } from "vue";

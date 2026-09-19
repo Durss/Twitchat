@@ -2,7 +2,6 @@ import SSEEvent from "@/events/SSEEvent";
 import DataStore from "@/store/DataStore";
 import {
 	COUNTER_VALUE_PLACEHOLDER_PREFIX,
-	TriggerTypes,
 	VALUE_PLACEHOLDER_PREFIX,
 	type SocketParams,
 	type TriggerActionTypes,
@@ -25,6 +24,7 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
+import { TriggerTypes } from "@/types/TriggerTypes";
 
 type DiscordCommand = { name: string; params: { name: string }[] };
 

@@ -262,7 +262,7 @@ import {
 	storeQuiz as useStoreQuiz,
 } from "@/store/quiz/storeQuiz";
 import StoreProxy from "@/store/StoreProxy";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import ContextMenu, { type MenuOptions } from "@imengyu/vue3-context-menu";
 import {

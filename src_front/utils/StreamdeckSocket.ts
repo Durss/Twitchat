@@ -83,7 +83,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 			if (this.ip?.indexOf("ws") === 0) protocol = "";
 			let port = protocol == "ws://" ? 30385 : 30386;
 			const address = this.ip ? `${protocol}${this.ip}:${port}` : `ws://127.0.0.1:${port}`;
-			if (isManualConnect) {
+			if (isManualConnect && this._isMainApp) {
 				this.saveConfigs();
 			}
 			this._socket = new WebSocket(address);
@@ -165,7 +165,6 @@ export default class StreamdeckSocket extends EventDispatcher {
 	 *
 	 * @param message
 	 */
-	// public broadcast(type:TwitchatEventType|TwitchatActionType, eventId:string, data?:unknown):void {
 	public broadcast<Event extends keyof TwitchatEventMap>(
 		type: Event,
 		eventId: string,

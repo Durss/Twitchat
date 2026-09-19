@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
+import { type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
@@ -101,6 +101,7 @@ import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import { TriggerTypes } from "@/types/TriggerTypes";
 
 /**
  * This component is used to select an emote by typing ":xxx" on the

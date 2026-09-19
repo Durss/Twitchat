@@ -104,7 +104,7 @@
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import TTButton from "@/components/TTButton.vue";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
-import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
+import { type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import Utils from "@/utils/Utils";
@@ -112,6 +112,7 @@ import { onBeforeMount, ref } from "vue";
 import PermissionsForm from "../../../PermissionsForm.vue";
 import ParamItem from "../../ParamItem.vue";
 import TriggerActionCommandArgumentParams from "./TriggerActionCommandArgumentParams.vue";
+import { TriggerTypes } from "@/types/TriggerTypes.js";
 
 const props = defineProps<{
 	triggerData: TriggerData;

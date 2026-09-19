@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import TwitchatEvent from "@/events/TwitchatEvent";
+import type TwitchatEvent from "@/events/TwitchatEvent";
 import type { PredictionOverlayParamStoreData } from "@/store/prediction/storePrediction";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";

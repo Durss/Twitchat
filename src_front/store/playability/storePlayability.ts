@@ -1,9 +1,9 @@
 import DataStore from "@/store/DataStore";
 import {
 	setTriggerEventPlaceholderValues,
-	TriggerTypes,
 	type TriggerActionPlayabilityData,
 } from "@/types/TriggerActionDataTypes";
+import { TriggerTypes } from "@/types/TriggerTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import Utils from "@/utils/Utils";

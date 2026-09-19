@@ -31,7 +31,8 @@ import {
 	storeParams as useStoreParams,
 } from "@/store/params/storeParams";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
-import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
+import { type TriggerData } from "@/types/TriggerActionDataTypes";
+import { TriggerTypes } from "@/types/TriggerTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TriggerUtils from "@/utils/TriggerUtils";
 import { gsap } from "gsap/gsap-core";

@@ -170,7 +170,7 @@ import TTButton from "@/components/TTButton.vue";
 import { useSidePanel } from "@/composables/useSidePanel";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeQuiz as useStoreQuiz } from "@/store/quiz/storeQuiz";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import { computed, onBeforeMount, ref, useTemplateRef } from "vue";
 import { VueDraggable } from "vue-draggable-plus";

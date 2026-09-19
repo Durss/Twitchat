@@ -109,7 +109,7 @@
 <script setup lang="ts">
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import TTButton from "@/components/TTButton.vue";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import StreamdeckSocket from "@/utils/StreamdeckSocket";
 import Utils from "@/utils/Utils";
 import { onBeforeMount, ref } from "vue";

@@ -1,11 +1,7 @@
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import HeatEvent from "@/events/HeatEvent";
 import type { HeatArea, HeatScreen } from "@/types/HeatDataTypes";
-import {
-	TriggerTypes,
-	type TriggerActionChatData,
-	type TriggerData,
-} from "@/types/TriggerActionDataTypes";
+import { type TriggerActionChatData, type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { LogHeat } from "@/utils/Logger";
 import Logger from "@/utils/Logger";
@@ -23,6 +19,7 @@ import Config from "@/utils/Config";
 import ApiHelper from "@/utils/ApiHelper";
 import SSEHelper from "@/utils/SSEHelper";
 import HeatSocket from "@/utils/twitch/HeatSocket";
+import { TriggerTypes } from "@/types/TriggerTypes";
 
 let activeAreaDiff = "";
 let invalidateTimeout = -1;

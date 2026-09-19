@@ -36,13 +36,14 @@
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import DataStore from "@/store/DataStore";
-import { TriggerEventPlaceholders, TriggerTypes } from "@/types/TriggerActionDataTypes";
+import { TriggerEventPlaceholders } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import PostOnChatParam from "../../PostOnChatParam.vue";
 import SpotifyHelper from "@/utils/music/SpotifyHelper.js";
+import { TriggerTypes } from "@/types/TriggerTypes.js";
 
 const { t } = useI18n();
 const props = defineProps<{ primary?: boolean; secondary?: boolean; light?: boolean }>();

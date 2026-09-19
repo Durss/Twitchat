@@ -96,7 +96,8 @@
 
 <script setup lang="ts">
 import { usePlaceDropdown } from "@/composables/usePlaceDropDown";
-import TwitchatEvent, { type TwitchatEventMap } from "@/events/TwitchatEvent";
+import type TwitchatEvent from "@/events/TwitchatEvent";
+import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import { storeMain as useStoreMain } from "@/store/storeMain";
 import { storeVoice as useStoreVoice } from "@/store/voice/storeVoice";
 import PublicAPI from "@/utils/PublicAPI";

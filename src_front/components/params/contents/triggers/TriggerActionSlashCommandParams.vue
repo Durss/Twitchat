@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
+import { type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { onBeforeMount, ref } from "vue";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
@@ -49,6 +49,7 @@ import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import ParamItem from "../../ParamItem.vue";
 import TriggerActionCommandArgumentParams from "./TriggerActionCommandArgumentParams.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
+import { TriggerTypes } from "@/types/TriggerTypes.js";
 
 const storeTriggers = useStoreTriggers();
 const storeChat = useStoreChat();

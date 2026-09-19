@@ -43,15 +43,14 @@ import ToggleBlock from "@/components/ToggleBlock.vue";
 import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import {
-	TriggerTypes,
 	type ITriggerPlaceholder,
 	type TriggerActionChatData,
 	type TriggerData,
-	type TriggerTypesValue,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, onBeforeMount, ref } from "vue";
 import ParamItem from "../../../ParamItem.vue";
+import { TriggerTypes, type TriggerTypesValue } from "@/types/TriggerTypes.js";
 
 const props = defineProps<{
 	action: TriggerActionChatData;

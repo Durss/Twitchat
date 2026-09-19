@@ -1,5 +1,5 @@
 import type { StoreActions } from "@/types/pinia-helpers";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";

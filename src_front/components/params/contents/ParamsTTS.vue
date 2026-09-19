@@ -154,7 +154,7 @@ import Icon from "@/components/Icon.vue";
 import TTSVoiceParams from "@/components/voice/TTSVoiceParams.vue";
 import { storeElevenLabs as useStoreElevenLabs } from "@/store/elevenlabs/storeElevenLabs";
 import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TTSUtils from "@/utils/TTSUtils";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
