@@ -1,80 +1,98 @@
 <template>
-	<div class="alertview" v-if="message && message.length > 0" @click="close()">
+	<div ref="rootEl" class="alertview" v-if="message && message.length > 0" @click="close()">
 		<ClearButton v-if="!locked" />
 		<div v-html="message" class="label"></div>
-		<div v-if="$store.common.alertData.showContact" class="contact">
-			<Button @click.stop :href="discordUrl" type="link" target="_blank" icon="discord" light alert>{{ $t("global.ask_supportBt") }}</Button>
+		<div v-if="storeCommon.alertData.showContact" class="contact">
+			<TTButton
+				@click.stop
+				:href="discordUrl"
+				type="link"
+				target="_blank"
+				icon="discord"
+				light
+				alert
+				>{{ $t("global.ask_supportBt") }}</TTButton
+			>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import ClearButton from '@/components/ClearButton.vue';
-import Config from '@/utils/Config';
-import { watch } from '@vue/runtime-core';
-import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import DOMPurify from 'isomorphic-dompurify';
+<script setup lang="ts">
+import ClearButton from "@/components/ClearButton.vue";
+import TTButton from "@/components/TTButton.vue";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import Config from "@/utils/Config";
+import { gsap } from "gsap/gsap-core";
+import DOMPurify from "isomorphic-dompurify";
+import { computed, nextTick, onBeforeUnmount, ref, useTemplateRef, watch } from "vue";
 
-@Component({
-	components:{
-		Button: TTButton,
-		ClearButton,
-	},
-})
-class AlertView extends Vue {
-	public message = "";
-	public timeout!:number;
-	public locked:boolean = false;
-	public showContact:boolean = false;
+const storeCommon = useStoreCommon();
+const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
 
-	public get discordUrl():string { return Config.instance.DISCORD_URL; }
+const message = ref("");
+let timeout: number;
+const locked = ref(false);
+const showContact = ref(false);
 
-	public mounted():void {
-		this.onWatchAlert();
-		watch(() => this.$store.common.alertData.message, () => {
-			this.onWatchAlert();
+const discordUrl = computed((): string => {
+	return Config.instance.DISCORD_URL;
+});
+
+async function onWatchAlert(): Promise<void> {
+	if (locked.value) return;
+
+	let mess = storeCommon.alertData;
+	if (mess && mess.message.length > 0) {
+		message.value = DOMPurify.sanitize(mess.message);
+		await nextTick();
+		rootEl.value!.removeAttribute("style");
+		gsap.killTweensOf(rootEl.value!);
+		gsap.from(rootEl.value!, {
+			duration: 0.3,
+			height: 0,
+			paddingTop: 0,
+			paddingBottom: 0,
+			ease: "back.out",
+		});
+		clearTimeout(timeout);
+
+		if (mess.critical) {
+			locked.value = true;
+		} else if (!showContact.value) {
+			const autoHideDuration = (message.value.length * 80 + 2000) * 4;
+			timeout = window.setTimeout(() => close(), autoHideDuration);
+		}
+	} else if (message.value) {
+		gsap.to(rootEl.value!, {
+			duration: 0.3,
+			height: 0,
+			paddingTop: 0,
+			paddingBottom: 0,
+			ease: "back.in",
+			onComplete: () => {
+				message.value = "";
+			},
 		});
 	}
-
-	public async onWatchAlert():Promise<void> {
-		if(this.locked) return;
-
-		let mess = this.$store.common.alertData;
-		if(mess && mess.message.length > 0) {
-			this.message = DOMPurify.sanitize(mess.message);
-			await this.$nextTick();
-			this.$el.removeAttribute("style");
-			gsap.killTweensOf(this.$el);
-			gsap.from(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.out"});
-			clearTimeout(this.timeout);
-
-			if(mess.critical) {
-				this.locked = true;
-			}else if(!this.showContact){
-				const autoHideDuration = (this.message.length*80 + 2000) * 4;
-				this.timeout = window.setTimeout(()=> this.close(), autoHideDuration);
-			}
-		}else if(this.message) {
-			gsap.to(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.in", onComplete:()=> {
-				this.message = "";
-			}});
-		}
-	}
-
-	public beforeUnmount():void {
-		clearTimeout(this.timeout);
-	}
-
-	public close():void {
-		if(this.locked) return;
-
-		clearTimeout(this.timeout);
-		this.$store.common.alertData.message = "";
-	}
 }
-export default toNative(AlertView);
+
+function close(): void {
+	if (locked.value) return;
+
+	clearTimeout(timeout);
+	storeCommon.alertData.message = "";
+}
+
+onBeforeUnmount(() => {
+	clearTimeout(timeout);
+});
+watch(
+	() => storeCommon.alertData.message,
+	() => {
+		onWatchAlert();
+	},
+	{ immediate: true },
+);
 </script>
 
 <style lang="less" scoped>

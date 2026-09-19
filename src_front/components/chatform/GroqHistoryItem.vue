@@ -1,7 +1,9 @@
 <template>
-	<div class="groqhistoryitem card-item"
-	:key="entry.id"
-	:class="{isNew:entry.date > Date.now() - 10000}">
+	<div
+		class="groqhistoryitem card-item"
+		:key="entry.id"
+		:class="{ isNew: entry.date > Date.now() - 10000 }"
+	>
 		<div class="wrapper">
 			<ToggleBlock v-if="entry.preprompt" :open="false" title="Preprompt" small>
 				<div class="preprompt">{{ deanonymizeUsers(entry.preprompt.trim()) }}</div>
@@ -9,18 +11,27 @@
 			<ToggleBlock v-if="entry.prompt" :open="false" title="Prompt" small>
 				<div class="prompt">{{ deanonymizeUsers(entry.prompt.trim()) }}</div>
 			</ToggleBlock>
-			<img v-if="entry.answer.length < 2 || reprompting" class="loader" src="@/assets/icons/loader.svg" />
+			<img
+				v-if="entry.answer.length < 2 || reprompting"
+				class="loader"
+				src="@/assets/icons/loader.svg"
+			/>
 			<div class="answer" v-else>{{ deanonymizeUsers(entry.answer) }}</div>
 			<div class="date">{{ date }}</div>
 
-			<form @submit.prevent="onSubmit">
-				<contenteditable class="input input-field" tag="p"
+			<form class="form" @submit.prevent="onSubmit">
+				<ContentEditable
+					class="input input-field"
+					tag="p"
 					v-model="newPrompt"
 					:no-nl="false"
 					:no-html="true"
-					:placeholder="$t('groq.reprompt_placeholder')"
-					@keydown.enter="onEnter" />
-				<div class="placeholder" v-if="newPrompt.trim().length === 0">{{ $t('groq.reprompt_placeholder') }}</div>
+					:placeholder="t('groq.reprompt_placeholder')"
+					@keydown.enter="onEnter"
+				/>
+				<div class="placeholder" v-if="newPrompt.trim().length === 0">
+					{{ t("groq.reprompt_placeholder") }}
+				</div>
 				<TTButton icon="checkmark"></TTButton>
 			</form>
 		</div>
@@ -28,124 +39,121 @@
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import contenteditable from 'vue-contenteditable';
-import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
-import ClearButton from '../ClearButton.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import TTButton from '../TTButton.vue';
+<script setup lang="ts">
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import ContentEditable from "@/components/ContentEditable.vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
+import ToggleBlock from "../ToggleBlock.vue";
+import TTButton from "../TTButton.vue";
 
-@Component({
-	components:{
-		TTButton,
-		ToggleBlock,
-		ClearButton,
-		contenteditable,
-	},
-	emits:["close"],
-})
-class GroqHistoryItem extends Vue {
+const props = defineProps<{
+	entry: TwitchatDataTypes.GroqHistoryItem;
+}>();
 
-	@Prop
-	public entry!:TwitchatDataTypes.GroqHistoryItem;
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	public date:string = "";
-	public newPrompt:string = "";
-	public reprompting:boolean = false;
+const { t } = useI18n();
+const storeGroq = useStoreGroq();
 
-	private refreshTimeout = -1;
+const date = ref<string>("");
+const newPrompt = ref<string>("");
+const reprompting = ref<boolean>(false);
 
-	public mounted():void {
-		this.refreshDate();
-	}
+let refreshTimeout = -1;
 
-	public beforeUnmount():void {
-		clearTimeout(this.refreshTimeout);
-	}
+onMounted(() => {
+	refreshDate();
+});
 
-	public async deleteEntry(id:string):Promise<void> {
-		await this.$store.groq.removeAnswer(id);
-		if(this.$store.groq.answerHistory.length === 0) this.$emit('close');
-	}
+onBeforeUnmount(() => {
+	clearTimeout(refreshTimeout);
+});
 
-	/**
-	 * Submit new prompt on Enter but not Shift+Enter
-	 * @param e
-	 */
-	public onEnter(e:KeyboardEvent):void {
-		if(e.shiftKey) return;
-		e.preventDefault();
-		this.onSubmit();
-	}
-
-	/**
-	 * Submits form for new prompt
-	 */
-	public async onSubmit():Promise<void> {
-		this.reprompting = true;
-		await this.$store.groq.repromptHistoryEntry(this.entry.id, this.newPrompt);
-		this.reprompting = false;
-		this.newPrompt = "";
-	}
-
-	/**
-	 * Refreshes the date at a regular interval
-	 */
-	public refreshDate() {
-		this.date = this.formatDate(this.entry.date);
-			// entry.elapsed = Date.now() - entry.ts;
-		clearTimeout(this.refreshTimeout);
-		this.refreshTimeout = window.setTimeout(() => {
-			this.refreshDate();
-		}, 1000);
-	}
-
-	/**
-	 * Deanonimize username
-	 * @param text
-	 */
-	public deanonymizeUsers(text:string):string {
-		for (const login in this.entry.userMap) {
-			const anon = this.entry.userMap[login]!;
-			const reg = new RegExp(anon.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), "gi");
-			text = text.replace(reg, login);
-		}
-		return text
-	}
-
-	/**
-	 * Formats a date
-	 */
-	private formatDate(ts:number):string {
-		const elapsed = Date.now() - ts;
-		if(elapsed > 2 * 24 * 60 * 60 * 1000) {
-			return Utils.formatDate(new Date(ts));
-		}
-		if(elapsed < 5000) return this.$t("global.elapsed_duration_now");
-		if(elapsed < 10 * 60 * 1000) {
-			return this.$t("global.elapsed_duration", {DURATION:Utils.formatDuration(elapsed)});
-		}else{
-			return Utils.formatDate(new Date(ts), true);
-		}
-	}
-
+async function deleteEntry(id: string): Promise<void> {
+	await storeGroq.removeAnswer(id);
+	if (storeGroq.answerHistory.length === 0) emit("close");
 }
-export default toNative(GroqHistoryItem);
+
+/**
+ * Submit new prompt on Enter but not Shift+Enter
+ * @param e
+ */
+function onEnter(e: KeyboardEvent): void {
+	if (e.shiftKey) return;
+	e.preventDefault();
+	onSubmit();
+}
+
+/**
+ * Submits form for new prompt
+ */
+async function onSubmit(): Promise<void> {
+	reprompting.value = true;
+	await storeGroq.repromptHistoryEntry(props.entry.id, newPrompt.value);
+	reprompting.value = false;
+	newPrompt.value = "";
+}
+
+/**
+ * Refreshes the date at a regular interval
+ */
+function refreshDate() {
+	date.value = formatDate(props.entry.date);
+	// entry.elapsed = Date.now() - entry.ts;
+	clearTimeout(refreshTimeout);
+	refreshTimeout = window.setTimeout(() => {
+		refreshDate();
+	}, 1000);
+}
+
+/**
+ * Deanonimize username
+ * @param text
+ */
+function deanonymizeUsers(text: string): string {
+	for (const login in props.entry.userMap) {
+		const anon = props.entry.userMap[login]!;
+		const reg = new RegExp(anon.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1"), "gi");
+		text = text.replace(reg, login);
+	}
+	return text;
+}
+
+/**
+ * Formats a date
+ */
+function formatDate(ts: number): string {
+	const elapsed = Date.now() - ts;
+	if (elapsed > 2 * 24 * 60 * 60 * 1000) {
+		return Utils.formatDate(new Date(ts));
+	}
+	if (elapsed < 5000) return t("global.elapsed_duration_now");
+	if (elapsed < 10 * 60 * 1000) {
+		return t("global.elapsed_duration", { DURATION: Utils.formatDuration(elapsed) });
+	} else {
+		return Utils.formatDate(new Date(ts), true);
+	}
+}
 </script>
 
 <style scoped lang="less">
-.groqhistoryitem{
+.groqhistoryitem {
 	line-height: 1.2em;
 	flex-shrink: 0;
-	gap: .5em;
+	gap: 0.5em;
 	display: flex;
 	flex-direction: row;
-	transition: background 2s, outline 2s;
+	transition:
+		background 2s,
+		outline 2s;
 	outline: 1px solid transparent;
 	.wrapper {
-		gap: .25em;
+		gap: 0.25em;
 		display: flex;
 		flex-direction: column;
 		flex: 1;
@@ -162,11 +170,11 @@ export default toNative(GroqHistoryItem);
 			}
 			* {
 				border-radius: 0;
-				&:first-child{
+				&:first-child {
 					border-top-left-radius: var(--border-radius);
 					border-bottom-left-radius: var(--border-radius);
 				}
-				&:last-child{
+				&:last-child {
 					border-top-right-radius: var(--border-radius);
 					border-bottom-right-radius: var(--border-radius);
 				}
@@ -174,7 +182,7 @@ export default toNative(GroqHistoryItem);
 
 			.placeholder {
 				font-style: italic;
-				opacity: .7;
+				opacity: 0.7;
 				position: absolute;
 				margin-left: 1em;
 				pointer-events: none;
@@ -182,8 +190,9 @@ export default toNative(GroqHistoryItem);
 			}
 		}
 
-		.preprompt, .prompt{
-			font-size: .8em;
+		.preprompt,
+		.prompt {
+			font-size: 0.8em;
 			white-space: pre-line;
 		}
 
@@ -198,8 +207,8 @@ export default toNative(GroqHistoryItem);
 
 		.date {
 			font-style: italic;
-			opacity: .7;
-			font-size: .8em;
+			opacity: 0.7;
+			font-size: 0.8em;
 			text-align: right;
 			font-variant-numeric: tabular-nums;
 		}

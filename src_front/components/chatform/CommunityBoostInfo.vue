@@ -1,69 +1,72 @@
 <template>
-	<div class="communityboostinfo" v-tooltip="$t('global.tooltips.boost')" @click="smallMode=!smallMode">
-		<div class="col">
-			<Icon name="boost" alt="boost" />{{roundProgressPercent}}%
-		</div>
+	<div
+		class="communityboostinfo"
+		v-tooltip="t('global.tooltips.boost')"
+		@click="smallMode = !smallMode"
+	>
+		<div class="col"><Icon name="boost" alt="boost" />{{ roundProgressPercent }}%</div>
 		<div class="col count" v-if="!smallMode">
-			<p>{{roundProgressValue}}</p>
-			<p>{{target}}</p>
+			<p>{{ roundProgressValue }}</p>
+			<p>{{ target }}</p>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import { watch } from '@vue/runtime-core';
-import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import Icon from '../Icon.vue';
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from "vue";
+import { gsap } from "gsap/gsap-core";
+import { useI18n } from "vue-i18n";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import Icon from "../Icon.vue";
 
-@Component({
-	components:{
-		Icon,
-	}
-})
-class CommunityBoostInfo extends Vue {
+const { t } = useI18n();
+const storeStream = useStoreStream();
 
-	public interpolatedPercent = 0;
-	public interpolatedProgress = 0;
-	public smallMode = false;
+const interpolatedPercent = ref(0);
+const interpolatedProgress = ref(0);
+const smallMode = ref(false);
 
-	public get roundProgressPercent():number { return Math.floor(this.interpolatedPercent); }
-	public get roundProgressValue():number { return Math.floor(this.interpolatedProgress); }
+const roundProgressPercent = computed(() => Math.floor(interpolatedPercent.value));
+const roundProgressValue = computed(() => Math.floor(interpolatedProgress.value));
 
-	public get progress():number {
-		let communityBoostState = this.$store.stream.communityBoostState;
-		if(!communityBoostState) return 0;
-		return communityBoostState.progress;
-	}
+const progress = computed(() => {
+	const communityBoostState = storeStream.communityBoostState;
+	if (!communityBoostState) return 0;
+	return communityBoostState.progress;
+});
 
-	public get target():number {
-		let communityBoostState = this.$store.stream.communityBoostState;
-		if(!communityBoostState) return 0;
-		return communityBoostState.goal;
-	}
+const target = computed(() => {
+	const communityBoostState = storeStream.communityBoostState;
+	if (!communityBoostState) return 0;
+	return communityBoostState.goal;
+});
 
-	public get percent():number {
-		if(!this.$store.stream.communityBoostState) return 0;
-		return Math.round(this.progress/this.target * 100);
-	}
+const percent = computed(() => {
+	if (!storeStream.communityBoostState) return 0;
+	return Math.round((progress.value / target.value) * 100);
+});
 
-	public mounted():void {
-		watch(()=>this.percent, () =>{
-			this.interpolate();
-		});
-		this.interpolate();
-	}
-	public interpolate():void {
-		gsap.killTweensOf(this);
-		gsap.to(this, {duration:1, interpolatedPercent:this.percent, ease:"sine.inOut"});
-		gsap.to(this, {duration:1, interpolatedProgress:this.progress, ease:"sine.inOut"});
-	}
+watch(
+	() => percent.value,
+	() => {
+		interpolate();
+	},
+);
+
+onMounted(() => {
+	interpolate();
+});
+
+function interpolate(): void {
+	gsap.killTweensOf(interpolatedPercent);
+	gsap.killTweensOf(interpolatedProgress);
+	gsap.to(interpolatedPercent, { duration: 1, value: percent.value, ease: "sine.inOut" });
+	gsap.to(interpolatedProgress, { duration: 1, value: progress.value, ease: "sine.inOut" });
 }
-export default toNative(CommunityBoostInfo);
 </script>
 
 <style scoped lang="less">
-.communityboostinfo{
+.communityboostinfo {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -75,10 +78,10 @@ export default toNative(CommunityBoostInfo);
 	border-radius: 5px;
 	background-color: darken(#00f0f0, 20%);
 	font-family: var(--font-azeret);
-	cursor:pointer;
+	cursor: pointer;
 
 	.icon {
-		height: .9em;
+		height: 0.9em;
 		margin-right: 2px;
 	}
 

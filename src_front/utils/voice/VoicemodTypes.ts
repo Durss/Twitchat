@@ -1,3 +1,5 @@
+import type { AutocompletableString } from "@/typeUtils";
+
 export namespace VoicemodTypes {
 	export interface SocketEvent {
 		target: WebSocket;
@@ -25,7 +27,7 @@ export namespace VoicemodTypes {
 		currentVoice?: string;
 		result?: Result;
 		soundboards?: Soundboard[];
-		voiceID?: string | "nofx";
+		voiceID?: AutocompletableString | "nofx";
 		value?: boolean;
 	}
 
@@ -38,9 +40,8 @@ export namespace VoicemodTypes {
 		isNew: boolean;
 		bitmapChecksum: string;
 		//custom prop
-		image?:string;
+		image?: string;
 	}
-
 
 	export interface Meme {
 		FileName: string;
@@ -60,25 +61,25 @@ export namespace VoicemodTypes {
 	}
 
 	export interface Soundboard {
-		id: string
-		name: string
-		isCustom: boolean
-		enabled: boolean
-		showProLogo: boolean
-		sounds: (Sound|undefined)[]
+		id: string;
+		name: string;
+		isCustom: boolean;
+		enabled: boolean;
+		showProLogo: boolean;
+		sounds: (Sound | undefined)[];
 	}
 
 	export interface Sound {
-		id: string
-		name: string
-		isCustom: boolean
-		isEnabled: boolean
-		playbackMode: string
-		loop: boolean
-		muteOtherSounds: boolean
-		muteVoice: boolean
-		stopOtherSounds: boolean
-		showProLogo: boolean
-		bitmapChecksum: string
+		id: string;
+		name: string;
+		isCustom: boolean;
+		isEnabled: boolean;
+		playbackMode: string;
+		loop: boolean;
+		muteOtherSounds: boolean;
+		muteVoice: boolean;
+		stopOtherSounds: boolean;
+		showProLogo: boolean;
+		bitmapChecksum: string;
 	}
 }

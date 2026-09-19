@@ -1,305 +1,645 @@
 <template>
-	<div class="triggerconditionlistitem">
-		<Icon name="dragZone" class="dragIcon" />
+	<div class="triggerconditionlistitem" :class="{ editing: editing }" ref="rootEl">
+		<template v-if="!editing">
+			<Icon name="dragZone" class="dragIcon" />
+			<TTButton
+				class="groupBt"
+				icon="folder"
+				small
+				secondary
+				@click="addItem()"
+				v-tooltip="t('triggers.condition.group_tt')"
+				v-if="parentCondition.conditions.length > 1"
+			/>
 
-		<ParamItem class="value" v-if="forceCustomPlaceholder" noBackground :paramData="param_placeholder" v-model="condition.placeholder" />
-		<ParamItem class="placeholder" v-else noBackground :paramData="param_placeholder_list" @change="onSelectPlaceholder()" v-model="condition.placeholder" :key="'ph_'+condition.id" />
+			<div class="summary" @click="startEdition()">
+				<template v-if="isConfigured">
+					<span class="placeholder">{{ placeholderLabel }}</span>
 
-		<ParamItem class="operator" noBackground :paramData="param_operator" v-model="condition.operator" :key="'op_'+condition.id" />
-		
-		<div v-if="condition.operator == 'modulo'" class="operatorValHolder">
-			<ParamItem class="operator" noBackground :paramData="param_operatorVal" v-model="condition.operatorVal" :key="'opv_'+condition.id" />
-			<p>=</p>
-		</div>
+					<span class="operator">{{ operatorLabel }}</span>
 
-		<div class="valueHolder" :class="{isCustomValue:forceCustomValue, showCaseSensitiveToggle:showCaseSensitiveToggle}" v-if="needsValue">
-			<TTButton class="clearCustomBt" v-if="forceCustomValue" @click="forceCustomValue = false" icon="cross" secondary small></TTButton>
-			<TTButton v-if="showCaseSensitiveToggle"
-				class="casebt"
-				@click="condition.caseSensitive = !condition.caseSensitive"
-				:icon="condition.caseSensitive === true? 'case_sensitive': 'case_insensitive'"
-				:secondary="condition.caseSensitive === true"
-				v-tooltip="$t('triggers.condition.'+(condition.caseSensitive === true? 'param_caseSensitive' : 'param_caseInsensitive'))"
-				noBounce />
-			<ParamItem class="value" v-if="needsValue && forceCustomValue !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
-			<ParamItem class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
-		</div>
-		
-		<div class="ctas">
-			<TTButton small icon="group"
-			@click="addItem()"
-			v-tooltip="$t('triggers.condition.group_tt')"
-			v-if="parentCondition.conditions.length > 1" />
-			<TTButton alert small icon="cross"
-			@click="deleteItem()" />
+					<template v-if="condition.operator == 'modulo'">
+						<span class="operatorVal">{{ condition.operatorVal }}</span>
+						<span class="operator">=</span>
+					</template>
+
+					<Icon
+						class="caseIcon"
+						name="case_sensitive"
+						v-if="showCaseSensitiveToggle && condition.caseSensitive === true"
+						v-tooltip="t('triggers.condition.param_caseSensitive')"
+					/>
+
+					<span class="value" v-if="needsValue">{{ valueLabel }}</span>
+				</template>
+
+				<span class="unconfigured" v-else>{{ t("triggers.condition.unconfigured") }}</span>
+			</div>
+
+			<TTButton class="deleteBt" alert small icon="cross" @click="deleteItem()" />
+		</template>
+
+		<div class="form" v-else>
+			<div class="field">
+				<label class="label">{{ t("triggers.condition.label_placeholder") }}</label>
+
+				<div class="placeholderHolder" v-if="forceCustomPlaceholder">
+					<TTButton
+						class="clearCustomBt"
+						@click="clearCustomPlaceholder()"
+						icon="cross"
+						secondary
+						small
+					></TTButton>
+					<ParamItem
+						class="value"
+						noBackground
+						:paramData="param_placeholder"
+						v-model="condition.customPlaceholder"
+						:key="'cph_' + condition.id"
+						placeholdersAsPopout
+					/>
+				</div>
+				<ParamItem
+					class="placeholder"
+					v-else
+					noBackground
+					:paramData="param_placeholder_list"
+					@change="onSelectPlaceholder()"
+					v-model="condition.placeholder"
+					:key="'ph_' + condition.id"
+				/>
+			</div>
+
+			<div class="field">
+				<label class="label">{{ t("triggers.condition.label_operator") }}</label>
+
+				<div class="operatorHolder">
+					<ParamItem
+						class="operator"
+						noBackground
+						:paramData="param_operator"
+						v-model="condition.operator as string"
+						:key="'op_' + condition.id"
+					/>
+
+					<template v-if="condition.operator == 'modulo'">
+						<ParamItem
+							class="operatorVal"
+							noBackground
+							:paramData="param_operatorVal"
+							v-model="condition.operatorVal"
+							:key="'opv_' + condition.id"
+						/>
+						<p>=</p>
+					</template>
+				</div>
+			</div>
+
+			<div class="field" v-if="needsValue">
+				<div class="label">
+					<label class="text">{{ t("triggers.condition.label_value") }}</label>
+					<label v-if="showCaseSensitiveToggle" class="caseField"
+						>{{ t("triggers.condition.param_caseSensitive") }}
+						<ToggleButton v-model="condition.caseSensitive" small />
+					</label>
+				</div>
+
+				<div class="valueHolder" :class="{ isCustomValue: forceCustomValue }">
+					<TTButton
+						class="clearCustomBt"
+						v-if="forceCustomValue"
+						@click="forceCustomValue = false"
+						icon="cross"
+						secondary
+						small
+					></TTButton>
+					<ParamItem
+						class="value"
+						v-if="forceCustomValue !== true && param_value_list.listValues"
+						noBackground
+						:paramData="param_value_list"
+						v-model="condition.value"
+						:key="'vl_' + condition.id"
+						@change="onSelectFixedValue()"
+					/>
+					<ParamItem
+						class="value"
+						v-else
+						noBackground
+						:paramData="param_value"
+						v-model="condition.value"
+						:key="'v_' + condition.id"
+						placeholdersAsPopout
+					/>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerConditionOperatorList, TriggerEventPlaceholders, type TriggerCondition, type TriggerConditionGroup, type TriggerData, VALUE_PLACEHOLDER_PREFIX, type TriggerConditionOperator, type ITriggerPlaceholder, STOPWATCH_PLACEHOLDER_PREFIX, COUNTDOWN_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
+<script setup lang="ts">
+import TTButton from "@/components/TTButton.vue";
+import {
+	COUNTER_VALUE_PLACEHOLDER_PREFIX,
+	placeholderCacheVersion,
+	TriggerConditionOperatorList,
+	TriggerEventPlaceholders,
+	type TriggerCondition,
+	type TriggerConditionGroup,
+	type TriggerData,
+	VALUE_PLACEHOLDER_PREFIX,
+	type TriggerConditionOperator,
+	type ITriggerPlaceholder,
+	STOPWATCH_PLACEHOLDER_PREFIX,
+	COUNTDOWN_PLACEHOLDER_PREFIX,
+} from "@/types/TriggerActionDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	onBeforeUnmount,
+	ref,
+	useTemplateRef,
+	watch,
+} from "vue";
+import ParamItem from "../../ParamItem.vue";
+import { useI18n } from "vue-i18n";
+import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
+import { storeValues as useStoreValues } from "@/store/values/storeValues";
+import { storeTimer as useStoreTimer } from "@/store/timer/storeTimer";
+import { CUSTOM_CONDITION_PLACEHOLDER } from "@/utils/triggers/TriggerActionHandler.js";
+import ToggleButton from "@/components/ToggleButton.vue";
 
-@Component({
-	components:{
-		TTButton,
-		ParamItem,
+const { t } = useI18n();
+const storeCounters = useStoreCounters();
+const storeValues = useStoreValues();
+const storeTimer = useStoreTimer();
+
+const props = withDefaults(
+	defineProps<{
+		triggerData: TriggerData;
+		condition: TriggerCondition;
+		parentCondition: TriggerConditionGroup;
+		placeholderList?: ITriggerPlaceholder<string>[];
+	}>(),
+	{
+		placeholderList: () => [],
 	},
-	emits:[],
-})
-class TriggerConditionListItem extends Vue {
+);
 
-	@Prop
-	public triggerData!:TriggerData;
+const editedConditionId = defineModel<string>("editedConditionId", { default: "" });
 
-	@Prop
-	public condition!:TriggerCondition;
+const rootEl = useTemplateRef<HTMLElement>("rootEl");
+const forceCustomValue = ref<boolean>(false);
+const forceCustomPlaceholder = ref<boolean>(false);
+const param_placeholder = ref<TwitchatDataTypes.ParameterData<string, string>>({
+	type: "string",
+	value: "",
+	longText: false,
+	maxLength: 300,
+});
+const param_placeholder_list = ref<
+	TwitchatDataTypes.ParameterData<string, string, void, void, ITriggerPlaceholder<string>>
+>({ type: "list", value: "" });
+const param_operator = ref<
+	TwitchatDataTypes.ParameterData<TriggerConditionOperator, TriggerConditionOperator>
+>({ type: "list", value: ">" });
+const param_operatorVal = ref<TwitchatDataTypes.ParameterData<string, string>>({
+	type: "string",
+	value: "",
+	maxLength: 500,
+});
+const param_value = ref<TwitchatDataTypes.ParameterData<string, string>>({
+	type: "string",
+	value: "",
+	longText: false,
+});
+const param_value_list = ref<TwitchatDataTypes.ParameterData<string, unknown>>({
+	type: "list",
+	value: "",
+});
 
-	@Prop
-	public parentCondition!: TriggerConditionGroup;
+let firstRender = true;
 
-	@Prop({ default: [], type: Array })
-	public placeholderList!:ITriggerPlaceholder<string>[];
+/**
+ * Is the condition currently opened in edition mode?
+ */
+const editing = computed((): boolean => editedConditionId.value === props.condition.id);
 
-	public forceCustomValue:boolean = false;
-	public forceCustomPlaceholder:boolean = false;
-	public param_placeholder:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:"", longText:false}
-	public param_placeholder_list:TwitchatDataTypes.ParameterData<string, string, void, void, ITriggerPlaceholder<string>> = {type:"list", value:""}
-	public param_operator:TwitchatDataTypes.ParameterData<TriggerConditionOperator, TriggerConditionOperator> = {type:"list", value:">"}
-	public param_operatorVal:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:"", maxLength:500}
-	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:"", longText:false}
-	public param_value_list:TwitchatDataTypes.ParameterData<string, unknown> = {type:"list", value:""}
+const needsValue = computed((): boolean => {
+	const noValueOperators: TriggerCondition["operator"][] = [
+		"empty",
+		"not_empty",
+		"is_boolean",
+		"is_not_boolean",
+		"is_number",
+		"is_not_number",
+		"is_float",
+		"is_not_float",
+	];
+	return !noValueOperators.includes(props.condition.operator);
+});
 
-	private firstRender:boolean = true;
-	private CUSTOM:string = "@___CUSTOM_VALUE___@";
+const showCaseSensitiveToggle = computed((): boolean => {
+	const csOperators: TriggerCondition["operator"][] = [
+		"=",
+		"!=",
+		"contains",
+		"not_contains",
+		"starts_with",
+		"ends_with",
+		"not_starts_with",
+		"not_ends_with",
+	];
+	return csOperators.includes(props.condition.operator);
+});
 
-	public get needsValue():boolean {
-		const noValueOperators:TriggerCondition["operator"][] = ["empty", "not_empty", "is_boolean", "is_not_boolean", "is_number", "is_not_number", "is_float", "is_not_float"];
-		return !noValueOperators.includes(this.param_operator.value);
+/**
+ * Currently selected placeholder selected for the condition
+ */
+const selectedPlaceholder = computed(
+	(): ConditionListValues<string, ITriggerPlaceholder<string>> | undefined => {
+		if (forceCustomPlaceholder.value) return undefined;
+		const list = param_placeholder_list.value.listValues as
+			| ConditionListValues<string, ITriggerPlaceholder<string>>[]
+			| undefined;
+		return list?.find((v) => v.value === props.condition.placeholder);
+	},
+);
+
+/**
+ * Is the condition complete enough to be rendered as text?
+ */
+const isConfigured = computed((): boolean => {
+	return forceCustomPlaceholder.value
+		? (props.condition.customPlaceholder || "") != ""
+		: props.condition.placeholder != "";
+});
+
+const placeholderLabel = computed((): string => {
+	if (forceCustomPlaceholder.value) return props.condition.customPlaceholder || "";
+	return getEntryLabel(selectedPlaceholder.value) || props.condition.placeholder;
+});
+
+const operatorLabel = computed((): string => {
+	return t("triggers.condition.operators." + props.condition.operator);
+});
+
+const valueLabel = computed((): string => {
+	const value = (props.condition.value ?? "").toString();
+	if (!forceCustomValue.value && param_value_list.value.listValues) {
+		const item = param_value_list.value.listValues.find(
+			(v) => (v.value as any)?.toString().toLowerCase() === value.toLowerCase(),
+		);
+		if (item) return getEntryLabel(item) || value;
 	}
+	return value;
+});
 
-	public get showCaseSensitiveToggle():boolean {
-		const csOperators:TriggerCondition["operator"][] = ["=", "!=", "contains", "not_contains", "starts_with", "ends_with", "not_starts_with", "not_ends_with"];
-		return csOperators.includes(this.param_operator.value);
+/**
+ * Get the readable label of a list entry
+ */
+function getEntryLabel(
+	entry?: TwitchatDataTypes.ParameterDataListValue<unknown, unknown>,
+): string | undefined {
+	if (!entry) return undefined;
+	if (entry.label != undefined) return entry.label;
+	if (entry.labelKey) return t(entry.labelKey);
+	return undefined;
+}
+
+/**
+ * Placeholders the condition can pick from. Either the ones given by the
+ * parent, or the ones related to the trigger's event type.
+ */
+function getActivePlaceholders(): ITriggerPlaceholder<any>[] {
+	return props.placeholderList.length > 0
+		? props.placeholderList
+		: TriggerEventPlaceholders(props.triggerData.type);
+}
+
+onBeforeMount(() => {
+	if (props.condition.placeholder)
+		props.condition.placeholder = props.condition.placeholder.toUpperCase();
+	if (props.condition.caseSensitive == undefined) props.condition.caseSensitive = false;
+
+	forceCustomPlaceholder.value = props.condition.placeholder == CUSTOM_CONDITION_PLACEHOLDER;
+
+	// Start edition if not conf is yet defined
+	if (!props.condition.placeholder) nextTick().then(() => startEdition());
+
+	buildSourceList();
+});
+
+onBeforeUnmount(() => {
+	stopEdition();
+	toggleEditionListeners(false);
+});
+
+//Watch for changes on the chat command params and on the placeholder cache
+watch(
+	[() => props.triggerData.chatCommandParams, placeholderCacheVersion],
+	() => {
+		buildSourceList();
+	},
+	{ deep: true },
+);
+
+watch([() => props.condition.placeholder, forceCustomPlaceholder], () => updateOperators());
+
+watch(editing, (value) => toggleEditionListeners(value));
+
+/**
+ * Open edition form.
+ */
+function startEdition(): void {
+	editedConditionId.value = props.condition.id;
+}
+
+/**
+ * Close edition form
+ */
+function stopEdition(): void {
+	if (editing.value) editedConditionId.value = "";
+}
+
+function toggleEditionListeners(enabled: boolean): void {
+	document.removeEventListener("click", onClickOutside);
+	document.removeEventListener("keydown", onKeyDown, true);
+	if (!enabled) return;
+	// Need to wait a frame before listening for click outside.
+	// Otherwise, the form would close right after clicking "add condition" button
+	Utils.promisedTimeout(0).then(() => {
+		document.addEventListener("click", onClickOutside);
+		document.addEventListener("keydown", onKeyDown, true);
+	});
+}
+
+/**
+ * Leave edition mode when clicking anywhere else
+ */
+function onClickOutside(event: MouseEvent): void {
+	const target = event.target as HTMLElement;
+	if (!target.isConnected) return;
+	let parent: HTMLElement | null = target;
+	while (parent) {
+		// Avoid closing form if clicking on a v-tooltip
+		// For example a popout placeholder selector
+		if (parent.classList.contains("tippy-content")) return;
+		if (parent.classList.contains("vs__dropdown-menu")) return;
+		parent = parent.parentElement;
 	}
+	if (!rootEl.value?.contains(target)) stopEdition();
+}
 
-	public beforeMount(): void {
-		if(this.condition.placeholder) this.condition.placeholder = this.condition.placeholder.toUpperCase();
-		if(this.condition.caseSensitive == undefined) this.condition.caseSensitive = false;
+function onKeyDown(event: KeyboardEvent): void {
+	if (event.key != "Escape") return;
+	stopEdition();
+	event.preventDefault();
+	event.stopPropagation();
+}
 
-		this.buildSourceList();
+/**
+ * Create the source list used as the first operator of the condition
+ */
+function buildSourceList(): void {
+	let placeholderListLocal: ConditionListValues<string, ITriggerPlaceholder<string>>[] = [];
+	let placeholders: ITriggerPlaceholder<any, unknown, "">[] = [];
+	if (props.placeholderList.length == 0) {
+		//Add commmand params
+		if (props.triggerData.chatCommandParams) {
+			props.triggerData.chatCommandParams.forEach((v) => {
+				placeholderListLocal.push({
+					value: v.tag.toUpperCase(),
+					label: t("triggers.condition.placeholder_cmd_param", {
+						NAME: "{" + v.tag.toUpperCase() + "}",
+					}),
+				});
+			});
+		}
 
-		//Watch for changes on the chat command params to rebuild source list
-		watch(()=> this.triggerData.chatCommandParams, ()=> {
-			this.buildSourceList();
-		}, {deep:true});
-	}
-
-	/**
-	 * Create the source list used as the first operator of the condition
-	 */
-	public buildSourceList():void {
-		let placeholderListLocal:ConditionListValues<string,ITriggerPlaceholder<string>>[] =  [];
-		let placeholders: ITriggerPlaceholder<any, unknown, "">[] = [];
-		if(this.placeholderList.length == 0) {
-			//Add commmand params
-			if(this.triggerData.chatCommandParams) {
-				this.triggerData.chatCommandParams.forEach(v=> {
-					placeholderListLocal.push({
-						value:v.tag.toUpperCase(),
-						label: this.$t('triggers.condition.placeholder_cmd_param', {NAME:"{"+v.tag.toUpperCase()+"}"}),
-					});
-				})
-			}
-
-			//Add trigger's placeholders
-			placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
-			let debouncedRebuild = -1;
-			placeholderListLocal = placeholderListLocal.concat(placeholders.map(v=> {
+		//Add trigger's placeholders
+		placeholders = getActivePlaceholders().concat();
+		placeholderListLocal = placeholderListLocal.concat(
+			placeholders.map((v) => {
 				let name = "";
 				//If it's a counter tag, get counter's name
-				if(v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) > -1) {
+				if (v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) > -1) {
 					const counterTag = v.tag.replace(COUNTER_VALUE_PLACEHOLDER_PREFIX, "");
-					const counter = this.$store.counters.counterList.find(v=>v.placeholderKey?.toLowerCase() === counterTag.toLowerCase());
-					if(counter) name = counter.name;
+					const counter = storeCounters.counterList.find(
+						(v) => v.placeholderKey?.toLowerCase() === counterTag.toLowerCase(),
+					);
+					if (counter) name = counter.name;
 				}
-				if(v.tag.indexOf(VALUE_PLACEHOLDER_PREFIX) > -1) {
+				if (v.tag.indexOf(VALUE_PLACEHOLDER_PREFIX) > -1) {
 					const valueTag = v.tag.replace(VALUE_PLACEHOLDER_PREFIX, "");
-					const counter = this.$store.values.valueList.find(v=>v.placeholderKey?.toLowerCase() === valueTag.toLowerCase());
-					if(counter) name = counter.name;
+					const counter = storeValues.valueList.find(
+						(v) => v.placeholderKey?.toLowerCase() === valueTag.toLowerCase(),
+					);
+					if (counter) name = counter.name;
 				}
-				if(v.tag.indexOf(COUNTDOWN_PLACEHOLDER_PREFIX) > -1) {
+				if (v.tag.indexOf(COUNTDOWN_PLACEHOLDER_PREFIX) > -1) {
 					const valueTag = v.tag.replace(COUNTDOWN_PLACEHOLDER_PREFIX, "");
-					const timer = this.$store.timers.timerList.find(v=>v.placeholderKey && valueTag.indexOf(v.placeholderKey) == 0);
-					if(timer) name = timer.title;
+					const timer = storeTimer.timerList.find(
+						(v) => v.placeholderKey && valueTag.indexOf(v.placeholderKey) == 0,
+					);
+					if (timer) name = timer.title;
 				}
-				if(v.tag.indexOf(STOPWATCH_PLACEHOLDER_PREFIX) > -1) {
+				if (v.tag.indexOf(STOPWATCH_PLACEHOLDER_PREFIX) > -1) {
 					const valueTag = v.tag.replace(STOPWATCH_PLACEHOLDER_PREFIX, "");
-					const timer = this.$store.timers.timerList.find(v=>v.placeholderKey && valueTag.indexOf(v.placeholderKey) == 0);
-					if(timer) name = timer.title;
+					const timer = storeTimer.timerList.find(
+						(v) => v.placeholderKey && valueTag.indexOf(v.placeholderKey) == 0,
+					);
+					if (timer) name = timer.title;
 				}
-				watch(()=>v.values, ()=> {
-					clearTimeout(debouncedRebuild);
-					debouncedRebuild = window.setTimeout(()=> {
-						this.buildSourceList();
-					}, 20);
-				}, {deep:true});
 				return {
-					label: this.$t(v.descKey, {NAME:name? "\""+name+"\"" : ""}),
-					value:v.tag.toUpperCase(),
-					fixedValues:v.values,
-					storage:v,
-				}
-			}));
-		}else {
-			placeholders = this.placeholderList;
-			placeholderListLocal = placeholders.map(v => {
-				return {
-					label: this.$t(v.descKey, v.descReplacedValues ?? {}),
+					label: t(v.descKey, { NAME: name ? '"' + name + '"' : "" }),
 					value: v.tag.toUpperCase(),
 					fixedValues: v.values,
-					storage:v,
-				}
-			})
-		}
-
-		// if(this.$store.auth.isAdmin && this.$store.main.devmode) {
-		// 	//Add custom placeholder for devs
-		// 	placeholderListLocal.push({
-		// 		label: "Custom",
-		// 		value:this.CUSTOM,
-		// 	});
-		// }
-
-		//Fail safe, if the placeholder isn't found on the list, push it to avoid reseting it to another
-		//random one in case it's been deleted or I fuck up something in the futur
-		if(this.condition.placeholder != "" && placeholderListLocal.findIndex(v=>v.value == this.condition.placeholder) == -1) {
-			placeholderListLocal.push({label:this.condition.placeholder, value:this.condition.placeholder});
-		}
-
-		this.param_placeholder_list.listValues = placeholderListLocal;
-		this.param_value.placeholderList = placeholders.concat();
-		//Wait for list to render and update its internal "selectedListValue" value.
-		//Might be something fixable within the ParamItem component to avoid that
-		//async behavior, but too lazy for now :3
-		this.$nextTick().then(()=>{
-			this.updateOperators();
-			this.firstRender = false;
-		})
-	}
-
-	/**
-	 * Removes arithmetical operators if the placeholder
-	 * isn't defined as number parsable.
-	 */
-	public updateOperators(inputOrigin:boolean = false):void {
-		if(inputOrigin && this.firstRender || !this.param_placeholder_list.selectedListValue) return;
-
-		const placeholderRef = this.param_placeholder_list.selectedListValue.storage;
-		const cmdParamRef = this.triggerData.chatCommandParams?.find(v=> v.tag.toLowerCase() == this.condition.placeholder.toLowerCase());
-
-		this.param_operator.listValues = TriggerConditionOperatorList.map(v=> {
+					storage: v,
+				};
+			}),
+		);
+	} else {
+		placeholders = getActivePlaceholders();
+		placeholderListLocal = placeholders.map((v) => {
 			return {
-				label: this.$t("triggers.condition.operators."+v),
-				value: v,
-			}
-		}).filter(v=> {
-			//Remove arithmetical operators if placeholder isn't parsable as number
-			if((!placeholderRef || placeholderRef.numberParsable !== true) && !cmdParamRef) {
-				return ![">","<",">=","<="].includes(v.value);
-			}
-			return true;
+				label: t(v.descKey, v.descReplacedValues ?? {}),
+				value: v.tag.toUpperCase(),
+				fixedValues: v.values,
+				storage: v,
+			};
 		});
+	}
 
-		//If selected placeholder has fixed values
-		if(this.param_placeholder_list.selectedListValue && (this.param_placeholder_list.selectedListValue as ConditionListValues<string,ITriggerPlaceholder<string>>).fixedValues) {
-			const list = (this.param_placeholder_list.selectedListValue as ConditionListValues<string,ITriggerPlaceholder<string>>).fixedValues!.concat();
-			list.push({value:this.CUSTOM, labelKey:"triggers.condition.custom_value"});
-			this.param_value_list.listValues = list;
-			this.param_value_list.type = "imagelist";
+	//Add custom placeholder for devs
+	placeholderListLocal.push({
+		labelKey: "triggers.condition.custom_value",
+		value: CUSTOM_CONDITION_PLACEHOLDER,
+	});
 
-			//If condition's value does not exist on the fixed ones, force
-			//custom field to be displayed with that value.
-			const item = list.find(v=> (v.value as any).toString().toLowerCase() == (this.condition.value as any).toString().toLowerCase())
-			if(this.condition.value && !item) {
-				this.forceCustomValue = true;
-			}
-			
-			if(item) this.condition.value = item.value as string;
-		}else{
-			this.forceCustomValue = false;
-			delete this.param_value_list.listValues;
+	//Fail safe, if the placeholder isn't found on the list, push it to avoid reseting it to another
+	//random one in case it's been deleted or I fuck up something in the futur
+	if (
+		props.condition.placeholder != "" &&
+		placeholderListLocal.findIndex((v) => v.value == props.condition.placeholder) == -1
+	) {
+		placeholderListLocal.push({
+			label: props.condition.placeholder,
+			value: props.condition.placeholder,
+		});
+	}
+
+	param_placeholder_list.value.listValues = placeholderListLocal;
+	param_placeholder.value.placeholderList = placeholders.concat();
+	param_value.value.placeholderList = placeholders.concat();
+	//Wait for list to render and update its internal "selectedListValue" value.
+	//Might be something fixable within the ParamItem component to avoid that
+	//async behavior, but too lazy for now :3
+	nextTick().then(() => {
+		updateOperators();
+		firstRender = false;
+	});
+}
+
+/**
+ * Removes arithmetical operators if the placeholder
+ * isn't defined as number parsable.
+ */
+function updateOperators(inputOrigin: boolean = false): void {
+	if (inputOrigin && firstRender) return;
+
+	if (!forceCustomPlaceholder.value && !selectedPlaceholder.value) return;
+
+	const placeholderRef = selectedPlaceholder.value?.storage;
+	const cmdParamRef = props.triggerData.chatCommandParams?.find(
+		(v) => v.tag.toLowerCase() == props.condition.placeholder.toLowerCase(),
+	);
+
+	param_operator.value.listValues = TriggerConditionOperatorList.map((v) => {
+		return {
+			label: t("triggers.condition.operators." + v),
+			value: v,
+		};
+	}).filter((v) => {
+		// Allow all operators for custom placeholder
+		if (forceCustomPlaceholder.value) return true;
+		//Remove arithmetical operators if placeholder isn't parsable as number
+		if ((!placeholderRef || placeholderRef.numberParsable !== true) && !cmdParamRef) {
+			return ![">", "<", ">=", "<="].includes(v.value);
 		}
-	}
+		return true;
+	});
 
-	/**
-	 * Converts the current condition item to a group item and add a new condition in it
-	 */
-	public addItem():void {
-		const index = this.parentCondition.conditions.findIndex(v=>v.id === this.condition.id);
-		this.parentCondition.conditions.splice(index, 1, {
-			id:Utils.getUUID(),
-			type:"group",
-			conditions:[this.condition, {
-				id:Utils.getUUID(),
-				type:"condition",
-				operator:"=",
-				placeholder:"",
-				value:"",
-			}],
-			operator:"AND",
-		})
-	}
+	//If selected placeholder has fixed values
+	if (selectedPlaceholder.value?.fixedValues) {
+		const list = selectedPlaceholder.value.fixedValues.concat();
+		list.push({
+			value: CUSTOM_CONDITION_PLACEHOLDER,
+			labelKey: "triggers.condition.custom_value",
+		});
+		param_value_list.value.listValues = list;
+		param_value_list.value.type = "imagelist";
 
-	/**
-	 * Delete current item.
-	 */
-	public deleteItem():void {
-		const index = this.parentCondition.conditions.findIndex(v=>v.id === this.condition.id);
-		if(index === -1) return;//Item not found
-		this.parentCondition.conditions.splice(index, 1);
-	}
-
-	/**
-	 * Called when a fixed value is selected.
-	 * Detect if its the "custom" entry that's selected to switch to the
-	 * custom field.
-	 */
-	public onSelectFixedValue():void {
-		if(this.param_value_list.value == this.CUSTOM) {
-			this.forceCustomValue = true;
-			this.condition.value = "";
-		}
-	}
-
-	public onSelectPlaceholder():void {
-		if(this.param_placeholder_list.value == this.CUSTOM) {
-			this.forceCustomPlaceholder = true;
-			this.condition.placeholder = "";
+		//If condition's value does not exist on the fixed ones, force
+		//custom field to be displayed with that value.
+		const item = list.find(
+			(v) =>
+				(v.value as any).toString().toLowerCase() ==
+				(props.condition.value as any).toString().toLowerCase(),
+		);
+		if (props.condition.value && !item) {
+			forceCustomValue.value = true;
 		}
 
-		this.updateOperators(true);
+		if (item) props.condition.value = item.value as string;
+	} else {
+		forceCustomValue.value = false;
+		delete param_value_list.value.listValues;
 	}
 }
 
-export interface ConditionListValues<T,U> extends TwitchatDataTypes.ParameterDataListValue<T,U> {
-	fixedValues?:TwitchatDataTypes.ParameterDataListValue<unknown>[];
+/**
+ * Converts the current condition item to a group item and add a new condition in it
+ */
+function addItem(): void {
+	const index = props.parentCondition.conditions.findIndex((v) => v.id === props.condition.id);
+	props.parentCondition.conditions.splice(index, 1, {
+		id: Utils.getUUID(),
+		type: "group",
+		conditions: [
+			props.condition,
+			{
+				id: Utils.getUUID(),
+				type: "condition",
+				operator: "=",
+				placeholder: "",
+				value: "",
+			},
+		],
+		operator: "AND",
+	});
 }
 
-export default toNative(TriggerConditionListItem);
+/**
+ * Delete current item.
+ */
+function deleteItem(): void {
+	const index = props.parentCondition.conditions.findIndex((v) => v.id === props.condition.id);
+	if (index === -1) return; //Item not found
+	props.parentCondition.conditions.splice(index, 1);
+}
+
+/**
+ * Called when a fixed value is selected.
+ * Detect if its the "custom" entry that's selected to switch to the
+ * custom field.
+ */
+function onSelectFixedValue(): void {
+	if (param_value_list.value.value == CUSTOM_CONDITION_PLACEHOLDER) {
+		forceCustomValue.value = true;
+		props.condition.value = "";
+	}
+}
+
+function onSelectPlaceholder(): void {
+	const isCustom = param_placeholder_list.value.value == CUSTOM_CONDITION_PLACEHOLDER;
+	if (isCustom !== forceCustomPlaceholder.value) {
+		param_placeholder.value.value = "";
+		delete props.condition.customPlaceholder;
+	}
+	forceCustomPlaceholder.value = isCustom;
+
+	updateOperators(true);
+}
+
+/**
+ * Discards the custom placeholder to get back to the placeholders list
+ */
+function clearCustomPlaceholder(): void {
+	forceCustomPlaceholder.value = false;
+	param_placeholder.value.value = "";
+	delete props.condition.customPlaceholder;
+	props.condition.placeholder = "";
+	nextTick().then(() => updateOperators());
+}
+
+interface ConditionListValues<T, U> extends TwitchatDataTypes.ParameterDataListValue<T, U> {
+	fixedValues?: TwitchatDataTypes.ParameterDataListValue<unknown>[];
+}
 </script>
 
 <style scoped lang="less">
-.triggerconditionlistitem{
+.triggerconditionlistitem {
 	display: flex;
 	flex-direction: row;
-	gap: 2px;
-	&:hover, &:active, &:focus-within {
+	// gap: 2px;
+	&:hover,
+	&:active,
+	&:focus-within {
 		.dragIcon {
 			flex-shrink: 0;
 			height: 1.5em;
@@ -311,95 +651,191 @@ export default toNative(TriggerConditionListItem);
 	.dragIcon {
 		width: 0;
 		opacity: 0;
-		transition: all .1s;
+		transition: all 0.1s;
 		align-self: center;
-		margin-right: -.5em;
-		padding: .4em .25em;
+		margin-right: -0.5em;
+		padding: 0.4em 0.25em;
 		cursor: grab;
 		&:active {
 			cursor: grabbing;
 		}
 	}
-	.operator {
-		flex-basis: 80px;
-		flex-shrink: 0;
+
+	.groupBt {
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
 	}
 
-	.operatorValHolder {
+	.deleteBt {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+
+	&:not(:has(.groupBt)) {
+		.summary {
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
+		}
+	}
+
+	//Text rendering of the condition
+	.summary {
+		flex-grow: 1;
+		min-width: 0;
 		display: flex;
 		flex-direction: row;
+		flex-wrap: wrap;
+		// justify-content: space-between;
 		align-items: center;
-		gap: 2px;
+		gap: 0.25em 0.4em;
+		padding: 0.35em 0.5em;
+		background-color: var(--background-color-fadest);
+		cursor: pointer;
+		line-height: 1.2em;
+		transition: background-color 0.2s;
+		&:hover {
+			background-color: var(--background-color-fader);
+		}
+
+		.placeholder {
+			font-weight: bold;
+		}
+
+		.operator {
+			flex-shrink: 0;
+			font-style: italic;
+			padding: 0 0.4em;
+			padding-left: 0.25em;
+			border-radius: var(--border-radius);
+			background-color: var(--color-primary);
+		}
+
+		.operatorVal,
+		.value {
+			padding: 0 0.4em;
+			border-radius: var(--border-radius);
+			background-color: var(--background-color-fader);
+			&:empty::after {
+				content: "*";
+				opacity: 0.5;
+			}
+		}
+
+		.caseIcon {
+			width: 0.75em;
+			flex-shrink: 0;
+		}
+
+		.unconfigured {
+			font-style: italic;
+			color: var(--color-text-fade);
+		}
 	}
 
-	.valueHolder {
-		min-width: 50%;
+	//Edition form
+	&.editing {
+		padding: 0.5em;
+		border-radius: var(--border-radius);
+		background-color: var(--background-color-fadest);
+		outline: 1px solid var(--color-secondary);
+	}
+
+	.form {
+		flex-grow: 1;
+		min-width: 0;
 		display: flex;
-		flex-direction: row;
-		.value {
-			width: 100%;
-			:deep(.popoutMode) {
-				height: 100%;
+		flex-direction: column;
+		gap: 0.5em;
+
+		.field {
+			display: flex;
+			flex-direction: column;
+			gap: 0.15em;
+
+			& > .label {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				gap: 0.5em;
+				font-size: 0.8em;
+				text-transform: uppercase;
+				color: var(--color-text-fade);
+
+				.text {
+					flex: 1;
+				}
+
+				.caseField {
+					display: flex;
+					flex-direction: row;
+					gap: 0.5em;
+					text-transform: none;
+					cursor: pointer;
+				}
 			}
-			:deep(.content) {
-				height: 100%;
-				.holder,
-				.inputHolder {
+
+			:deep(.listField) {
+				flex-basis: 100%;
+			}
+
+			& > .placeholder,
+			& > .operator {
+				width: 100%;
+			}
+		}
+
+		.operatorHolder {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 0.25em;
+			.operator {
+				flex-grow: 1;
+				min-width: 0;
+			}
+			.operatorVal {
+				flex-basis: 6em;
+				flex-shrink: 0;
+			}
+		}
+
+		.placeholderHolder,
+		.valueHolder {
+			display: flex;
+			flex-direction: row;
+			min-width: 0;
+			.clearCustomBt {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+			.value {
+				width: 100%;
+				:deep(.popoutMode) {
 					height: 100%;
-					input {
+				}
+				:deep(.content) {
+					height: 100%;
+					.holder,
+					.inputHolder {
 						height: 100%;
+						input {
+							height: 100%;
+						}
 					}
 				}
 			}
 		}
-		.clearCustomBt {
-			height: 100%;
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
-		}
-		.casebt {
-			z-index: 1;
-			width: 1.5em;
-			margin-right: -1.5em;
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
-			border-right: 1px solid var(--color-text-fade);
-		}
-		&.showCaseSensitiveToggle {
-			:deep(input) {
-				padding-left: 1.6em;
-			}
-			:deep(.vs__selected-options) {
-				padding-left: 1em;
-			}
-		}
-		&.isCustomValue{
+
+		.placeholderHolder,
+		.valueHolder.isCustomValue {
 			.value {
 				:deep(.content) {
-					.inputHolder, input {
-						height: 100%;
+					.inputHolder,
+					input {
 						border-top-left-radius: 0;
 						border-bottom-left-radius: 0;
 					}
 				}
-			}
-		}
-	}
-
-	.ctas {
-		flex-shrink: 0;
-		display: flex;
-		flex-direction: row;
-		gap: 0;
-		.button {
-			border-radius: 0;
-			&:first-child {
-				border-top-left-radius: var(--border-radius);
-				border-bottom-left-radius: var(--border-radius);
-			}
-			&:last-child {
-				border-top-right-radius: var(--border-radius);
-				border-bottom-right-radius: var(--border-radius);
 			}
 		}
 	}

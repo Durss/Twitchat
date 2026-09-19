@@ -1,347 +1,442 @@
 <template>
 	<div class="overlayadbreak" v-if="show">
-
 		<template v-if="component == 'bar'">
-			<div id="progress"
-				ref="holder"
-				:class="progressClasses"
-				:style="progressStyles">
-				<span v-if="label" key="labelbar"
-					ref="label" class="label"
+			<div id="progress" ref="holder" :class="progressClasses" :style="progressStyles">
+				<span
+					v-if="textContent"
+					key="labelbar"
+					class="label"
 					:style="labelStyles"
-					v-html="label"></span>
+					v-html="textContent"
+				></span>
 			</div>
-
 		</template>
 
-		<div v-if="component == 'text'"
-		id="text"
-		ref="holder"
-		:class="progressClasses"
-		:style="progressStyles">
-			<span class="label" key="labeltext"
-			:style="labelStyles"
-			v-if="label" v-html="label"></span>
+		<div
+			v-if="component == 'text'"
+			id="text"
+			ref="holder"
+			:class="progressClasses"
+			:style="progressStyles"
+		>
+			<span
+				class="label"
+				key="labeltext"
+				:style="labelStyles"
+				v-if="textContent"
+				v-html="textContent"
+			></span>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
-import type { CSSProperties } from 'vue';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay';
-import DOMPurify from 'isomorphic-dompurify';
-import { gsap } from 'gsap/gsap-core';
+<script setup lang="ts">
+import { useOverlayConnector } from "@/composables/useOverlayConnector";
+import type TwitchatEvent from "@/events/TwitchatEvent";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
+import { gsap } from "gsap/gsap-core";
+import DOMPurify from "isomorphic-dompurify";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	onBeforeUnmount,
+	ref,
+	useTemplateRef,
+	type CSSProperties,
+} from "vue";
 
-@Component({
-	components:{},
-	emits:[],
-})
-class OverlayAdBreak extends AbstractOverlay {
+type AdType = "approaching" | "running" | "none";
 
-	public show:boolean = false;
-	public label:string = "";
-	public adType:AdType = "none";
-	public component:TwitchatDataTypes.AdBreakOverlayData["runningStyle"] = "bar";
-	public adData:TwitchatDataTypes.CommercialData|null = null;
-	public parameters:TwitchatDataTypes.AdBreakOverlayData|null = null;
+const show = ref(false);
+const textContent = ref("");
+const adType = ref<AdType>("none");
+const component = ref<TwitchatDataTypes.AdBreakOverlayData["runningStyle"]>("bar");
+const adData = ref<TwitchatDataTypes.CommercialData | null>(null);
+const parameters = ref<TwitchatDataTypes.AdBreakOverlayData | null>(null);
 
-	private disposed:boolean = false;
-	private hidding:boolean = false;
-	private progressPercent:number = 0;
+const holderEl = useTemplateRef("holder");
 
-	private adBreakDataHandler!:(e:TwitchatEvent<TwitchatDataTypes.CommercialData>) => void;
-	private adBreakParamsHandler!:(e:TwitchatEvent<TwitchatDataTypes.AdBreakOverlayData>) => void;
-	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
+let disposed: boolean = false;
+let hidding: boolean = false;
+const progressPercent = ref<number>(0);
 
-	public get progressClasses():string[] {
-		const res:string[] = [this.adType];
-		const style = this.adType == "approaching"? this.parameters?.approachingStyle : this.parameters?.runningStyle;
-		const placement = this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
-		res.push(style!, "position-"+placement);
-		return res;
-	}
+const progressClasses = computed<string[]>(() => {
+	const res: string[] = [adType.value];
+	const style =
+		adType.value == "approaching"
+			? parameters.value?.approachingStyle
+			: parameters.value?.runningStyle;
+	const placement =
+		adType.value == "approaching"
+			? parameters.value?.approachingPlacement
+			: parameters.value?.runningPlacement;
+	res.push(style!, "position-" + placement);
+	return res;
+});
 
-	public get progressStyles():CSSProperties {
-		const placement	= this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
-		const thickness	= (this.adType == "approaching"? this.parameters?.approachingThickness : this.parameters?.runningThickness) || 20;
-		const color		= this.adType == "approaching"? this.parameters?.approachingColor : this.parameters?.runningColor;
-		const res:CSSProperties = {};
-		res.backgroundColor = color;
-		if(this.component === "bar") {
-			switch(placement) {
-				case "t":
-				case "b": {
-					res.width = "100vw";
-					res.transform = "scaleX("+this.progressPercent+")";
-					res.height = thickness+"px";
-					break
-				}
-				// case "l":
-				case "r": {
-					res.height = "100vh";
-					res.transform = "scaleY("+this.progressPercent+")";
-					res.width = thickness+"px";
-					break
-				}
-				case "l": {
-					res.height = "100vh";
-					res.transform = "scaleY("+this.progressPercent+")";
-					res.width = thickness+"px";
-					break
-				}
+const progressStyles = computed<CSSProperties>(() => {
+	const placement =
+		adType.value == "approaching"
+			? parameters.value?.approachingPlacement
+			: parameters.value?.runningPlacement;
+	const thickness =
+		(adType.value == "approaching"
+			? parameters.value?.approachingThickness
+			: parameters.value?.runningThickness) || 20;
+	const color =
+		adType.value == "approaching"
+			? parameters.value?.approachingColor
+			: parameters.value?.runningColor;
+	const res: CSSProperties = {};
+	res.backgroundColor = color;
+	if (component.value === "bar") {
+		switch (placement) {
+			case "t":
+			case "b": {
+				res.width = "100vw";
+				res.transform = "scaleX(" + progressPercent.value + ")";
+				res.height = thickness + "px";
+				break;
+			}
+			// case "l":
+			case "r": {
+				res.height = "100vh";
+				res.transform = "scaleY(" + progressPercent.value + ")";
+				res.width = thickness + "px";
+				break;
+			}
+			case "l": {
+				res.height = "100vh";
+				res.transform = "scaleY(" + progressPercent.value + ")";
+				res.width = thickness + "px";
+				break;
 			}
 		}
-		return res;
 	}
+	return res;
+});
 
-	public get labelStyles():CSSProperties {
-		const placement	= this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
-		const fontSize	= (this.adType == "approaching"? this.parameters?.approachingSize : this.parameters?.runningSize) || 20;
-		const color		= this.adType == "approaching"? this.parameters?.approachingColor : this.parameters?.runningColor;
-		const res:CSSProperties = {};
-		res.fontSize = fontSize+"px";
-		if(this.component === "bar") {
-			switch(placement) {
-				case "t":
-				case "b": {
-					res.transform = "scaleX("+1/this.progressPercent+")";
-					break
-				}
-				case "l":
-				case "r": {
-					res.transform = "scaleY("+1/this.progressPercent+")";
-					// if(placement == "l") {
-					// 	res.left = "10px";
-					// }
-					break
-				}
+const labelStyles = computed<CSSProperties>(() => {
+	const placement =
+		adType.value == "approaching"
+			? parameters.value?.approachingPlacement
+			: parameters.value?.runningPlacement;
+	const fontSize =
+		(adType.value == "approaching"
+			? parameters.value?.approachingSize
+			: parameters.value?.runningSize) || 20;
+	const color =
+		adType.value == "approaching"
+			? parameters.value?.approachingColor
+			: parameters.value?.runningColor;
+	const res: CSSProperties = {};
+	res.fontSize = fontSize + "px";
+	if (component.value === "bar") {
+		switch (placement) {
+			case "t":
+			case "b": {
+				res.transform = "scaleX(" + 1 / progressPercent.value + ")";
+				break;
+			}
+			case "l":
+			case "r": {
+				res.transform = "scaleY(" + 1 / progressPercent.value + ")";
+				// if(placement == "l") {
+				// 	res.left = "10px";
+				// }
+				break;
 			}
 		}
-		//Define text color based on background's brightness
-		const hsl = Utils.rgb2hsl(parseInt((color || "#ffffff").replace("#", ""), 16));
-		const minL = .65;
-		if(hsl.l < minL) {
-			res.color = "#ffffff";
-		}else{
-			res.color = "#000000";
-		}
-		return res;
 	}
-
-	public beforeMount(): void {
-		this.adBreakDataHandler = (e) => this.onAdBreak(e);
-		this.adBreakParamsHandler = (e) => this.onParameters(e);
-		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_OVERLAY_PRESENCE); }
-		PublicAPI.instance.addEventListener(TwitchatEvent.AD_BREAK_DATA, this.adBreakDataHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, this.adBreakParamsHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_AD_BREAK_OVERLAY_PRESENCE, this.overlayPresenceHandler);
-		this.renderFrame();
-
-		/*
-		this.adData = {
-			adCooldown_ms:0,
-			currentAdDuration_ms: 0,
-			currentAdStart_at: 0,
-			nextAdStart_at: Date.now() + 30000,
-			nextSnooze_at: 0,
-			remainingSnooze: 3,
-		};
-		//*/
-		/*
-		this.adData = {
-			adCooldown_ms:0,
-			// currentAdDuration_ms: 10 * 60000,
-			// currentAdStart_at: Date.now() - 2 * 60000,
-			currentAdDuration_ms: 100000,
-			currentAdStart_at: Date.now(),
-			nextAdStart_at: 0,
-			nextSnooze_at: 0,
-			remainingSnooze: 3,
-		};
-		//*/
-
+	//Define text color based on background's brightness
+	const hsl = Utils.rgb2hsl(parseInt((color || "#ffffff").replace("#", ""), 16));
+	const minL = 0.65;
+	if (hsl.l < minL) {
+		res.color = "#ffffff";
+	} else {
+		res.color = "#000000";
 	}
+	return res;
+});
 
-	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_AD_BREAK_OVERLAY_PARAMETERS);
-	}
+useOverlayConnector(requestInfo);
 
-	public beforeUnmount(): void {
-		this.disposed = true;
-		PublicAPI.instance.removeEventListener(TwitchatEvent.AD_BREAK_DATA, this.adBreakDataHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, this.adBreakParamsHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_AD_BREAK_OVERLAY_PRESENCE, this.overlayPresenceHandler);
-	}
+onBeforeMount(() => {
+	PublicAPI.instance.addEventListener("ON_AD_BREAK_OVERLAY_DATA", onAdBreak);
+	PublicAPI.instance.addEventListener("ON_AD_BREAK_OVERLAY_CONFIGS", onParameters);
+	PublicAPI.instance.addEventListener("GET_AD_BREAK_OVERLAY_PRESENCE", onPresenceRequest);
+	renderFrame();
 
-	/**
-	 * Called when API sends fresh overlay parameters
-	 */
-	private async onParameters(e:TwitchatEvent<TwitchatDataTypes.AdBreakOverlayData>):Promise<void> {
-		if(e.data) {
-			this.parameters = e.data;
-		}
-	}
+	/*
+	adData.value = {
+		adCooldown_ms:0,
+		currentAdDuration_ms: 0,
+		currentAdStart_at: 0,
+		nextAdStart_at: Date.now() + 30000,
+		nextSnooze_at: 0,
+		remainingSnooze: 3,
+	};
+	//*/
+	/*
+	adData.value = {
+		adCooldown_ms:0,
+		// currentAdDuration_ms: 10 * 60000,
+		// currentAdStart_at: Date.now() - 2 * 60000,
+		currentAdDuration_ms: 100000,
+		currentAdStart_at: Date.now(),
+		nextAdStart_at: 0,
+		nextSnooze_at: 0,
+		remainingSnooze: 3,
+	};
+	//*/
+});
 
-	/**
-	 * Called when API sends an ad break info
-	 */
-	private onAdBreak(e:TwitchatEvent<TwitchatDataTypes.CommercialData>):void {
-		if(e.data) {
-			this.show = false;
-			this.adData = e.data;
-		}
-	}
+onBeforeUnmount(() => {
+	disposed = true;
+	PublicAPI.instance.removeEventListener("ON_AD_BREAK_OVERLAY_DATA", onAdBreak);
+	PublicAPI.instance.removeEventListener("ON_AD_BREAK_OVERLAY_CONFIGS", onParameters);
+	PublicAPI.instance.removeEventListener("GET_AD_BREAK_OVERLAY_PRESENCE", onPresenceRequest);
+});
 
-	private renderFrame():void {
-		if(this.disposed) return;
+function requestInfo(): void {
+	PublicAPI.instance.broadcast("GET_AD_BREAK_OVERLAY_CONFIGS");
+}
 
-		requestAnimationFrame(()=>this.renderFrame());
+function onPresenceRequest(): void {
+	PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_PRESENCE");
+}
 
-		if(!this.adData || !this.parameters) return;
-
-		let isAdComing		= false;
-		let isAdRunning		= false;
-		let duration:number	= (this.parameters?.approachingDelay || 30) * 1000;
-		let startDate:number= 0;
-		if(this.adData.prevAdStart_at + this.adData.currentAdDuration_ms >= Date.now()){
-			isAdRunning		= true;
-			startDate		= this.adData.prevAdStart_at + this.adData.currentAdDuration_ms;
-			duration		= this.adData.currentAdDuration_ms;
-		}else
-		if(Date.now() > this.adData.nextAdStart_at && Date.now() < this.adData.nextAdStart_at + this.adData.currentAdDuration_ms) {
-			isAdRunning		= true;
-			startDate		= this.adData.nextAdStart_at + this.adData.currentAdDuration_ms;
-			duration		= this.adData.currentAdDuration_ms;
-		}else
-		if(this.adData.nextAdStart_at > 0 && this.adData.nextAdStart_at - Date.now() < duration) {
-			isAdComing		= true;
-			startDate		= this.adData.nextAdStart_at;
-		}
-		this.progressPercent = 1 - (startDate - Date.now()) / duration;
-
-		if(this.progressPercent >= 1) {
-			this.adType = "none";
-			this.doHide();
-			return;
-		}
-
-		if(!isAdRunning && !isAdComing) {
-			this.adType = "none";
-			this.doHide();
-			return;
-		}
-		if(isAdRunning && this.parameters?.showRunning !== true) {
-			this.adType = "none";
-			this.doHide();
-			return;
-		}
-		if(isAdComing && this.parameters?.showApproaching !== true) {
-			this.adType = "none";
-			this.doHide();
-			return;
-		}
-
-		this.adType		= isAdRunning? "running" : "approaching";
-		this.component	= this.adType == 'approaching'? this.parameters!.approachingStyle : this.parameters!.runningStyle;
-
-		if(this.progressPercent <= 0) {
-			this.doHide();
-			return;
-		}else{
-			this.doShow();
-		}
-
-		let label = this.adType == "approaching"? this.parameters?.approachingLabel : this.parameters?.runningLabel;
-		this.label = DOMPurify.sanitize(label?.replace(/\{TIMER\}/gi, Utils.formatDuration(Math.round((startDate - Date.now())/1000)*1000)) || "");
-	}
-
-	private doShow():void {
-		if(this.show) return;
-		this.show = true;
-		if(this.component == "text") {
-			this.showCard();
-		}
-	}
-
-	private doHide():void {
-		if(this.hidding || !this.show) return;
-		if(this.component == "text") {
-			this.hideCard();
-		}else{
-			this.show = false;
-		}
-	}
-
-	/**
-	 * Open the text card
-	 */
-	private async showCard():Promise<void> {
-		this.show = true;
-		this.hidding = false;
-		await this.$nextTick();
-		const placement = this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
-		const holder = this.$refs.holder as HTMLDivElement;
-		if(!holder || !placement) return;
-
-		const bounds = holder.getBoundingClientRect();
-
-		if(placement.indexOf("r") > -1){
-			gsap.from(holder, {x:"100%", duration:.35, ease:"sine.out", clearProps:"x"});
-		}else
-		if(placement.indexOf("l") > -1){
-			gsap.from(holder, {x:-(bounds.x+bounds.width), duration:.35, ease:"sine.out", clearProps:"x"});
-		}else
-		if(placement == "t"){
-			gsap.from(holder, {y:-(bounds.y+bounds.height), duration:.35, ease:"sine.out", clearProps:"y"});
-		}else
-		if(placement == "b"){
-			gsap.from(holder, {y:"100%", duration:.35, ease:"sine.out", clearProps:"y"});
-		}else
-		if(placement == "m"){
-			gsap.from(holder, {scale:0, duration:.35, ease:"back.out", clearProps:"transform"});
-		}
-	}
-
-	/**
-	 * Closes the text card
-	 */
-	private async hideCard():Promise<void> {
-		this.hidding = true;
-		const placement = this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
-		const holder = this.$refs.holder as HTMLDivElement;
-		if(!holder || !placement) return;
-
-		if(placement.indexOf("r") > -1){
-			gsap.to(holder, {x:"100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"x"});
-		}else
-		if(placement.indexOf("l") > -1){
-			gsap.to(holder, {x:"-100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"x"});
-		}else
-		if(placement == "t"){
-			gsap.to(holder, {y:"-100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"y"});
-		}else
-		if(placement == "b"){
-			gsap.to(holder, {y:"100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"y"});
-		}else
-		if(placement == "m"){
-			gsap.to(holder, {scale:0, duration:.35, ease:"back.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"transform"});
-		}
-		await Utils.promisedTimeout(350);
-		this.show = false;
+/**
+ * Called when API sends fresh overlay parameters
+ */
+async function onParameters(e: TwitchatEvent<"ON_AD_BREAK_OVERLAY_CONFIGS">): Promise<void> {
+	if (e.data) {
+		parameters.value = e.data;
 	}
 }
 
-type AdType = "approaching"|"running"|"none";
-export default toNative(OverlayAdBreak);
+/**
+ * Called when API sends an ad break info
+ */
+function onAdBreak(e: TwitchatEvent<"ON_AD_BREAK_OVERLAY_DATA">): void {
+	if (e.data) {
+		show.value = false;
+		adData.value = e.data;
+	}
+}
+
+function renderFrame(): void {
+	if (disposed) return;
+
+	requestAnimationFrame(() => renderFrame());
+
+	if (!adData.value || !parameters.value) return;
+
+	let isAdComing = false;
+	let isAdRunning = false;
+	let duration: number = (parameters.value?.approachingDelay || 30) * 1000;
+	let startDate: number = 0;
+	if (adData.value.prevAdStart_at + adData.value.currentAdDuration_ms >= Date.now()) {
+		isAdRunning = true;
+		startDate = adData.value.prevAdStart_at + adData.value.currentAdDuration_ms;
+		duration = adData.value.currentAdDuration_ms;
+	} else if (
+		Date.now() > adData.value.nextAdStart_at &&
+		Date.now() < adData.value.nextAdStart_at + adData.value.currentAdDuration_ms
+	) {
+		isAdRunning = true;
+		startDate = adData.value.nextAdStart_at + adData.value.currentAdDuration_ms;
+		duration = adData.value.currentAdDuration_ms;
+	} else if (
+		adData.value.nextAdStart_at > 0 &&
+		adData.value.nextAdStart_at - Date.now() < duration
+	) {
+		isAdComing = true;
+		startDate = adData.value.nextAdStart_at;
+	}
+	progressPercent.value = 1 - (startDate - Date.now()) / duration;
+
+	if (progressPercent.value >= 1) {
+		adType.value = "none";
+		doHide();
+		return;
+	}
+
+	if (!isAdRunning && !isAdComing) {
+		adType.value = "none";
+		doHide();
+		return;
+	}
+	if (isAdRunning && parameters.value?.showRunning !== true) {
+		adType.value = "none";
+		doHide();
+		return;
+	}
+	if (isAdComing && parameters.value?.showApproaching !== true) {
+		adType.value = "none";
+		doHide();
+		return;
+	}
+
+	adType.value = isAdRunning ? "running" : "approaching";
+	component.value =
+		adType.value == "approaching"
+			? parameters.value!.approachingStyle
+			: parameters.value!.runningStyle;
+
+	if (progressPercent.value <= 0) {
+		doHide();
+		return;
+	} else {
+		doShow();
+	}
+
+	const rawLabel =
+		adType.value == "approaching"
+			? parameters.value?.approachingLabel
+			: parameters.value?.runningLabel;
+	textContent.value = DOMPurify.sanitize(
+		rawLabel?.replace(
+			/\{TIMER\}/gi,
+			Utils.formatDuration(Math.round((startDate - Date.now()) / 1000) * 1000),
+		) || "",
+	);
+}
+
+function doShow(): void {
+	if (show.value) return;
+	show.value = true;
+	if (component.value == "text") {
+		showCard();
+	}
+}
+
+function doHide(): void {
+	if (hidding || !show.value) return;
+	if (component.value == "text") {
+		hideCard();
+	} else {
+		show.value = false;
+	}
+}
+
+/**
+ * Open the text card
+ */
+async function showCard(): Promise<void> {
+	show.value = true;
+	hidding = false;
+	await nextTick();
+	const placement =
+		adType.value == "approaching"
+			? parameters.value?.approachingPlacement
+			: parameters.value?.runningPlacement;
+	const holder = holderEl.value;
+	if (!holder || !placement) return;
+
+	const bounds = holder.getBoundingClientRect();
+
+	if (placement.indexOf("r") > -1) {
+		gsap.from(holder, { x: "100%", duration: 0.35, ease: "sine.out", clearProps: "x" });
+	} else if (placement.indexOf("l") > -1) {
+		gsap.from(holder, {
+			x: -(bounds.x + bounds.width),
+			duration: 0.35,
+			ease: "sine.out",
+			clearProps: "x",
+		});
+	} else if (placement == "t") {
+		gsap.from(holder, {
+			y: -(bounds.y + bounds.height),
+			duration: 0.35,
+			ease: "sine.out",
+			clearProps: "y",
+		});
+	} else if (placement == "b") {
+		gsap.from(holder, { y: "100%", duration: 0.35, ease: "sine.out", clearProps: "y" });
+	} else if (placement == "m") {
+		gsap.from(holder, {
+			scale: 0,
+			duration: 0.35,
+			ease: "back.out",
+			clearProps: "transform",
+		});
+	}
+}
+
+/**
+ * Closes the text card
+ */
+async function hideCard(): Promise<void> {
+	hidding = true;
+	const placement =
+		adType.value == "approaching"
+			? parameters.value?.approachingPlacement
+			: parameters.value?.runningPlacement;
+	const holder = holderEl.value;
+	if (!holder || !placement) return;
+
+	if (placement.indexOf("r") > -1) {
+		gsap.to(holder, {
+			x: "100%",
+			duration: 0.35,
+			ease: "sine.in",
+			onComplete: () => {
+				adType.value = "none";
+			},
+			clearProps: "x",
+		});
+	} else if (placement.indexOf("l") > -1) {
+		gsap.to(holder, {
+			x: "-100%",
+			duration: 0.35,
+			ease: "sine.in",
+			onComplete: () => {
+				adType.value = "none";
+			},
+			clearProps: "x",
+		});
+	} else if (placement == "t") {
+		gsap.to(holder, {
+			y: "-100%",
+			duration: 0.35,
+			ease: "sine.in",
+			onComplete: () => {
+				adType.value = "none";
+			},
+			clearProps: "y",
+		});
+	} else if (placement == "b") {
+		gsap.to(holder, {
+			y: "100%",
+			duration: 0.35,
+			ease: "sine.in",
+			onComplete: () => {
+				adType.value = "none";
+			},
+			clearProps: "y",
+		});
+	} else if (placement == "m") {
+		gsap.to(holder, {
+			scale: 0,
+			duration: 0.35,
+			ease: "back.in",
+			onComplete: () => {
+				adType.value = "none";
+			},
+			clearProps: "transform",
+		});
+	}
+	await Utils.promisedTimeout(350);
+	show.value = false;
+}
 </script>
 
 <style scoped lang="less">
-.overlayadbreak{
+.overlayadbreak {
 	font-variant-numeric: tabular-nums;
 	.bar {
 		position: absolute;
@@ -353,9 +448,9 @@ export default toNative(OverlayAdBreak);
 
 		.label {
 			z-index: 1;
-			padding: .5em;
-			border-bottom-left-radius: .5em;
-			border-bottom-right-radius: .5em;
+			padding: 0.5em;
+			border-bottom-left-radius: 0.5em;
+			border-bottom-right-radius: 0.5em;
 			margin: auto 0;
 			background-color: inherit;
 			// background-color: rgba(0, 255, 0, .5);
@@ -371,8 +466,8 @@ export default toNative(OverlayAdBreak);
 			.label {
 				align-self: flex-end;
 				border-radius: 0;
-				border-top-left-radius: .5em;
-				border-top-right-radius: .5em;
+				border-top-left-radius: 0.5em;
+				border-top-right-radius: 0.5em;
 			}
 		}
 		&.position-l {
@@ -387,8 +482,8 @@ export default toNative(OverlayAdBreak);
 				margin: auto;
 				margin-top: 0;
 				border-radius: 0;
-				border-top-right-radius: .5em;
-				border-bottom-right-radius: .5em;
+				border-top-right-radius: 0.5em;
+				border-bottom-right-radius: 0.5em;
 			}
 		}
 		&.position-r {
@@ -400,8 +495,8 @@ export default toNative(OverlayAdBreak);
 				margin: auto;
 				margin-bottom: 0;
 				border-radius: 0;
-				border-top-left-radius: .5em;
-				border-bottom-left-radius: .5em;
+				border-top-left-radius: 0.5em;
+				border-bottom-left-radius: 0.5em;
 			}
 		}
 		// &.position-r,
@@ -428,7 +523,7 @@ export default toNative(OverlayAdBreak);
 
 	.text {
 		@margin: 1vh;
-		@borderRadius: .5em;
+		@borderRadius: 0.5em;
 
 		position: absolute;
 		display: inline-flex;
@@ -436,7 +531,7 @@ export default toNative(OverlayAdBreak);
 		align-items: center;
 		font-size: 1.25em;
 		background-color: var(--color-light);
-		padding: .5em;
+		padding: 0.5em;
 		border-top-right-radius: @borderRadius;
 		border-bottom-right-radius: @borderRadius;
 		// box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
@@ -457,7 +552,7 @@ export default toNative(OverlayAdBreak);
 		}
 
 		&.position-tr {
-			top: .5em;
+			top: 0.5em;
 			right: 0;
 			border-radius: 0;
 			border-top-left-radius: @borderRadius;
@@ -501,13 +596,12 @@ export default toNative(OverlayAdBreak);
 		}
 
 		&.position-br {
-			bottom: .5em;
+			bottom: 0.5em;
 			right: 0;
 			border-radius: 0;
 			border-top-left-radius: @borderRadius;
 			border-bottom-left-radius: @borderRadius;
 		}
 	}
-
 }
 </style>
