@@ -5130,6 +5130,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_COMPLETE: "hype_train_complete",
 		LOW_TRUST_TREATMENT: "low_trust_treatment",
 		YOUTUBE_JEWELS_GIFT: "youtube_jewels_gift",
+		SHARED_CHAT_SESSION: "shared_chat_session",
 		CUSTOM_TRAIN_SUMMARY: "custom_train_summary",
 		CHAT_HIGHLIGHT_CLOSE: "chat_highlight_close",
 		YOUTUBE_SUBSCRIPTION: "youtube_subscription",
@@ -5258,6 +5259,7 @@ export namespace TwitchatDataTypes {
 		hype_train_summary: true,
 		goxlr_sound_input: false,
 		youtube_jewels_gift: true,
+		shared_chat_session: true,
 		private_mod_message: true,
 		raffle_pick_winner: false,
 		low_trust_treatment: true,
@@ -5461,6 +5463,7 @@ export namespace TwitchatDataTypes {
 		| MessageManyRepliesData
 		| MessageQuizCompleteData
 		| MessageModiversaryData
+		| MessageSharedChatSessionData
 		| MessageTwitchCustomPowerUpData
 		| MessageMeldStudioStartStreamData
 		| MessageMeldStudioStopStreamData
@@ -5520,6 +5523,7 @@ export namespace TwitchatDataTypes {
 		| typeof TwitchatMessageType.MESSAGE
 		| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE
 		| typeof TwitchatMessageType.STREAMSOCKET_ACTION
+		| typeof TwitchatMessageType.SHARED_CHAT_SESSION
 		| typeof TwitchatMessageType.QUIZ_COMPLETE;
 
 	export const MessageListFilterTypes: {
@@ -5676,6 +5680,13 @@ export namespace TwitchatDataTypes {
 			type: TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
 			labelKey: "chat.filters.message_types.community_challenge_contribution",
 			icon: "channelPoints",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.SHARED_CHAT_SESSION,
+			labelKey: "chat.filters.message_types.shared_chat_session",
+			icon: "sharedChat",
 			scopes: [],
 			newFlag: 0,
 		},
@@ -7056,6 +7067,38 @@ export namespace TwitchatDataTypes {
 		 * Number of viewers the channel has been boosted to
 		 */
 		viewers: number;
+	}
+
+	/**
+	 * Represents a Twitch "shared chat" session life cycle event
+	 */
+	export interface MessageSharedChatSessionData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type: "shared_chat_session";
+		/**
+		 * ID of the shared chat session
+		 */
+		session_id: string;
+		/**
+		 * Shared session event type
+		 */
+		event: "begin" | "join" | "leave" | "end";
+		/**
+		 * Host of the session
+		 */
+		host: TwitchatUser;
+		/**
+		 * Curent users part of the shared chat session
+		 */
+		participants: TwitchatUser[];
+		/**
+		 * Users that joined the session
+		 */
+		newParticipants: TwitchatUser[];
+		/**
+		 * Users that left session
+		 */
+		leftParticipants: TwitchatUser[];
 	}
 
 	/**

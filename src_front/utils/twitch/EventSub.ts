@@ -42,6 +42,9 @@ export default class EventSub {
 		[chanId: string]: { topic: string; uid: string; key: string; id: string }[];
 	} = {};
 	private connectedChannels: { [chanId: string]: TwitchatDataTypes.TwitchatUser } = {};
+	private sharedChatParticipants: {
+		[sessionId: string]: TwitchatDataTypes.TwitchatUser[];
+	} = {};
 
 	constructor() {
 		this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
@@ -693,9 +696,30 @@ export default class EventSub {
 			);
 		}
 
-		if (TwitchUtils.hasScopes([TwitchScopes.WHISPER_MANAGE])) {
-			// this.createSubscription("", "", TwitchEventSubDataTypes.SubscriptionTypes.WHISPERS, "1", {user_id:myUID});
-		}
+		// if (TwitchUtils.hasScopes([TwitchScopes.WHISPER_MANAGE])) {
+		// this.createSubscription("", "", TwitchEventSubDataTypes.SubscriptionTypes.WHISPERS, "1", {user_id:myUID});
+		// }
+
+		void this.createSubscription(
+			channelId,
+			myUID,
+			TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_BEGIN,
+			"1",
+		);
+
+		void this.createSubscription(
+			channelId,
+			myUID,
+			TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_UPDATE,
+			"1",
+		);
+
+		void this.createSubscription(
+			channelId,
+			myUID,
+			TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_END,
+			"1",
+		);
 
 		void this.createSubscription(
 			channelId,
@@ -1217,6 +1241,22 @@ export default class EventSub {
 						| TwitchEventSubDataTypes.HypeTrainStartEvent
 						| TwitchEventSubDataTypes.HypeTrainProgressEvent
 						| TwitchEventSubDataTypes.HypeTrainEndEvent,
+				);
+				void ApiHelper.call("log", "POST", {
+					cat: "eventsub",
+					log: { topic, tt_v: import.meta.env.PACKAGE_VERSION, data: payload.event },
+				});
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_BEGIN:
+			case TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_UPDATE:
+			case TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_END: {
+				void this.sharedChatEvent(
+					topic,
+					payload.event as
+						| TwitchEventSubDataTypes.SharedChatEvent["event"]
+						| TwitchEventSubDataTypes.SharedChatEndEvent["event"],
 				);
 				void ApiHelper.call("log", "POST", {
 					cat: "eventsub",
@@ -3395,6 +3435,79 @@ export default class EventSub {
 				twitch_powerup: true,
 			};
 			void StoreProxy.chat.addMessage(chat);
+		}
+	}
+
+	/**
+	 * Called when a shared chat session starts, changes or ends
+	 */
+	private async sharedChatEvent(
+		topic: TwitchEventSubDataTypes.SubscriptionStringTypes,
+		event:
+			| TwitchEventSubDataTypes.SharedChatEvent["event"]
+			| TwitchEventSubDataTypes.SharedChatEndEvent["event"],
+	): Promise<void> {
+		const channelId = event.broadcaster_user_id;
+		const getUser = (id: string, login: string, displayName: string) =>
+			StoreProxy.users.getUserFrom("twitch", channelId, id, login, displayName);
+
+		const host = getUser(
+			event.host_broadcaster_user_id,
+			event.host_broadcaster_user_login,
+			event.host_broadcaster_user_name,
+		);
+		const participants = ("participants" in event ? event.participants : []).map((v) =>
+			getUser(v.broadcaster_user_id, v.broadcaster_user_login, v.broadcaster_user_name),
+		);
+
+		const sendMessage = (
+			step: TwitchatDataTypes.MessageSharedChatSessionData["event"],
+			newParticipants: TwitchatDataTypes.TwitchatUser[] = [],
+			leftParticipants: TwitchatDataTypes.TwitchatUser[] = [],
+		) => {
+			const message: TwitchatDataTypes.MessageSharedChatSessionData = {
+				id: Utils.getUUID(),
+				date: Date.now(),
+				platform: "twitch",
+				channel_id: channelId,
+				type: TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION,
+				session_id: event.session_id,
+				event: step,
+				host,
+				participants,
+				newParticipants,
+				leftParticipants,
+			};
+			void StoreProxy.chat.addMessage(message);
+		};
+
+		switch (topic) {
+			case TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_BEGIN: {
+				this.sharedChatParticipants[event.session_id] = participants;
+				sendMessage("begin");
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_UPDATE: {
+				const previous = this.sharedChatParticipants[event.session_id];
+				this.sharedChatParticipants[event.session_id] = participants;
+				// we missed session start event, do nothing until another one joins to avoid
+				// reporting everyone as joining
+				if (!previous) return;
+				const previousIds = previous.map((v) => v.id);
+				const currentIds = participants.map((v) => v.id);
+				const joined = participants.filter((v) => !previousIds.includes(v.id));
+				const left = previous.filter((v) => !currentIds.includes(v.id));
+				if (joined.length > 0) sendMessage("join", joined);
+				if (left.length > 0) sendMessage("leave", [], left);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_END: {
+				delete this.sharedChatParticipants[event.session_id];
+				sendMessage("end");
+				break;
+			}
 		}
 	}
 

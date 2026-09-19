@@ -602,6 +602,29 @@ export const storeDebug = defineStore("debug", {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION: {
+					const pool = Utils.shuffle(fakeUsers.concat());
+					const host = pool.splice(0, 1)[0]!;
+					const participants = [host, user].concat(
+						pool.splice(0, Math.round(Math.random() * 2) + 1),
+					);
+					const m: TwitchatDataTypes.MessageSharedChatSessionData = {
+						id: Utils.getUUID(),
+						platform: "twitch",
+						channel_id: uid,
+						date: Date.now(),
+						type,
+						session_id: Utils.getUUID(),
+						event: "begin",
+						host,
+						participants,
+						newParticipants: [],
+						leftParticipants: [],
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.MUSIC_START:
 				case TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP: {
 					const m:

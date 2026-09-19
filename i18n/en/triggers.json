@@ -1036,6 +1036,19 @@
 			"stream_title": "Stream title",
 			"stream_category": "Stream category",
 			"stream_previewUrl": "Stream preview URL",
+			"shared_chat_host": "Username of the user hosting the shared chat session",
+			"shared_chat_host_login": "Login of the user hosting the shared chat session",
+			"shared_chat_host_id": "ID of the user hosting the shared chat session",
+			"shared_chat_host_avatar": "Avatar of the user hosting the shared chat session",
+			"shared_chat_session_id": "ID of the shared chat session",
+			"shared_chat_participants": "Usernames of the session's participants",
+			"shared_chat_participants_id": "IDs of the session's participants",
+			"shared_chat_new_participants": "Usernames of the users that just joined the session",
+			"shared_chat_new_participants_login": "Logins of the users that just joined the session",
+			"shared_chat_new_participants_id": "IDs of the users that just joined the session",
+			"shared_chat_left_participants": "Usernames of the users that just left the session",
+			"shared_chat_left_participants_login": "Logins of the users that just left the session",
+			"shared_chat_left_participants_id": "IDs of the users that just left the session",
 			"stream_viewers": "Raiders count",
 			"stream_duration": "Stream duration in milliseconds",
 			"stream_duration_str": "Stream duration formatted",
@@ -1681,6 +1694,22 @@
 				"label": "Twitch stream stop",
 				"description": "Actions to execute when stream stops {INFO}",
 				"description_info": "(you might have to wait +1min before receiving that info)"
+			},
+			"SHARED_CHAT_BEGIN": {
+				"label": "Shared chat session start",
+				"description": "Actions to execute when a shared chat session starts on your channel"
+			},
+			"SHARED_CHAT_JOIN": {
+				"label": "Shared chat session join",
+				"description": "Actions to execute when broadcasters join a running shared chat session"
+			},
+			"SHARED_CHAT_LEAVE": {
+				"label": "Shared chat session leave",
+				"description": "Actions to execute when broadcasters leave a running shared chat session"
+			},
+			"SHARED_CHAT_END": {
+				"label": "Shared chat session end",
+				"description": "Actions to execute when a shared chat session ends"
 			},
 			"FOLLOWED_STREAM_ONLINE": {
 				"label": "Twitch Followed stream start",

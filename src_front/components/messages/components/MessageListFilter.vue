@@ -1091,6 +1091,54 @@ async function previewMessage(
 			false,
 		);
 		loadingPreview.value = false;
+	} else if (filter.type == TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION) {
+		storeDebug.simulateMessage<TwitchatDataTypes.MessageSharedChatSessionData>(
+			TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION,
+			(data) => {
+				if (!data || !mouseOverToggle.value) return;
+				messagesCache[filter.type]?.push(data);
+				if (previewIndexLoc != previewIndex.value) return;
+				previewData.value.push(data);
+			},
+			false,
+		);
+		storeDebug.simulateMessage<TwitchatDataTypes.MessageSharedChatSessionData>(
+			TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION,
+			(data) => {
+				if (!data || !mouseOverToggle.value) return;
+				data.event = "join";
+				data.newParticipants = data.participants.slice(-2);
+				messagesCache[filter.type]?.push(data);
+				if (previewIndexLoc != previewIndex.value) return;
+				previewData.value.push(data);
+			},
+			false,
+		);
+		storeDebug.simulateMessage<TwitchatDataTypes.MessageSharedChatSessionData>(
+			TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION,
+			(data) => {
+				if (!data || !mouseOverToggle.value) return;
+				data.event = "leave";
+				data.leftParticipants = data.participants.splice(-2);
+				messagesCache[filter.type]?.push(data);
+				if (previewIndexLoc != previewIndex.value) return;
+				previewData.value.push(data);
+			},
+			false,
+		);
+		storeDebug.simulateMessage<TwitchatDataTypes.MessageSharedChatSessionData>(
+			TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION,
+			(data) => {
+				if (!data || !mouseOverToggle.value) return;
+				data.event = "end";
+				data.participants = [];
+				messagesCache[filter.type]?.push(data);
+				if (previewIndexLoc != previewIndex.value) return;
+				previewData.value.push(data);
+			},
+			false,
+		);
+		loadingPreview.value = false;
 	} else if (filter.type == TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST) {
 		storeDebug.simulateMessage<TwitchatDataTypes.MessageUnbanRequestData>(
 			TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST,

@@ -2404,6 +2404,10 @@ export const TriggerTypes = {
 	TWITCHAT_COMPANION_KEYS: "188",
 	YOUTUBE_JEWELS: "189",
 	RAFFLE_JOIN: "190",
+	SHARED_CHAT_BEGIN: "191",
+	SHARED_CHAT_JOIN: "192",
+	SHARED_CHAT_END: "193",
+	SHARED_CHAT_LEAVE: "194",
 
 	TWITCHAT_AD: "ad",
 	TWITCHAT_LIVE_FRIENDS: "live_friends",
@@ -5390,6 +5394,130 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 					| TwitchatDataTypes.MessageStreamOfflineData
 				>,
 			];
+
+	const sharedChatCommonTags = [
+		{
+			tag: "HOST",
+			descKey: "triggers.placeholders.shared_chat_host",
+			pointer: "host.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		{
+			tag: "HOST_LOGIN",
+			descKey: "triggers.placeholders.shared_chat_host_login",
+			pointer: "host.login",
+			numberParsable: false,
+			isUserID: false,
+			example: "durss",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		{
+			tag: "HOST_ID",
+			descKey: "triggers.placeholders.shared_chat_host_id",
+			pointer: "host.id",
+			numberParsable: false,
+			isUserID: true,
+			example: "29961813",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		{
+			tag: "HOST_AVATAR",
+			descKey: "triggers.placeholders.shared_chat_host_avatar",
+			pointer: "host.avatarPath",
+			numberParsable: false,
+			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		{
+			tag: "SESSION_ID",
+			descKey: "triggers.placeholders.shared_chat_session_id",
+			pointer: "session_id",
+			numberParsable: false,
+			isUserID: false,
+			example: "2b8b1a0e-1b5f-4c3e-9f6a-1d2c3b4a5e6f",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+	];
+
+	const sharedChatParticipantTags = [
+		{
+			tag: "PARTICIPANTS",
+			descKey: "triggers.placeholders.shared_chat_participants",
+			pointer: "participants.0.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss, Twitchat",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		{
+			tag: "PARTICIPANTS_ID",
+			descKey: "triggers.placeholders.shared_chat_participants_id",
+			pointer: "participants.0.id",
+			numberParsable: false,
+			isUserID: false,
+			example: "29961813, 647389082",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+	];
+
+	map[TriggerTypes.SHARED_CHAT_END] = [...sharedChatCommonTags];
+
+	map[TriggerTypes.SHARED_CHAT_BEGIN] = [...sharedChatCommonTags, ...sharedChatParticipantTags];
+
+	map[TriggerTypes.SHARED_CHAT_JOIN] = [
+		...sharedChatCommonTags,
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.shared_chat_new_participants",
+			pointer: "newParticipants.0.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss, Twitchat",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.shared_chat_new_participants_login",
+			pointer: "newParticipants.0.login",
+			numberParsable: false,
+			isUserID: false,
+			example: "durss, twitchat",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		{
+			tag: USER_ID,
+			descKey: "triggers.placeholders.shared_chat_new_participants_id",
+			pointer: "newParticipants.0.id",
+			numberParsable: false,
+			isUserID: false,
+			example: "29961813, 647389082",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		...sharedChatParticipantTags,
+	];
+
+	map[TriggerTypes.SHARED_CHAT_LEAVE] = [
+		...sharedChatCommonTags,
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.shared_chat_left_participants",
+			pointer: "leftParticipants.0.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss, Twitchat",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.shared_chat_left_participants_login",
+			pointer: "leftParticipants.0.login",
+			numberParsable: false,
+			isUserID: false,
+			example: "durss, twitchat",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		{
+			tag: USER_ID,
+			descKey: "triggers.placeholders.shared_chat_left_participants_id",
+			pointer: "leftParticipants.0.id",
+			numberParsable: false,
+			isUserID: false,
+			example: "29961813, 647389082",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSharedChatSessionData>,
+		...sharedChatParticipantTags,
+	];
 
 	map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE] = [
 		{
@@ -10563,6 +10691,42 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			value: TriggerTypes.STREAM_OFFLINE,
 			descriptionKey: "triggers.events.STREAM_OFFLINE.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE,
+		},
+		{
+			category: TriggerEventTypeCategories.MISC,
+			icon: "sharedChat",
+			labelKey: "triggers.events.SHARED_CHAT_BEGIN.label",
+			value: TriggerTypes.SHARED_CHAT_BEGIN,
+			descriptionKey: "triggers.events.SHARED_CHAT_BEGIN.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			category: TriggerEventTypeCategories.MISC,
+			icon: "userAdd",
+			labelKey: "triggers.events.SHARED_CHAT_JOIN.label",
+			value: TriggerTypes.SHARED_CHAT_JOIN,
+			descriptionKey: "triggers.events.SHARED_CHAT_JOIN.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			category: TriggerEventTypeCategories.MISC,
+			icon: "userDel",
+			labelKey: "triggers.events.SHARED_CHAT_LEAVE.label",
+			value: TriggerTypes.SHARED_CHAT_LEAVE,
+			descriptionKey: "triggers.events.SHARED_CHAT_LEAVE.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			category: TriggerEventTypeCategories.MISC,
+			icon: "sharedChat",
+			labelKey: "triggers.events.SHARED_CHAT_END.label",
+			value: TriggerTypes.SHARED_CHAT_END,
+			descriptionKey: "triggers.events.SHARED_CHAT_END.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
 		},
 		{
 			category: TriggerEventTypeCategories.MISC,

@@ -130,6 +130,27 @@
 				>Incoming raid online</TTButton
 			>
 			<TTButton small @click="startFakeRaid()" icon="raid">Outgoing raid</TTButton>
+			<TTButton small @click="simulateEvent($event, 'shared_chat_session')" icon="sharedChat"
+				>Shared chat begin</TTButton
+			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'shared_chat_session', 'sharedChatJoin')"
+				icon="userAdd"
+				>Shared chat join</TTButton
+			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'shared_chat_session', 'sharedChatLeave')"
+				icon="userDel"
+				>Shared chat leave</TTButton
+			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'shared_chat_session', 'sharedChatEnd')"
+				icon="sharedChat"
+				>Shared chat end</TTButton
+			>
 			<TTButton small @click="simulateEvent($event, 'cheer')" icon="bits">Bits</TTButton>
 			<TTButton small @click="simulateEvent($event, 'cheer', 'no_message')" icon="bits"
 				>Bits (no mess)</TTButton
@@ -441,6 +462,9 @@ type Subaction =
 	| "gift"
 	| "giftpaidupgrade"
 	| "soReceived"
+	| "sharedChatJoin"
+	| "sharedChatLeave"
+	| "sharedChatEnd"
 	| "ad_warn"
 	| "donor_public_prompt"
 	| "update_reminder"
@@ -575,6 +599,24 @@ async function simulateEvent(
 				case "soReceived":
 					(message as TwitchatDataTypes.MessageShoutoutData).received = true;
 					break;
+				case "sharedChatJoin": {
+					const m = message as TwitchatDataTypes.MessageSharedChatSessionData;
+					m.event = "join";
+					m.newParticipants = m.participants.slice(-2);
+					break;
+				}
+				case "sharedChatLeave": {
+					const m = message as TwitchatDataTypes.MessageSharedChatSessionData;
+					m.event = "leave";
+					m.leftParticipants = m.participants.splice(-2);
+					break;
+				}
+				case "sharedChatEnd": {
+					const m = message as TwitchatDataTypes.MessageSharedChatSessionData;
+					m.event = "end";
+					m.participants = [];
+					break;
+				}
 				case "first":
 					(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true;
 					break;

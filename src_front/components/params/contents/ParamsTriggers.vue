@@ -746,6 +746,25 @@ function testTrigger(trigger: TriggerData): void {
 						//Force proper "received" state
 						(m as TwitchatDataTypes.MessageShoutoutData).received =
 							triggerEvent.value == TriggerTypes.SHOUTOUT_IN;
+					} else if (
+						triggerEvent.value == TriggerTypes.SHARED_CHAT_JOIN ||
+						triggerEvent.value == TriggerTypes.SHARED_CHAT_LEAVE ||
+						triggerEvent.value == TriggerTypes.SHARED_CHAT_END
+					) {
+						//Force proper shared chat session step
+						const session = m as TwitchatDataTypes.MessageSharedChatSessionData;
+						if (triggerEvent.value == TriggerTypes.SHARED_CHAT_JOIN) {
+							session.event = "join";
+							//Consider the last participants as the ones that just joined
+							session.newParticipants = session.participants.slice(-2);
+						} else if (triggerEvent.value == TriggerTypes.SHARED_CHAT_LEAVE) {
+							session.event = "leave";
+							//Consider the last participants as the ones that just left
+							session.leftParticipants = session.participants.splice(-2);
+						} else {
+							session.event = "end";
+							session.participants = [];
+						}
 					} else if (triggerEvent.value == TriggerTypes.HEAT_CLICK) {
 						//Force proper heat click target
 						if (trigger.heatClickSource == "area" && trigger.heatAreaIds) {

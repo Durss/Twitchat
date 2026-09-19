@@ -2440,6 +2440,28 @@ export default class TriggerActionHandler {
 				}
 				break;
 			}
+
+			case TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION: {
+				const eventToTrigger = {
+					begin: TriggerTypes.SHARED_CHAT_BEGIN,
+					join: TriggerTypes.SHARED_CHAT_JOIN,
+					leave: TriggerTypes.SHARED_CHAT_LEAVE,
+					end: TriggerTypes.SHARED_CHAT_END,
+				} as const;
+				if (
+					await this.executeTriggersByType(
+						eventToTrigger[message.event],
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
 		}
 	}
 

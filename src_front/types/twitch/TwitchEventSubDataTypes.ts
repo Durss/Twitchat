@@ -62,6 +62,9 @@ export namespace TwitchEventSubDataTypes {
 		WHISPERS: "user.whisper.message",
 		BITS_USE: "channel.bits.use",
 		CUSTOM_POWER_UP_REDEEM: "channel.custom_power_up_redemption.add",
+		SHARED_CHAT_BEGIN: "channel.shared_chat.begin",
+		SHARED_CHAT_UPDATE: "channel.shared_chat.update",
+		SHARED_CHAT_END: "channel.shared_chat.end",
 	} as const;
 	export type SubscriptionStringTypes =
 		(typeof SubscriptionTypes)[keyof typeof SubscriptionTypes];
@@ -1085,25 +1088,6 @@ export namespace TwitchEventSubDataTypes {
 		};
 	}
 
-	export interface SharedChatStartEvent {
-		session_id: string;
-		broadcaster_user_id: string;
-		broadcaster_user_login: string;
-		broadcaster_user_name: string;
-		host_broadcaster_user_id: string;
-		host_broadcaster_user_login: string;
-		host_broadcaster_user_name: string;
-		participants: {
-			broadcaster_user_id: string;
-			broadcaster_user_name: string;
-			broadcaster_user_login: string;
-		}[];
-	}
-
-	export interface SharedChatUpdateEvent extends SharedChatStartEvent {}
-
-	export interface SharedChatEndEvent {}
-
 	export interface BitsUseEvent {
 		user_id: string;
 		user_login: string;
@@ -1156,4 +1140,40 @@ export namespace TwitchEventSubDataTypes {
 		};
 		redeemed_at: string;
 	}
+
+	export interface SharedChatEvent {
+		subscription: {
+			id: string;
+			status: string;
+			type: string;
+			version: string;
+			condition: {
+				broadcaster_user_id: string;
+			};
+			transport: {
+				method: string;
+				session_id: string;
+			};
+			created_at: string;
+			cost: number;
+		};
+		event: {
+			session_id: string;
+			broadcaster_user_id: string;
+			broadcaster_user_login: string;
+			broadcaster_user_name: string;
+			host_broadcaster_user_id: string;
+			host_broadcaster_user_login: string;
+			host_broadcaster_user_name: string;
+			participants: Array<{
+				broadcaster_user_id: string;
+				broadcaster_user_name: string;
+				broadcaster_user_login: string;
+			}>;
+		};
+	}
+
+	export type SharedChatEndEvent = Omit<SharedChatEvent, "event"> & {
+		event: Omit<SharedChatEvent["event"], "participants">;
+	};
 }

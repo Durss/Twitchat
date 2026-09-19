@@ -130,6 +130,7 @@
 				"hype_train_summary": "Hype train summaries",
 				"hype_train_cooled_down": "Hype train cooldown",
 				"community_boost_complete": "Community boosts",
+				"shared_chat_session": "Shared chat sessions",
 				"community_challenge_contribution": "Community challenge",
 				"music_added_to_queue": "Song request items",
 				"pinned": "Un/Pinned message notices",
@@ -169,6 +170,13 @@
 			"commands_placeholder": "type command...",
 			"tracked_tt": "Messages sent by viewers you added to the tracked users",
 			"short_tt": "Messages shorter than 4 chars or containing mostly emotes"
+		},
+		"shared_chat": {
+			"begin": "{HOST} started a shared chat session",
+			"join": "{USERS} joined the shared chat session",
+			"leave": "{USERS} left the shared chat session",
+			"end": "The shared chat session hosted by {HOST} is closed",
+			"participants": "With {USERS}"
 		},
 		"shoutout": {
 			"received": "{USER} gave you a shoutout to {VIEWERS} viewers",

@@ -1038,6 +1038,19 @@
 			"stream_title": "Titre du stream",
 			"stream_category": "Catégorie du stream",
 			"stream_previewUrl": "Image d'aperçu du stream",
+			"shared_chat_host": "Pseudo de la la personne hébergeant la session de chat partagé",
+			"shared_chat_host_login": "Login de la la personne hébergeant la session de chat partagé",
+			"shared_chat_host_id": "ID de la la personne hébergeant la session de chat partagé",
+			"shared_chat_host_avatar": "Avatar de la la personne hébergeant la session de chat partagé",
+			"shared_chat_session_id": "ID de la session de chat partagé",
+			"shared_chat_participants": "Pseudos des streameur⋅ses participant à la session",
+			"shared_chat_participants_id": "IDs des streameur⋅ses participant à la session",
+			"shared_chat_new_participants": "Pseudo des streameur⋅ses venant de rejoindre la session",
+			"shared_chat_new_participants_login": "Logins des streameur⋅ses venant de rejoindre la session",
+			"shared_chat_new_participants_id": "IDs des streameur⋅ses venant de rejoindre la session",
+			"shared_chat_left_participants": "Pseudo des streameur⋅ses venant de quitter la session",
+			"shared_chat_left_participants_login": "Logins des streameur⋅ses venant de quitter la session",
+			"shared_chat_left_participants_id": "IDs des streameur⋅ses venant de quitter la session",
 			"stream_viewers": "Nombre de raiders",
 			"stream_duration": "Durée du stream en millisecondes",
 			"stream_duration_str": "Durée du stream formatée",
@@ -1681,6 +1694,22 @@
 				"label": "Arrêt du stream Twitch",
 				"description": "Actions à exécuter lorsque le stream est arrêté {INFO}",
 				"description_info": "(il peut falloir attendre +1min pour recevoir cette info)"
+			},
+			"SHARED_CHAT_BEGIN": {
+				"label": "Début de session de chat partagé",
+				"description": "Actions à exécuter lorsqu'une session de chat partagé débute sur votre chaîne"
+			},
+			"SHARED_CHAT_JOIN": {
+				"label": "Arrivée dans une session de chat partagé",
+				"description": "Actions à exécuter lorsque des streameur⋅ses rejoignent une session de chat partagé en cours"
+			},
+			"SHARED_CHAT_LEAVE": {
+				"label": "Départ d'une session de chat partagé",
+				"description": "Actions à exécuter lorsque des streameur⋅ses quittent une session de chat partagé en cours"
+			},
+			"SHARED_CHAT_END": {
+				"label": "Fin de session de chat partagé",
+				"description": "Actions à exécuter lorsqu'une session de chat partagé se termine"
 			},
 			"FOLLOWED_STREAM_ONLINE": {
 				"label": "Début de stream d'une personne que vous suivez sur Twitch",

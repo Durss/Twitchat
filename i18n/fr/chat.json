@@ -130,6 +130,7 @@
 				"hype_train_summary": "Résultats du train de la hype",
 				"hype_train_cooled_down": "Train de la hype prêt",
 				"community_boost_complete": "Boost de stream",
+				"shared_chat_session": "Sessions de tchat partagé",
 				"community_challenge_contribution": "Défis de communauté",
 				"music_added_to_queue": "Ajout de morceau via song request",
 				"pinned": "Alertes de messages épinglés",
@@ -169,6 +170,13 @@
 			"commands_placeholder": "entrez une commande...",
 			"tracked_tt": "Messages envoyés par des personnes pour lesquelles vous avez activé le suivit de messages",
 			"short_tt": "Messages plus courts que 4 caractères ou contenant principalement des emotes"
+		},
+		"shared_chat": {
+			"begin": "{HOST} a démarré une session de tchat partagé",
+			"join": "{USERS} a rejoint la session de tchat partagé",
+			"leave": "{USERS} a quitté la session de tchat partagé",
+			"end": "La session de tchat partagé hébergée par {HOST} est terminée",
+			"participants": "Avec {USERS}"
 		},
 		"shoutout": {
 			"received": "{USER} vous a fait une dédicace auprès de {VIEWERS} viewers",

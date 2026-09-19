@@ -714,6 +714,7 @@ export const storeParams = defineStore("params", {
 					hype_train_cooled_down: false,
 					twitch_charity_donation: false,
 					community_boost_complete: false,
+					shared_chat_session: false,
 					community_challenge_contribution: false,
 				},
 				messageFilters: {
@@ -784,6 +785,7 @@ export const storeParams = defineStore("params", {
 					hype_train_cooled_down: true,
 					twitch_charity_donation: true,
 					community_boost_complete: true,
+					shared_chat_session: true,
 					community_challenge_contribution: true,
 				},
 				messageFilters: {
@@ -981,6 +983,7 @@ export const storeParams = defineStore("params", {
 					hype_train_cooled_down: false,
 					twitch_charity_donation: false,
 					community_boost_complete: false,
+					shared_chat_session: false,
 					community_challenge_contribution: false,
 				},
 				messageFilters: {

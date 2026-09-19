@@ -916,6 +916,10 @@ function shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
 			return props.config.filters.community_boost_complete === true;
 		}
 
+		case TwitchatDataTypes.TwitchatMessageType.SHARED_CHAT_SESSION: {
+			return props.config.filters.shared_chat_session === true;
+		}
+
 		case TwitchatDataTypes.TwitchatMessageType.JOIN: {
 			return props.config.filters.join === true;
 		}

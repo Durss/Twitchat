@@ -104,6 +104,7 @@ import ChatRaid from "./ChatRaid.vue";
 import ChatReward from "./ChatReward.vue";
 import ChatRoomSettings from "./ChatRoomSettings.vue";
 import ChatScopeRequester from "./ChatScopeRequester.vue";
+import ChatSharedChatSession from "./ChatSharedChatSession.vue";
 import ChatShoutout from "./ChatShoutout.vue";
 import ChatStreamelementsEvent from "./ChatStreamelementsEvent.vue";
 import ChatStreamlabsEvent from "./ChatStreamlabsEvent.vue";
@@ -208,6 +209,7 @@ const componentRef = computed<VueComponent | null>(() => {
 		clip_pending_publication: ChatMessageClipPending,
 		scope_request: ChatScopeRequester,
 		community_boost_complete: ChatCommunityBoost,
+		shared_chat_session: ChatSharedChatSession,
 		cheer: ChatBits,
 		subscription: ChatSubscription,
 		reward: ChatReward,
