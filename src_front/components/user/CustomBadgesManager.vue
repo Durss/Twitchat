@@ -99,14 +99,14 @@
 </template>
 
 <script setup lang="ts">
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Config from "@/utils/Config";
-import Utils from "@/utils/Utils";
-import { computed, nextTick, onBeforeMount, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
+import { useConfirm } from "@/composables/useConfirm";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
-import { useConfirm } from "@/composables/useConfirm";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import { fileToBase64Img } from "@/utils/utils/fileToBase64.js";
+import { computed, nextTick, onBeforeMount, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import PremiumLimitMessage from "../params/PremiumLimitMessage.vue";
 import ToggleButton from "../ToggleButton.vue";
 import TTButton from "../TTButton.vue";
@@ -191,7 +191,7 @@ function onAddBadgeFile(e: Event): void {
 	const files = input.files;
 	if (!files || files.length == 0) return;
 
-	Utils.fileToBase64Img(files[0]!).then((base64Img) => {
+	fileToBase64Img(files[0]!).then((base64Img) => {
 		storeUsers.createCustomBadge(base64Img);
 	});
 }
@@ -206,7 +206,7 @@ function onSelectBadgeFile(e: Event): void {
 	const files = input.files;
 	if (!files || files.length == 0) return;
 
-	Utils.fileToBase64Img(files[0]!).then((base64Img) => {
+	fileToBase64Img(files[0]!).then((base64Img) => {
 		storeUsers.updateCustomBadgeImage(selectedBadgeId.value, base64Img);
 		input.value = "";
 	});

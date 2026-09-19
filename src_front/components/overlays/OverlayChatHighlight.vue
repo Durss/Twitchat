@@ -41,7 +41,7 @@
 			<video
 				ref="video"
 				id="clip_player"
-				:src="clipData.mp4"
+				:src="clipMp4URL"
 				autoplay
 				@loadedmetadata="onClipStart()"
 			></video>
@@ -58,10 +58,7 @@
 		>
 			<iframe
 				id="clip_player"
-				:src="
-					clipData.url +
-					'&autoplay=true&parent=twitchat.fr&parent=localhost&parent=beta.twitchat.fr&parent=alpha.twitchat.fr&parent=dev.twitchat.fr'
-				"
+				:src="clipEmbedURL"
 				width="990"
 				height="557"
 				allowfullscreen
@@ -117,6 +114,29 @@ class OverlayChatHighlight extends Vue {
 		return {
 			width: this.clipPercent * 100 + "%",
 		};
+	}
+
+	/**
+	 * Clip's embed URL with the "parent" params necessary for twitch's player.
+	 * Undefined if the clip's URL isn't a valid http(s) one. Clip info can come
+	 * from OBS-websocket, we don't want a "javascript:" URL as an iframe source
+	 */
+	public get clipEmbedURL(): string | undefined {
+		if (!this.clipData?.url || !/^https?:\/\//i.test(this.clipData.url)) return undefined;
+		return (
+			this.clipData.url +
+			"&autoplay=true&parent=twitchat.fr&parent=" +
+			document.location.hostname
+		);
+	}
+
+	/**
+	 * Clip's MP4 URL.
+	 * Undefined if it isn't a valid http(s) one. See clipEmbedURL()
+	 */
+	public get clipMp4URL(): string | undefined {
+		if (!this.clipData?.mp4 || !/^https?:\/\//i.test(this.clipData.mp4)) return undefined;
+		return this.clipData.mp4;
 	}
 
 	public async mounted(): Promise<void> {

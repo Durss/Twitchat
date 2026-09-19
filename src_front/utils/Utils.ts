@@ -1,10 +1,7 @@
-import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { evaluate as MathEval } from "mathjs";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+
 import type { JsonObject } from "type-fest";
-import PublicAPI from "./PublicAPI";
-import { toRaw } from "vue";
 
 /**
  * Created by Durss
@@ -915,31 +912,6 @@ export default class Utils {
 	}
 
 	/**
-	 * Converts a file input to a base64 image
-	 * @param input
-	 */
-	public static async fileToBase64Img(input: File): Promise<string> {
-		return new Promise<string>((resolve, _reject) => {
-			const img = new Image();
-			img.onload = (_event) => {
-				//Scale down image to a 32x32px image
-				const size = 32;
-				const sourceCanvas = document.createElement("canvas");
-				sourceCanvas.width = size;
-				sourceCanvas.height = size;
-				const sourceContext = sourceCanvas.getContext("2d")!;
-				sourceContext.drawImage(img, 0, 0, size, size);
-				const base64Img = sourceCanvas.toDataURL();
-				resolve(base64Img);
-			};
-			img.onerror = () => {
-				StoreProxy.common.alert(StoreProxy.i18n.t("error.badge_file_loading_failed"));
-			};
-			img.src = URL.createObjectURL(input);
-		});
-	}
-
-	/**
 	 * Compare 2 semantic version number like "1.23.456"
 	 * @param v1
 	 * @param v2
@@ -1343,51 +1315,6 @@ export default class Utils {
 		} catch (_error) {
 			throw new Error("Decryption failed: Invalid password or corrupted data");
 		}
-	}
-
-	/**
-	 * Evaluate mathematical expressions
-	 * @param expr
-	 * @returns
-	 */
-	public static evalMath(expr: string): number | null {
-		expr = expr.replace(/e/g, ".");
-		if (
-			//Ignore ranges notation as somthing like "1:0:0" kills CPU for a few seconds
-			!/\d(:\d)+/.test(expr.trim())
-		) {
-			try {
-				const num = MathEval(expr);
-				if (!isNaN(num) && num != Infinity) return num;
-			} catch (_error) {}
-		}
-		return null;
-	}
-
-	/**
-	 * Check if highlight overlay exists
-	 * @returns
-	 */
-	public static async getHighlightOverPresence(): Promise<boolean> {
-		return new Promise((resolve, _reject) => {
-			const timeout = window.setTimeout(() => {
-				resolve(false);
-				PublicAPI.instance.removeEventListener(
-					"SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
-					handler,
-				);
-			}, 1000);
-			let handler = () => {
-				clearTimeout(timeout);
-				resolve(true);
-				PublicAPI.instance.removeEventListener(
-					"SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
-					handler,
-				);
-			};
-			PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
-			PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
-		});
 	}
 
 	/**
@@ -1857,34 +1784,6 @@ export default class Utils {
 	}
 
 	/**
-	 * Get URL for given overlay ID and params
-	 * @param id
-	 * @param params
-	 * @returns
-	 */
-	public static overlayURL(id: string, params?: { k: string; v: string }[]): string {
-		const port = DataStore.get(DataStore.OBS_PORT);
-		const pass = DataStore.get(DataStore.OBS_PASS);
-		const ip = DataStore.get(DataStore.OBS_IP);
-		const urlParams = new URLSearchParams();
-		if (params) {
-			for (const p of params) {
-				urlParams.append(p.k, p.v);
-			}
-		}
-		if (port) urlParams.append("obs_port", port);
-		if (pass) urlParams.append("obs_pass", pass);
-		if (ip) urlParams.append("obs_ip", ip);
-		let suffix = urlParams.toString();
-		if (suffix) suffix = "?" + suffix;
-		return (
-			document.location.origin +
-			StoreProxy.router.resolve({ name: "overlay", params: { id } }).fullPath +
-			suffix
-		);
-	}
-
-	/**
 	 * Check if answer is from a classic quiz question
 	 */
 	public static isClassicQuizAnswer(
@@ -2002,32 +1901,5 @@ export default class Utils {
 			fullName = fullName.substring(0, fullName.length - 1);
 		}
 		return fullName;
-	}
-
-	/**
-	 * Deeply clones a vue object.
-	 * Equivalent to `JSON.parse(JSON.stringify(vueObject))` but with much better perfs.
-	 * Only difference with JSON cloning is NaN and Infinity that are kept instead of
-	 * set to null. Which is actually better.
-	 */
-	public static deepVueRefClone<T>(value: T): T {
-		const v = toRaw(value) as any;
-		if (v === null || typeof v !== "object") return v;
-		if (v instanceof Date) return new Date(v.getTime()) as T;
-		if (Array.isArray(v)) {
-			const n = v.length;
-			const out = Array.from({ length: n });
-			for (let i = 0; i < n; i++) out[i] = this.deepVueRefClone(v[i]);
-			return out as T;
-		}
-		const out: Record<string, unknown> = {};
-		const keys = Object.keys(v);
-		for (let i = 0; i < keys.length; i++) {
-			const k = keys[i]!;
-			const val = v[k];
-			if (val === undefined || typeof val === "function") continue;
-			out[k] = this.deepVueRefClone(val);
-		}
-		return out as T;
 	}
 }

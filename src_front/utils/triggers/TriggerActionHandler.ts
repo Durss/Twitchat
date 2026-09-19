@@ -1,4 +1,3 @@
-import type { JsonObject, JsonValue } from "type-fest";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
@@ -8,6 +7,7 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { gsap } from "gsap/gsap-core";
 import { JSONPath } from "jsonpath-plus";
 import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
+import type { JsonObject, JsonValue } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import {
@@ -25,10 +25,16 @@ import {
 import type { SearchTrackItem } from "../../types/spotify/SpotifyDataTypes";
 import ApiHelper from "../ApiHelper";
 import Config from "../Config";
-import ChatCommandCaptureUtils from "./ChatCommandCaptureUtils";
 import type { LogTrigger, LogTriggerStep } from "../Logger";
 import Logger from "../Logger";
 import { default as OBSWebSocket, type SourceTransform } from "../OBSWebsocket";
+import { registerOptionalPlaceholderModifiers } from "../OptionalPlaceholderModifiers";
+import {
+	findPlaceholders,
+	splicePlaceholders,
+	unescapeLiteralPlaceholders,
+	type IPlaceholderOccurrence,
+} from "../PlaceholderModifiers";
 import PublicAPI from "../PublicAPI";
 import SFXRUtils from "../SFXRUtils";
 import TTSUtils from "../TTSUtils";
@@ -36,18 +42,13 @@ import TriggerUtils from "../TriggerUtils";
 import Utils from "../Utils";
 import WebsocketTrigger from "../WebsocketTrigger";
 import GoXLRSocket from "../goxlr/GoXLRSocket";
-import {
-	findPlaceholders,
-	splicePlaceholders,
-	unescapeLiteralPlaceholders,
-	type IPlaceholderOccurrence,
-} from "../PlaceholderModifiers";
-import { registerOptionalPlaceholderModifiers } from "../OptionalPlaceholderModifiers";
 import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
+import { evalMath } from "../utils/evalMath";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
+import ChatCommandCaptureUtils from "./ChatCommandCaptureUtils";
 
 /**
  * Condition operators reading nothing but the value they're given.
@@ -3577,7 +3578,7 @@ export default class TriggerActionHandler {
 												const trimmed = rawValue.trim();
 												let num: number | null = Number(trimmed);
 												if (trimmed === "" || !isFinite(num)) {
-													num = Utils.evalMath(trimmed);
+													num = evalMath(trimmed);
 												}
 												if (num == null) {
 													logStep.messages.push({
@@ -3784,8 +3785,7 @@ export default class TriggerActionHandler {
 																},
 															);
 															text = text.replace(/\d,\d/gi, ".");
-															result.positionX =
-																Utils.evalMath(text) || 0;
+															result.positionX = evalMath(text) || 0;
 														}
 														if (step.pos_y) {
 															let text = await this.parsePlaceholders(
@@ -3799,8 +3799,7 @@ export default class TriggerActionHandler {
 																},
 															);
 															text = text.replace(/\d,\d/gi, ".");
-															result.positionY =
-																Utils.evalMath(text) || 0;
+															result.positionY = evalMath(text) || 0;
 														}
 													} else if (action == "resize") {
 														//Resize source
@@ -3816,8 +3815,7 @@ export default class TriggerActionHandler {
 																},
 															);
 															text = text.replace(/\d,\d/gi, ".");
-															result.width =
-																Utils.evalMath(text) || 0;
+															result.width = evalMath(text) || 0;
 															console.log(
 																"RESIZE X:",
 																text,
@@ -3836,8 +3834,7 @@ export default class TriggerActionHandler {
 																},
 															);
 															text = text.replace(/\d,\d/gi, ".");
-															result.height =
-																Utils.evalMath(text) || 0;
+															result.height = evalMath(text) || 0;
 															console.log(
 																"RESIZE Y:",
 																text,
@@ -3855,7 +3852,7 @@ export default class TriggerActionHandler {
 															subEvent,
 														});
 														text = text.replace(/\d,\d/gi, ".");
-														result.rotation = Utils.evalMath(text) || 0;
+														result.rotation = evalMath(text) || 0;
 													}
 
 													//Handle relative transform mode
@@ -4667,7 +4664,7 @@ export default class TriggerActionHandler {
 							message,
 							src: data.duration_s_placeholder,
 						});
-						const parsed = Utils.evalMath(text);
+						const parsed = evalMath(text);
 						if (parsed != null && parsed > 0) {
 							data.duration_s = parsed;
 							logStep.messages.push({
@@ -5575,7 +5572,7 @@ export default class TriggerActionHandler {
 							text +
 							'"',
 					});
-					let value = Utils.evalMath(text);
+					let value = evalMath(text);
 					if (value === null) {
 						const logMessage =
 							'❌ Invalid arithmetic operation: "' + step.addValue + '"';
@@ -7500,7 +7497,7 @@ export default class TriggerActionHandler {
 						alt = message.alt;
 						shift = message.shift;
 					} else {
-						const parsedX = Utils.evalMath(
+						const parsedX = evalMath(
 							await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
@@ -7522,7 +7519,7 @@ export default class TriggerActionHandler {
 							log.error = true;
 							logStep.error = true;
 						}
-						const parsedY = Utils.evalMath(
+						const parsedY = evalMath(
 							await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
@@ -7649,7 +7646,7 @@ export default class TriggerActionHandler {
 								src: rewardData!.cost.toString(),
 								subEvent,
 							});
-							const num = Utils.evalMath(cost);
+							const num = evalMath(cost);
 							if (num != null) {
 								rewardData!.cost = num;
 							}
@@ -8238,7 +8235,7 @@ export default class TriggerActionHandler {
 									subEvent,
 								});
 								let value = 0;
-								const parsed = Utils.evalMath(text);
+								const parsed = evalMath(text);
 								if (parsed != null) {
 									value = parsed;
 									logStep.messages.push({
@@ -8548,7 +8545,7 @@ export default class TriggerActionHandler {
 							src: step.customTrainData.value.toString() || "0",
 							subEvent,
 						});
-						const amountNum = Utils.evalMath(amount);
+						const amountNum = evalMath(amount);
 						if (amountNum == null) {
 							logStep.messages.push({
 								date: Date.now(),
@@ -10077,10 +10074,10 @@ export default class TriggerActionHandler {
 							subEvent,
 						});
 				const valueNum: number = OPERATORS_WITH_NUMERIC_VALUE.has(c.operator)
-					? (Utils.evalMath(value) ?? NaN)
+					? (evalMath(value) ?? NaN)
 					: NaN;
 				const expectationNum: number = OPERATORS_WITH_NUMERIC_EXPECTATION.has(c.operator)
-					? (Utils.evalMath(expectation) ?? NaN)
+					? (evalMath(expectation) ?? NaN)
 					: NaN;
 				const v1 = c.caseSensitive === true ? value : value.toLowerCase();
 				const v2 = c.caseSensitive === true ? expectation : expectation.toLowerCase();

@@ -3,11 +3,12 @@
  * It's not using Vue, only vanilla JS
  */
 
+import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import OBSWebSocket from "obs-websocket-js";
 import SFXRUtils from "./utils/SFXRUtils";
-import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import StreamdeckSocket, { StreamdeckSocketEvent } from "./utils/StreamdeckSocket";
 import Utils from "./utils/Utils";
+import { isLocalNetworkHost } from "./utils/utils/isLocalHost";
 
 const urlParams = new URLSearchParams(document.location.search);
 let connected = false;
@@ -51,6 +52,7 @@ async function connectToOBS(): Promise<void> {
 	try {
 		if (!urlParams.get("obs_ip")) return;
 		const ip = urlParams.get("obs_ip") || "127.0.0.1";
+		if (!isLocalNetworkHost(ip)) return;
 		const port = urlParams.get("obs_port") || "4455";
 		const pass = urlParams.get("obs_pass") || "";
 		const protocol = ip == "127.0.0.1" || ip == "localhost" ? "ws://" : "wss://";

@@ -83,7 +83,7 @@ import TTButton from "@/components/TTButton.vue";
 import { useEmptySlot } from "@/composables/useEmptySlot";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket, { type SourceTransform } from "@/utils/OBSWebsocket";
-import Utils from "@/utils/Utils";
+import { overlayURL } from "@/utils/utils/getOverlayURL";
 import { computed, ref, useSlots } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -144,7 +144,7 @@ const obsSourceName = computed<string>(() => {
 });
 
 const localURL = computed<string>(() => {
-	const url = new URL(props.url != "" ? props.url : Utils.overlayURL(props.type));
+	const url = new URL(props.url != "" ? props.url : overlayURL(props.type));
 	if (props.id != "") url.searchParams.set("twitchat_overlay_id", props.id);
 	if (props.queryParams) {
 		for (const key in props.queryParams) {

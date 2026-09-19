@@ -58,13 +58,13 @@
 
 <script lang="ts">
 import ToggleBlock from "@/components/ToggleBlock.vue";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue } from "vue-facing-decorator";
-import ParamItem from "../../ParamItem.vue";
 import DataStore from "@/store/DataStore";
 import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { overlayURL } from "@/utils/utils/getOverlayURL.js";
+import { Component, toNative, Vue } from "vue-facing-decorator";
+import ParamItem from "../../ParamItem.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
-import Utils from "@/utils/Utils";
 
 @Component({
 	components: {
@@ -105,7 +105,7 @@ class OverlayParamsUlule extends Vue {
 
 	public get overlayUrl(): string {
 		let project = this.param_project.value.replace(/.*ulule.[a-z]{2,3}\/([^?/]+).*/gi, "$1");
-		let url = Utils.overlayURL("ulule", [
+		let url = overlayURL("ulule", [
 			{ k: "project", v: project },
 			{ k: "goals", v: this.param_goals.value },
 			{ k: "currency", v: this.param_currency.value },

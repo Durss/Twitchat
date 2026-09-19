@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
-import Utils from "@/utils/Utils";
+import { overlayURL } from "@/utils/utils/getOverlayURL.js";
 import { onBeforeUnmount, ref } from "vue";
 import OverlayInstaller from "../params/contents/overlays/OverlayInstaller.vue";
 import TTButton from "../TTButton.vue";
@@ -54,7 +54,7 @@ async function checkOverlay(): Promise<void> {
 
 	const sourceRes = await OBSWebsocket.instance.getSources(true);
 	const params = props.overlayId ? [{ k: "twitchat_overlay_id", v: props.overlayId }] : [];
-	const urlRef = new URL(Utils.overlayURL(props.overlayType, params));
+	const urlRef = new URL(overlayURL(props.overlayType, params));
 
 	let localOverlayFound = false;
 	let localSourceVisible = false;

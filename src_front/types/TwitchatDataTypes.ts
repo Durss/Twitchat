@@ -5688,7 +5688,7 @@ export namespace TwitchatDataTypes {
 			labelKey: "chat.filters.message_types.shared_chat_session",
 			icon: "sharedChat",
 			scopes: [],
-			newFlag: 0,
+			newFlag: Config.instance.NEW_FLAGS_DATE_V17,
 		},
 		{
 			type: TwitchatMessageType.BINGO,

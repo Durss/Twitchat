@@ -3,13 +3,14 @@ import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import { indexUserLogin, indexUserLogins } from "@/utils/CounterValueUserIndex";
+import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
+import { evalMath } from "@/utils/utils/evalMath";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
 import DataStore from "../DataStore";
 import type { IValuesActions, IValuesGetters, IValuesState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
-import PublicAPI from "@/utils/PublicAPI";
 
 export const storeValues = defineStore("values", {
 	state: (): IValuesState => ({
@@ -101,7 +102,7 @@ export const storeValues = defineStore("values", {
 		): void {
 			let prevValue = "";
 			if (interpretMaths) {
-				const num = Utils.evalMath(value);
+				const num = evalMath(value);
 				if (num !== null && !isNaN(num)) value = num.toString();
 			}
 			for (let i = 0; i < this.valueList.length; i++) {

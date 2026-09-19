@@ -6,6 +6,7 @@ import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { getHighlightOverPresence } from "@/utils/utils/checkHighlightOverlayPresence";
 import { isRef, ref, type Ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -43,7 +44,7 @@ export function useClipHighlight(
 	 * Check if highlight overlay is available
 	 */
 	async function checkOverlayPresence(): Promise<boolean> {
-		const res = await Utils.getHighlightOverPresence();
+		const res = await getHighlightOverPresence();
 		highlightOverlayAvailable.value = res;
 		return res;
 	}

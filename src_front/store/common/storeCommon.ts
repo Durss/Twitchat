@@ -1,10 +1,11 @@
 import type { StoreActions } from "@/types/pinia-helpers";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import PublicAPI from "@/utils/PublicAPI";
+import StreamdeckSocket from "@/utils/StreamdeckSocket";
 import Utils from "@/utils/Utils";
+import { isLocalNetworkHost } from "@/utils/utils/isLocalHost";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { ICommonActions, ICommonGetters, ICommonState } from "../StoreProxy";
-import StreamdeckSocket from "@/utils/StreamdeckSocket";
 import StoreProxy from "../StoreProxy";
 
 //Contains things shared between app and overlays
@@ -31,7 +32,7 @@ export const storeCommon = defineStore("common", {
 			const pass = Utils.getQueryParameterByName("obs_pass");
 			const ip = Utils.getQueryParameterByName("obs_ip");
 			//If OBS params are on URL, connect
-			if (port != null && ip != null) {
+			if (port != null && ip != null && isLocalNetworkHost(ip)) {
 				void OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
 			}
 			if (authenticated) {

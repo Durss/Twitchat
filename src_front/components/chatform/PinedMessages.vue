@@ -49,6 +49,7 @@ import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
+import { getHighlightOverPresence } from "@/utils/utils/checkHighlightOverlayPresence.js";
 import { onMounted, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import ClearButton from "../ClearButton.vue";
@@ -71,7 +72,7 @@ const highlightLoading = ref(true);
 
 onMounted(() => {
 	//Check if highlight overlay exists
-	Utils.getHighlightOverPresence().then((res) => {
+	getHighlightOverPresence().then((res) => {
 		overlayAvailable.value = res;
 		highlightLoading.value = false;
 	});

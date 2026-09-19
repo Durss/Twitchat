@@ -42,12 +42,12 @@
 </template>
 
 <script setup lang="ts">
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Utils from "@/utils/Utils";
+import { fileToBase64Img } from "@/utils/utils/fileToBase64.js";
 import Icon from "../Icon.vue";
 import Button from "../TTButton.vue";
-import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
-import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 
 const props = withDefaults(
 	defineProps<{
@@ -74,7 +74,7 @@ function onSelectBadgeFile(e: Event): void {
 	const files = input.files;
 	if (!files || files.length == 0) return;
 
-	Utils.fileToBase64Img(files[0]!).then((base64Img) => {
+	fileToBase64Img(files[0]!).then((base64Img) => {
 		const badgeId = storeUsers.createCustomBadge(base64Img);
 		if (badgeId !== false && props.user) {
 			storeUsers.giveCustomBadge(

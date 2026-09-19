@@ -87,21 +87,22 @@
 </template>
 
 <script setup lang="ts">
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Utils from "@/utils/Utils";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { computed, onBeforeMount, onMounted, ref, useTemplateRef, watch } from "vue";
-import { useI18n } from "vue-i18n";
 import { useConfirm } from "@/composables/useConfirm";
 import { useSidePanel } from "@/composables/useSidePanel";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeQna as useStoreQna } from "@/store/qna/storeQna";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { getHighlightOverPresence } from "@/utils/utils/checkHighlightOverlayPresence.js";
+import { computed, onBeforeMount, onMounted, ref, useTemplateRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import ClearButton from "../ClearButton.vue";
+import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
 import MessageItem from "../messages/MessageItem.vue";
-import Icon from "../Icon.vue";
 
 const emit = defineEmits<{
 	close: [];
@@ -154,7 +155,7 @@ onBeforeMount(() => {
 
 onMounted(() => {
 	//Check if highlight overlay exists
-	Utils.getHighlightOverPresence().then((res) => {
+	getHighlightOverPresence().then((res) => {
 		overlayAvailable.value = res;
 		highlightLoading.value = false;
 	});

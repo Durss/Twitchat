@@ -16,6 +16,7 @@ import Utils from "./Utils";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
 import { TwitchScopes } from "./twitch/TwitchScopes";
 import TwitchUtils from "./twitch/TwitchUtils";
+import { getHighlightOverPresence } from "./utils/checkHighlightOverlayPresence";
 import YoutubeHelper from "./youtube/YoutubeHelper";
 import { YoutubeScopes } from "./youtube/YoutubeScopes";
 
@@ -903,7 +904,7 @@ export default class ContextMenuHelper {
 		}
 
 		//Update "highlight message" state according to overlay presence
-		void Utils.getHighlightOverPresence().then((res) => {
+		void getHighlightOverPresence().then((res) => {
 			const item = menu.items[highlightIndex]! as MenuItem;
 			if (!item) return;
 			item.label = t("chat.context_menu.highlight");

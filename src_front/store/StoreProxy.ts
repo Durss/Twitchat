@@ -31,7 +31,7 @@ import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
-import { AppBskyActorDefs, type AppBskyFeedDefs } from "@atproto/api";
+import { type AppBskyActorDefs, type AppBskyFeedDefs } from "@atproto/api";
 import type { BrowserOAuthClient } from "@atproto/oauth-client-browser";
 import type { StreamerbotAction } from "@streamerbot/client";
 import type Groq from "groq-sdk";
