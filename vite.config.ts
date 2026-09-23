@@ -22,6 +22,88 @@ const pkg = require("./package.json");
  * @see https://github.com/vitejs/vite/issues/5694
  */
 const loadVersionPlugin = (loadVersion as any).default || loadVersion;
+
+// max bundle sizes
+const BUNDLE_SIZE_BUDGETS: Record<string, number> = {
+	overlayLabel: 50 * 1024,
+	overlaySfxr: 50 * 1024,
+};
+
+/**
+ * Fails build if one of the bundles declared under BUNDLE_SIZE_BUDGETS exceeds
+ * the maximum given size.
+ * Includes sub dependencies.
+ */
+const overlaySizeBudgetPlugin = () => ({
+	name: "twitchat:overlay-size-budget",
+	apply: "build",
+	generateBundle(_options: unknown, bundle: Record<string, any>) {
+		const failures: string[] = [];
+
+		for (const [name, budget] of Object.entries(BUNDLE_SIZE_BUDGETS)) {
+			const entry = Object.values(bundle).find(
+				(c) => c.type == "chunk" && c.isEntry && c.name == name,
+			);
+			if (!entry) {
+				failures.push(`no entry chunk named "${name}" - is OVERLAY_SIZE_BUDGETS stale?`);
+				continue;
+			}
+
+			// Find all dependencies
+			const seen = new Set<string>();
+			const queue = [entry.fileName];
+			while (queue.length > 0) {
+				const file = queue.pop()!;
+				if (seen.has(file)) continue;
+				const chunk = bundle[file];
+				if (!chunk || chunk.type != "chunk") continue;
+				seen.add(file);
+				for (const imported of chunk.imports || []) queue.push(imported);
+			}
+
+			let js = 0;
+			const cssFiles = new Set<string>();
+			for (const file of seen) {
+				const chunk = bundle[file];
+				js += Buffer.byteLength(chunk.code || "", "utf8");
+				for (const c of chunk.viteMetadata?.importedCss || []) cssFiles.add(c);
+			}
+
+			const kb = (v: number) => (v / 1024).toFixed(1) + " kB";
+			const detail = `${kb(js)} js in ${seen.size} chunks (budget ${kb(budget)})`;
+
+			if (js > budget) {
+				// list the heaviest chunks so CI logs alone are enough to diagnose it
+				const heaviest = [...seen]
+					.map((f) => [f, Buffer.byteLength(bundle[f].code || "", "utf8")] as const)
+					.sort((a, b) => b[1] - a[1])
+					.slice(0, 5)
+					.map(([f, size]) => `        ${kb(size).padStart(10)}  ${f}`)
+					.join("\n");
+				failures.push(
+					`overlay "${name}" is over its startup size budget: ${detail}\n` +
+						`    Something pulled a heavy dependency into this entry.\n` +
+						`    Heaviest chunks in its static import graph:\n${heaviest}`,
+				);
+			} else {
+				console.log(`\x1b[32m✓ overlay "${name}" within budget: ${detail}\x1b[0m`);
+			}
+		}
+
+		if (failures.length > 0) {
+			console.error(
+				`\x1b[31m\n(!) overlay size budget exceeded\n\n` +
+					failures.map((f) => "    " + f).join("\n\n") +
+					`\n\n    Budgets live in OVERLAY_SIZE_BUDGETS in vite.config.ts.\x1b[0m\n`,
+			);
+			throw new Error(
+				"overlay size budget exceeded: " +
+					failures.map((f) => f.split("\n")[0]).join(" | "),
+			);
+		}
+	},
+});
+
 // https://vitejs.dev/config/
 export default defineConfig({
 	publicDir: "static",
@@ -69,6 +151,7 @@ export default defineConfig({
 	plugins: [
 		VuePlugin(),
 		loadVersionPlugin(),
+		overlaySizeBudgetPlugin(),
 		VueI18nPlugin({
 			/* options */
 			// locale messages resource pre-compile option
@@ -148,11 +231,27 @@ export default defineConfig({
 			},
 			output: {
 				entryFileNames: "assets/[name]-[hash]-" + pkg.version + ".js",
-				advancedChunks: {
+				codeSplitting: {
 					groups: [
 						{
 							name: "vue-vendor",
 							test: /[\\/]node_modules[\\/](@?vue|@intlify|pinia|@imengyu|@popperjs)/,
+							priority: 100,
+						},
+						{
+							name: "assets",
+							test: /[\\/]src_front[\\/]assets[\\/]/,
+							priority: 80,
+							entriesAware: true,
+							entriesAwareMergeThreshold: 50 * 1024,
+						},
+						{
+							name: "vendor",
+							test: /[\\/]node_modules[\\/]/,
+							priority: 50,
+							entriesAware: true,
+							entriesAwareMergeThreshold: 50 * 1024,
+							minSize: 30 * 1024,
 						},
 					],
 				},
@@ -283,3 +382,4 @@ export default defineConfig({
 		return logger;
 	})(),
 });
+
