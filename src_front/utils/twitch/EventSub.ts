@@ -524,6 +524,27 @@ export default class EventSub {
 			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_START, "1");
 			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_PROGRESS, "1");
 			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_END, "1");
+
+			void this.createSubscription(
+				channelId,
+				myUID,
+				TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_BEGIN,
+				"1",
+			);
+
+			void this.createSubscription(
+				channelId,
+				myUID,
+				TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_UPDATE,
+				"1",
+			);
+
+			void this.createSubscription(
+				channelId,
+				myUID,
+				TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_END,
+				"1",
+			);
 		}
 
 		if (isMod) {
@@ -699,27 +720,6 @@ export default class EventSub {
 		// if (TwitchUtils.hasScopes([TwitchScopes.WHISPER_MANAGE])) {
 		// this.createSubscription("", "", TwitchEventSubDataTypes.SubscriptionTypes.WHISPERS, "1", {user_id:myUID});
 		// }
-
-		void this.createSubscription(
-			channelId,
-			myUID,
-			TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_BEGIN,
-			"1",
-		);
-
-		void this.createSubscription(
-			channelId,
-			myUID,
-			TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_UPDATE,
-			"1",
-		);
-
-		void this.createSubscription(
-			channelId,
-			myUID,
-			TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_END,
-			"1",
-		);
 
 		void this.createSubscription(
 			channelId,
