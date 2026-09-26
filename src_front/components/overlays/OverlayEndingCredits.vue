@@ -1135,8 +1135,20 @@ class OverlayEndingCredits extends AbstractOverlay {
 		watch(
 			() => this.posY,
 			() => {
-				// (this.$refs.holder as HTMLDivElement).style.transform = "translateY("+this.posY+"px)";
-				(this.$refs.holder as HTMLDivElement).style.marginTop = this.posY + "px";
+				const holder = this.$refs.holder as HTMLDivElement | undefined;
+				if (!holder) return;
+				//Sticky titles need the holder to actually move in the layout
+				//as "position:sticky" ignores transforms.
+				//Otherwise use a transform: it's not snapped to whole pixels
+				//(smooth slow scrolling) and doesn't trigger a full relayout
+				//on every frame.
+				if (this.data?.params?.stickyTitle === true) {
+					holder.style.transform = "";
+					holder.style.marginTop = this.posY + "px";
+				} else {
+					holder.style.marginTop = "";
+					holder.style.transform = "translate3d(0," + this.posY + "px,0)";
+				}
 			},
 		);
 
@@ -1985,7 +1997,6 @@ export default toNative(OverlayEndingCredits);
 	width: 100%;
 	color: #fff;
 	will-change: transform;
-	will-change: margin-top;
 	//Necessary for proper gradients rendering!!
 	position: absolute;
 

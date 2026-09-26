@@ -1980,7 +1980,7 @@ export const storeDebug = defineStore("debug", {
 						powerUpTitle: powerUp?.title || "My awesome power-up",
 					};
 					data = m;
-					if (chunks.length > 0) {
+					if (chunks.length > 0 && postOnChat) {
 						const chat: TwitchatDataTypes.MessageChatData = {
 							id: Utils.getUUID(),
 							date: Date.now(),
