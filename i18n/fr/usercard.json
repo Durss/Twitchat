@@ -6,17 +6,19 @@
 		"not_following": "Ne vous follow pas",
 		"add_badgeBt_tt": "Ajouter un badge personnalisé (32*32px)",
 		"edit_loginBt_tt": "Personnaliser le pseudo",
+		"enable_tts_tt": "Cliquez pour d'abord\nconfigurer le TTS",
 		"profileBt": "Profil",
 		"viewercardBt": "Infos viewer",
 		"moderator_viewercardBt": "Plus d'infos viewer...",
 		"moderator_viewercardBt_tt": "Vous êtes modo chez {CHANNEL}.\nOuvrir les infos viewer pour cette chaîne.",
+		"own_channel_card": "Voir le profil pour ma chaîne",
 		"warnBt": "Envoyer avertissement",
 		"warn_placeholder": "avertissement...",
 		"whisperBt": "Chuchoter",
 		"shoutoutBt": "Shoutout",
 		"trackBt": "Activer le suivi",
 		"untrackBt": "Désactiver le suivi",
-		"messages": "Historique",
+		"messages": "Historique Twitchat",
 		"followers": "{COUNT} follower | {COUNT} followers",
 		"non_subscribed": "pas abonné·e",
 		"subscribed": "abonné·e niveau {TIER}",
@@ -44,6 +46,7 @@
 		"badge_users": "Personnes associées à ce badge",
 		"badge_users_none": "aucune",
 		"badge_users_reactivate": "Réactiver le badge",
-		"ban_reason": "Raison du ban"
+		"ban_reason": "Raison du ban",
+		"history": "Check user history on channels you moderate:"
 	}
 }

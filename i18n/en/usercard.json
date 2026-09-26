@@ -6,17 +6,19 @@
 		"not_following": "Not following you",
 		"add_badgeBt_tt": "Add custom badge (32*32px)",
 		"edit_loginBt_tt": "Customize login",
+		"enable_tts_tt": "Click to configure\nTTS first",
 		"profileBt": "Profile",
 		"viewercardBt": "Viewer card",
 		"moderator_viewercardBt": "More viewer cards...",
 		"moderator_viewercardBt_tt": "Your are a moderator on {CHANNEL} channel.\nOpen the viewer card for this channel.",
+		"own_channel_card": "View profile for my own chan",
 		"warnBt": "Send warning",
 		"warn_placeholder": "warning...",
 		"whisperBt": "Whisper",
 		"shoutoutBt": "Shoutout",
 		"trackBt": "Track user",
 		"untrackBt": "Untrack user",
-		"messages": "Message history",
+		"messages": "Twitchat message history",
 		"followers": "{COUNT} follower | {COUNT} followers",
 		"non_subscribed": "not a subscriber",
 		"subscribed": "subscribed at tier {TIER}",
@@ -44,6 +46,7 @@
 		"badge_users_reactivate": "Reactivate badge",
 		"ban_reason": "Ban reason",
 		"badge_disabled_notPremium": "You can have {MAX} active badges. Delete other badges or become premium to create up to {MAX_PREMIUM} custom badges.",
-		"badge_premium_limit": "You reached the maximum of {MAX} custom badges."
+		"badge_premium_limit": "You reached the maximum of {MAX} custom badges.",
+		"history": "Consulter l'historique sur les chaînes que vous modérez:"
 	}
 }

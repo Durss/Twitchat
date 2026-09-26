@@ -3492,13 +3492,14 @@ export const storeChat = defineStore("chat", {
 			this.emoteSelectorCache = payload;
 		},
 
-		openWhisperWithUser(user: TwitchatDataTypes.TwitchatUser): void {
-			if (!TwitchUtils.requestScopes([TwitchScopes.WHISPER_MANAGE])) return;
+		openWhisperWithUser(user: TwitchatDataTypes.TwitchatUser): boolean {
+			if (!TwitchUtils.requestScopes([TwitchScopes.WHISPER_MANAGE])) return false;
 
 			const from = StoreProxy.auth.twitch.user;
 			StoreProxy.chat.whispers[user.id] = { to: user, from, messages: [] };
 			StoreProxy.main.tempStoreValue = { type: "user", user };
 			StoreProxy.params.openModal("whispers", true);
+			return true;
 		},
 
 		closeWhispers(userID: string) {

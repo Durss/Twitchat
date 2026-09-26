@@ -32,7 +32,7 @@
 					<a :href="profilePage" target="_blank">
 						<div class="avatar">
 							<div class="imageHolder" :class="{ live: !!currentStream }">
-								<div class="defaultAvatar">
+								<div class="defaultAvatar" v-if="!avatarLoaded">
 									<Icon name="user" />
 								</div>
 
@@ -42,19 +42,23 @@
 									:src="user!.avatarPath"
 									referrerpolicy="no-referrer"
 									@error="avatarError = true"
+									@load="avatarLoaded = true"
 								/>
 							</div>
 
-							<img
+							<div
 								v-if="!isOwnChannel && channel?.avatarPath"
-								:src="channel.avatarPath"
-								@click.capture.prevent="resetChanContext()"
-								alt="avatar"
 								class="mini"
-								:style="{ borderColor: channelColor }"
-								v-tooltip="channel.displayName"
-								referrerpolicy="no-referrer"
-							/>
+								@click.capture.prevent="resetChanContext()"
+								v-tooltip="t('usercard.own_channel_card')"
+							>
+								<img
+									:src="channel.avatarPath"
+									:style="{ borderColor: channelColor }"
+									alt="avatar"
+									referrerpolicy="no-referrer"
+								/>
+							</div>
 						</div>
 					</a>
 					<div class="title">
@@ -147,7 +151,7 @@
 					<div class="userID" v-tooltip="t('global.copy')" @click="copyID()" ref="userID">
 						#{{ user.id }}
 					</div>
-					<div v-if="premiumType" class="card-item userID">
+					<div v-if="premiumType" class="card-item premiumType">
 						Premium type:
 						<strong>{{
 							{
@@ -162,11 +166,29 @@
 					</div>
 				</div>
 
+				<ChatModTools
+					v-if="isTwitchProfile && canModerate"
+					class="modActions"
+					:messageData="fakeModMessage"
+					:canDelete="false"
+					:canMonitor="
+						fakeModMessage?.user.channelInfo[fakeModMessage.channel_id] &&
+						fakeModMessage?.platform == 'twitch'
+					"
+					canBlock
+					v-show="!manageBadges && !manageUserNames"
+					@actionComplete="loadHistory(user.id)"
+				/>
+
+				<div class="card-item description quote" v-if="userDescription">
+					{{ userDescription }}
+				</div>
+
 				<a
 					:href="profilePage"
 					target="_blank"
 					class="card-item secondary liveInfo"
-					v-if="currentStream"
+					v-if="currentStream && !manageBadges && !manageUserNames"
 				>
 					<img
 						:src="
@@ -184,21 +206,7 @@
 					</div>
 				</a>
 
-				<ChatModTools
-					v-if="isTwitchProfile && canModerate"
-					class="modActions"
-					:messageData="fakeModMessage"
-					:canDelete="false"
-					:canMonitor="
-						fakeModMessage?.user.channelInfo[fakeModMessage.channel_id] &&
-						fakeModMessage?.platform == 'twitch'
-					"
-					canBlock
-					v-show="!manageBadges && !manageUserNames"
-					@actionComplete="loadHistory(user.id)"
-				/>
-
-				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
+				<template class="scrollable" v-show="!manageBadges && !manageUserNames">
 					<div class="infoList" v-if="isTwitchProfile">
 						<div
 							:class="{
@@ -300,12 +308,16 @@
 						</form>
 						<template v-else>
 							<TTButton
-								v-if="canWhisper"
+								type="link"
 								small
-								icon="whispers"
-								@click="openWhispers()"
-								>{{ t("usercard.whisperBt") }}</TTButton
+								icon="newtab"
+								:href="profilePage"
+								target="_blank"
+								>{{ t("usercard.profileBt") }}</TTButton
 							>
+							<TTButton small icon="whispers" @click="openWhispers()">{{
+								t("usercard.whisperBt")
+							}}</TTButton>
 							<TTButton
 								v-if="canModerate && canShoutout"
 								small
@@ -331,29 +343,24 @@
 								>{{ t("usercard.untrackBt") }}</TTButton
 							>
 							<TTButton
-								v-if="storeTTS.params.enabled"
 								small
 								icon="tts"
+								:class="{ disabled: !storeTTS.params.enabled }"
+								v-tooltip="
+									!storeTTS.params.enabled ? t('usercard.enable_tts_tt') : ''
+								"
 								@click="toggleReadUser()"
 								>{{ ttsReadBtLabel }}</TTButton
 							>
 						</template>
 					</div>
 
-					<div class="ctas">
-						<TTButton
-							type="link"
-							small
-							icon="newtab"
-							:href="profilePage"
-							target="_blank"
-							>{{ t("usercard.profileBt") }}</TTButton
-						>
-						<template v-if="isTwitchProfile">
+					<div class="moderatedChans dark card-item" v-if="isTwitchProfile">
+						<div class="title"><Icon name="mod" />{{ t("usercard.history") }}</div>
+						<div class="list">
 							<TTButton
 								small
 								type="link"
-								icon="newtab"
 								@click.stop="openUserCard($event, channel!.login)"
 								:href="
 									'https://www.twitch.tv/popout/' +
@@ -362,14 +369,19 @@
 									user!.login
 								"
 								target="_blank"
-								>{{ t("usercard.viewercardBt") }}</TTButton
-							>
+								>{{ channel?.displayNameOriginal
+								}}<template #icon
+									><img
+										class="avatar"
+										:src="
+											channel?.avatarPath?.replace('300x300', '50x50')
+										" /></template
+							></TTButton>
 
 							<TTButton
 								small
 								v-if="!isOwnChannel"
 								type="link"
-								icon="newtab"
 								@click.stop="openUserCard($event)"
 								:href="
 									'https://www.twitch.tv/popout/' +
@@ -379,9 +391,18 @@
 								"
 								target="_blank"
 								>{{
-									(storeAuth.twitch.user.displayName, storeAuth.twitch.user.login)
-								}}</TTButton
-							>
+									(storeAuth.twitch.user.displayName,
+									storeAuth.twitch.user.login)
+								}}<template #icon
+									><img
+										class="avatar"
+										:src="
+											storeAuth.twitch.user.avatarPath?.replace(
+												'300x300',
+												'50x50',
+											)
+										" /></template
+							></TTButton>
 
 							<TTButton
 								v-if="!canListModeratedChans"
@@ -401,7 +422,6 @@
 								<TTButton
 									small
 									type="link"
-									icon="newtab"
 									v-tooltip="
 										t('usercard.moderator_viewercardBt_tt', {
 											CHANNEL: modedChan.broadcaster_name,
@@ -410,8 +430,14 @@
 									@click.stop="openUserCard($event, modedChan.broadcaster_login)"
 									:href="`https://www.twitch.tv/popout/${modedChan.broadcaster_login}/viewercard/${user!.login}`"
 									target="_blank"
-									>{{ modedChan.broadcaster_name }}</TTButton
-								>
+									>{{ modedChan.broadcaster_name
+									}}<template #icon
+										><img
+											class="avatar"
+											:src="
+												modedChan.avatar?.replace('300x300', '50x50')
+											" /></template
+								></TTButton>
 								<TTButton icon="unpin" @click="unpinModIem(modedChan)"></TTButton>
 							</div>
 
@@ -419,9 +445,10 @@
 								interactive
 								trigger="click"
 								:maxWidth="600"
-								:inlinePositioning="false"
 								:interactiveDebounce="1000"
 								:theme="storeCommon.theme"
+								:sticky="true"
+								v-if="unpinedModedChans.length > 0"
 							>
 								<template #default>
 									<TTButton
@@ -435,18 +462,9 @@
 								</template>
 								<template #content>
 									<div class="modList">
-										<div
-											class="modItem"
-											v-for="modedChan in moderatedChannelList.filter(
-												(v) =>
-													moderatedChannelList_pinned.findIndex(
-														(u) => u.broadcaster_id == v.broadcaster_id,
-													) == -1,
-											)"
-										>
+										<div class="modItem" v-for="modedChan in unpinedModedChans">
 											<TTButton
 												small
-												icon="mod"
 												@click.stop="
 													openUserCard(
 														$event,
@@ -454,8 +472,17 @@
 													)
 												"
 												target="_blank"
-												>{{ modedChan.broadcaster_name }}</TTButton
-											>
+												>{{ modedChan.broadcaster_name
+												}}<template #icon
+													><img
+														class="avatar"
+														:src="
+															modedChan.avatar?.replace(
+																'300x300',
+																'50x50',
+															)
+														" /></template
+											></TTButton>
 											<TTButton
 												icon="pin"
 												@click="pinModIem(modedChan)"
@@ -464,11 +491,7 @@
 									</div>
 								</template>
 							</tooltip>
-						</template>
-					</div>
-
-					<div class="card-item description quote" v-if="userDescription">
-						{{ userDescription }}
+						</div>
 					</div>
 
 					<div class="card-item messages" v-if="messageHistory.length > 0">
@@ -495,7 +518,7 @@
 							/>
 						</div>
 
-						<div class="list" ref="messagelist">
+						<div class="list">
 							<template v-for="entry in messageHistoryDated" :key="entry.message.id">
 								<Splitter class="dateSplitter" v-if="entry.dateLabel">{{
 									entry.dateLabel
@@ -510,7 +533,7 @@
 							</template>
 						</div>
 					</div>
-				</div>
+				</template>
 			</template>
 
 			<div class="holder" ref="holder" v-if="manageBadges">
@@ -528,13 +551,13 @@
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
 import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
@@ -569,15 +592,16 @@ const storeGroq = useStoreGroq();
 const storeStream = useStoreStream();
 const storeTTS = useStoreTTS();
 const storeUsers = useStoreUsers();
+const storeParams = useStoreParams();
 
 const rootEl = useTemplateRef("rootEl");
 const customUsernameRef = useTemplateRef("customUsername");
 const userIDRef = useTemplateRef("userID");
-const messagelistRef = useTemplateRef("messagelist");
 
 const error = ref(false);
 const loading = ref(true);
 const avatarError = ref(false);
+const avatarLoaded = ref(false);
 const edittingLogin = ref(true);
 const showGroqForm = ref(false);
 const manageBadges = ref(false);
@@ -608,7 +632,7 @@ const subState = ref<TwitchDataTypes.Subscriber | null>(null);
 const subStateLoaded = ref(false);
 const messageHistory = ref<TwitchatDataTypes.ChatMessageTypes[]>([]);
 const dateOffset = ref(0);
-const moderatedChannelList_pinned = ref<TwitchDataTypes.ModeratedUser[]>([]);
+const moderatedChannelList_pinned = ref<typeof moderatedChannelList.value>([]);
 const canListFollowings = ref(false);
 const canListFollowers = ref(false);
 const canListModeratedChans = ref(false);
@@ -619,10 +643,6 @@ const hasWhisperPerms = ref(false);
 let dateOffsetTimeout: number = -1;
 let messageBuildInterval: number = -1;
 let panelClosed = true;
-
-const canWhisper = computed(
-	() => hasWhisperPerms.value && user.value!.id != storeAuth.twitch.user.id,
-);
 
 /**
  * Returns the message list with a dateLabel prop for any message
@@ -679,6 +699,15 @@ const platform = computed((): TwitchatDataTypes.ChatPlatform => {
 		return card.platform || card.user?.platform || "twitch";
 	}
 	return "twitch";
+});
+
+const unpinedModedChans = computed(() => {
+	return moderatedChannelList.value.filter(
+		(v) =>
+			moderatedChannelList_pinned.value.findIndex(
+				(u) => u.broadcaster_id == v.broadcaster_id,
+			) == -1,
+	);
 });
 
 /**
@@ -800,6 +829,7 @@ async function loadUserInfo(): Promise<void> {
 	subState.value = null;
 	subStateLoaded.value = false;
 	avatarError.value = false;
+	avatarLoaded.value = false;
 	currentStream.value = null;
 	banReason.value = "";
 	customLogin.value = "";
@@ -968,8 +998,9 @@ function openUserCard(event?: MouseEvent, channelName?: string): void {
  * Open whispers with the user
  */
 function openWhispers(): void {
-	storeChat.openWhisperWithUser(user.value!);
-	closeCard();
+	if (storeChat.openWhisperWithUser(user.value!)) {
+		closeCard();
+	}
 }
 
 /**
@@ -1056,6 +1087,10 @@ function removeCustomBadge(badgeId: string): void {
  * Toggles whether the TTS should read this user's messages
  */
 function toggleReadUser(): void {
+	if (!storeTTS.params.enabled) {
+		storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
+		return;
+	}
 	const permissions: TwitchatDataTypes.PermissionsData = storeTTS.params.ttsPerms;
 	const read =
 		permissions.usersAllowed.findIndex(
@@ -1122,53 +1157,48 @@ function loadHistory(uid: string): void {
 		if (!allowedTypes.includes(mess.type)) continue;
 
 		if (mess.type == "shoutout" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "following" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if ((mess.type == "ban" || mess.type == "unban") && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if ((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "subscription" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "cheer" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "reward" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "user_watch_streak" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "youtube_subgift" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "youtube_subscription" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "tiktok_like" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "tiktok_gift" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "tiktok_sub" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		} else if (mess.type == "low_trust_treatment" && mess.user.id == uid) {
-			messageList.unshift(mess);
+			messageList.push(mess);
 		}
 		if (messageList.length > 500) break; //Limit message count for perf reasons
 	}
 
 	//Build messages by batch to avoid lag on open
-	messageHistory.value = messageList.splice(-20);
+	messageHistory.value = messageList.splice(0, 20);
 	clearInterval(messageBuildInterval);
 	messageBuildInterval = window.setInterval(() => {
-		if (messageList.length == 0) clearInterval(messageBuildInterval);
-
-		messageHistory.value.unshift(...messageList.splice(-5));
-
-		if (messageHistory.value.length < 30) {
-			nextTick(() => {
-				const m = messagelistRef.value;
-				if (!m) return;
-				m.scrollTop = m.scrollHeight;
-			});
+		if (messageList.length == 0) {
+			clearInterval(messageBuildInterval);
+			return;
 		}
-	}, 50);
+
+		messageHistory.value.push(...messageList.splice(0, 5));
+	}, 100);
 }
 
 onMounted(() => {
@@ -1188,70 +1218,6 @@ onMounted(() => {
 	});
 
 	document.addEventListener("keydown", onSidePanelKeyDown);
-
-	watch(
-		() => storeUsers.userCard,
-		async () => {
-			const card = storeUsers.userCard;
-			if (card && card.user) {
-				const chanId = card.channelId ?? StoreProxy.auth.twitch.user.id;
-				channel.value = storeUsers.getUserFrom(card.platform || "twitch", chanId, chanId);
-				user.value = card.user;
-				nextTick(() => {
-					void openPanel();
-				});
-				while (user.value.temporary === true) {
-					await Utils.promisedTimeout(250);
-				}
-				isOwnChannel.value =
-					chanId == StoreProxy.auth.twitch.user.id ||
-					chanId == StoreProxy.auth.youtube?.user.id ||
-					chanId == StoreProxy.auth.bluesky?.user.id;
-				isSelfProfile.value = user.value.id == StoreProxy.auth.twitch.user.id;
-				//Check if message is from our chan or one we can moderate, and that this chan is not the current user
-				canModerate.value =
-					(moderatedChannelList.value.findIndex((v) => v.broadcaster_id === chanId) >
-						-1 ||
-						chanId == StoreProxy.auth.twitch.user.id) &&
-					chanId != user.value.id;
-				if (!isOwnChannel.value) {
-					channelColor.value =
-						storeStream.connectedTwitchChans.find((v) => v.user.id === chanId)?.color ||
-						"#ffffff";
-				}
-				loadUserInfo();
-				dateOffsetTimeout = window.setInterval(() => {
-					dateOffset.value += 1000;
-				}, 1000);
-			} else {
-				clearInterval(dateOffsetTimeout);
-				if (user.value) {
-					await closePanel();
-				}
-				user.value = null;
-			}
-		},
-		{ immediate: true },
-	);
-
-	watch(
-		() => storeAuth.twitch.scopes,
-		() => {
-			canListFollowings.value = TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]);
-			canListFollowers.value = TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]);
-			canListModeratedChans.value = TwitchUtils.hasScopes([
-				TwitchScopes.LIST_MODERATED_CHANS,
-			]);
-			canShoutout.value = TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT]);
-			canWarn.value = TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING]);
-			hasWhisperPerms.value = TwitchUtils.hasScopes([
-				TwitchScopes.WHISPER_READ && TwitchScopes.WHISPER_MANAGE,
-			]);
-			if (user.value) loadUserInfo();
-		},
-		{ immediate: true },
-	);
-
 	document.body.addEventListener("keyup", onKeyUp);
 });
 
@@ -1260,6 +1226,69 @@ onBeforeUnmount(() => {
 	document.body.removeEventListener("keyup", onKeyUp);
 	document.removeEventListener("keydown", onSidePanelKeyDown);
 });
+
+watch(
+	() => storeUsers.userCard,
+	async () => {
+		const card = storeUsers.userCard;
+		const isNewUser = card?.user?.id != user.value?.id;
+		if (card && card.user) {
+			const chanId = card.channelId ?? StoreProxy.auth.twitch.user.id;
+			channel.value = storeUsers.getUserFrom(card.platform || "twitch", chanId, chanId);
+			user.value = card.user;
+			if (isNewUser) {
+				nextTick(() => {
+					void openPanel();
+				});
+			}
+			while (user.value.temporary === true) {
+				await Utils.promisedTimeout(250);
+			}
+			isOwnChannel.value =
+				chanId == StoreProxy.auth.twitch.user.id ||
+				chanId == StoreProxy.auth.youtube?.user.id ||
+				chanId == StoreProxy.auth.bluesky?.user.id;
+			isSelfProfile.value = user.value.id == StoreProxy.auth.twitch.user.id;
+			//Check if message is from our chan or one we can moderate, and that this chan is not the current user
+			canModerate.value =
+				(moderatedChannelList.value.findIndex((v) => v.broadcaster_id === chanId) > -1 ||
+					chanId == StoreProxy.auth.twitch.user.id) &&
+				chanId != user.value.id;
+			if (!isOwnChannel.value) {
+				channelColor.value =
+					storeStream.connectedTwitchChans.find((v) => v.user.id === chanId)?.color ||
+					"#ffffff";
+			}
+			loadUserInfo();
+			dateOffsetTimeout = window.setInterval(() => {
+				dateOffset.value += 1000;
+			}, 1000);
+		} else {
+			clearInterval(dateOffsetTimeout);
+			if (user.value) {
+				await closePanel();
+			}
+			user.value = null;
+		}
+	},
+	{ immediate: true },
+);
+
+watch(
+	() => storeAuth.twitch.scopes,
+	() => {
+		canListFollowings.value = TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]);
+		canListFollowers.value = TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]);
+		canListModeratedChans.value = TwitchUtils.hasScopes([TwitchScopes.LIST_MODERATED_CHANS]);
+		canShoutout.value = TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT]);
+		canWarn.value = TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING]);
+		hasWhisperPerms.value = TwitchUtils.hasScopes([
+			TwitchScopes.WHISPER_READ && TwitchScopes.WHISPER_MANAGE,
+		]);
+		if (user.value) loadUserInfo();
+	},
+	{ immediate: true },
+);
 </script>
 
 <style scoped lang="less">
@@ -1427,10 +1456,13 @@ onBeforeUnmount(() => {
 				margin-bottom: 0.25em;
 			}
 
-			.userID {
+			.userID,
+			.premiumType {
 				font-size: 0.7em;
-				cursor: copy;
 				z-index: 1;
+				&.userID {
+					cursor: copy;
+				}
 			}
 
 			.avatar {
@@ -1478,15 +1510,33 @@ onBeforeUnmount(() => {
 					}
 				}
 				.mini {
-					cursor: not-allowed;
-					width: 2em;
-					height: 2em;
-					bottom: 0;
-					right: -0.5em;
-					border: 2px solid transparent;
-					border-radius: 50%;
+					@padding: 0.5em;
+					width: 1.75em + @padding * 2;
+					height: 1.75em + @padding * 2;
+					bottom: -@padding;
+					right: -0.5em-@padding;
 					position: absolute;
-					box-shadow: -3px -1px 8px rgba(0, 0, 0, 1);
+					overflow: hidden;
+					z-index: 1;
+					padding: @padding;
+					img {
+						overflow: hidden;
+						border-radius: 50%;
+						width: 100%;
+						height: 100%;
+						box-shadow: -3px -1px 8px rgba(0, 0, 0, 1);
+						border: 2px solid transparent;
+					}
+					&:hover {
+						&:after {
+							content: "❌";
+							position: absolute;
+							.center();
+						}
+						& > img {
+							filter: brightness(0.5);
+						}
+					}
 				}
 			}
 		}
@@ -1504,10 +1554,12 @@ onBeforeUnmount(() => {
 				border-radius: 0.5em;
 				border: 1px solid var(--color-text);
 				padding: 0.25em 0.5em;
+				gap: 0.5em;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
 				.icon {
 					height: 1em;
-					margin-right: 0.5em;
-					vertical-align: middle;
 				}
 
 				&.ban {
@@ -1585,7 +1637,7 @@ onBeforeUnmount(() => {
 			}
 			.streamHeader {
 				position: absolute;
-				z-index: 2;
+				z-index: 1;
 				top: 0;
 				left: 0;
 				max-width: 100%;
@@ -1664,16 +1716,66 @@ onBeforeUnmount(() => {
 					flex-basis: 1.5em;
 				}
 			}
+			.avatar {
+				border-radius: 50%;
+			}
+		}
+		.moderatedChans {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin: auto;
+			.title {
+				.icon {
+					height: 1em;
+					vertical-align: middle;
+					margin-right: 0.5em;
+				}
+			}
+			.list {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				flex-wrap: wrap;
+				gap: 0.5em;
+				flex-shrink: 0; //necessery for shit old safari -_-
+
+				.warnForm {
+					gap: 0;
+					display: flex;
+					flex-direction: row;
+					& > * {
+						border-radius: 0;
+						&:first-child {
+							border-top-left-radius: var(--border-radius);
+							border-bottom-left-radius: var(--border-radius);
+						}
+						&:last-child {
+							border-top-right-radius: var(--border-radius);
+							border-bottom-right-radius: var(--border-radius);
+						}
+					}
+					.button {
+						flex-shrink: 0;
+						flex-basis: 1.5em;
+					}
+				}
+				.avatar {
+					border-radius: 50%;
+				}
+			}
 		}
 
 		.description {
 			flex-shrink: 0;
 			align-self: center;
 			text-align: center;
+			font-size: 0.8em;
 		}
 
 		.scrollable {
-			overflow-y: auto;
+			flex: 1;
 			gap: 1em;
 			display: flex;
 			flex-direction: column;
@@ -1686,11 +1788,12 @@ onBeforeUnmount(() => {
 		.messages {
 			display: flex;
 			flex-direction: column;
+			flex: 1;
 
 			&.messages {
 				.list {
 					gap: 1em;
-					max-height: min(50vh, 300px);
+					// max-height: min(50vh, 300px);
 					overflow-y: auto;
 					text-align: left;
 					overflow-x: hidden;

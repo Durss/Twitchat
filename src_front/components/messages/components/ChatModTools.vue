@@ -119,7 +119,7 @@
 			<Icon v-if="loading_sus" name="loader" />
 			<Icon
 				v-else-if="channelInfo?.is_suspicious && !channelInfo?.is_restricted"
-				class="offsetDown"
+				class="offsetDown secondary"
 				:name="susIcon"
 				alt="unsuspicious"
 				v-tooltip="
@@ -145,7 +145,7 @@
 			<Icon v-if="loading_sus" name="loader" />
 			<Icon
 				v-else-if="channelInfo?.is_restricted"
-				class="offsetUp"
+				class="offsetUp secondary"
 				:name="restrictIcon"
 				alt="unrestrict"
 				v-tooltip="

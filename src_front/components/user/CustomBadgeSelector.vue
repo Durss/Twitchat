@@ -1,6 +1,6 @@
 <template>
 	<div class="custombadgeselector">
-		<tooltip tag="div" interactive>
+		<tooltip class="tooltip" tag="div" interactive>
 			<template #default>
 				<Button
 					class="addBt"

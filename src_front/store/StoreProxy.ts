@@ -432,7 +432,7 @@ export type IAuthState = {
 	 * List of channels the authenticated twitch user is a moderator on
 	 * Empty if user did not grant scope
 	 */
-	twitchModeratedChannels: TwitchDataTypes.ModeratedUser[];
+	twitchModeratedChannels: (TwitchDataTypes.ModeratedUser & { avatar?: string })[];
 	/**
 	 * Twitchat donor level of the user
 	 */
@@ -883,7 +883,7 @@ export interface IChatActions {
 	 * to be displayed
 	 * @param user
 	 */
-	openWhisperWithUser(user: TwitchatDataTypes.TwitchatUser): void;
+	openWhisperWithUser(user: TwitchatDataTypes.TwitchatUser): boolean;
 	/**
 	 * Close whispers window
 	 * @param userID

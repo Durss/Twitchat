@@ -296,6 +296,21 @@ export const storeAuth = defineStore("auth", {
 						this.twitch.user.channelInfo[chan.broadcaster_id]!.is_moderator = true;
 					}
 				});
+				void TwitchUtils.getUserInfo(moderatedChans.map((v) => v.broadcaster_id)).then(
+					(userList) => {
+						const hashmap: {
+							[uid: string]: IAuthState["twitchModeratedChannels"][number];
+						} = {};
+						this.twitchModeratedChannels.forEach(
+							(u) => (hashmap[u.broadcaster_id] = u),
+						);
+						userList.forEach((user) => {
+							const modedChan = hashmap[user.id];
+							if (!modedChan) return;
+							modedChan.avatar = user.profile_image_url;
+						});
+					},
+				);
 
 				void MessengerProxy.instance.connect();
 				void EventSub.instance.connect();
