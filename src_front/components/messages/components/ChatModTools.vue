@@ -10,7 +10,7 @@
 					$t('chat.mod_tools.unbanBt', { USER: messageData.user.displayNameOriginal })
 				"
 				@click.stop="unbanUser()"
-				theme="alert"
+				theme="secondary"
 			/>
 		</template>
 		<template v-else>
@@ -100,6 +100,7 @@
 			v-else-if="$store.users.blockedUsers.twitch[messageData.user.id]"
 			name="unblock"
 			alt="block"
+			theme="secondary"
 			v-tooltip="
 				$t('chat.mod_tools.unblockBt', { USER: messageData.user.displayNameOriginal })
 			"
@@ -119,7 +120,8 @@
 			<Icon v-if="loading_sus" name="loader" />
 			<Icon
 				v-else-if="channelInfo?.is_suspicious && !channelInfo?.is_restricted"
-				class="offsetDown secondary"
+				class="offsetDown"
+				theme="secondary"
 				:name="susIcon"
 				alt="unsuspicious"
 				v-tooltip="
@@ -145,7 +147,8 @@
 			<Icon v-if="loading_sus" name="loader" />
 			<Icon
 				v-else-if="channelInfo?.is_restricted"
-				class="offsetUp secondary"
+				class="offsetUp"
+				theme="secondary"
 				:name="restrictIcon"
 				alt="unrestrict"
 				v-tooltip="
@@ -222,7 +225,7 @@ class ChatModTools extends Vue {
 	}
 
 	public mounted(): void {
-		this.susIcon = this.channelInfo?.is_suspicious ? "hide" : "show";
+		this.susIcon = this.channelInfo?.is_suspicious ? "show" : "hide";
 		this.restrictIcon = this.channelInfo?.is_restricted ? "lock" : "unlock";
 	}
 
