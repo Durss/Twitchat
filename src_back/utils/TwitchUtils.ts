@@ -286,7 +286,9 @@ export default class TwitchUtils {
 
 			if (res.status != 200) {
 				await res.text().catch(() => {});
-				Logger.warn(`[TWITCH] ${url.pathname} returned status ${res.status}`);
+				Logger.warn(
+					`[TWITCH] ${url.pathname} returned status ${res.status} for uid ${url.searchParams.get("user_id")}`,
+				);
 				return { items, complete: false };
 			}
 
