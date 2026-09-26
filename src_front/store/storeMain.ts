@@ -294,7 +294,9 @@ export const storeMain = defineStore("main", {
 			//Once SSE is connected, request any stream we're a mod for to
 			//send any shared mode stuff (ex: q&a sessions)
 			SSEHelper.instance.addEventListener(SSEEvent.ON_CONNECT, () => {
-				void ApiHelper.call("mod/request", "GET");
+				if (TwitchUtils.hasScopes([TwitchScopes.LIST_MODERATED_CHANS])) {
+					void ApiHelper.call("mod/request", "GET");
+				}
 			});
 			//Reload labels when server tells
 			SSEHelper.instance.addEventListener(SSEEvent.LABELS_UPDATE, () => {

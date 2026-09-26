@@ -1725,7 +1725,7 @@ watch(
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			margin: auto;
+			margin: 0 auto;
 			.title {
 				.icon {
 					height: 1em;
