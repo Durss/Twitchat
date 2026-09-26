@@ -4133,7 +4133,7 @@ export default class TwitchUtils {
 			} else if (v.type == "url") {
 				const href = !/^https?/gi.test(label) ? "https://" + label : label;
 				message_html +=
-					"<a href='" + encodeURI(href).replace(/i/g, "%27") + "'>" + label + "</a>";
+					"<a href='" + encodeURI(href).replace(/'/g, "%27") + "'>" + label + "</a>";
 			} else if (v.type == "emote" || v.type == "cheermote") {
 				message_html += "<img src='" + (v.emoteHD || v.emote) + "' class='emote'>";
 			} else if (v.type == "user") {

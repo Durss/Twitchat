@@ -28,7 +28,9 @@ import Logger from "../Logger";
 import { default as OBSWebSocket, type SourceTransform } from "../OBSWebsocket";
 import { registerOptionalPlaceholderModifiers } from "../OptionalPlaceholderModifiers";
 import {
+	escapeHTML as escapeHTMLValue,
 	findPlaceholders,
+	mustEscapeHTML,
 	splicePlaceholders,
 	unescapeLiteralPlaceholders,
 	type IPlaceholderOccurrence,
@@ -6228,6 +6230,7 @@ export default class TriggerActionHandler {
 							message,
 							src: step.labelData.content || "",
 							subEvent,
+							escapeHTML: true,
 						});
 						await StoreProxy.labels.setLabelContent(label.id, content);
 						logStep.messages.push({
@@ -8963,6 +8966,7 @@ export default class TriggerActionHandler {
 			sanitizeFolderPath = false,
 			keepHTML = true,
 			escapeDoubleQuotes = false,
+			escapeHTML = false,
 			xssProtection = false,
 		} = options;
 		let { userIdForValueCounterGetters } = options;
@@ -9751,12 +9755,16 @@ export default class TriggerActionHandler {
 			(tag) => resolved.get(tag),
 			//Modifiers are applied before the sanitizing/escaping here so
 			//they can't reintroduce chars that were just escaped
-			(value) => {
+			(value, occurrence) => {
 				if (sanitizeFolderPath) value = Utils.makeFileSafe(value);
 
 				if (escapeDoubleQuotes) value = value.replace(/"/g, '\\"');
 
 				if (keepHTML !== true) value = Utils.stripHTMLTags(value);
+
+				if (escapeHTML && mustEscapeHTML(occurrence.tag, occurrence.modifiers)) {
+					value = escapeHTMLValue(value);
+				}
 
 				return value;
 			},

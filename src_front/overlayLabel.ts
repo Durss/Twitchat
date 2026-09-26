@@ -13,6 +13,8 @@ import type { LabelItemData, LabelItemPlaceholder } from "./types/ILabelOverlayD
 import {
 	applyModifiers,
 	configureI18n,
+	escapeHTML,
+	mustEscapeHTML,
 	replacePlaceholder,
 	unescapeLiteralPlaceholders,
 	type IPlaceholderModifier,
@@ -215,9 +217,16 @@ function parsePlaceholders(src: string): string {
 					type: placeholder.type,
 					modifiers,
 				};
-				return '<span data-timerid="' + id + '">' + renderTimerValue(id) + "</span>";
+				return (
+					'<span data-timerid="' +
+					id +
+					'">' +
+					escapeHTML(renderTimerValue(id)) +
+					"</span>"
+				);
 			}
-			return applyModifiers(placeholder.value?.toString() ?? "", modifiers);
+			const value = applyModifiers(placeholder.value?.toString() ?? "", modifiers);
+			return mustEscapeHTML(tag, modifiers) ? escapeHTML(value) : value;
 		});
 	}
 	return unescapeLiteralPlaceholders(src);
@@ -337,12 +346,7 @@ function renderValue(): void {
 		} else {
 			const phRef = placeholders[parameters.placeholder]!;
 			if (phRef.type == "image") {
-				html =
-					'<img src="' +
-					parsePlaceholders("{" + value + "}") +
-					'" onload="' +
-					setScrollSpeed() +
-					'">';
+				html = '<img src="' + parsePlaceholders("{" + value + "}") + '">';
 			} else {
 				html = parsePlaceholders("{" + value + "}" || "");
 			}

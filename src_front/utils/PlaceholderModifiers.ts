@@ -250,14 +250,14 @@ export function splicePlaceholders(
 	src: string,
 	occurrences: IPlaceholderOccurrence[],
 	getValue: (tag: string) => string | undefined,
-	transform?: (value: string) => string,
+	transform?: (value: string, occurrence: IPlaceholderOccurrence) => string,
 ): string {
 	const chunks: string[] = [];
 	let last = 0;
 	for (const occurrence of occurrences) {
 		let value = resolveOccurrence(occurrence, getValue);
 		if (value == undefined) continue;
-		if (transform) value = transform(value);
+		if (transform) value = transform(value, occurrence);
 		chunks.push(src.slice(last, occurrence.start), value);
 		last = occurrence.end;
 	}
@@ -304,6 +304,28 @@ function resolveArguments(
 		result[i] = { name: modifier.name, args };
 	}
 	return result ?? modifiers;
+}
+
+/**
+ * Makes a value safe to put inside HTML, as text or as a quoted attribute
+ */
+export function escapeHTML(value: string): string {
+	return value
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#39;");
+}
+
+/**
+ * Should HTML of given placeholder be escaped?
+ * "*_HTML" tags (ex: MESSAGE_HTML) are already sanitized HTML
+ * No need to escape if the last modifier is already the htmlescape one
+ */
+export function mustEscapeHTML(tag: string, modifiers: IPlaceholderModifier[]): boolean {
+	if (/_HTML$/i.test(tag)) return false;
+	return modifiers[modifiers.length - 1]?.name !== "htmlescape";
 }
 
 /**
@@ -1266,13 +1288,7 @@ const MODIFIERS: { [name: string]: PlaceholderModifier } = {
 	 * Makes the value safe to put inside HTML.
 	 * @example {MESSAGE.htmlescape} => &lt;b&gt;hi&lt;/b&gt;
 	 */
-	htmlescape: (v) =>
-		v
-			.replace(/&/g, "&amp;")
-			.replace(/</g, "&lt;")
-			.replace(/>/g, "&gt;")
-			.replace(/"/g, "&quot;")
-			.replace(/'/g, "&#39;"),
+	htmlescape: (v) => escapeHTML(v),
 	/**
 	 * Encodes the value to base 64.
 	 * @example {MESSAGE.base64} => aGVsbG8=

@@ -217,7 +217,11 @@ class OverlayChatHighlight extends Vue {
 
 		if (!data) return;
 
-		this.message = DOMPurify.sanitize(data.message!);
+		this.message = DOMPurify.sanitize(data.message || "", {
+			ALLOWED_TAGS: ["img", "a", "mark", "span", "br", "b", "strong", "i", "em", "u", "s"],
+			ALLOWED_ATTR: ["src", "href", "class", "alt"],
+			ALLOWED_URI_REGEXP: /^https:\/\//i,
+		});
 		this.user = data.user!;
 		this.params = data.params!;
 		this.dateOffset = data.date || 0;

@@ -16,7 +16,7 @@
 				loading="lazy"
 				:src="i.emote"
 				:alt="i.label"
-				v-tooltip="i.label"
+				v-tooltip="{ content: i.label, allowHTML: false }"
 				v-if="i.type == 'emote'"
 			/>
 

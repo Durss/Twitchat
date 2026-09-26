@@ -9,8 +9,10 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import {
 	applyModifiers,
 	configureI18n,
+	escapeHTML,
 	findPlaceholders,
 	getModifierNames,
+	mustEscapeHTML,
 	type OrdinalLabels,
 	registerModifier,
 	replacePlaceholder,
@@ -223,6 +225,40 @@ function parseAll(src: string, values: { [tag: string]: string }): string {
 }
 
 const anyTag = () => true;
+
+describe("HTML escaping of the values", () => {
+	/**
+	 * Replays what TriggerActionHandler does with the "escapeHTML" option
+	 */
+	function parseEscaped(src: string, values: { [tag: string]: string }): string {
+		const known = new Set(Object.keys(values));
+		const occurrences = findPlaceholders(src, (tag) => known.has(tag));
+		return splicePlaceholders(
+			src,
+			occurrences,
+			(tag) => values[tag],
+			(value, o) => (mustEscapeHTML(o.tag, o.modifiers) ? escapeHTML(value) : value),
+		);
+	}
+	it("escapes values but not the template", () => {
+		expect(parseEscaped("<b>{MESSAGE}</b>", { MESSAGE: '<img src=x onerror="a()">' })).toBe(
+			"<b>&lt;img src=x onerror=&quot;a()&quot;&gt;</b>",
+		);
+	});
+	it("leaves _HTML placeholders untouched", () => {
+		expect(parseEscaped("{MESSAGE_HTML}", { MESSAGE_HTML: "<img class='emote'>" })).toBe(
+			"<img class='emote'>",
+		);
+	});
+	it("doesn't escape twice an explicitly escaped value", () => {
+		expect(parseEscaped("{MESSAGE.htmlescape}", { MESSAGE: "<b>" })).toBe("&lt;b&gt;");
+	});
+	it("still escapes when a modifier follows .htmlescape", () => {
+		expect(parseEscaped("{MESSAGE.htmlescape.base64decode}", { MESSAGE: "PGI+" })).toBe(
+			"&lt;b&gt;",
+		);
+	});
+});
 
 describe("finding the placeholders of a text", () => {
 	it("lists them in the order they are written", () => {

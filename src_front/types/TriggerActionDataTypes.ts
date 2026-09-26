@@ -2178,6 +2178,11 @@ export interface IParsePlaceholdersOptions {
 	 */
 	escapeDoubleQuotes?: boolean;
 	/**
+	 * Escape HTML so it's rendered but not interpreted?
+	 * @default false
+	 */
+	escapeHTML?: boolean;
+	/**
 	 * User to read the per-user counters and values from.
 	 * Extracted from the trigger's message if omitted.
 	 */

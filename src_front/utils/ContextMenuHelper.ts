@@ -1331,27 +1331,36 @@ export default class ContextMenuHelper {
 		infosDiv.style.padding = "1em";
 		infosDiv.style.borderRadius = ".3em";
 		infosDiv.style.backgroundColor = bgcolor;
-		let html = `<div><strong>Message type:</strong> ${message.type}</div>
-		<div><strong>Date:</strong> ${Utils.formatDate(new Date(message.date), true)}</div>
-		<div><strong>Platform:</strong> ${message.platform}</div>`;
+		const addInfo = (title: string, value: string, small: boolean = false) => {
+			const row = document.createElement("div");
+			const strong = document.createElement("strong");
+			strong.textContent = title + ":";
+			const content = document.createElement("span");
+			content.textContent = value;
+			if (small) content.style.fontSize = ".8em";
+			row.append(strong, " ", content);
+			infosDiv.appendChild(row);
+		};
+		addInfo("Message type", message.type);
+		addInfo("Date", Utils.formatDate(new Date(message.date), true));
+		addInfo("Platform", message.platform);
 		if (user) {
-			html += `<div><strong>User login:</strong> ${user.login}</div>
-			<div><strong>User ID:</strong> ${user.id}</div>`;
+			addInfo("User login", user.login);
+			addInfo("User ID", user.id);
 		}
 		if (userName) {
-			html += `<div><strong>User name:</strong> ${userName}</div>`;
+			addInfo("User name", userName);
 		}
 		if (chanId) {
-			html += `<div><strong>Channel ID:</strong> ${chanId}</div>`;
+			addInfo("Channel ID", chanId);
 		}
 		//Add message ID if relevant
 		if (
 			message.type != TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE &&
 			message.type != TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE
 		) {
-			html += `<div><strong>Message ID:</strong> <span style="font-size:.8em">${messageId}</span></div>`;
+			addInfo("Message ID", messageId, true);
 		}
-		infosDiv.innerHTML = html;
 		document.body.appendChild(infosDiv);
 		await Utils.promisedTimeout(0); //Leave time for the html node to render
 		const bounds = infosDiv.getBoundingClientRect();
