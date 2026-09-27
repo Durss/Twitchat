@@ -119,6 +119,7 @@ const showStatic = ref<boolean>(false);
 const liveStates = ref<{ [uid: string]: boolean }>({});
 const moderatedChanIds = ref<string[]>([]);
 
+let searchPromise: Promise<void> = Promise.resolve();
 let abortQuery: AbortController | null = null;
 
 const staticUserListFiltered = computed<TwitchDataTypes.UserInfo[]>(() => {
@@ -138,7 +139,7 @@ onMounted(() => {
 	moderatedChanIds.value = storeAuth.twitchModeratedChannels.map((u) => u.broadcaster_id);
 });
 
-function onKeyDown(event: KeyboardEvent): void {
+async function onKeyDown(event: KeyboardEvent): Promise<void> {
 	if (event.key == "Escape") {
 		clearSearch();
 	}
@@ -151,43 +152,56 @@ function onKeyDown(event: KeyboardEvent): void {
 	if (selectedindex.value < 0) selectedindex.value = users.value.length - 1;
 	if (selectedindex.value >= users.value.length) selectedindex.value = 0;
 	if (event.key == "Enter") {
-		selectUser(users.value[selectedindex.value]!);
+		//Wait for the latest search, including ones started while waiting
+		let pending: Promise<void>;
+		do {
+			pending = searchPromise;
+			await pending;
+		} while (pending !== searchPromise);
+		const user = users.value[selectedindex.value];
+		if (user) selectUser(user);
 	}
 }
 
 async function onSearch(): Promise<void> {
-	searching.value = search.value != "";
-	noResult.value = false;
-	if (abortQuery && !abortQuery.signal.aborted) abortQuery.abort("search update");
-	abortQuery = new AbortController();
-	if (searching.value) {
-		const signal = abortQuery!.signal;
-		const result = (await TwitchUtils.searchUser(search.value, 5, signal)) || [];
-		liveStates.value = result.liveStates;
-		users.value = result.users
-			.filter((user) => (props.excludedUserIds || []).indexOf(user.id) === -1)
-			.sort((a, b) => {
-				const aMod = moderatedChanIds.value.includes(a.id);
-				const bMod = moderatedChanIds.value.includes(b.id);
-				if (aMod && !bMod) return -1;
-				if (!aMod && bMod) return 1;
-				if (aMod && bMod)
-					return a.login
-						.toLowerCase()
-						.toLowerCase()
-						.localeCompare(b.login.toLowerCase().toLowerCase());
-				return 0;
-			});
-		if (!signal.aborted) {
+	let resolveSearch!: () => void;
+	searchPromise = new Promise<void>((r) => (resolveSearch = r));
+	try {
+		searching.value = search.value != "";
+		noResult.value = false;
+		if (abortQuery && !abortQuery.signal.aborted) abortQuery.abort("search update");
+		abortQuery = new AbortController();
+		if (searching.value) {
+			const signal = abortQuery!.signal;
+			const result = (await TwitchUtils.searchUser(search.value, 5, signal)) || [];
+			//Aborted queries resolve with an empty result, don't let them clobber the list
+			if (signal.aborted) return;
+			liveStates.value = result.liveStates;
+			users.value = result.users
+				.filter((user) => (props.excludedUserIds || []).indexOf(user.id) === -1)
+				.sort((a, b) => {
+					const aMod = moderatedChanIds.value.includes(a.id);
+					const bMod = moderatedChanIds.value.includes(b.id);
+					if (aMod && !bMod) return -1;
+					if (!aMod && bMod) return 1;
+					if (aMod && bMod)
+						return a.login
+							.toLowerCase()
+							.toLowerCase()
+							.localeCompare(b.login.toLowerCase().toLowerCase());
+					return 0;
+				});
 			searching.value = false;
 			noResult.value = users.value.length === 0;
+			selectedindex.value = 0;
 			await nextTick();
 			showResult.value = true;
+		} else {
+			users.value = [];
+			showResult.value = false;
 		}
-		selectedindex.value = 0;
-	} else {
-		users.value = [];
-		showResult.value = false;
+	} finally {
+		resolveSearch();
 	}
 }
 
