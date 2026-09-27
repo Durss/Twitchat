@@ -21,6 +21,9 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 
 COPY . .
 RUN npm run build
+# Hashed assets are not served from the image but from a persistent volume the
+# entrypoint merges them into, so previous builds' chunks survive deploys.
+RUN mv dist/assets assets_build
 
 RUN echo -n prod > env.conf
 
@@ -37,6 +40,7 @@ RUN apk add --no-cache su-exec && \
     chown -R node:node /opt/twitchat
 
 COPY --from=builder --chown=node:node /src/dist /opt/twitchat/public
+COPY --from=builder --chown=node:node /src/assets_build /opt/twitchat/assets_build
 COPY --from=builder --chown=node:node /src/server /opt/twitchat
 COPY --from=deps    --chown=node:node /src/node_modules /opt/twitchat/node_modules
 COPY --from=builder --chown=node:node /src/env.conf /opt/twitchat/env.conf

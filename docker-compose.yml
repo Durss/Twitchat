@@ -19,3 +19,5 @@ services:
         restart: unless-stopped
         volumes:
             - ./data:/opt/twitchat/data
+            # Keeps previous builds' hashed assets across deploys (see docker-entrypoint.sh)
+            - ./public_assets:/opt/twitchat/public/assets
