@@ -1587,6 +1587,7 @@ export default class TwitchUtils {
 	 * @param search search term
 	 */
 	public static async searchCategory(search: string): Promise<TwitchDataTypes.StreamCategory[]> {
+		if (search.trim().length == 0) return [];
 		const url = new URL(Config.instance.TWITCH_API_PATH + "search/categories");
 		url.searchParams.set("first", "50");
 		url.searchParams.set("query", search);
