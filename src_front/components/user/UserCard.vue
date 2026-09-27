@@ -22,527 +22,525 @@
 				<div class="card-item alert errorMessage">{{ t("error.user_profile") }}</div>
 			</template>
 
-			<template v-else-if="!loading && !error">
-				<ClearButton
-					aria-label="close"
-					@click="closeCard()"
-					v-show="!manageBadges && !manageUserNames"
-				/>
-				<div class="header" v-show="!manageBadges && !manageUserNames">
-					<a :href="profilePage" target="_blank">
-						<div class="avatar">
-							<div class="imageHolder" :class="{ live: !!currentStream }">
-								<div class="defaultAvatar" v-if="!avatarLoaded">
-									<Icon name="user" />
+			<template v-else>
+				<!-- v-show (not v-if) keeps the batch-rendered message history alive while a manager is open -->
+				<div class="details" v-show="!manageBadges && !manageUserNames">
+					<ClearButton aria-label="close" @click="closeCard()" />
+					<div class="header">
+						<a :href="profilePage" target="_blank">
+							<div class="avatar">
+								<div class="imageHolder" :class="{ live: !!currentStream }">
+									<div class="defaultAvatar" v-if="!avatarLoaded">
+										<Icon name="user" />
+									</div>
+
+									<img
+										v-if="user!.avatarPath && !avatarError"
+										alt="avatar"
+										:src="user!.avatarPath"
+										referrerpolicy="no-referrer"
+										@error="avatarError = true"
+										@load="avatarLoaded = true"
+									/>
 								</div>
 
-								<img
-									v-if="user!.avatarPath && !avatarError"
-									alt="avatar"
-									:src="user!.avatarPath"
-									referrerpolicy="no-referrer"
-									@error="avatarError = true"
-									@load="avatarLoaded = true"
-								/>
+								<div
+									v-if="!isOwnChannel && channel?.avatarPath"
+									class="mini"
+									@click.capture.prevent="resetChanContext()"
+									v-tooltip="t('usercard.own_channel_card')"
+								>
+									<img
+										:src="channel.avatarPath"
+										:style="{ borderColor: channelColor }"
+										alt="avatar"
+										referrerpolicy="no-referrer"
+									/>
+								</div>
 							</div>
+						</a>
+						<div class="title">
+							<CustomBadgeSelector
+								class="customBadges"
+								:user="user"
+								@manageBadges="manageBadges = true"
+								:channelId="channel!.id"
+								@limitReached="manageBadges = true"
+							/>
 
-							<div
-								v-if="!isOwnChannel && channel?.avatarPath"
-								class="mini"
-								@click.capture.prevent="resetChanContext()"
-								v-tooltip="t('usercard.own_channel_card')"
+							<img
+								v-for="b in badges"
+								:key="b.id"
+								class="badge"
+								:src="b.icon.hd"
+								:alt="b.title"
+								v-tooltip="b.title"
+							/>
+
+							<CustomUserBadges
+								:tooltip="t('usercard.remove_badgesBt')"
+								:user="user"
+								@select="removeCustomBadge"
+							/>
+
+							<template v-if="!edittingLogin">
+								<a :href="profilePage" target="_blank" class="nickname">
+									<span class="label">{{ user.displayName }}</span>
+									<span class="translation" v-if="translateUsername"
+										>({{ user.login }})</span
+									>
+								</a>
+
+								<tooltip
+									tag="button"
+									interactive
+									class="editLoginBt"
+									@click="editLogin()"
+								>
+									<template #default>
+										<Icon name="edit" theme="secondary" />
+									</template>
+
+									<template #content>
+										<div style="text-align: center">
+											<div>{{ t("usercard.edit_loginBt_tt") }}</div>
+											<div
+												class="list"
+												v-if="
+													Object.keys(storeUsers.customUsernames).length > 0
+												"
+											>
+												<TTButton
+													light
+													secondary
+													small
+													icon="edit"
+													@click="manageUserNames = true"
+													>{{ t("usercard.manage_usernamesBt") }}</TTButton
+												>
+											</div>
+										</div>
+									</template>
+								</tooltip>
+							</template>
+
+							<form
+								v-else
+								class="form editLoginForm"
+								@submit.prevent="submitCustomLogin()"
 							>
-								<img
-									:src="channel.avatarPath"
-									:style="{ borderColor: channelColor }"
-									alt="avatar"
-									referrerpolicy="no-referrer"
+								<input
+									class=""
+									type="text"
+									:placeholder="t('global.login_placeholder')"
+									v-model="customLogin"
+									ref="customUsername"
+									maxlength="25"
 								/>
-							</div>
+								<TTButton type="submit" icon="checkmark"></TTButton>
+							</form>
+						</div>
+						<span v-if="user.displayName != user.displayNameOriginal" class="originalName"
+							>({{ user.displayNameOriginal }})</span
+						>
+						<span v-if="isTwitchProfile && user.pronouns" class="pronouns"
+							>({{ user.pronounsLabel }})</span
+						>
+						<div class="userID" v-tooltip="t('global.copy')" @click="copyID()" ref="userID">
+							#{{ user.id }}
+						</div>
+						<div v-if="premiumType" class="card-item premiumType">
+							Premium type:
+							<strong>{{
+								{
+									temporary: "Patreon",
+									lifetime: "Lifetime",
+									early_gift: "Early donor",
+									gift: "Gifted",
+									no: "not premium",
+								}[premiumType]
+							}}</strong>
+							<em v-if="amountDonated > 0">({{ amountDonated.toFixed(2) }}€)</em>
+						</div>
+					</div>
+
+					<ChatModTools
+						v-if="isTwitchProfile && canModerate"
+						class="modActions"
+						:messageData="fakeModMessage"
+						:canDelete="false"
+						:canMonitor="
+							fakeModMessage?.user.channelInfo[fakeModMessage.channel_id] &&
+							fakeModMessage?.platform == 'twitch'
+						"
+						canBlock
+						@actionComplete="loadHistory(user.id)"
+					/>
+
+					<div class="card-item description quote" v-if="userDescription">
+						{{ userDescription }}
+					</div>
+
+					<a
+						:href="profilePage"
+						target="_blank"
+						class="card-item secondary liveInfo"
+						v-if="currentStream"
+					>
+						<img
+							:src="
+								currentStream.thumbnail_url
+									.replace('{width}', '480')
+									.replace('{height}', '270')
+							"
+						/>
+						<div class="streamHeader">
+							<div class="streamTitle">{{ currentStream.title }}</div>
+							<div class="streamCategory">{{ currentStream.game_name }}</div>
+						</div>
+						<div class="streamViewerCount">
+							<Icon name="user" />{{ currentStream.viewer_count }}
 						</div>
 					</a>
-					<div class="title">
-						<CustomBadgeSelector
-							class="customBadges"
-							:user="user"
-							@manageBadges="manageBadges = true"
-							:channelId="channel!.id"
-							@limitReached="manageBadges = true"
-						/>
 
-						<img
-							v-for="b in badges"
-							:key="b.id"
-							class="badge"
-							:src="b.icon.hd"
-							:alt="b.title"
-							v-tooltip="b.title"
-						/>
-
-						<CustomUserBadges
-							:tooltip="t('usercard.remove_badgesBt')"
-							:user="user"
-							@select="removeCustomBadge"
-						/>
-
-						<template v-if="!edittingLogin">
-							<a :href="profilePage" target="_blank" class="nickname">
-								<span class="label">{{ user.displayName }}</span>
-								<span class="translation" v-if="translateUsername"
-									>({{ user.login }})</span
-								>
-							</a>
-
-							<tooltip
-								tag="button"
-								interactive
-								class="editLoginBt"
-								@click="editLogin()"
+					<div class="scrollable">
+						<div class="infoList" v-if="isTwitchProfile">
+							<div
+								:class="{
+									info: true,
+									recent:
+										Date.now() - (user.created_at_ms || 0) <
+										14 * 24 * 60 * 60 * 1000,
+								}"
+								v-tooltip="t('usercard.creation_date_tt') + '\n' + createDate"
 							>
-								<template #default>
-									<Icon name="edit" theme="secondary" />
-								</template>
+								<Icon name="alert" alt="recent account" class="icon recent" />
+								<Icon name="date" alt="account creation date" class="icon" />
+								{{ createDateElapsed }}
+							</div>
 
-								<template #content>
-									<div style="text-align: center">
-										<div>{{ t("usercard.edit_loginBt_tt") }}</div>
-										<div
-											class="list"
-											v-if="
-												Object.keys(storeUsers.customUsernames).length > 0
-											"
-										>
-											<TTButton
-												light
-												secondary
-												small
-												icon="edit"
-												@click="manageUserNames = true"
-												>{{ t("usercard.manage_usernamesBt") }}</TTButton
-											>
-										</div>
-									</div>
-								</template>
-							</tooltip>
-						</template>
+							<div class="info" v-if="followersCount > -1">
+								<Icon name="follow_outline" class="icon" />{{
+									t("usercard.followers", { COUNT: followersCount }, followersCount)
+								}}
+							</div>
 
-						<form
-							v-else
-							class="form editLoginForm"
-							@submit.prevent="submitCustomLogin()"
-						>
-							<input
-								class=""
-								type="text"
-								:placeholder="t('global.login_placeholder')"
-								v-model="customLogin"
-								ref="customUsername"
-								maxlength="25"
-							/>
-							<TTButton type="submit" icon="checkmark"></TTButton>
-						</form>
-					</div>
-					<span v-if="user.displayName != user.displayNameOriginal" class="originalName"
-						>({{ user.displayNameOriginal }})</span
-					>
-					<span v-if="isTwitchProfile && user.pronouns" class="pronouns"
-						>({{ user.pronounsLabel }})</span
-					>
-					<div class="userID" v-tooltip="t('global.copy')" @click="copyID()" ref="userID">
-						#{{ user.id }}
-					</div>
-					<div v-if="premiumType" class="card-item premiumType">
-						Premium type:
-						<strong>{{
-							{
-								temporary: "Patreon",
-								lifetime: "Lifetime",
-								early_gift: "Early donor",
-								gift: "Gifted",
-								no: "not premium",
-							}[premiumType]
-						}}</strong>
-						<em v-if="amountDonated > 0">({{ amountDonated.toFixed(2) }}€)</em>
-					</div>
-				</div>
+							<template v-if="isOwnChannel">
+								<div class="info" v-if="subState && subStateLoaded">
+									<Icon
+										name="gift"
+										alt="subscribed"
+										class="icon"
+										v-if="subState.is_gift"
+									/>
+									<Icon name="sub" alt="subscribed" class="icon" v-else />
+									<i18n-t
+										scope="global"
+										tag="span"
+										:keypath="
+											subState.is_gift
+												? 'usercard.subgifted'
+												: 'usercard.subscribed'
+										"
+									>
+										<template #TIER>{{
+											{ "1000": 1, "2000": 2, "3000": 3, prime: "prime" }[
+												subState.tier
+											]
+										}}</template>
+										<template #GIFTER>{{ subState.gifter_name }}</template>
+									</i18n-t>
+								</div>
+								<div class="info" v-else-if="subStateLoaded">
+									<Icon name="sub" alt="subscribed" class="icon" />
+									<span>{{ t("usercard.non_subscribed") }}</span>
+								</div>
 
-				<ChatModTools
-					v-if="isTwitchProfile && canModerate"
-					class="modActions"
-					:messageData="fakeModMessage"
-					:canDelete="false"
-					:canMonitor="
-						fakeModMessage?.user.channelInfo[fakeModMessage.channel_id] &&
-						fakeModMessage?.platform == 'twitch'
-					"
-					canBlock
-					v-show="!manageBadges && !manageUserNames"
-					@actionComplete="loadHistory(user.id)"
-				/>
-
-				<div class="card-item description quote" v-if="userDescription">
-					{{ userDescription }}
-				</div>
-
-				<a
-					:href="profilePage"
-					target="_blank"
-					class="card-item secondary liveInfo"
-					v-if="currentStream && !manageBadges && !manageUserNames"
-				>
-					<img
-						:src="
-							currentStream.thumbnail_url
-								.replace('{width}', '480')
-								.replace('{height}', '270')
-						"
-					/>
-					<div class="streamHeader">
-						<div class="streamTitle">{{ currentStream.title }}</div>
-						<div class="streamCategory">{{ currentStream.game_name }}</div>
-					</div>
-					<div class="streamViewerCount">
-						<Icon name="user" />{{ currentStream.viewer_count }}
-					</div>
-				</a>
-
-				<template class="scrollable" v-show="!manageBadges && !manageUserNames">
-					<div class="infoList" v-if="isTwitchProfile">
-						<div
-							:class="{
-								info: true,
-								recent:
-									Date.now() - (user.created_at_ms || 0) <
-									14 * 24 * 60 * 60 * 1000,
-							}"
-							v-tooltip="t('usercard.creation_date_tt') + '\n' + createDate"
-						>
-							<Icon name="alert" alt="recent account" class="icon recent" />
-							<Icon name="date" alt="account creation date" class="icon" />
-							{{ createDateElapsed }}
+								<div
+									class="info"
+									v-if="canListFollowers && followDate && !is_self"
+									v-tooltip="t('usercard.follow_date_tt')"
+								>
+									<Icon name="follow" alt="follow date" class="icon" />{{
+										followDate
+									}}
+								</div>
+								<div class="info" v-else-if="canListFollowers && !is_self">
+									<Icon name="unfollow" alt="no follow" class="icon" />{{
+										t("usercard.not_following")
+									}}
+								</div>
+							</template>
 						</div>
 
-						<div class="info" v-if="followersCount > -1">
-							<Icon name="follow_outline" class="icon" />{{
-								t("usercard.followers", { COUNT: followersCount }, followersCount)
-							}}
+						<div class="banReason quote" v-if="banReason">
+							<Icon name="ban" /> {{ banReason }}
 						</div>
 
-						<template v-if="isOwnChannel">
-							<div class="info" v-if="subState && subStateLoaded">
-								<Icon
-									name="gift"
-									alt="subscribed"
-									class="icon"
-									v-if="subState.is_gift"
+						<div class="ctas" v-if="isTwitchProfile">
+							<form
+								class="form warnForm"
+								@submit.prevent="warnUser()"
+								v-if="showWarningForm"
+							>
+								<TTButton
+									type="button"
+									icon="back"
+									@click="showWarningForm = false"
+									alert
+								></TTButton>
+								<input
+									type="text"
+									v-model="warningMessage"
+									:placeholder="t('usercard.warn_placeholder')"
+									maxlength="500"
+									v-autofocus
 								/>
-								<Icon name="sub" alt="subscribed" class="icon" v-else />
-								<i18n-t
-									scope="global"
-									tag="span"
-									:keypath="
-										subState.is_gift
-											? 'usercard.subgifted'
-											: 'usercard.subscribed'
-									"
+								<TTButton
+									type="submit"
+									icon="checkmark"
+									:disabled="warningMessage.length == 0"
+									:loading="sendingWarning"
+								></TTButton>
+							</form>
+							<template v-else>
+								<TTButton
+									type="link"
+									small
+									icon="newtab"
+									:href="profilePage"
+									target="_blank"
+									>{{ t("usercard.profileBt") }}</TTButton
 								>
-									<template #TIER>{{
-										{ "1000": 1, "2000": 2, "3000": 3, prime: "prime" }[
-											subState.tier
-										]
-									}}</template>
-									<template #GIFTER>{{ subState.gifter_name }}</template>
-								</i18n-t>
-							</div>
-							<div class="info" v-else-if="subStateLoaded">
-								<Icon name="sub" alt="subscribed" class="icon" />
-								<span>{{ t("usercard.non_subscribed") }}</span>
-							</div>
+								<TTButton small icon="whispers" @click="openWhispers()">{{
+									t("usercard.whisperBt")
+								}}</TTButton>
+								<TTButton
+									v-if="canModerate && canShoutout"
+									small
+									icon="shoutout"
+									@click="shoutoutUser()"
+									>{{ t("usercard.shoutoutBt") }}</TTButton
+								>
+								<TTButton
+									v-if="canModerate && canWarn"
+									small
+									icon="alert"
+									@click="showWarningForm = true"
+									>{{ t("usercard.warnBt") }}</TTButton
+								>
+								<TTButton v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{
+									t("usercard.trackBt")
+								}}</TTButton>
+								<TTButton
+									v-if="is_tracked"
+									small
+									icon="magnet"
+									@click="untrackUser()"
+									>{{ t("usercard.untrackBt") }}</TTButton
+								>
+								<TTButton
+									small
+									icon="tts"
+									:class="{ disabled: !storeTTS.params.enabled }"
+									v-tooltip="
+										!storeTTS.params.enabled ? t('usercard.enable_tts_tt') : ''
+									"
+									@click="toggleReadUser()"
+									>{{ ttsReadBtLabel }}</TTButton
+								>
+							</template>
+						</div>
 
-							<div
-								class="info"
-								v-if="canListFollowers && followDate && !is_self"
-								v-tooltip="t('usercard.follow_date_tt')"
-							>
-								<Icon name="follow" alt="follow date" class="icon" />{{
-									followDate
-								}}
-							</div>
-							<div class="info" v-else-if="canListFollowers && !is_self">
-								<Icon name="unfollow" alt="no follow" class="icon" />{{
-									t("usercard.not_following")
-								}}
-							</div>
-						</template>
-					</div>
-
-					<div class="banReason quote" v-if="banReason">
-						<Icon name="ban" /> {{ banReason }}
-					</div>
-
-					<div class="ctas" v-if="isTwitchProfile">
-						<form
-							class="form warnForm"
-							@submit.prevent="warnUser()"
-							v-if="showWarningForm"
-						>
-							<TTButton
-								type="button"
-								icon="back"
-								@click="showWarningForm = false"
-								alert
-							></TTButton>
-							<input
-								type="text"
-								v-model="warningMessage"
-								:placeholder="t('usercard.warn_placeholder')"
-								maxlength="500"
-								v-autofocus
-							/>
-							<TTButton
-								type="submit"
-								icon="checkmark"
-								:disabled="warningMessage.length == 0"
-								:loading="sendingWarning"
-							></TTButton>
-						</form>
-						<template v-else>
-							<TTButton
-								type="link"
-								small
-								icon="newtab"
-								:href="profilePage"
-								target="_blank"
-								>{{ t("usercard.profileBt") }}</TTButton
-							>
-							<TTButton small icon="whispers" @click="openWhispers()">{{
-								t("usercard.whisperBt")
-							}}</TTButton>
-							<TTButton
-								v-if="canModerate && canShoutout"
-								small
-								icon="shoutout"
-								@click="shoutoutUser()"
-								>{{ t("usercard.shoutoutBt") }}</TTButton
-							>
-							<TTButton
-								v-if="canModerate && canWarn"
-								small
-								icon="alert"
-								@click="showWarningForm = true"
-								>{{ t("usercard.warnBt") }}</TTButton
-							>
-							<TTButton v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{
-								t("usercard.trackBt")
-							}}</TTButton>
-							<TTButton
-								v-if="is_tracked"
-								small
-								icon="magnet"
-								@click="untrackUser()"
-								>{{ t("usercard.untrackBt") }}</TTButton
-							>
-							<TTButton
-								small
-								icon="tts"
-								:class="{ disabled: !storeTTS.params.enabled }"
-								v-tooltip="
-									!storeTTS.params.enabled ? t('usercard.enable_tts_tt') : ''
-								"
-								@click="toggleReadUser()"
-								>{{ ttsReadBtLabel }}</TTButton
-							>
-						</template>
-					</div>
-
-					<div class="moderatedChans dark card-item" v-if="isTwitchProfile">
-						<div class="title"><Icon name="mod" />{{ t("usercard.history") }}</div>
-						<div class="list">
-							<TTButton
-								small
-								type="link"
-								@click.stop="openUserCard($event, channel!.login)"
-								:href="
-									'https://www.twitch.tv/popout/' +
-									channel!.login +
-									'/viewercard/' +
-									user!.login
-								"
-								target="_blank"
-								>{{ channel?.displayNameOriginal
-								}}<template #icon
-									><img
-										class="avatar"
-										:src="
-											channel?.avatarPath?.replace('300x300', '50x50')
-										" /></template
-							></TTButton>
-
-							<TTButton
-								small
-								v-if="!isOwnChannel"
-								type="link"
-								@click.stop="openUserCard($event)"
-								:href="
-									'https://www.twitch.tv/popout/' +
-									storeAuth.twitch.user.login +
-									'/viewercard/' +
-									user!.login
-								"
-								target="_blank"
-								>{{
-									(storeAuth.twitch.user.displayName,
-									storeAuth.twitch.user.login)
-								}}<template #icon
-									><img
-										class="avatar"
-										:src="
-											storeAuth.twitch.user.avatarPath?.replace(
-												'300x300',
-												'50x50',
-											)
-										" /></template
-							></TTButton>
-
-							<TTButton
-								v-if="!canListModeratedChans"
-								small
-								secondary
-								icon="mod"
-								@click="grantModeratedScope()"
-								>{{ t("usercard.moderator_viewercardBt") }}</TTButton
-							>
-
-							<div
-								class="modItem"
-								v-for="modedChan of moderatedChannelList_pinned.filter(
-									(v) => v.broadcaster_id != channel!.id,
-								)"
-							>
+						<div class="moderatedChans dark card-item" v-if="isTwitchProfile">
+							<div class="title"><Icon name="mod" />{{ t("usercard.history") }}</div>
+							<div class="list">
 								<TTButton
 									small
 									type="link"
-									v-tooltip="
-										t('usercard.moderator_viewercardBt_tt', {
-											CHANNEL: modedChan.broadcaster_name,
-										})
+									@click.stop="openUserCard($event, channel!.login)"
+									:href="
+										'https://www.twitch.tv/popout/' +
+										channel!.login +
+										'/viewercard/' +
+										user!.login
 									"
-									@click.stop="openUserCard($event, modedChan.broadcaster_login)"
-									:href="`https://www.twitch.tv/popout/${modedChan.broadcaster_login}/viewercard/${user!.login}`"
 									target="_blank"
-									>{{ modedChan.broadcaster_name
+									>{{ channel?.displayNameOriginal
 									}}<template #icon
 										><img
 											class="avatar"
 											:src="
-												modedChan.avatar?.replace('300x300', '50x50')
+												channel?.avatarPath?.replace('300x300', '50x50')
 											" /></template
 								></TTButton>
-								<TTButton icon="unpin" @click="unpinModIem(modedChan)"></TTButton>
+
+								<TTButton
+									small
+									v-if="!isOwnChannel"
+									type="link"
+									@click.stop="openUserCard($event)"
+									:href="
+										'https://www.twitch.tv/popout/' +
+										storeAuth.twitch.user.login +
+										'/viewercard/' +
+										user!.login
+									"
+									target="_blank"
+									>{{
+										(storeAuth.twitch.user.displayName,
+										storeAuth.twitch.user.login)
+									}}<template #icon
+										><img
+											class="avatar"
+											:src="
+												storeAuth.twitch.user.avatarPath?.replace(
+													'300x300',
+													'50x50',
+												)
+											" /></template
+								></TTButton>
+
+								<TTButton
+									v-if="!canListModeratedChans"
+									small
+									secondary
+									icon="mod"
+									@click="grantModeratedScope()"
+									>{{ t("usercard.moderator_viewercardBt") }}</TTButton
+								>
+
+								<div
+									class="modItem"
+									v-for="modedChan of moderatedChannelList_pinned.filter(
+										(v) => v.broadcaster_id != channel!.id,
+									)"
+								>
+									<TTButton
+										small
+										type="link"
+										v-tooltip="
+											t('usercard.moderator_viewercardBt_tt', {
+												CHANNEL: modedChan.broadcaster_name,
+											})
+										"
+										@click.stop="openUserCard($event, modedChan.broadcaster_login)"
+										:href="`https://www.twitch.tv/popout/${modedChan.broadcaster_login}/viewercard/${user!.login}`"
+										target="_blank"
+										>{{ modedChan.broadcaster_name
+										}}<template #icon
+											><img
+												class="avatar"
+												:src="
+													modedChan.avatar?.replace('300x300', '50x50')
+												" /></template
+									></TTButton>
+									<TTButton icon="unpin" @click="unpinModIem(modedChan)"></TTButton>
+								</div>
+
+								<tooltip
+									interactive
+									trigger="click"
+									:maxWidth="600"
+									:interactiveDebounce="1000"
+									:theme="storeCommon.theme"
+									:sticky="true"
+									v-if="unpinedModedChans.length > 0"
+								>
+									<template #default>
+										<TTButton
+											v-if="
+												Object.keys(moderatedChannelList_pinned).length <
+												moderatedChannelList.length
+											"
+											icon="add"
+											secondary
+										></TTButton>
+									</template>
+									<template #content>
+										<div class="modList">
+											<div class="modItem" v-for="modedChan in unpinedModedChans">
+												<TTButton
+													small
+													@click.stop="
+														openUserCard(
+															$event,
+															modedChan.broadcaster_login,
+														)
+													"
+													target="_blank"
+													>{{ modedChan.broadcaster_name
+													}}<template #icon
+														><img
+															class="avatar"
+															:src="
+																modedChan.avatar?.replace(
+																	'300x300',
+																	'50x50',
+																)
+															" /></template
+												></TTButton>
+												<TTButton
+													icon="pin"
+													@click="pinModIem(modedChan)"
+												></TTButton>
+											</div>
+										</div>
+									</template>
+								</tooltip>
+							</div>
+						</div>
+
+						<div class="card-item messages" v-if="messageHistory.length > 0">
+							<div class="header">
+								<h2 class="title">{{ t("usercard.messages") }}</h2>
 							</div>
 
-							<tooltip
-								interactive
-								trigger="click"
-								:maxWidth="600"
-								:interactiveDebounce="1000"
-								:theme="storeCommon.theme"
-								:sticky="true"
-								v-if="unpinedModedChans.length > 0"
-							>
-								<template #default>
-									<TTButton
-										v-if="
-											Object.keys(moderatedChannelList_pinned).length <
-											moderatedChannelList.length
-										"
-										icon="add"
-										secondary
-									></TTButton>
-								</template>
-								<template #content>
-									<div class="modList">
-										<div class="modItem" v-for="modedChan in unpinedModedChans">
-											<TTButton
-												small
-												@click.stop="
-													openUserCard(
-														$event,
-														modedChan.broadcaster_login,
-													)
-												"
-												target="_blank"
-												>{{ modedChan.broadcaster_name
-												}}<template #icon
-													><img
-														class="avatar"
-														:src="
-															modedChan.avatar?.replace(
-																'300x300',
-																'50x50',
-															)
-														" /></template
-											></TTButton>
-											<TTButton
-												icon="pin"
-												@click="pinModIem(modedChan)"
-											></TTButton>
-										</div>
+							<div class="ctas" v-if="storeGroq.enabled && storeGroq.connected">
+								<TTButton
+									v-if="!showGroqForm"
+									@click="showGroqForm = true"
+									icon="groq"
+									small
+									>{{ t("groq.summarize_bt") }}</TTButton
+								>
+
+								<GroqSummaryFilterForm
+									class="groq"
+									v-if="showGroqForm"
+									mode="all"
+									:messageList="messageHistory"
+									@close="showGroqForm = false"
+									@complete="closeCard()"
+								/>
+							</div>
+
+							<div class="list">
+								<template v-for="entry in messageHistoryDated" :key="entry.message.id">
+									<Splitter class="dateSplitter" v-if="entry.dateLabel">{{
+										entry.dateLabel
+									}}</Splitter>
+									<div class="subholder">
+										<MessageItem
+											class="message"
+											disableConversation
+											:messageData="entry.message"
+										/>
 									</div>
 								</template>
-							</tooltip>
+							</div>
 						</div>
 					</div>
+				</div>
 
-					<div class="card-item messages" v-if="messageHistory.length > 0">
-						<div class="header">
-							<h2 class="title">{{ t("usercard.messages") }}</h2>
-						</div>
+				<div class="holder" v-if="manageBadges">
+					<CustomBadgesManager class="scrollable" @close="manageBadges = false" />
+				</div>
 
-						<div class="ctas" v-if="storeGroq.enabled && storeGroq.connected">
-							<TTButton
-								v-if="!showGroqForm"
-								@click="showGroqForm = true"
-								icon="groq"
-								small
-								>{{ t("groq.summarize_bt") }}</TTButton
-							>
-
-							<GroqSummaryFilterForm
-								class="groq"
-								v-if="showGroqForm"
-								mode="all"
-								:messageList="messageHistory"
-								@close="showGroqForm = false"
-								@complete="closeCard()"
-							/>
-						</div>
-
-						<div class="list">
-							<template v-for="entry in messageHistoryDated" :key="entry.message.id">
-								<Splitter class="dateSplitter" v-if="entry.dateLabel">{{
-									entry.dateLabel
-								}}</Splitter>
-								<div class="subholder">
-									<MessageItem
-										class="message"
-										disableConversation
-										:messageData="entry.message"
-									/>
-								</div>
-							</template>
-						</div>
-					</div>
-				</template>
+				<div class="holder" v-else-if="manageUserNames">
+					<CustomUserNameManager class="scrollable" @close="manageUserNames = false" />
+				</div>
 			</template>
-
-			<div class="holder" ref="holder" v-if="manageBadges">
-				<CustomBadgesManager class="scrollable" @close="manageBadges = false" />
-			</div>
-
-			<div class="holder" ref="holder" v-if="manageUserNames">
-				<CustomUserNameManager class="scrollable" @close="manageUserNames = false" />
-			</div>
 		</div>
 	</div>
 </template>
@@ -1772,6 +1770,11 @@ watch(
 			align-self: center;
 			text-align: center;
 			font-size: 0.8em;
+		}
+
+		//Layout-transparent wrapper so its children stay flex items of .content
+		.details {
+			display: contents;
 		}
 
 		.scrollable {
