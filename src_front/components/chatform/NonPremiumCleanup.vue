@@ -165,10 +165,24 @@
 							}}</strong
 						>
 					</template>
-					<div class="itemList">
+					<input
+						class="search"
+						type="text"
+						v-model="userBadgesSearch"
+						:placeholder="t('global.search_placeholder')"
+					/>
+					<InfiniteList
+						v-if="userBadgesFiltered.length > 0"
+						class="itemList virtualList"
+						lockScroll
+						:dataset="userBadgesFiltered"
+						:itemSize="BADGE_ROW_HEIGHT"
+						:itemMargin="ROW_MARGIN"
+						:style="{ height: getListHeight(userBadgesFiltered, BADGE_ROW_HEIGHT) }"
+						v-slot="{ item: user }"
+					>
 						<div
 							class="rowItem"
-							v-for="user in userBadges"
 							v-tooltip="t('premium.cleanup.custom_badges_attribution_remove')"
 							@click="deleteUserBadges(user)"
 						>
@@ -191,11 +205,15 @@
 									/>
 								</div>
 							</div>
-							<div class="deleteBt">
+							<div
+								class="deleteBt"
+								@click.capture.stop="deleteUserBadges(user, true)"
+							>
 								<Icon name="trash" />
 							</div>
 						</div>
-					</div>
+					</InfiniteList>
+					<div class="noResult" v-else>{{ t("global.no_result") }}</div>
 				</ToggleBlock>
 
 				<ToggleBlock
@@ -213,22 +231,41 @@
 							}}</strong
 						>
 					</template>
-					<div class="itemList users">
+					<input
+						class="search"
+						type="text"
+						v-model="usernamesSearch"
+						:placeholder="t('global.search_placeholder')"
+					/>
+					<InfiniteList
+						v-if="usernamesFiltered.length > 0"
+						class="itemList virtualList"
+						lockScroll
+						:dataset="usernamesFiltered"
+						:itemSize="USERNAME_ROW_HEIGHT"
+						:itemMargin="ROW_MARGIN"
+						:style="{ height: getListHeight(usernamesFiltered, USERNAME_ROW_HEIGHT) }"
+						v-slot="{ item: user }"
+					>
 						<div
 							class="rowItem"
-							v-for="user in usernames"
 							v-tooltip="t('premium.cleanup.custom_username_remove')"
 							@click="deleteUsername(user)"
 						>
-							<span class="label">{{ user.displayName }}</span>
-							<span
-								class="label small"
-								v-if="user.displayName != user.displayNameOriginal"
-								>({{ user.displayNameOriginal }})</span
-							>
-							<Icon name="trash" theme="alert" />
+							<div class="label">
+								<span class="username">{{ user.displayName }}</span>
+								<span
+									class="small"
+									v-if="user.displayName != user.displayNameOriginal"
+									>({{ user.displayNameOriginal }})</span
+								>
+							</div>
+							<div class="deleteBt">
+								<Icon name="trash" />
+							</div>
 						</div>
-					</div>
+					</InfiniteList>
+					<div class="noResult" v-else>{{ t("global.no_result") }}</div>
 				</ToggleBlock>
 
 				<ToggleBlock
@@ -471,6 +508,7 @@ import { computed, onMounted, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import ClearButton from "../ClearButton.vue";
 import Icon from "../Icon.vue";
+import InfiniteList from "../InfiniteList.vue";
 import TTButton from "../TTButton.vue";
 import ToggleBlock from "../ToggleBlock.vue";
 import ToggleButton from "../ToggleButton.vue";
@@ -503,7 +541,14 @@ const storeQuiz = useStoreQuiz();
 const dimmer = useTemplateRef<HTMLElement>("dimmer");
 const holder = useTemplateRef<HTMLElement>("holder");
 
+const ROW_MARGIN = 1;
+const BADGE_ROW_HEIGHT = 40;
+const USERNAME_ROW_HEIGHT = 30;
+const MAX_VISIBLE_ROWS = 8;
+
 const folderTriggerList = ref<(TriggerListEntry | TriggerListFolderEntry)[]>([]);
+const userBadgesSearch = ref("");
+const usernamesSearch = ref("");
 
 const triggerCount = computed<number>(() => {
 	return storeTriggers.triggerList.filter(
@@ -609,6 +654,9 @@ const usernames = computed<TwitchatDataTypes.TwitchatUser[]>(() => {
 	}
 	return res;
 });
+
+const userBadgesFiltered = computed(() => filterUsers(userBadges.value, userBadgesSearch.value));
+const usernamesFiltered = computed(() => filterUsers(usernames.value, usernamesSearch.value));
 
 const triggerList = computed<TriggerListEntry[]>(() => {
 	const triggers = storeTriggers.triggerList;
@@ -717,16 +765,40 @@ async function close(): Promise<void> {
 	});
 }
 
+/**
+ * Filters users by display name (custom one included), original display name or login
+ */
+function filterUsers(
+	users: TwitchatDataTypes.TwitchatUser[],
+	search: string,
+): TwitchatDataTypes.TwitchatUser[] {
+	search = search.trim().toLowerCase();
+	if (!search) return users;
+	return users.filter(
+		(v) =>
+			v.displayName.toLowerCase().includes(search) ||
+			v.displayNameOriginal.toLowerCase().includes(search) ||
+			v.login.toLowerCase().includes(search),
+	);
+}
+
+/**
+ * InfiniteList fills its parent's height, grow it with the content up to a limit
+ */
+function getListHeight(list: unknown[], rowHeight: number): string {
+	return Math.min(list.length, MAX_VISIBLE_ROWS) * (rowHeight + ROW_MARGIN) + "px";
+}
+
 function openPremium(): void {
 	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 }
 
-function toggleTrigger(item?: TriggerData): void {
-	if (item) item.enabled = !item.enabled;
-	storeTriggers.saveTriggers();
-}
-
-function deleteUserBadges(user: TwitchatDataTypes.TwitchatUser): void {
+function deleteUserBadges(user: TwitchatDataTypes.TwitchatUser, force = false): void {
+	if (force) {
+		delete storeUsers.customUserBadges[user.id];
+		storeUsers.saveCustomBadges();
+		return;
+	}
 	confirm(
 		t("premium.cleanup.delete_badges_title"),
 		t("premium.cleanup.delete_badges_description"),
@@ -911,10 +983,11 @@ function onToggleTrigger(): void {
 					padding-left: 0.5em;
 				}
 
-				.small {
+				.small,
+				&.small {
 					font-style: italic;
-					font-size: 0.9em;
-					margin-left: -0.5em;
+					font-size: 0.8em;
+					margin-left: -0.25em;
 				}
 				.badgeList {
 					gap: 0.5em;
@@ -946,9 +1019,8 @@ function onToggleTrigger(): void {
 			}
 		}
 		&.heat,
-		&.badges,
-		&.users {
-			gap: 1em;
+		&.badges {
+			gap: 0.5em;
 			width: 100%;
 			flex-direction: row;
 			flex-wrap: wrap;
@@ -967,12 +1039,32 @@ function onToggleTrigger(): void {
 			}
 		}
 
-		&.users {
+		//InfiniteList rows have a fixed height
+		&.virtualList {
 			.rowItem {
-				padding: 0.5em;
-				max-width: fit-content;
+				height: 100%;
+				align-items: center;
+				.label {
+					min-width: 0;
+					overflow: hidden;
+					white-space: nowrap;
+				}
+				.deleteBt {
+					align-self: stretch;
+				}
 			}
 		}
+	}
+
+	.search {
+		width: 100%;
+		margin-bottom: 0.5em;
+	}
+
+	.noResult {
+		font-style: italic;
+		opacity: 0.7;
+		text-align: center;
 	}
 }
 </style>

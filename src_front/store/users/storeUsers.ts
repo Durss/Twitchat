@@ -18,6 +18,7 @@ import DataStore from "../DataStore";
 import type { IUsersActions, IUsersGetters, IUsersState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 import { TriggerTypes } from "@/types/TriggerTypes";
+import { toast } from "@/utils/toast/toast";
 
 interface BatchItem {
 	channelId?: string;
@@ -1495,10 +1496,12 @@ export const storeUsers = defineStore("users", {
 					!StoreProxy.auth.isPremium &&
 					Object.keys(this.customUsernames).length >= Config.instance.MAX_CUSTOM_USERNAMES
 				) {
-					StoreProxy.common.alert(
+					toast(
 						StoreProxy.i18n.t("error.max_custom_usernames", {
-							COUNT: Config.instance.MAX_CUSTOM_USERNAMES,
+							MAX: Config.instance.MAX_CUSTOM_USERNAMES,
+							MAX_PREMIUM: Config.instance.MAX_CUSTOM_USERNAMES_PREMIUM,
 						}),
+						{ autoClose: true },
 					);
 					return false;
 				}
@@ -1583,11 +1586,14 @@ export const storeUsers = defineStore("users", {
 			badgeId: string,
 			channelId: string,
 		): boolean {
-			if (!this.customUserBadges[userId]) this.customUserBadges[userId] = [];
+			const userBadges = this.customUserBadges[userId];
 			//Add badge to the user if necessary
-			if (this.customUserBadges[userId].findIndex((v) => v.id == badgeId) == -1) {
-				//User can give badges to 30 users max if not premium
+			if (!userBadges || userBadges.findIndex((v) => v.id == badgeId) == -1) {
+				//User can give badges to 30 users max if not premium.
+				//Checked before creating the user's entry so a refused user
+				//isn't counted nor left as an empty entry.
 				if (
+					!userBadges &&
 					!StoreProxy.auth.isPremium &&
 					Object.keys(this.customUserBadges).length >=
 						Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION
@@ -1600,6 +1606,7 @@ export const storeUsers = defineStore("users", {
 					);
 					return false;
 				}
+				if (!this.customUserBadges[userId]) this.customUserBadges[userId] = [];
 				this.customUserBadges[userId].push({
 					id: badgeId,
 					platform: platform,
@@ -1613,9 +1620,7 @@ export const storeUsers = defineStore("users", {
 		removeCustomBadge(userId: string, badgeId: string, channelId: string): void {
 			if (!this.customUserBadges[userId]) return;
 
-			const index = this.customUserBadges[userId].findIndex(
-				(badge) => badge.id == badgeId && badge.channel == channelId,
-			);
+			const index = this.customUserBadges[userId].findIndex((badge) => badge.id == badgeId);
 
 			if (index > -1) this.customUserBadges[userId].splice(index, 1);
 			if (this.customUserBadges[userId].length === 0) {

@@ -24,7 +24,7 @@
 
 			<template v-else>
 				<!-- v-show (not v-if) keeps the batch-rendered message history alive while a manager is open -->
-				<div class="details" v-show="!manageBadges && !manageUserNames">
+				<div class="holder details" v-show="!manageBadges && !manageUserNames">
 					<ClearButton aria-label="close" @click="closeCard()" />
 					<div class="header">
 						<a :href="profilePage" target="_blank">
@@ -107,7 +107,8 @@
 											<div
 												class="list"
 												v-if="
-													Object.keys(storeUsers.customUsernames).length > 0
+													Object.keys(storeUsers.customUsernames).length >
+													0
 												"
 											>
 												<TTButton
@@ -116,7 +117,9 @@
 													small
 													icon="edit"
 													@click="manageUserNames = true"
-													>{{ t("usercard.manage_usernamesBt") }}</TTButton
+													>{{
+														t("usercard.manage_usernamesBt")
+													}}</TTButton
 												>
 											</div>
 										</div>
@@ -140,13 +143,20 @@
 								<TTButton type="submit" icon="checkmark"></TTButton>
 							</form>
 						</div>
-						<span v-if="user.displayName != user.displayNameOriginal" class="originalName"
+						<span
+							v-if="user.displayName != user.displayNameOriginal"
+							class="originalName"
 							>({{ user.displayNameOriginal }})</span
 						>
 						<span v-if="isTwitchProfile && user.pronouns" class="pronouns"
 							>({{ user.pronounsLabel }})</span
 						>
-						<div class="userID" v-tooltip="t('global.copy')" @click="copyID()" ref="userID">
+						<div
+							class="userID"
+							v-tooltip="t('global.copy')"
+							@click="copyID()"
+							ref="userID"
+						>
 							#{{ user.id }}
 						</div>
 						<div v-if="premiumType" class="card-item premiumType">
@@ -221,7 +231,11 @@
 
 							<div class="info" v-if="followersCount > -1">
 								<Icon name="follow_outline" class="icon" />{{
-									t("usercard.followers", { COUNT: followersCount }, followersCount)
+									t(
+										"usercard.followers",
+										{ COUNT: followersCount },
+										followersCount,
+									)
 								}}
 							</div>
 
@@ -329,9 +343,13 @@
 									@click="showWarningForm = true"
 									>{{ t("usercard.warnBt") }}</TTButton
 								>
-								<TTButton v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{
-									t("usercard.trackBt")
-								}}</TTButton>
+								<TTButton
+									v-if="!is_tracked"
+									small
+									icon="magnet"
+									@click="trackUser()"
+									>{{ t("usercard.trackBt") }}</TTButton
+								>
 								<TTButton
 									v-if="is_tracked"
 									small
@@ -424,7 +442,9 @@
 												CHANNEL: modedChan.broadcaster_name,
 											})
 										"
-										@click.stop="openUserCard($event, modedChan.broadcaster_login)"
+										@click.stop="
+											openUserCard($event, modedChan.broadcaster_login)
+										"
 										:href="`https://www.twitch.tv/popout/${modedChan.broadcaster_login}/viewercard/${user!.login}`"
 										target="_blank"
 										>{{ modedChan.broadcaster_name
@@ -435,7 +455,10 @@
 													modedChan.avatar?.replace('300x300', '50x50')
 												" /></template
 									></TTButton>
-									<TTButton icon="unpin" @click="unpinModIem(modedChan)"></TTButton>
+									<TTButton
+										icon="unpin"
+										@click="unpinModIem(modedChan)"
+									></TTButton>
 								</div>
 
 								<tooltip
@@ -459,7 +482,10 @@
 									</template>
 									<template #content>
 										<div class="modList">
-											<div class="modItem" v-for="modedChan in unpinedModedChans">
+											<div
+												class="modItem"
+												v-for="modedChan in unpinedModedChans"
+											>
 												<TTButton
 													small
 													@click.stop="
@@ -516,7 +542,10 @@
 							</div>
 
 							<div class="list">
-								<template v-for="entry in messageHistoryDated" :key="entry.message.id">
+								<template
+									v-for="entry in messageHistoryDated"
+									:key="entry.message.id"
+								>
 									<Splitter class="dateSplitter" v-if="entry.dateLabel">{{
 										entry.dateLabel
 									}}</Splitter>
@@ -534,11 +563,19 @@
 				</div>
 
 				<div class="holder" v-if="manageBadges">
-					<CustomBadgesManager class="scrollable" @close="manageBadges = false" />
+					<CustomBadgesManager
+						class="scrollable"
+						@close="closeCard()"
+						@back="manageBadges = false"
+					/>
 				</div>
 
 				<div class="holder" v-else-if="manageUserNames">
-					<CustomUserNameManager class="scrollable" @close="manageUserNames = false" />
+					<CustomUserNameManager
+						class="scrollable"
+						@close="closeCard()"
+						@back="manageUserNames = false"
+					/>
 				</div>
 			</template>
 		</div>
@@ -1771,10 +1808,12 @@ watch(
 			text-align: center;
 			font-size: 0.8em;
 		}
-
-		//Layout-transparent wrapper so its children stay flex items of .content
 		.details {
 			display: contents;
+		}
+
+		.holder {
+			min-height: 100%;
 		}
 
 		.scrollable {
@@ -1817,3 +1856,4 @@ watch(
 	}
 }
 </style>
+
