@@ -35,13 +35,13 @@
 					:paramData="paramClient"
 					autofocus
 					@change="authenticate(false)"
-					noba
+					noBackground
 				/>
 				<ParamItem
 					class="item"
 					:paramData="paramSecret"
 					@change="authenticate(false)"
-					noba
+					noBackground
 				/>
 				<TTButton
 					v-if="!authenticating"
@@ -113,7 +113,7 @@ const paramClient = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
 	fieldName: "spotifyClient",
 	maxLength: 32,
-	isPrivate: true,
+	icon: "key",
 });
 const paramSecret = ref<TwitchatDataTypes.ParameterData<string>>({
 	label: "Client secret",
@@ -122,6 +122,7 @@ const paramSecret = ref<TwitchatDataTypes.ParameterData<string>>({
 	fieldName: "spotifySecret",
 	maxLength: 32,
 	isPrivate: true,
+	icon: "lock_fit",
 });
 
 const connected = computed(() => SpotifyHelper.instance.connected.value);
@@ -207,6 +208,12 @@ function openTriggers(): void {
 			}
 			.item {
 				align-self: stretch;
+				:deep(label) {
+					flex: 0.5;
+				}
+				:deep(.inputHolder) {
+					flex: 1;
+				}
 			}
 		}
 	}

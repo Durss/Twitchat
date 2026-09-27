@@ -8,6 +8,7 @@
 					class="player"
 					v-if="currentTrack"
 					:staticTrackData="currentTrack"
+					:staticOverlayParams="storeMusic.musicPlayerParams"
 					embed
 				/>
 			</div>
@@ -47,9 +48,11 @@ import { useI18n } from "vue-i18n";
 import TTButton from "../../../TTButton.vue";
 import OverlayMusicPlayer from "../../../overlays/OverlayMusicPlayer.vue";
 import OverlayParamsMusic from "./OverlayParamsMusic.vue";
+import { storeMusic as useStoreMusic } from "@/store/music/storeMusic";
 
 const { t } = useI18n();
 const { getAsset } = asset();
+const storeMusic = useStoreMusic();
 const storeParams = useStoreParams();
 
 const currentTrack = ref<TwitchatDataTypes.MusicTrackData>({

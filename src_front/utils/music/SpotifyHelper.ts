@@ -531,6 +531,10 @@ export default class SpotifyHelper {
 			this._getTrackTimeout = window.setTimeout(() => this.getCurrentTrack(), 1000);
 			return;
 		}
+		if (res.status == 403) {
+			// Need premium account
+			return;
+		}
 		if (res.status == 204) {
 			//No content, nothing is playing
 			this._isPlaying = false;
@@ -641,28 +645,19 @@ export default class SpotifyHelper {
 					void this.resyncQueue();
 				}
 
-				//If track changed or progress has moved by more than 10s
-				if (
-					trackChanged ||
-					Math.abs(json.progress_ms - (this._lastTrackInfo?.progress || -100000)) > 10000
-				) {
-					//Broadcast to the overlays
-					const apiData = {
-						trackName: this.currentTrack.value.title,
-						artistName: this.currentTrack.value.artist,
-						trackDuration: this.currentTrack.value.duration,
-						trackPlaybackPos: json.progress_ms,
-						cover: this.currentTrack.value.cover,
-						params: StoreProxy.music.musicPlayerParams,
-						skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
-					};
-					PublicAPI.instance.broadcast("ON_CURRENT_TRACK", apiData);
-				}
-
+				const prevProgress = json.progress_ms;
 				this._lastTrackInfo = {
 					track: this.currentTrack.value,
 					progress: json.progress_ms,
 				};
+
+				//If track changed or progress has moved by more than 10s
+				if (
+					trackChanged ||
+					Math.abs(json.progress_ms - (prevProgress || -100000)) > 10000
+				) {
+					this.broadcastLatestTrack();
+				}
 
 				let delay = json.item.duration_ms - json.progress_ms;
 				if (isNaN(delay)) delay = 3000;
@@ -679,10 +674,6 @@ export default class SpotifyHelper {
 					StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", "");
 					StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", "");
 					StoreProxy.labels.updateLabelValue("MUSIC_COVER", "");
-
-					PublicAPI.instance.broadcast("ON_CURRENT_TRACK", {
-						params: StoreProxy.music.musicPlayerParams,
-					});
 
 					//Broadcast to the triggers
 					const message: TwitchatDataTypes.MessageMusicStopData = {
@@ -838,22 +829,35 @@ export default class SpotifyHelper {
 		return count;
 	}
 
+	/**
+	 * Broadcast latest track info to overlays
+	 */
+	public broadcastLatestTrack() {
+		if (!this._lastTrackInfo) {
+			PublicAPI.instance.broadcast("ON_CURRENT_TRACK", {
+				params: StoreProxy.music.musicPlayerParams,
+			});
+			return;
+		}
+		const apiData = {
+			trackName: this._lastTrackInfo.track.title,
+			artistName: this._lastTrackInfo.track.artist,
+			trackDuration: this._lastTrackInfo.track.duration,
+			trackPlaybackPos: this._lastTrackInfo.progress,
+			cover: this._lastTrackInfo.track.cover,
+			params: StoreProxy.music.musicPlayerParams,
+			skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
+		};
+		PublicAPI.instance.broadcast("ON_CURRENT_TRACK", apiData);
+	}
+
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
 	private initialize(): void {
 		PublicAPI.instance.addEventListener("GET_CURRENT_TRACK", () => {
 			if (!this._lastTrackInfo) return;
-			const apiData = {
-				trackName: this._lastTrackInfo.track.title,
-				artistName: this._lastTrackInfo.track.artist,
-				trackDuration: this._lastTrackInfo.track.duration,
-				trackPlaybackPos: this._lastTrackInfo.progress,
-				cover: this._lastTrackInfo.track.cover,
-				params: StoreProxy.music.musicPlayerParams,
-				skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
-			};
-			PublicAPI.instance.broadcast("ON_CURRENT_TRACK", apiData);
+			this.broadcastLatestTrack();
 		});
 	}
 

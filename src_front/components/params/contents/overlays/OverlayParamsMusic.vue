@@ -170,8 +170,7 @@ function saveData(): void {
 	storeMusic.musicPlayerParams.erase = param_autoHideErase.value.value;
 
 	DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, storeMusic.musicPlayerParams);
-	//This forces overlay refresh
-	SpotifyHelper.instance.getCurrentTrack();
+	SpotifyHelper.instance.broadcastLatestTrack();
 }
 
 watch(

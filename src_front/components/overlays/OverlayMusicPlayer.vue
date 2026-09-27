@@ -77,199 +77,206 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { asset } from "@/composables/useAsset";
+import { useOverlayConnector } from "@/composables/useOverlayConnector";
 import type TwitchatEvent from "@/events/TwitchatEvent";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import { gsap } from "gsap/gsap-core";
-import { watch } from "vue";
-import { toNative, Component, Prop } from "vue-facing-decorator";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
+import { useRoute } from "vue-router";
 import { Vue3Marquee } from "vue3-marquee";
-import AbstractOverlay from "./AbstractOverlay";
 import { replacePlaceholders } from "@/utils/PlaceholderModifiers";
 import DOMPurify from "isomorphic-dompurify";
 
-@Component({
-	components: {
-		Vue3Marquee,
+const props = withDefaults(
+	defineProps<{
+		embed?: boolean;
+		keepEmbedTransitions?: boolean;
+		playbackPos?: number;
+		staticTrackData?: TwitchatDataTypes.MusicTrackData;
+		staticOverlayParams?: TwitchatDataTypes.MusicPlayerParamsData;
+	}>(),
+	{
+		embed: false,
+		keepEmbedTransitions: false,
 	},
-	emits: ["seek"],
-})
-class OverlayMusicPlayer extends AbstractOverlay {
-	@Prop({
-		type: Boolean,
-		default: false,
-	})
-	public embed!: boolean;
-	@Prop({
-		type: Boolean,
-		default: false,
-	})
-	public keepEmbedTransitions!: boolean;
-	@Prop
-	public playbackPos!: number;
-	@Prop
-	public staticTrackData!: TwitchatDataTypes.MusicTrackData;
+);
 
-	public artist = "";
-	public title = "";
-	public cover: string | undefined = undefined;
-	public skin: string | undefined = undefined;
-	public customTrackInfo = "";
-	public progress = 0;
-	public isPlaying = false;
-	public resetScrolling = false;
-	public params: TwitchatDataTypes.MusicPlayerParamsData | null = null;
+const emit = defineEmits<{
+	seek: [percent: number];
+}>();
 
-	public get noScroll(): boolean {
-		if (Object.hasOwn(this.$route.query, "noScroll")) return true;
-		if (this.params) {
-			if (this.params.noScroll === true) return true;
-		}
-		return false;
+const route = useRoute();
+const { getAsset } = asset();
+
+const progressbar = useTemplateRef("progressbar");
+
+const artist = ref("");
+const title = ref("");
+const cover = ref<string | undefined>(undefined);
+const skin = ref<string | undefined>(undefined);
+const customTrackInfo = ref("");
+const progress = ref(0);
+const isPlaying = ref(false);
+const resetScrolling = ref(false);
+const params = ref<TwitchatDataTypes.MusicPlayerParamsData | null>(null);
+
+const noScroll = computed(() => {
+	if (Object.hasOwn(route.query, "noScroll")) return true;
+	if (params.value) {
+		if (params.value.noScroll === true) return true;
 	}
+	return false;
+});
 
-	private onTrackHandler!: (e: TwitchatEvent<"ON_CURRENT_TRACK">) => void;
-
-	public get classes(): string[] {
-		let res = ["overlaymusicplayer"];
-		if (this.embed !== false) res.push("embed");
-		if (this.keepEmbedTransitions !== false) res.push("keepEmbedTransitions");
-		if (this.params) {
-			if (this.params.noScroll === true) res.push("noScroll");
-			if (this.params.openFromLeft === true) res.push("left");
-		}
-		if (this.skin) res.push(this.skin);
-		return res;
+const classes = computed<string[]>(() => {
+	let res = ["overlaymusicplayer"];
+	if (props.embed !== false) res.push("embed");
+	if (props.keepEmbedTransitions !== false) res.push("keepEmbedTransitions");
+	if (params.value) {
+		if (params.value.noScroll === true) res.push("noScroll");
+		if (params.value.openFromLeft === true) res.push("left");
 	}
+	if (skin.value) res.push(skin.value);
+	return res;
+});
 
-	public get duration(): number {
-		return Math.max(this.artist.length, this.title.length, 20) / 2;
+const duration = computed<number>(() => {
+	return Math.max(artist.value.length, title.value.length, 20) / 2;
+});
+
+const progressStyles = computed<{ [key: string]: string }>(() => {
+	return {
+		width: `${progress.value * 100}%`,
+	};
+});
+
+if (!props.staticOverlayParams && props.staticTrackData) {
+	useOverlayConnector(requestInfo);
+}
+
+onMounted(() => {
+	if (!props.staticTrackData) {
+		PublicAPI.instance.addEventListener("ON_CURRENT_TRACK", onTrack);
+	} else {
+		onTrackChangeLocal();
+		progress.value = 50;
 	}
-
-	public get progressStyles(): { [key: string]: string } {
-		return {
-			width: `${this.progress * 100}%`,
-		};
+	if (props.staticOverlayParams) {
+		params.value = props.staticOverlayParams;
 	}
+	if (props.staticOverlayParams || props.staticTrackData) {
+		onTrackChangeLocal();
+	}
+});
 
-	public mounted(): void {
-		this.onTrackHandler = async (e: TwitchatEvent<"ON_CURRENT_TRACK">) => {
-			if (e.data && e.data.params) {
-				this.params = e.data.params;
+onBeforeUnmount(() => {
+	PublicAPI.instance.removeEventListener("ON_CURRENT_TRACK", onTrack);
+	gsap.killTweensOf(progress);
+});
+
+function requestInfo(): void {
+	PublicAPI.instance.broadcast("GET_CURRENT_TRACK");
+}
+
+function onSeek(e: MouseEvent): void {
+	const bounds = progressbar.value!.getBoundingClientRect();
+	const percent = e.offsetX / bounds.width;
+	emit("seek", percent);
+}
+
+async function onTrack(e: TwitchatEvent<"ON_CURRENT_TRACK">): Promise<void> {
+	if (e.data && e.data.params) {
+		params.value = e.data.params;
+	}
+	if (e.data.trackName && e.data.artistName) {
+		const prevArtist = artist.value;
+		const prevTitle = title.value;
+		artist.value = e.data.artistName;
+		title.value = e.data.trackName;
+		cover.value = e.data.cover;
+		skin.value = e.data.skin;
+		isPlaying.value = true;
+		let trackInfo = params.value?.customInfoTemplate || "";
+		if (trackInfo)
+			trackInfo = replacePlaceholders(trackInfo, {
+				ARTIST: artist.value || "no music",
+				TITLE: title.value || "no music",
+				COVER: cover.value || "",
+			});
+		customTrackInfo.value = DOMPurify.sanitize(trackInfo);
+
+		const newProgress = e.data.trackPlaybackPos! / e.data.trackDuration!;
+		progress.value = newProgress;
+		const duration = (e.data.trackDuration! * (1 - newProgress)) / 1000;
+		gsap.killTweensOf(progress);
+		gsap.to(progress, { duration, value: 1, ease: "linear" });
+
+		if (params.value?.noScroll !== true) {
+			//If it's a new track, reset the scrolling
+			if (prevArtist != artist.value && prevTitle != title.value) {
+				resetScrolling.value = true;
+				await nextTick();
+				resetScrolling.value = false;
 			}
-			if (e.data.trackName && e.data.artistName) {
-				const prevArtist = this.artist;
-				const prevTitle = this.title;
-				this.artist = e.data.artistName;
-				this.title = e.data.trackName;
-				this.cover = e.data.cover;
-				this.skin = e.data.skin;
-				this.isPlaying = true;
-				let customTrackInfo = this.params?.customInfoTemplate || "";
-				if (customTrackInfo)
-					customTrackInfo = replacePlaceholders(customTrackInfo, {
-						ARTIST: this.artist || "no music",
-						TITLE: this.title || "no music",
-						COVER: this.cover || "",
-					});
-				this.customTrackInfo = DOMPurify.sanitize(customTrackInfo);
-
-				const newProgress = e.data.trackPlaybackPos! / e.data.trackDuration!;
-				this.progress = newProgress;
-				const duration = (e.data.trackDuration! * (1 - newProgress)) / 1000;
-				gsap.killTweensOf(this);
-				gsap.to(this, { duration, progress: 1, ease: "linear" });
-
-				if (this.params?.noScroll !== true) {
-					//If it's a new track, reset the scrolling
-					if (prevArtist != this.artist && prevTitle != this.title) {
-						this.resetScrolling = true;
-						await this.$nextTick();
-						this.resetScrolling = false;
-					}
-				}
-			} else {
-				this.isPlaying = this.params?.autoHide !== false;
-				if (this.params?.erase === true) {
-					this.artist = "no music";
-					this.title = "no music";
-					this.cover = this.$asset("img/defaultCover.svg");
-				}
-				gsap.killTweensOf(this);
-				if (this.params) {
-					this.params.showProgressbar = false;
-				}
-			}
-			if (!/http?s:\/\/.{5,}/.test(this.cover || "")) {
-				this.cover = this.$asset("img/defaultCover.svg");
-			}
-		};
-
-		if (!this.staticTrackData) {
-			PublicAPI.instance.addEventListener("ON_CURRENT_TRACK", this.onTrackHandler);
-			//Wait a little to give it time to OBS websocket to establish connexion
-		} else {
-			this.onTrackChangeLocal();
-			this.progress = 50;
 		}
-		if (this.embed) {
-			//Called when seeking
-			watch(
-				() => this.$store.music.musicPlayerParams,
-				() => this.onTrackChangeLocal(),
-				{ deep: true },
-			);
-			this.onTrackChangeLocal();
+	} else {
+		isPlaying.value = params.value?.autoHide !== false;
+		if (params.value?.erase === true) {
+			artist.value = "no music";
+			title.value = "no music";
+			cover.value = getAsset("img/defaultCover.svg");
+		}
+		gsap.killTweensOf(progress);
+		if (params.value) {
+			params.value.showProgressbar = false;
 		}
 	}
-
-	public beforeUnmount(): void {
-		PublicAPI.instance.removeEventListener("ON_CURRENT_TRACK", this.onTrackHandler);
-	}
-
-	public requestInfo(): void {
-		PublicAPI.instance.broadcast("GET_CURRENT_TRACK");
-	}
-
-	public onSeek(e: MouseEvent): void {
-		const bar = this.$refs.progressbar as HTMLDivElement;
-		const bounds = bar.getBoundingClientRect();
-		const percent = e.offsetX / bounds.width;
-		this.$emit("seek", percent);
-	}
-
-	private onTrackChangeLocal(): void {
-		this.params = this.$store.music
-			.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
-		if (this.staticTrackData) {
-			this.artist = this.staticTrackData.artist;
-			this.title = this.staticTrackData.title;
-			this.cover = this.staticTrackData.cover;
-			if (!this.cover) {
-				this.cover = this.$asset("img/default_music_cover.png");
-			}
-			this.isPlaying = true;
-			let customTrackInfo = this.params.customInfoTemplate;
-			if (customTrackInfo)
-				customTrackInfo = replacePlaceholders(customTrackInfo, {
-					ARTIST: this.artist || "no music",
-					TITLE: this.title || "no music",
-					COVER: this.cover,
-				});
-			this.customTrackInfo = DOMPurify.sanitize(customTrackInfo);
-
-			const newProgress = 600 / this.staticTrackData.duration;
-			this.progress = newProgress;
-			const duration = this.staticTrackData.duration * (1 - newProgress);
-			gsap.killTweensOf(this);
-			gsap.to(this, { duration, progress: 1, ease: "linear" });
-		} else {
-			this.isPlaying = false;
-		}
+	if (!/http?s:\/\/.{5,}/.test(cover.value || "")) {
+		cover.value = getAsset("img/defaultCover.svg");
 	}
 }
-export default toNative(OverlayMusicPlayer);
+
+function onTrackChangeLocal(): void {
+	if (props.staticTrackData) {
+		artist.value = props.staticTrackData.artist;
+		title.value = props.staticTrackData.title;
+		cover.value = props.staticTrackData.cover;
+		if (!cover.value) {
+			cover.value = getAsset("img/default_music_cover.png");
+		}
+		isPlaying.value = true;
+		let trackInfo = props.staticOverlayParams?.customInfoTemplate || "";
+		if (trackInfo) {
+			trackInfo = replacePlaceholders(trackInfo, {
+				ARTIST: artist.value || "no music",
+				TITLE: title.value || "no music",
+				COVER: cover.value,
+			});
+			customTrackInfo.value = DOMPurify.sanitize(trackInfo);
+		} else {
+			customTrackInfo.value = "";
+		}
+
+		const newProgress = 600 / props.staticTrackData.duration;
+		progress.value = newProgress;
+		const duration = props.staticTrackData.duration * (1 - newProgress);
+		gsap.killTweensOf(progress);
+		gsap.to(progress, { duration, value: 1, ease: "linear" });
+	} else {
+		isPlaying.value = false;
+	}
+}
+
+if (props.staticOverlayParams) {
+	watch(
+		() => props.staticOverlayParams,
+		() => onTrackChangeLocal(),
+		{ deep: true },
+	);
+}
 </script>
 
 <style scoped lang="less">
