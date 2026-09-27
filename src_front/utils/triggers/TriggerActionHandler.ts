@@ -6547,62 +6547,60 @@ export default class TriggerActionHandler {
 					}
 				} else //Handle stream info update trigger action
 				if (step.type == "stream_infos") {
+					let title: string | undefined = undefined;
+					let tags: string[] | undefined = undefined;
+					let branded: boolean | undefined = undefined;
+					let labels:
+						| TriggerActionDataTypes.TriggerActionStreamInfoData["labels"]
+						| undefined = undefined;
+					if (step.labels) labels = step.labels;
+					if (step.branded === true) branded = true;
+					if (step.branded === false) branded = false;
 					if (step.title) {
-						let title: string | undefined = undefined;
-						let tags: string[] | undefined = undefined;
-						let branded: boolean | undefined = undefined;
-						let labels:
-							| TriggerActionDataTypes.TriggerActionStreamInfoData["labels"]
-							| undefined = undefined;
-						if (step.labels) labels = step.labels;
-						if (step.branded === true) branded = true;
-						if (step.branded === false) branded = false;
-						if (step.title) {
-							title = await this.parsePlaceholders({
-								dynamicPlaceholders,
-								actionPlaceholders,
-								trigger,
-								message,
-								src: step.title,
-								subEvent,
-							});
-						}
-						if (step.tags) {
-							tags = [];
-							for (const tag of step.tags) {
-								tags.push(
-									await this.parsePlaceholders({
-										dynamicPlaceholders,
-										actionPlaceholders,
-										trigger,
-										message,
-										src: tag,
-										subEvent,
-									}),
-								);
-							}
-						}
-						logStep.messages.push({
-							date: Date.now(),
-							value:
-								'Set stream infos. Title:"' +
-								title +
-								'" Tags:"' +
-								tags +
-								'" CategoryID:"' +
-								step.categoryId +
-								'"',
+						title = await this.parsePlaceholders({
+							dynamicPlaceholders,
+							actionPlaceholders,
+							trigger,
+							message,
+							src: step.title,
+							subEvent,
 						});
-						await StoreProxy.stream.updateStreamInfos(
-							"twitch",
-							StoreProxy.auth.twitch.user.id,
-							title,
-							step.categoryId,
-							tags,
-							branded,
-							labels,
-						);
 					}
+					if (step.tags) {
+						tags = [];
+						for (const tag of step.tags) {
+							tags.push(
+								await this.parsePlaceholders({
+									dynamicPlaceholders,
+									actionPlaceholders,
+									trigger,
+									message,
+									src: tag,
+									subEvent,
+								}),
+							);
+						}
+					}
+					logStep.messages.push({
+						date: Date.now(),
+						value:
+							'Set stream infos. Title:"' +
+							title +
+							'" Tags:"' +
+							tags +
+							'" CategoryID:"' +
+							step.categoryId +
+							'"',
+					});
+					await StoreProxy.stream.updateStreamInfos(
+						"twitch",
+						StoreProxy.auth.twitch.user.id,
+						title,
+						step.categoryId,
+						tags,
+						branded,
+						labels,
+					);
 				} else //Handle mobile device vibration action
 				if (step.type == "vibrate") {
 					if (step.pattern) {
