@@ -294,6 +294,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 					if (grid) {
 						//Tell the overlay someone got a bingo if allowed to be displayed on overlay
 						if (
+							grid.enabled &&
 							grid.overlayAnnouncement &&
 							(await Utils.checkPermissions(
 								grid.overlayAnnouncementPermissions,

@@ -288,7 +288,7 @@ function onVisibilityChange(e: TwitchatEvent<"SET_BINGO_GRID_VISIBILITY">): void
  * Called when requesting to show/hide leaderboard
  */
 async function onLeaderboard(e: TwitchatEvent<"ON_BINGO_GRID_LEADER_BOARD">): Promise<void> {
-	if (!e.data) return;
+	if (!e.data || !bingo.value) return;
 
 	await openCloseGrid(true);
 
@@ -350,7 +350,7 @@ function hideLeaderBoard(): void {
  * Called when a user wins a bingo
  */
 async function onBingoViewer(e: TwitchatEvent<"ON_BINGO_GRID_VIEWER_EVENT">): Promise<void> {
-	if (!e.data) return;
+	if (!e.data || !bingo.value) return;
 	pushEvent({ type: "user", userBingo: { ...e.data, displayCount: e.data.count } });
 }
 
@@ -948,7 +948,8 @@ async function execNextEvent(): Promise<void> {
  * Show a viewer info
  */
 async function animateViewer(data: IUserBingoData): Promise<void> {
-	const holder = cellsHolder.value!;
+	const holder = cellsHolder.value;
+	if (!holder) return;
 	const bounds = holder.getBoundingClientRect();
 	width.value = Math.ceil(bounds.width / debugScale);
 	height.value = Math.ceil(bounds.height / debugScale);
