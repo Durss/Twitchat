@@ -107,13 +107,17 @@ export default class MiddlewareController extends AbstractController {
 		});
 
 		//Static files
+		const hashedAssetsRoot = path.join(Config.PUBLIC_ROOT, "assets") + path.sep;
 		await this.server.register(fastifyStatic, {
 			root: Config.PUBLIC_ROOT,
 			prefix: "/",
-			setHeaders: (response, path) => {
-				if (/index\.html/gi.test(path)) {
+			setHeaders: (response, filePath) => {
+				if (/\.html$/i.test(filePath)) {
+					// disable cache for html files
 					this.disableCache(response);
-					// res.setHeader("content-type", "application/javascript; charset=UTF-8");
+				} else if (filePath.startsWith(hashedAssetsRoot)) {
+					// make sure /assets/* files are cached
+					response.header("Cache-Control", "public, max-age=31536000, immutable");
 				}
 				// res.setHeader("Set-Cookie", "cross-site-cookie=*; SameSite=None; Secure");
 			},
@@ -142,6 +146,7 @@ export default class MiddlewareController extends AbstractController {
 			}
 
 			if (staticFile) {
+				this.disableCache(response);
 				const stream = fs.createReadStream(staticFile, "utf8");
 				const mimetype = mime.lookup(staticFile);
 				if (mimetype == "text/html") {
@@ -196,6 +201,8 @@ export default class MiddlewareController extends AbstractController {
 				const ip = this.getIp(request);
 				Logger.warn("404: (" + request.method + ")" + request.url + " - From IP: " + ip);
 			}
+			// prevent cloudflare from caching 404s
+			this.disableCache(response);
 			response.code(404).send({ success: false, error: "Not found" });
 			return;
 		}

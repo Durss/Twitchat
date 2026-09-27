@@ -378,6 +378,12 @@ function buildApp() {
 		});
 	}
 
+	// log failed routes to sentry
+	router.onError((error: unknown) => {
+		console.error(error);
+		Sentry.captureException(error);
+	});
+
 	if (Config.instance.BETA_MODE) PerfWatchdog.instance.start();
 
 	window.setInitMessage("Mounting interface");
@@ -429,4 +435,3 @@ function buildApp() {
 		true,
 	);
 }
-
