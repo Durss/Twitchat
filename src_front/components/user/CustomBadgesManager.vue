@@ -151,13 +151,7 @@
 							/>
 						</span>
 						<span class="name">{{ user.displayName }}</span>
-						<button
-							class="removeBt"
-							v-tooltip="t('premium.cleanup.custom_badges_attribution_remove')"
-							@click="removeAllBadgesFromUser(user)"
-						>
-							<Icon name="cross" />
-						</button>
+						<TTButton icon="trash" transparent @click="removeAllBadgesFromUser(user)" />
 					</span>
 					<span class="card-item user" v-else>
 						<img :src="selectedBadge?.img" class="mini" />
