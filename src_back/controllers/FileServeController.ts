@@ -1,8 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import AbstractController from "./AbstractController.js";
 import Config from "../utils/Config.js";
-import * as fs from "fs";
-import * as path from "path";
 import Logger from "../utils/Logger.js";
 import TwitchUtils from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
@@ -32,11 +30,6 @@ export default class FileServeController extends AbstractController {
 		this.server.get("/api", async (_request: FastifyRequest, _response: FastifyReply) => {
 			return { success: true };
 		});
-
-		//Get latest script.js file for cache bypass
-		this.server.get("/api/script", async (request: FastifyRequest, response: FastifyReply) =>
-			this.getScript(request, response),
-		);
 
 		//Get latest app configs
 		this.server.get("/api/configs", async (request: FastifyRequest, response: FastifyReply) =>
@@ -79,46 +72,6 @@ export default class FileServeController extends AbstractController {
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
-
-	/**
-	 * Get most recent srcript.
-	 * Use as last resort option to get the script if index was cached
-	 * with an old script without caching that old script. In this case
-	 * it hits a 404 and call this non-cached endpoint.
-	 */
-	private async getScript(
-		_request: FastifyRequest,
-		response: FastifyReply,
-	): Promise<FastifyReply> {
-		Logger.info("Serving script for cache bypass");
-		const assets = path.join(Config.PUBLIC_ROOT, "assets");
-
-		let files: string[];
-		try {
-			files = (await fs.promises.readdir(assets)).filter((v) => /main-.*\.js$/gi.test(v));
-		} catch (error) {
-			Logger.error("Failed listing the assets folder");
-			console.log(error);
-			return response.status(404).send();
-		}
-
-		//Keep the most recently built bundle
-		const dated = await Promise.all(
-			files.map(async (v) => {
-				const file = path.join(assets, v);
-				return { file, date: (await fs.promises.stat(file)).ctime.getTime() };
-			}),
-		);
-		let newest: { file: string; date: number } | undefined;
-		for (const entry of dated) {
-			if (!newest || entry.date > newest.date) newest = entry;
-		}
-
-		if (!newest) return response.status(404).send();
-
-		response.header("Content-Type", "application/javascript");
-		return response.status(200).send(fs.createReadStream(newest.file));
-	}
 
 	private getConfigs(_request: FastifyRequest, response: FastifyReply): void {
 		let config = this.config_cache;
