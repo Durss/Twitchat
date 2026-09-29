@@ -275,7 +275,9 @@
 		"follow": "{USER} vous suit",
 		"follow_remote": "{USER} suit la chaîne",
 		"raid": {
-			"text": "{USER} a lancé un raid sur votre chaîne avec {COUNT} personne. | {USER} a lancé un raid sur votre chaîne avec {COUNT} personnes."
+			"text": "{USER} a lancé un raid sur votre chaîne avec {COUNT} personne. | {USER} a lancé un raid sur votre chaîne avec {COUNT} personnes.",
+			"offline": "hors ligne",
+			"offline_tt": "{USER} était hors ligne au moment du raid"
 		},
 		"pin": {
 			"pinned": "{MODERATOR} a épinglé le message suivant :",

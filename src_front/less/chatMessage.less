@@ -169,6 +169,7 @@
 				flex-wrap: wrap;
 				margin-top: 0.5em;
 				.category,
+				.offline,
 				.duration {
 					width: fit-content;
 					margin-right: 0;
@@ -181,10 +182,16 @@
 					border-radius: var(--border-radius);
 					color: var(--color-text);
 					background-color: var(--background-color-fadest);
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					gap: 0.5em;
 					.icon {
 						height: 1em;
-						vertical-align: text-top;
-						margin-right: 0.25em;
+					}
+
+					&.offline {
+						background-color: var(--color-alert-fadest);
 					}
 				}
 			}

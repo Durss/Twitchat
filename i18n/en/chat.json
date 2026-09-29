@@ -275,7 +275,9 @@
 		"follow": "{USER} follows you",
 		"follow_remote": "{USER} follows the channel",
 		"raid": {
-			"text": "{USER} is raiding with a party of {COUNT}."
+			"text": "{USER} is raiding with a party of {COUNT}.",
+			"offline": "offline",
+			"offline_tt": "{USER} was offline when raiding you"
 		},
 		"pin": {
 			"pinned": "{MODERATOR} pinned the following message:",

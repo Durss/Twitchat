@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" @contextmenu="onContextMenu($event, messageData, $el)">
+	<div :class="classes" @contextmenu="onContextMenu($event, messageData, rootEl!)" ref="rootEl">
 		<Icon name="raid" alt="raid" class="icon" />
 
 		<div class="messageHolder">
@@ -28,7 +28,7 @@
 			<div
 				class="streamInfo"
 				v-if="
-					$store.params.appearance.showRaidStreamInfo.value == true &&
+					storeParams.appearance.showRaidStreamInfo.value == true &&
 					(messageData.stream.title || messageData.stream.category)
 				"
 			>
@@ -42,88 +42,111 @@
 							<div class="duration" v-if="messageData.stream.wasLive">
 								<Icon name="timer" class="icon" />{{ formattedDuration }}
 							</div>
+							<div
+								class="offline"
+								v-else
+								v-tooltip="
+									t('chat.raid.offline_tt', {
+										USER: messageData.user.displayNameOriginal,
+									})
+								"
+							>
+								<Icon name="cross" class="icon" /> {{ t("chat.raid.offline") }}
+							</div>
 						</div>
 					</div>
 				</div>
 
-				<Button
+				<TTButton
 					@click.stop="shoutout()"
 					small
 					icon="shoutout"
 					:loading="shoutoutLoading"
 					class="soButton"
 					v-if="showSOButton"
-					>{{ $t("chat.soBt") }}</Button
+					>{{ t("chat.soBt") }}</TTButton
 				>
 			</div>
 
-			<Button
+			<TTButton
 				v-else-if="showSOButton"
 				@click.stop="shoutout()"
 				small
 				icon="shoutout"
 				:loading="shoutoutLoading"
 				class="soButton"
-				>{{ $t("chat.soBt") }}</Button
+				>{{ t("chat.soBt") }}</TTButton
 			>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import { toNative, Component, Prop } from "vue-facing-decorator";
+import { toast } from "@/utils/toast/toast";
+import { computed, onBeforeMount, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 import TTButton from "../TTButton.vue";
-import AbstractChatMessage from "./AbstractChatMessage";
 
-@Component({
-	components: {
-		Button: TTButton,
-	},
-	emits: ["onRead"],
-})
-class ChatRaid extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageRaidData;
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageRaidData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
+}>();
 
-	public shoutoutLoading = false;
-	public showCount = false;
-	public showSOButton = false;
-	public formattedDuration = "";
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
 
-	public get classes(): string[] {
-		const res = ["chatraid", "chatMessage", "highlight"];
-		if (this.$store.params.appearance.showRaidStreamInfo.value !== true) {
-			res.push("rowMode");
-		}
-		return res;
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeCommon = useStoreCommon();
+const storeParams = useStoreParams();
+const storeUsers = useStoreUsers();
+
+const rootEl = useTemplateRef<HTMLElement>("rootEl");
+const { openUserCard, onContextMenu } = useChatMessage(props, emit, rootEl);
+
+const shoutoutLoading = ref(false);
+const showCount = ref(false);
+const showSOButton = ref(false);
+const formattedDuration = ref("");
+
+const classes = computed<string[]>(() => {
+	const res = ["chatraid", "chatMessage", "highlight"];
+	if (storeParams.appearance.showRaidStreamInfo.value !== true) {
+		res.push("rowMode");
 	}
+	return res;
+});
 
-	public get iconColor(): string {
-		return this.$store.common.theme == "dark" ? "#ebeb00" : "#949400";
-	}
+const iconColor = computed<string>(() => {
+	return storeCommon.theme == "dark" ? "#ebeb00" : "#949400";
+});
 
-	public beforeMount(): void {
-		this.showCount = this.$store.params.appearance.showRaidViewersCount.value !== false;
-		this.formattedDuration = Utils.formatDuration(this.messageData.stream.duration);
-		this.showSOButton =
-			this.$store.auth.twitch.user.channelInfo[this.messageData.channel_id]?.is_moderator ===
-			true;
-	}
+onBeforeMount(() => {
+	showCount.value = storeParams.appearance.showRaidViewersCount.value !== false;
+	formattedDuration.value = Utils.formatDuration(props.messageData.stream.duration);
+	showSOButton.value =
+		storeAuth.twitch.user.channelInfo[props.messageData.channel_id]?.is_moderator === true;
+});
 
-	public async shoutout(): Promise<void> {
-		this.shoutoutLoading = true;
-		try {
-			await this.$store.users.shoutout(this.messageData.channel_id, this.messageData.user);
-		} catch (error) {
-			this.$store.common.alert(this.$t("error.shoutout"));
-			console.log(error);
-		}
-		this.shoutoutLoading = false;
+async function shoutout(): Promise<void> {
+	shoutoutLoading.value = true;
+	try {
+		await storeUsers.shoutout(props.messageData.channel_id, props.messageData.user);
+	} catch (error) {
+		toast(t("error.shoutout"));
+		console.log(error);
 	}
+	shoutoutLoading.value = false;
 }
-export default toNative(ChatRaid);
 </script>
 
 <style scoped lang="less">
