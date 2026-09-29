@@ -1624,6 +1624,7 @@ const UserDataSchema = {
 		},
 		v: { type: "number" },
 		saveVersion: { type: "number" },
+		saveId: { type: "string", maxLength: 40 },
 		censorViewerCount: { type: "boolean" },
 		collapseParamAdInfo: { type: "boolean" },
 		lang: { type: "string", maxLength: 4 },

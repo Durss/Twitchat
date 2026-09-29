@@ -13,6 +13,22 @@ import type { CustomTrainStoreData } from "./customtrain/storeCustomTrain";
 import { TriggerTypes } from "@/types/TriggerTypes";
 
 /**
+ * Used to check if local changes should be uploaded at startup.
+ * Can happen if closing twitchat before it had a chance to save data.
+ */
+type SyncState = {
+	/**
+	 * Are there local data are pending for?
+	 */
+	pending: boolean;
+	/**
+	 * Last save confirmed by server + up to 19 uploads IDs
+	 * that got no answer from server (may still be saved)
+	 */
+	saveIds: string[];
+};
+
+/**
  * Fallback to sessionStorage if localStorage isn't available
  * Created : 18/10/2020
  */
@@ -49,6 +65,10 @@ export default class DataStore extends DataStoreCommon {
 				return;
 			}
 		}
+
+		// locally remember there are changes pending for save
+		const syncState = this.getSyncState();
+		if (!syncState.pending) this.setSyncState({ ...syncState, pending: true });
 
 		return new Promise((resolve) => {
 			//Callers are only resolved once data actually reached the server so
@@ -95,6 +115,14 @@ export default class DataStore extends DataStoreCommon {
 					data.saveVersion = isNaN(data.saveVersion) ? 1 : data.saveVersion + 1;
 					this.set(this.SAVE_VERSION, data.saveVersion, false);
 
+					const saveId = Utils.getUUID();
+					data[this.SAVE_ID] = saveId;
+					const uploadState = this.getSyncState();
+					const saveIds = [...uploadState.saveIds, saveId];
+					uploadState.saveIds =
+						saveIds.length > 20 ? [saveIds[0]!, ...saveIds.slice(-19)] : saveIds;
+					this.setSyncState(uploadState);
+
 					this.abortQuery = new AbortController();
 					const saveRes = await ApiHelper.call(
 						"user/data",
@@ -109,6 +137,9 @@ export default class DataStore extends DataStoreCommon {
 
 					if (saveRes.status == 409) {
 						StoreProxy.main.showOutdatedDataVersionAlert();
+					}
+					if (saveRes.json.success === true) {
+						this.setSyncState({ pending: this.pendingSave, saveIds: [saveId] });
 					}
 					if (saveRes.json.success === true && force && saveRes.json.version) {
 						this.set(
@@ -162,8 +193,30 @@ export default class DataStore extends DataStoreCommon {
 				// console.log("Import to local storage...");
 				//Import data to local storage.
 				if (res.json.success === true) {
-					await this.loadFromJSON(res.json.data);
-					void this.save(true);
+					const remoteData = res.json.data;
+					const remoteSaveId: string | undefined = remoteData?.[this.SAVE_ID];
+					const syncState = this.getSyncState();
+					if (
+						syncState.pending &&
+						remoteSaveId &&
+						syncState.saveIds.includes(remoteSaveId)
+					) {
+						// local data contains unsynced changes and nobody else changed them
+						// on the server. Upload local data
+						console.log("Uploading local changes that didn't reach the server");
+						// Make sure version is incremented so it's not refused
+						this.set(this.SAVE_VERSION, remoteData[this.SAVE_VERSION], false);
+						this.dataImported = true;
+						void this.save();
+					} else {
+						// no local change or server is more up to date
+						this.setSyncState({
+							pending: false,
+							saveIds: remoteSaveId ? [remoteSaveId] : [],
+						});
+						await this.loadFromJSON(remoteData);
+						void this.save(true);
+					}
 				}
 			}
 			return res.status != 404;
@@ -398,6 +451,21 @@ export default class DataStore extends DataStoreCommon {
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
+
+	/**
+	 * Get current state of local changes
+	 */
+	private static getSyncState(): SyncState {
+		const state = this.rawStore[this.SYNC_STATE] as unknown as Partial<SyncState> | undefined;
+		return { pending: state?.pending === true, saveIds: state?.saveIds ?? [] };
+	}
+
+	/**
+	 * Set state of local changes
+	 */
+	private static setSyncState(state: SyncState): void {
+		void this.set(this.SYNC_STATE, state, false);
+	}
 
 	/**********************************
 	 **** DATA MIGRATION UTILITIES ****
