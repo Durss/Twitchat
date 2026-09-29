@@ -254,7 +254,6 @@ export default class DataStoreCommon {
 				if (!el.serverSync) {
 					automodRulesBackup.push(automod.keywordsFilters.splice(i, 1)[0]!);
 					i--;
-					if (i < 0) break;
 				}
 			}
 
