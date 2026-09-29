@@ -67,6 +67,8 @@ import { computed, useTemplateRef } from "vue";
 
 const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageSharedChatSessionData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
 }>();
 const emit = defineEmits<{ onRead: [] }>();
 const rootEl = useTemplateRef("rootEl");

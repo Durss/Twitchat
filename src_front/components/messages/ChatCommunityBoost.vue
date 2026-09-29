@@ -12,8 +12,6 @@
 
 <script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractChatMessage from "./AbstractChatMessage";
 
 const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageCommunityBoostData;

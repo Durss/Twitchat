@@ -51,6 +51,8 @@ import { useChatMessage } from "@/composables/useChatMessage";
 const rootEl = useTemplateRef("rootEl");
 const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageCommunityChallengeContributionData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
 }>();
 const emit = defineEmits<{ onRead: [] }>();
 const { openUserCard, onContextMenu } = useChatMessage(props, emit, rootEl);

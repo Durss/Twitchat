@@ -50,6 +50,8 @@ import { useTemplateRef } from "vue";
 
 const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageYoutubeSuperStickerData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
 }>();
 
 const emit = defineEmits<{ onRead: [] }>();

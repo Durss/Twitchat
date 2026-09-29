@@ -78,6 +78,8 @@ const props = withDefaults(
 	defineProps<{
 		messageData: TwitchatDataTypes.MessageCustomData;
 		demo?: boolean;
+		lightMode?: boolean;
+		contextMenuOff?: boolean;
 	}>(),
 	{ demo: false },
 );

@@ -41,6 +41,8 @@ import { computed, useTemplateRef } from "vue";
 const storeCommon = useStoreCommon();
 const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageFollowingData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
 }>();
 const emit = defineEmits<{ onRead: [] }>();
 const rootEl = useTemplateRef("rootEl");

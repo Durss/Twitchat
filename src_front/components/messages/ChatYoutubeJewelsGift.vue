@@ -53,6 +53,8 @@ import { useTemplateRef } from "vue";
 
 const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageYoutubeJewelsGiftData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
 }>();
 
 const emit = defineEmits<{ onRead: [] }>();

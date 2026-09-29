@@ -51,6 +51,8 @@ import MessageTranslation from "./MessageTranslation.vue";
 
 const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageYoutubeSuperChatData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
 }>();
 
 const emit = defineEmits<{ onRead: [] }>();
