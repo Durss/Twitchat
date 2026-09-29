@@ -33,18 +33,18 @@
 			"created_at": "Date de création",
 			"followed_at": "Follower depuis",
 			"not_following": "ne follow pas",
-			"follow": ":heart: *[{DATE}]*\nA suivit votre chaîne",
-			"sub": "*:star: [{DATE}]*\nA pris un abonnement de `niveau {TIER}`",
-			"sub_message": "*:star: [{DATE}]*\nA pris un abonnement de `niveau {TIER}` avec pour message\n> {MESSAGE}",
-			"subgift": ":gift: *[{DATE}]*\nA offert {COUNT} abonnements de `niveau {TIER}` à {RECIPIENTS}",
-			"redeem": ":tickets: *[{DATE}]*\nA acheté la récompense de points de chaîne `{REWARD}`",
-			"redeem_message": ":tickets: *[{DATE}]*\nA acheté la récompense de points de chaîne avec pour message :\n> {MESSAGE}",
-			"message": ":envelope: *[{DATE}]*\n> {MESSAGE}",
-			"message_answer": ":envelope_with_arrow: *[{DATE}]*\n**⮣** `{USER}: {MESSAGE_ANSWERED}`\n> {MESSAGE}",
-			"message_deleted": ":wastebasket: :envelope: *[{DATE}]*\n> {MESSAGE}",
-			"message_answer_deleted": ":wastebasket: :envelope_with_arrow: *[{DATE}]*\n**⮣** `{USER}: {MESSAGE_ANSWERED}`\n> {MESSAGE}",
-			"cheer": ":gem: *[{DATE}]*\nA envoyé `{BITS}` bits",
-			"cheer_message": ":gem: *[{DATE}]*\nA envoyé `{BITS}` bits avec ce message :\n> {MESSAGE}"
+			"follow": "-# *[{DATE}]*\n:heart: A suivit votre chaîne",
+			"sub": "-# *[{DATE}]*\n:star: A pris un abonnement niveau `{TIER}`",
+			"sub_message": "@:discord.log_pattern.sub \n> {MESSAGE}",
+			"subgift": "-# *[{DATE}]*\n:gift: A offert `{COUNT}` abonnements de niveau `{TIER}` à :\n-# {RECIPIENTS}",
+			"redeem": "-# *[{DATE}]*\n:tickets: A acheté la récompense `{REWARD}`",
+			"redeem_message": "@:discord.log_pattern.redeem \n> {MESSAGE}",
+			"message": "-# *[{DATE}]*\n> :envelope: {MESSAGE}",
+			"message_deleted": "-# *[{DATE}]*\n> :envelope: :wastebasket: {MESSAGE}",
+			"message_answer": "-# *[{DATE}]*\n-# **⮣ {USER}:** {MESSAGE_ANSWERED}\n> :envelope: {MESSAGE}",
+			"message_answer_deleted": "-# *[{DATE}]*\n-# **⮣ {USER}:** {MESSAGE_ANSWERED}\n> :envelope: :wastebasket: {MESSAGE}",
+			"cheer": "-# *[{DATE}]*\n:gem: Sent `{BITS}` bits",
+			"cheer_message": "@:discord.log_pattern.cheer \n> {MESSAGE}"
 		}
 	}
 }

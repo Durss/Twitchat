@@ -64,6 +64,9 @@
 			<TTButton small @click="simulateEvent($event, 'youtube_ban')" icon="ban"
 				>Ban Youtube</TTButton
 			>
+			<TTButton small @click="simulateDiscordBanLog($event)" icon="discord"
+				>Discord ban log</TTButton
+			>
 			<TTButton small @click="simulateEvent($event, 'unban')" icon="unban">Unban</TTButton>
 			<TTButton small @click="simulateEvent($event, 'warn_chatter')" icon="alert"
 				>Warn chatter</TTButton
@@ -429,6 +432,7 @@ import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { toast } from "@/utils/toast/toast";
 import { useI18n } from "vue-i18n";
 
 const emit = defineEmits<{
@@ -944,6 +948,120 @@ async function simulateHateRaid(): Promise<void> {
 			false,
 		);
 	}
+}
+
+/**
+ * Simulate fake activity then fake ban to log on discord
+ */
+async function simulateDiscordBanLog(event: MouseEvent): Promise<void> {
+	const sDiscord = StoreProxy.discord;
+	if (!sDiscord.discordLinked || !sDiscord.banLogTarget) {
+		toast("Discord isn't linked or no ban log channel is configured", { type: "error" });
+		return;
+	}
+
+	const channelId = storeAuth.twitch.user.id;
+	const chatters: TwitchatDataTypes.TwitchatUser[] = [];
+	for (const m of storeChat.messages) {
+		if (
+			m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
+			m.channel_id == channelId &&
+			m.user.channelInfo[channelId]
+		) {
+			chatters.push(m.user);
+		}
+	}
+	const user =
+		event.ctrlKey || event.metaKey
+			? storeAuth.twitch.user
+			: (Utils.pickRand(chatters) ?? storeAuth.twitch.user);
+	const chanInfo = user.channelInfo[channelId];
+	if (!chanInfo) {
+		toast("No chatter with channel info found", { type: "error" });
+		return;
+	}
+
+	//Work on a copy so the fake ban reason doesn't stick on the actual user
+	const bannedUser: TwitchatDataTypes.TwitchatUser = {
+		...user,
+		channelInfo: {
+			...user.channelInfo,
+			[channelId]: { ...chanInfo, banReason: "Simulated ban from developer panel" },
+		},
+	};
+	const activity = await generateFakeActivity(bannedUser, channelId);
+	const messages = [...storeChat.messages, ...activity].sort((a, b) => a.date - b.date);
+	await sDiscord.logBan("twitch", channelId, bannedUser, messages);
+	toast(`Discord ban log sent for "${bannedUser.login}"`);
+}
+
+/**
+ * Generates fake activity of the given user for every discord pattern
+ */
+async function generateFakeActivity(
+	user: TwitchatDataTypes.TwitchatUser,
+	channelId: string,
+): Promise<TwitchatDataTypes.ChatMessageTypes[]> {
+	const types = TwitchatDataTypes.TwitchatMessageType;
+	const sim = <T extends TwitchatDataTypes.ChatMessageTypes>(
+		type: TwitchatDataTypes.TwitchatMessageStringType,
+		hook?: (message: T) => void,
+	) => storeDebug.simulateMessage<T>(type, hook, false, false);
+	const answered = await sim<TwitchatDataTypes.MessageChatData>(types.MESSAGE);
+	const recipients = (await TwitchUtils.getFakeUsers()).slice(0, 3);
+
+	const activity = await Promise.all([
+		sim<TwitchatDataTypes.MessageFollowingData>(types.FOLLOWING),
+		sim<TwitchatDataTypes.MessageChatData>(types.MESSAGE),
+		sim<TwitchatDataTypes.MessageChatData>(types.MESSAGE, (m) => {
+			m.directlyAnswersTo = answered;
+		}),
+		sim<TwitchatDataTypes.MessageRewardRedeemData>(types.REWARD, (m) => {
+			delete m.message;
+		}),
+		sim<TwitchatDataTypes.MessageRewardRedeemData>(types.REWARD, (m) => {
+			m.message = "Play my favorite song please!";
+		}),
+		sim<TwitchatDataTypes.MessageCheerData>(types.CHEER, (m) => {
+			m.bits = 100;
+			m.message = "";
+		}),
+		sim<TwitchatDataTypes.MessageCheerData>(types.CHEER, (m) => {
+			m.bits = 500;
+		}),
+		sim<TwitchatDataTypes.MessageSubscriptionData>(types.SUBSCRIPTION, (m) => {
+			m.is_gift = false;
+			delete m.gift_recipients;
+			m.message = "";
+		}),
+		sim<TwitchatDataTypes.MessageSubscriptionData>(types.SUBSCRIPTION, (m) => {
+			m.is_gift = false;
+			delete m.gift_recipients;
+		}),
+		sim<TwitchatDataTypes.MessageSubscriptionData>(types.SUBSCRIPTION, (m) => {
+			m.is_gift = true;
+			m.gift_recipients = recipients;
+			m.gift_count = recipients.length;
+		}),
+		sim<TwitchatDataTypes.MessageWhisperData>(types.WHISPER, (m) => {
+			m.to = storeAuth.twitch.user;
+		}),
+		sim<TwitchatDataTypes.MessageChatData>(types.MESSAGE, (m) => {
+			m.deleted = true;
+		}),
+		sim<TwitchatDataTypes.MessageChatData>(types.MESSAGE, (m) => {
+			m.directlyAnswersTo = answered;
+			m.deleted = true;
+		}),
+	]);
+
+	const now = Date.now();
+	activity.forEach((m, i) => {
+		m.user = user;
+		m.channel_id = channelId;
+		m.date = now - (activity.length - i) * 3 * 60_000;
+	});
+	return activity;
 }
 
 function openTriggersLogs(): void {

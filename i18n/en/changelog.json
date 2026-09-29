@@ -104,7 +104,7 @@
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "Triggers can now have a <strong>custom icon</strong> to spot them at a glance in your list.\n\nFind your Triggers thanks to a new search field.\n\nNew conditions interface.\n\n16 new events:<ul><li>Quiz complete</li><li>Custom Power Up redeemed</li><li>Jewels received on YouTube</li><li>User joins a raffle</li><li>Meld Studio: start/stop streaming, scene change, layer visibility, effect enabled and track mute</li></ul>7 new actions:<ul><li>Toggle clickable area</li><li>Edit a label</li>{_LI}<li>Ask for stream input</li><li>Post on Bluesky</li><li>Control Meld Studio</li><li>Change OBS filters settings</li><li>Change OBS sources audio tracks</li></ul>"
+				"d": "Triggers can now have a <strong>custom icon</strong> to spot them at a glance in your list.\n\nFind your Triggers thanks to a new search field.\n\nNew conditions interface.\n\n14 new events:<ul><li>Quiz complete</li><li>Custom Power Up redeemed</li><li>Jewels received on YouTube</li><li>User joins a raffle</li><li>Meld Studio: start/stop streaming, scene change, layer visibility, effect enabled and track mute</li><li>Shared chat session started/joined/left</li></ul>7 new actions:<ul><li>Toggle clickable area</li><li>Edit a label</li>{_LI}<li>Ask for streamer input</li><li>Post on Bluesky</li><li>Control Meld Studio</li><li>Change OBS filters settings</li><li>Change OBS sources audio tracks</li></ul>"
 			},
 			{
 				"i": "twitchat_api",

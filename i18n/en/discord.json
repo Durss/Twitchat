@@ -33,18 +33,18 @@
 			"created_at": "Account creation",
 			"followed_at": "Follower since",
 			"not_following": "not a follower",
-			"follow": ":heart: *[{DATE}]*\nFollowed your channel",
-			"sub": "*:star: [{DATE}]*\nSubscribed at `tier {TIER}`",
-			"sub_message": "*:star: [{DATE}]*\nSubscribed at `tier {TIER}` with message\n> {MESSAGE}",
-			"subgift": ":gift: *[{DATE}]*\nGifted {COUNT} `tier {TIER}` to {RECIPIENTS}",
-			"redeem": ":tickets: *[{DATE}]*\nReedeemed reward `{REWARD}`",
-			"redeem_message": ":tickets: *[{DATE}]*\nReedeemed reward `{REWARD}` with message:\n> {MESSAGE}",
-			"message": ":envelope: *[{DATE}]*\n> {MESSAGE}",
-			"message_answer": ":envelope_with_arrow: *[{DATE}]*\n**⮣** `{USER}: {MESSAGE_ANSWERED}`\n> {MESSAGE}",
-			"message_deleted": ":wastebasket: :envelope: *[{DATE}]*\n> {MESSAGE}",
-			"message_answer_deleted": ":wastebasket: :envelope_with_arrow: *[{DATE}]*\n**⮣** `{USER}: {MESSAGE_ANSWERED}`\n> {MESSAGE}",
-			"cheer": ":gem: *[{DATE}]*\nSent `{BITS}` bits",
-			"cheer_message": ":gem: *[{DATE}]*\nSent `{BITS}` bits with message:\n> {MESSAGE}"
+			"follow": "-# *[{DATE}]*\n:heart: Followed your channel",
+			"sub": "-# *[{DATE}]*\n:star: Subscribed at tier `{TIER}`",
+			"sub_message": "@:discord.log_pattern.sub \n> {MESSAGE}",
+			"subgift": "-# *[{DATE}]*\n:gift: Gifted `{COUNT}` tier `{TIER}` to:\n-# {RECIPIENTS}",
+			"redeem": "-# *[{DATE}]*\n:tickets: Reedeemed reward `{REWARD}`",
+			"redeem_message": "@:discord.log_pattern.redeem \n> {MESSAGE}",
+			"message": "-# *[{DATE}]*\n> :envelope: {MESSAGE}",
+			"message_deleted": "-# *[{DATE}]*\n> :envelope: :wastebasket: {MESSAGE}",
+			"message_answer": "-# *[{DATE}]*\n-# **⮣ {USER}:** {MESSAGE_ANSWERED}\n> :envelope: {MESSAGE}",
+			"message_answer_deleted": "-# *[{DATE}]*\n-# **⮣ {USER}:** {MESSAGE_ANSWERED}\n> :envelope: :wastebasket: {MESSAGE}",
+			"cheer": "-# *[{DATE}]*\n:gem: Sent `{BITS}` bits",
+			"cheer_message": "@:discord.log_pattern.cheer \n> {MESSAGE}"
 		}
 	}
 }

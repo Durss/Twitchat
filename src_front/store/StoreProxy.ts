@@ -3094,6 +3094,20 @@ export interface IDiscordActions {
 	 * Loads discord's channel list
 	 */
 	loadChannelList(): Promise<void>;
+	/**
+	 * Logs a ban to the configured discord channel with the user's
+	 * recent chat history, if ban logs are enabled
+	 * @param platform
+	 * @param channelId
+	 * @param bannedUser
+	 * @param messages messages to extract the user's history from. Defaults to chat messages
+	 */
+	logBan(
+		platform: TwitchatDataTypes.ChatPlatform,
+		channelId: string,
+		bannedUser: TwitchatDataTypes.TwitchatUser,
+		messages?: TwitchatDataTypes.ChatMessageTypes[],
+	): Promise<void>;
 }
 
 export interface IStreamlabsState {
