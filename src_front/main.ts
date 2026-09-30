@@ -352,11 +352,13 @@ function buildApp() {
 
 	if (Config.instance.IS_PROD) {
 		Sentry.init({
-			app,
 			debug: false,
 			release: "twitchat@" + import.meta.env.PACKAGE_VERSION,
 			dsn: Config.instance.SENTRY_DSN,
-			integrations: [
+			integrations: (defaults) => [
+				// Drop vue integration that adds a mixin to all components for no
+				// create use today
+				...defaults.filter((integration) => integration.name !== "Vue"),
 				Sentry.webVitalsIntegration(),
 				Sentry.reportingObserverIntegration(),
 				Sentry.replayIntegration({
@@ -379,6 +381,7 @@ function buildApp() {
 				"Connection error", //websocket connection attempts
 			],
 		});
+		Sentry.attachErrorHandler(app);
 	}
 
 	// log failed routes to sentry
