@@ -18,7 +18,7 @@
 			@change="fullListRefresh()"
 		/>
 
-		<div class="messageHolder" ref="chatMessageHolder">
+		<div class="messageHolder" ref="chatMessageHolder" @scroll.passive="onHolderScroll">
 			<div
 				v-for="m in filteredMessagesDeduped"
 				:key="m.id"
@@ -287,6 +287,7 @@ let loadingOldMessage = false;
 let scrollUpIndexOffset = -1;
 let holderOffsetY = -1;
 let virtualScrollY = -1;
+let currentScrollTop = 0;
 let updateDebounce = -1;
 let prevHeight = 0;
 let openConvTimeout: number = -1;
@@ -1485,6 +1486,22 @@ function onScroll(amount: number, event?: WheelEvent): void {
 }
 
 /**
+ * Called when scrolling the list from the scroll thumb or keyboard.
+ * Allows to disengage from the continuous auto scrolldown
+ */
+function onHolderScroll(): void {
+	const el = chatMessageHolder.value;
+	if (!el) return;
+	const scrollTop = el.scrollTop;
+	const movedUp = scrollTop < currentScrollTop - 1;
+	currentScrollTop = scrollTop;
+	if (props.lightMode || lockScroll.value || !movedUp) return;
+	if (el.scrollHeight - el.offsetHeight - scrollTop < 2) return;
+
+	lockScroll.value = true;
+}
+
+/**
  * Start scrolling chat on mobile
  * Used to set a drag offset to avoid glitchy chat scroll
  * when actually trying to scroll horizontally
@@ -1571,6 +1588,7 @@ function renderFrame(ts: number): void {
 			virtualScrollY = maxScroll;
 		}
 		messageHolder.scrollTop = virtualScrollY;
+		currentScrollTop = messageHolder.scrollTop;
 	}
 
 	//If messages height is smaller than the holder height, move the holder to the bottom
@@ -1742,6 +1760,7 @@ function scrollToPrevMessage(wheelOrigin = false): void {
 			virtualScrollY = messagesHolder.scrollTop =
 				maxScroll - (lastMessRef.offsetHeight + margin);
 		}
+		currentScrollTop = messagesHolder.scrollTop;
 		replaceReadMarkerAndSelector();
 	});
 }
@@ -2289,6 +2308,12 @@ function showSelectionError(): void {
 				background-color: var(--background-color-fadest);
 			}
 		}
+	}
+
+	// Disable native anchoring to make sure it doesn't interfer with local
+	// scroll lock logic
+	&:not(.lockScroll) .messageHolder {
+		overflow-anchor: none;
 	}
 
 	.filters {
