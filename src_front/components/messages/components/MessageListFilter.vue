@@ -442,7 +442,6 @@
 								saveData();
 							"
 							v-model="param_backgroundColor.value"
-							v-if="storeParams.chatColumnsConfig.length > 1"
 						/>
 					</div>
 
