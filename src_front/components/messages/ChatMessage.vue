@@ -159,10 +159,10 @@
 			/>
 
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
-				<tooltip v-for="b in filteredBadges" :key="b.id" :content="b.tooltipHTML">
+				<span v-for="b in filteredBadges" :key="b.id" v-tooltip="b.tooltipHTML">
 					<Icon v-if="b.icon.sd.indexOf('http') == -1" :name="b.icon.sd" class="badge" />
 					<img v-else :src="b.icon.sd" class="badge" />
-				</tooltip>
+				</span>
 
 				<span
 					class="badge mini"

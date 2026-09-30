@@ -14,6 +14,7 @@ import { createApp } from "vue";
 import { createI18n } from "vue-i18n";
 import type { NavigationGuardNext, RouteLocation } from "vue-router";
 import VueTippy, { setDefaultProps } from "vue-tippy";
+import { vTooltip } from "./directives/tooltip";
 import { storeCommon } from "./store/common/storeCommon";
 import { storePublic } from "./store/storePublic";
 import Utils from "./utils/Utils";
@@ -84,9 +85,11 @@ function buildApp() {
 		.use(router)
 		.use(i18n)
 		.use(VueTippy, {
-			directive: "tooltip",
+			//vue-tippy's directive is replaced by vTooltip that builds tooltips lazily
+			directive: "tippy",
 			component: "tooltip",
 		})
+		.directive("tooltip", vTooltip)
 		.provide("$store", StoreProxy.default);
 
 	StoreProxy.default.i18n = i18n.global;

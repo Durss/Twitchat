@@ -25,13 +25,13 @@
 			<template v-else>{{ chunk.value }}</template>
 		</template>
 
-		<tooltip
+		<span
 			:class="chunk.type"
 			v-else-if="
 				(chunk.type == 'emote' || chunk.type == 'cheermote') &&
 				storeParams.appearance.showEmotes.value !== false
 			"
-			:content="
+			v-tooltip="
 				chunk.emoteHD
 					? '<center><img src=' +
 						chunk.emoteHD +
@@ -48,7 +48,7 @@
 				:alt="chunk.value"
 				loading="lazy"
 			/>
-		</tooltip>
+		</span>
 
 		<template v-else-if="chunk.type == 'url'">
 			<Icon

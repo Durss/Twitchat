@@ -66,6 +66,7 @@ import { vAutofocus } from "./directives/autofocus";
 import { vClick2Select } from "./directives/click2Select";
 import { vNewflag } from "./directives/newflag";
 import { stickyTopShadow } from "./directives/stickyTopShadow";
+import { vTooltip } from "./directives/tooltip";
 import { storeAnimatedText } from "./store/animated_text/storeAnimatedText";
 import { storeAPI } from "./store/api/storeAPI";
 import { storeBluesky } from "./store/bluesky/storeBluesky";
@@ -320,7 +321,8 @@ function buildApp() {
 		.use(i18n)
 		.use(ContextMenu)
 		.use(VueTippy, {
-			directive: "tooltip",
+			//vue-tippy's directive is replaced by vTooltip that builds tooltips lazily
+			directive: "tippy",
 			component: "tooltip",
 		})
 		.use(Vue3Toasity, {
@@ -330,6 +332,7 @@ function buildApp() {
 		.component("country-flag", CountryFlag)
 		.component("vue-select", VueSelect)
 		.component("Icon", Icon)
+		.directive("tooltip", vTooltip)
 		.directive("stickyTopShadow", stickyTopShadow)
 		.directive("autofocus", vAutofocus)
 		.directive("click2Select", vClick2Select)
