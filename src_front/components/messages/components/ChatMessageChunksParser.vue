@@ -72,7 +72,6 @@ import { gsap } from "gsap";
 import { computed, type CSSProperties } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 
@@ -87,13 +86,8 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const storeAuth = useStoreAuth();
-const storeCommon = useStoreCommon();
 const storeParams = useStoreParams();
 const storeUsers = useStoreUsers();
-
-const colorDarken = computed<string>(() => {
-	return storeCommon.theme == "dark" ? "none" : "brightness(0.8)";
-});
 
 const spoiledChunks = computed<TwitchatDataTypes.ParseMessageChunk[]>(() => {
 	if (
@@ -164,7 +158,9 @@ function getUserClasses(username: string): CSSProperties {
 
 <style scoped lang="less">
 .login {
-	filter: v-bind(colorDarken);
+	body.light & {
+		filter: brightness(0.8);
+	}
 	&:hover {
 		background-color: var(--background-color-fader);
 		border-radius: 3px;
