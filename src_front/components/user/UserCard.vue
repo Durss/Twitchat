@@ -175,7 +175,7 @@
 					</div>
 
 					<ChatModTools
-						v-if="isTwitchProfile && canModerate"
+						v-if="isTwitchProfile && canModerate && fakeModMessage"
 						class="modActions"
 						:messageData="fakeModMessage"
 						:canDelete="false"
@@ -1279,6 +1279,15 @@ watch(
 			while (user.value.temporary === true) {
 				await Utils.promisedTimeout(250);
 			}
+			if (platform.value == "twitch" && !user.value.channelInfo[chanId]) {
+				storeUsers.getUserFrom(
+					"twitch",
+					chanId,
+					user.value.id,
+					user.value.login,
+					user.value.displayNameOriginal,
+				);
+			}
 			isOwnChannel.value =
 				chanId == StoreProxy.auth.twitch.user.id ||
 				chanId == StoreProxy.auth.youtube?.user.id ||
@@ -1856,4 +1865,3 @@ watch(
 	}
 }
 </style>
-
