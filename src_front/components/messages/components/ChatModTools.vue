@@ -2,491 +2,463 @@
 	<div class="chatmodtools" @mouseleave="closeToOptions()">
 		<template v-if="channelInfo?.is_banned === true">
 			<Icon v-if="loading_ban" name="loader" />
-			<Icon
+			<span
 				v-else
-				name="unban"
-				alt="unban"
-				v-tooltip="
-					$t('chat.mod_tools.unbanBt', { USER: messageData.user.displayNameOriginal })
-				"
+				class="action unban secondary"
+				v-tooltip="tooltips.unban"
 				@click.stop="unbanUser()"
-				theme="secondary"
-			/>
+			></span>
 		</template>
 		<template v-else>
 			<Icon v-if="loading_ban" name="loader" />
-			<Icon
+			<span
 				v-else
-				name="ban"
-				alt="ban"
-				v-tooltip="
-					$t('chat.mod_tools.banBt', { USER: messageData.user.displayNameOriginal })
-				"
+				class="action ban alert"
+				v-tooltip="tooltips.ban"
 				@click.stop="banUser()"
-				theme="alert"
-			/>
+			></span>
 
 			<Icon v-if="loading_ban" name="loader" />
-			<Icon
+			<span
 				v-else
-				name="timeout"
-				alt="timeout"
-				@click.stop="openToOptions()"
+				class="action timeout"
 				v-tooltip="'Timeout'"
-			/>
+				@click.stop="openToOptions()"
+			></span>
 			<div
 				class="toOptions"
 				v-if="showToOptions"
 				ref="toOptions"
 				@mouseenter="resetCloseTimeout()"
 			>
-				<Button
+				<TTButton
 					alert
-					:aria-label="$t('chat.mod_tools.to10_aria')"
+					:aria-label="t('chat.mod_tools.to10_aria')"
 					@click.stop="timeoutUser(10)"
 					small
-					>{{ $t("chat.mod_tools.to10") }}</Button
+					>{{ t("chat.mod_tools.to10") }}</TTButton
 				>
-				<Button
+				<TTButton
 					alert
-					:aria-label="$t('chat.mod_tools.to120_aria')"
+					:aria-label="t('chat.mod_tools.to120_aria')"
 					@click.stop="timeoutUser(120)"
 					small
-					>{{ $t("chat.mod_tools.to120") }}</Button
+					>{{ t("chat.mod_tools.to120") }}</TTButton
 				>
-				<Button
+				<TTButton
 					alert
-					:aria-label="$t('chat.mod_tools.to30_aria')"
+					:aria-label="t('chat.mod_tools.to30_aria')"
 					@click.stop="timeoutUser(1800)"
 					small
-					>{{ $t("chat.mod_tools.to30") }}</Button
+					>{{ t("chat.mod_tools.to30") }}</TTButton
 				>
-				<Button
+				<TTButton
 					alert
-					:aria-label="$t('chat.mod_tools.to3600_aria')"
+					:aria-label="t('chat.mod_tools.to3600_aria')"
 					@click.stop="timeoutUser(3600)"
 					small
-					>{{ $t("chat.mod_tools.to3600") }}</Button
+					>{{ t("chat.mod_tools.to3600") }}</TTButton
 				>
-				<Button
+				<TTButton
 					alert
-					:aria-label="$t('chat.mod_tools.to43200_aria')"
+					:aria-label="t('chat.mod_tools.to43200_aria')"
 					@click.stop="timeoutUser(3600 * 12)"
 					small
-					>{{ $t("chat.mod_tools.to43200") }}</Button
+					>{{ t("chat.mod_tools.to43200") }}</TTButton
 				>
-				<Button
+				<TTButton
 					alert
-					:aria-label="$t('chat.mod_tools.to1w_aria')"
+					:aria-label="t('chat.mod_tools.to1w_aria')"
 					@click.stop="timeoutUser(3600 * 24 * 7)"
 					small
-					>{{ $t("chat.mod_tools.to1w") }}</Button
+					>{{ t("chat.mod_tools.to1w") }}</TTButton
 				>
 			</div>
 		</template>
 
-		<Icon v-if="loading_delete" name="loader" />
-		<Icon
-			v-else
-			name="trash"
-			alt="trash"
-			v-tooltip="$t('global.delete')"
+		<span
+			v-if="props.canDelete && props.messageData.deleted !== true"
+			class="action trash"
+			v-tooltip="tooltips.delete"
 			@click.stop="deleteMessage()"
-			v-if="canDelete && messageData.deleted !== true"
-		/>
+		></span>
 
-		<Icon v-if="loading_block" name="loader" />
-		<Icon
-			v-else-if="$store.users.blockedUsers.twitch[messageData.user.id]"
-			name="unblock"
-			alt="block"
-			theme="secondary"
-			v-tooltip="
-				$t('chat.mod_tools.unblockBt', { USER: messageData.user.displayNameOriginal })
-			"
-			@click.stop="unblockUser()"
-			v-if="canBlock !== false"
-		/>
-		<Icon
-			v-else
-			name="block"
-			alt="block"
-			v-tooltip="$t('chat.mod_tools.blockBt', { USER: messageData.user.displayNameOriginal })"
-			@click.stop="blockUser()"
-			v-if="canBlock !== false"
-		/>
+		<template v-if="props.canBlock">
+			<Icon v-if="loading_block" name="loader" />
+			<span
+				v-else-if="storeUsers.blockedUsers.twitch[props.messageData.user.id]"
+				class="action unblock secondary"
+				v-tooltip="tooltips.unblock"
+				@click.stop="unblockUser()"
+			></span>
+			<span
+				v-else
+				class="action block"
+				v-tooltip="tooltips.block"
+				@click.stop="blockUser()"
+			></span>
+		</template>
 
-		<template v-if="canMonitor === true">
+		<template v-if="props.canMonitor">
 			<Icon v-if="loading_sus" name="loader" />
-			<Icon
+			<span
 				v-else-if="channelInfo?.is_suspicious && !channelInfo?.is_restricted"
-				class="offsetDown"
-				theme="secondary"
-				:name="susIcon"
-				alt="unsuspicious"
-				v-tooltip="
-					$t('chat.mod_tools.unmonitorBt', { USER: messageData.user.displayNameOriginal })
-				"
+				class="action unmonitor secondary offsetDown"
+				v-tooltip="tooltips.unmonitor"
 				@click.stop="unflagUser()"
-				@mouseover="susIcon = 'hide'"
-				@mouseout="susIcon = 'show'"
-			/>
-			<Icon
+			></span>
+			<span
 				v-else
-				class="offsetDown"
-				:name="susIcon"
-				alt="suspicious"
-				v-tooltip="
-					$t('chat.mod_tools.monitorBt', { USER: messageData.user.displayNameOriginal })
-				"
+				class="action monitor offsetDown"
+				v-tooltip="tooltips.monitor"
 				@click.stop="flagUser('monitor')"
-				@mouseover="susIcon = 'show'"
-				@mouseout="susIcon = 'hide'"
-			/>
+			></span>
 
 			<Icon v-if="loading_sus" name="loader" />
-			<Icon
+			<span
 				v-else-if="channelInfo?.is_restricted"
-				class="offsetUp"
-				theme="secondary"
-				:name="restrictIcon"
-				alt="unrestrict"
-				v-tooltip="
-					$t('chat.mod_tools.unrestrictBt', {
-						USER: messageData.user.displayNameOriginal,
-					})
-				"
+				class="action unrestrict secondary offsetUp"
+				v-tooltip="tooltips.unrestrict"
 				@click.stop="unflagUser()"
-				@mouseover="restrictIcon = 'unlock'"
-				@mouseout="restrictIcon = 'lock'"
-			/>
-
-			<Icon
+			></span>
+			<span
 				v-else
-				class="offsetUp"
-				:name="restrictIcon"
-				alt="restrict"
-				v-tooltip="
-					$t('chat.mod_tools.restrictBt', { USER: messageData.user.displayNameOriginal })
-				"
+				class="action restrict offsetUp"
+				v-tooltip="tooltips.restrict"
 				@click.stop="flagUser('restrict')"
-				@mouseover="restrictIcon = 'lock'"
-				@mouseout="restrictIcon = 'unlock'"
-			/>
+			></span>
 		</template>
 	</div>
 </template>
 
-<script lang="ts">
-import StoreProxy from "@/store/StoreProxy";
+<script setup lang="ts">
+import { useConfirm } from "@/composables/useConfirm";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { gsap } from "gsap/gsap-core";
-import { Component, Prop, toNative, Vue } from "vue-facing-decorator";
+import { computed, nextTick, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import Icon from "../../Icon.vue";
 import TTButton from "../../TTButton.vue";
-import Utils from "@/utils/Utils";
 
-@Component({
-	components: {
-		Button: TTButton,
-	},
-	emits: ["actionComplete"],
-})
 /**
- * TODO replace <Button> to simplement native <button> elements
+ * TODO replace <TTButton> to simplement native <button> elements
  */
-class ChatModTools extends Vue {
-	@Prop
-	public canDelete!: boolean;
+const props = withDefaults(
+	defineProps<{
+		messageData: TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData;
+		canDelete?: boolean;
+		canBlock?: boolean;
+		canMonitor?: boolean;
+	}>(),
+	{
+		canDelete: false,
+		canBlock: false,
+		canMonitor: false,
+	},
+);
 
-	@Prop({ type: Boolean, default: false })
-	public canBlock!: boolean;
+const emit = defineEmits<{ actionComplete: [] }>();
 
-	@Prop({ type: Boolean, default: false })
-	public canMonitor!: boolean;
+const { t, locale } = useI18n();
+const { confirm } = useConfirm();
+const storeChat = useStoreChat();
+const storeUsers = useStoreUsers();
+const toOptionsEl = useTemplateRef<HTMLDivElement>("toOptions");
 
-	@Prop
-	public messageData!: TwitchatDataTypes.MessageChatData;
+const showToOptions = ref(false);
+const loading_block = ref(false);
+const loading_ban = ref(false);
+const loading_sus = ref(false);
 
-	public showToOptions = false;
-	public loading_block = false;
-	public loading_ban = false;
-	public loading_sus = false;
-	public loading_delete = false;
-	public susIcon = "show";
-	public restrictIcon = "unlock";
+let closeTimeout = 0;
 
-	private closeTimeout = 0;
+const channelInfo = computed(
+	() => props.messageData.user?.channelInfo[props.messageData.channel_id],
+);
 
-	public get channelInfo() {
-		return this.messageData.user?.channelInfo[this.messageData.channel_id];
-	}
+/**
+ * Tooltips of the action icons.
+ * Contents are functions so labels are only translated when a tooltip is actually
+ * built (on first hover) instead of on every render of every message.
+ * Only depends on the locale so these objects stay the same across renders, and a
+ * language change updates the tooltips already built.
+ */
+const tooltips = computed(() => {
+	void locale.value;
+	const username = () => props.messageData.user.displayNameOriginal;
+	const label = (key: string) => ({ content: () => t(key, { USER: username() }) });
+	return {
+		ban: label("chat.mod_tools.banBt"),
+		unban: label("chat.mod_tools.unbanBt"),
+		delete: { content: () => t("global.delete") },
+		block: label("chat.mod_tools.blockBt"),
+		unblock: label("chat.mod_tools.unblockBt"),
+		monitor: label("chat.mod_tools.monitorBt"),
+		unmonitor: label("chat.mod_tools.unmonitorBt"),
+		restrict: label("chat.mod_tools.restrictBt"),
+		unrestrict: label("chat.mod_tools.unrestrictBt"),
+	};
+});
 
-	public mounted(): void {
-		this.susIcon = this.channelInfo?.is_suspicious ? "show" : "hide";
-		this.restrictIcon = this.channelInfo?.is_restricted ? "lock" : "unlock";
-	}
-
-	public banUser(): void {
-		if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-		this.loading_ban = true;
-		this.$confirm(
-			this.$t("chat.mod_tools.ban_confirm_title", {
-				USER: this.messageData.user.displayNameOriginal,
-			}),
-			this.$t("chat.mod_tools.ban_confirm_desc"),
-		)
-			.then(async () => {
-				try {
-					if (this.messageData.fake === true) {
-						//Avoid banning user for real if doing it from a fake message
-						this.$store.users.flagBanned(
-							this.messageData.platform,
-							this.messageData.channel_id,
-							this.messageData.user.id,
-						);
-					} else {
-						switch (this.messageData.platform) {
-							case "twitch": {
-								await TwitchUtils.banUser(
-									this.messageData.user,
-									this.messageData.channel_id,
-									undefined,
-									this.$t("global.moderation_action.ban_reason"),
-								);
-								break;
-							}
-							case "youtube": {
-								await YoutubeHelper.instance.banUser(
-									this.messageData.user.id,
-									(this.messageData as TwitchatDataTypes.MessageChatData)
-										.youtube_liveId!,
-								);
-								break;
-							}
+function banUser(): void {
+	if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+	loading_ban.value = true;
+	confirm(
+		t("chat.mod_tools.ban_confirm_title", {
+			USER: props.messageData.user.displayNameOriginal,
+		}),
+		t("chat.mod_tools.ban_confirm_desc"),
+	)
+		.then(async () => {
+			try {
+				if (props.messageData.fake === true) {
+					//Avoid banning user for real if doing it from a fake message
+					void storeUsers.flagBanned(
+						props.messageData.platform,
+						props.messageData.channel_id,
+						props.messageData.user.id,
+					);
+				} else {
+					switch (props.messageData.platform) {
+						case "twitch": {
+							await TwitchUtils.banUser(
+								props.messageData.user,
+								props.messageData.channel_id,
+								undefined,
+								t("global.moderation_action.ban_reason"),
+							);
+							break;
+						}
+						case "youtube": {
+							if (props.messageData.type != "message") break;
+							await YoutubeHelper.instance.banUser(
+								props.messageData.user.id,
+								props.messageData.youtube_liveId!,
+							);
+							break;
 						}
 					}
-				} catch (error) {}
-				this.loading_ban = false;
-				this.$emit("actionComplete");
-			})
-			.catch(() => {
-				this.loading_ban = false;
-			});
-	}
+				}
+			} catch (_error) {}
+			loading_ban.value = false;
+			emit("actionComplete");
+		})
+		.catch(() => {
+			loading_ban.value = false;
+		});
+}
 
-	public async unbanUser(): Promise<void> {
-		if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-		this.loading_ban = true;
-		try {
-			if (this.messageData.fake === true) {
-				//Avoid banning user for real if doing it from a fake message
-				this.$store.users.flagUnbanned(
-					this.messageData.platform,
-					this.messageData.channel_id,
-					this.messageData.user.id,
-				);
-			} else {
-				switch (this.messageData.platform) {
-					case "twitch": {
-						await TwitchUtils.unbanUser(
-							this.messageData.user,
-							this.messageData.channel_id,
-						);
-						break;
-					}
-					case "youtube": {
-						await YoutubeHelper.instance.unbanUser(
-							this.messageData.user.id,
-							(this.messageData as TwitchatDataTypes.MessageChatData).youtube_liveId!,
-						);
-						break;
-					}
+async function unbanUser(): Promise<void> {
+	if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+	loading_ban.value = true;
+	try {
+		if (props.messageData.fake === true) {
+			//Avoid banning user for real if doing it from a fake message
+			void storeUsers.flagUnbanned(
+				props.messageData.platform,
+				props.messageData.channel_id,
+				props.messageData.user.id,
+			);
+		} else {
+			switch (props.messageData.platform) {
+				case "twitch": {
+					await TwitchUtils.unbanUser(
+						props.messageData.user,
+						props.messageData.channel_id,
+					);
+					break;
+				}
+				case "youtube": {
+					if (props.messageData.type != "message") break;
+					await YoutubeHelper.instance.unbanUser(
+						props.messageData.user.id,
+						props.messageData.youtube_liveId!,
+					);
+					break;
 				}
 			}
-		} catch (error) {}
-		this.loading_ban = false;
-		this.$emit("actionComplete");
-	}
+		}
+	} catch (_error) {}
+	loading_ban.value = false;
+	emit("actionComplete");
+}
 
-	public blockUser(): void {
-		if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
-		this.loading_block = true;
-		this.$confirm(
-			this.$t("chat.mod_tools.block_confirm_title", {
-				USER: this.messageData.user.displayNameOriginal,
-			}),
-			this.$t("chat.mod_tools.block_confirm_desc"),
-		)
-			.then(async () => {
-				try {
-					if (this.messageData.fake === true) {
-						//Avoid blocking user for real if doing it from a fake message
-						this.$store.users.flagBlocked(
-							this.messageData.platform,
-							this.messageData.user.id,
-						);
-					} else {
-						await TwitchUtils.blockUser(this.messageData.user);
-					}
-				} catch (error) {}
-				this.loading_block = false;
-				this.$emit("actionComplete");
-			})
-			.catch(() => {
-				this.loading_block = false;
-			});
-	}
+function blockUser(): void {
+	if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+	loading_block.value = true;
+	confirm(
+		t("chat.mod_tools.block_confirm_title", {
+			USER: props.messageData.user.displayNameOriginal,
+		}),
+		t("chat.mod_tools.block_confirm_desc"),
+	)
+		.then(async () => {
+			try {
+				if (props.messageData.fake === true) {
+					//Avoid blocking user for real if doing it from a fake message
+					storeUsers.flagBlocked(props.messageData.platform, props.messageData.user.id);
+				} else {
+					await TwitchUtils.blockUser(props.messageData.user);
+				}
+			} catch (_error) {}
+			loading_block.value = false;
+			emit("actionComplete");
+		})
+		.catch(() => {
+			loading_block.value = false;
+		});
+}
 
-	public async unblockUser(): Promise<void> {
-		if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
-		this.loading_block = true;
-		try {
-			if (this.messageData.fake === true) {
-				//Avoid blocking user for real if doing it from a fake message
-				this.$store.users.flagUnblocked(
-					this.messageData.platform,
-					this.messageData.user.id,
-				);
-			} else {
-				await TwitchUtils.unblockUser(this.messageData.user);
-			}
-		} catch (error) {}
-		this.loading_block = false;
-		this.$emit("actionComplete");
-	}
+async function unblockUser(): Promise<void> {
+	if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+	loading_block.value = true;
+	try {
+		if (props.messageData.fake === true) {
+			//Avoid blocking user for real if doing it from a fake message
+			storeUsers.flagUnblocked(props.messageData.platform, props.messageData.user.id);
+		} else {
+			await TwitchUtils.unblockUser(props.messageData.user);
+		}
+	} catch (_error) {}
+	loading_block.value = false;
+	emit("actionComplete");
+}
 
-	public async timeoutUser(duration: number): Promise<void> {
-		if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-		this.loading_ban = true;
-		this.closeToOptions(true);
-		try {
-			if (this.messageData.fake === true) {
-				//Avoid banning user for real if doing it from a fake message
-				this.$store.users.flagBanned(
-					this.messageData.platform,
-					this.messageData.channel_id,
-					this.messageData.user.id,
-					duration,
-				);
-			} else {
-				switch (this.messageData.platform) {
-					case "twitch": {
-						await TwitchUtils.banUser(
-							this.messageData.user,
-							this.messageData.channel_id,
-							duration,
-						);
-						break;
-					}
-					case "youtube": {
-						await YoutubeHelper.instance.banUser(
-							this.messageData.user.id,
-							(this.messageData as TwitchatDataTypes.MessageChatData).youtube_liveId!,
-							duration,
-						);
-						break;
-					}
+async function timeoutUser(duration: number): Promise<void> {
+	if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+	loading_ban.value = true;
+	closeToOptions(true);
+	try {
+		if (props.messageData.fake === true) {
+			//Avoid banning user for real if doing it from a fake message
+			void storeUsers.flagBanned(
+				props.messageData.platform,
+				props.messageData.channel_id,
+				props.messageData.user.id,
+				duration,
+			);
+		} else {
+			switch (props.messageData.platform) {
+				case "twitch": {
+					await TwitchUtils.banUser(
+						props.messageData.user,
+						props.messageData.channel_id,
+						duration,
+					);
+					break;
+				}
+				case "youtube": {
+					if (props.messageData.type != "message") break;
+					await YoutubeHelper.instance.banUser(
+						props.messageData.user.id,
+						props.messageData.youtube_liveId!,
+						duration,
+					);
+					break;
 				}
 			}
-		} catch (error) {}
-		this.loading_ban = false;
-		this.$emit("actionComplete");
-	}
+		}
+	} catch (_error) {}
+	loading_ban.value = false;
+	emit("actionComplete");
+}
 
-	public deleteMessage(): void {
-		if (!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) return;
-		StoreProxy.chat.deleteMessage(this.messageData, undefined, this.messageData.fake !== true);
-	}
+function deleteMessage(): void {
+	if (!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) return;
+	storeChat.deleteMessage(props.messageData, undefined, props.messageData.fake !== true);
+}
 
-	public async openToOptions(): Promise<void> {
-		this.showToOptions = true;
-		await this.$nextTick();
-		const holder = this.$refs.toOptions as HTMLDivElement;
-		gsap.from(holder, { width: 0, duration: 0.2, ease: "sin.inOut" });
-	}
+async function openToOptions(): Promise<void> {
+	showToOptions.value = true;
+	await nextTick();
+	gsap.from(toOptionsEl.value, { width: 0, duration: 0.2, ease: "sin.inOut" });
+}
 
-	public closeToOptions(noDelay = false): void {
-		this.closeTimeout = window.setTimeout(
-			() => {
-				const holder = this.$refs.toOptions as HTMLDivElement;
-				if (!holder) return;
-				gsap.to(holder, {
-					width: 0,
-					duration: 0.2,
-					ease: "sin.inOut",
-					onComplete: () => {
-						this.showToOptions = false;
-					},
-				});
-			},
-			noDelay ? 0 : 500,
+function closeToOptions(noDelay = false): void {
+	closeTimeout = window.setTimeout(
+		() => {
+			const holder = toOptionsEl.value;
+			if (!holder) return;
+			gsap.to(holder, {
+				width: 0,
+				duration: 0.2,
+				ease: "sin.inOut",
+				onComplete: () => {
+					showToOptions.value = false;
+				},
+			});
+		},
+		noDelay ? 0 : 500,
+	);
+}
+
+function resetCloseTimeout(): void {
+	clearTimeout(closeTimeout);
+}
+
+async function flagUser(mode: "restrict" | "monitor"): Promise<void> {
+	if (!TwitchUtils.requestScopes([TwitchScopes.MANAGE_SUSPICIOUS_USERS])) return;
+	loading_sus.value = true;
+	const state = mode == "restrict" ? "RESTRICTED" : "ACTIVE_MONITORING";
+	try {
+		const success = await TwitchUtils.setSuspiciousUser(
+			props.messageData.channel_id,
+			props.messageData.user.id,
+			state,
+		);
+		if (!success) throw new Error("probably trying to set same state");
+		if (mode == "restrict") {
+			storeUsers.flagRestrictedUser(props.messageData.channel_id, props.messageData.user);
+		} else {
+			storeUsers.flagSuspiciousUser(props.messageData.channel_id, props.messageData.user);
+		}
+	} catch (_error) {
+		await TwitchUtils.unsetSuspiciousUser(
+			props.messageData.channel_id,
+			props.messageData.user.id,
 		);
 	}
-
-	public resetCloseTimeout(): void {
-		clearTimeout(this.closeTimeout);
-	}
-
-	public async flagUser(mode: "restrict" | "monitor"): Promise<void> {
-		if (!TwitchUtils.requestScopes([TwitchScopes.MANAGE_SUSPICIOUS_USERS])) return;
-		this.loading_sus = true;
-		const state = mode == "restrict" ? "RESTRICTED" : "ACTIVE_MONITORING";
-		try {
-			const success = await TwitchUtils.setSuspiciousUser(
-				this.messageData.channel_id,
-				this.messageData.user.id,
-				state,
-			);
-			if (!success) throw new Error("probably trying to set same state");
-			if (mode == "restrict") {
-				this.$store.users.flagRestrictedUser(
-					this.messageData.channel_id,
-					this.messageData.user,
-				);
-			} else {
-				this.$store.users.flagSuspiciousUser(
-					this.messageData.channel_id,
-					this.messageData.user,
-				);
-			}
-		} catch (err) {
-			await TwitchUtils.unsetSuspiciousUser(
-				this.messageData.channel_id,
-				this.messageData.user.id,
-			);
-		}
-		this.$store.users.flagSuspiciousUser(this.messageData.channel_id, this.messageData.user);
-		this.loading_sus = false;
-		this.$emit("actionComplete");
-		// Give some time for EventSub to send update message
-		await Utils.promisedTimeout(500);
-		this.$emit("actionComplete");
-	}
-
-	public async unflagUser(): Promise<void> {
-		if (!TwitchUtils.requestScopes([TwitchScopes.MANAGE_SUSPICIOUS_USERS])) return;
-		this.loading_sus = true;
-		try {
-			await TwitchUtils.unsetSuspiciousUser(
-				this.messageData.channel_id,
-				this.messageData.user.id,
-			);
-		} catch (err) {}
-		this.$store.users.unflagUser(this.messageData.channel_id, this.messageData.user);
-		this.loading_sus = false;
-		this.$emit("actionComplete");
-		// Give some time for EventSub to send update message
-		await Utils.promisedTimeout(500);
-		this.$emit("actionComplete");
-	}
+	storeUsers.flagSuspiciousUser(props.messageData.channel_id, props.messageData.user);
+	loading_sus.value = false;
+	emit("actionComplete");
+	// Give some time for EventSub to send update message
+	await Utils.promisedTimeout(500);
+	emit("actionComplete");
 }
-export default toNative(ChatModTools);
+
+async function unflagUser(): Promise<void> {
+	if (!TwitchUtils.requestScopes([TwitchScopes.MANAGE_SUSPICIOUS_USERS])) return;
+	loading_sus.value = true;
+	try {
+		await TwitchUtils.unsetSuspiciousUser(
+			props.messageData.channel_id,
+			props.messageData.user.id,
+		);
+	} catch (_error) {}
+	storeUsers.unflagUser(props.messageData.channel_id, props.messageData.user);
+	loading_sus.value = false;
+	emit("actionComplete");
+	// Give some time for EventSub to send update message
+	await Utils.promisedTimeout(500);
+	emit("actionComplete");
+}
 </script>
 
 <style scoped lang="less">
+//Action icons are drawn with a CSS mask instead of <Icon> components.
+//There's one set of these per chat message, an <Icon> costs a component
+//instance plus its SVG DOM whereas this is a single empty element.
+.maskIcon(@url) {
+	-webkit-mask-image: url(@url);
+	mask-image: url(@url);
+}
+
 .chatmodtools {
 	gap: 5px;
 	display: flex;
@@ -494,25 +466,74 @@ export default toNative(ChatModTools);
 	align-items: center;
 	justify-content: center;
 
-	.icon {
+	.icon,
+	.action {
 		height: 1em;
 		width: 1em;
 		cursor: pointer;
+	}
+
+	.action {
+		display: inline-block;
+		flex-shrink: 0;
+		background-color: currentColor;
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		//Left aligned like the <svg> of an <Icon> for icons narrower than they are tall
+		-webkit-mask-position: left center;
+		mask-position: left center;
+		-webkit-mask-size: contain;
+		mask-size: contain;
+
+		&.alert {
+			color: var(--color-alert);
+		}
+		&.secondary {
+			color: var(--color-secondary);
+		}
 		&.offsetUp {
 			position: relative;
 			top: -2px;
-			cursor: pointer;
-			* {
-				pointer-events: none;
-			}
 		}
 		&.offsetDown {
 			position: relative;
 			top: 1px;
-			cursor: pointer;
-			* {
-				pointer-events: none;
-			}
+		}
+
+		&.ban {
+			.maskIcon("../../../assets/icons/ban.svg");
+		}
+		&.unban {
+			.maskIcon("../../../assets/icons/unban.svg");
+		}
+		&.timeout {
+			.maskIcon("../../../assets/icons/timeout.svg");
+		}
+		&.trash {
+			.maskIcon("../../../assets/icons/trash.svg");
+		}
+		&.block {
+			.maskIcon("../../../assets/icons/block.svg");
+		}
+		&.unblock {
+			.maskIcon("../../../assets/icons/unblock.svg");
+		}
+		//Icons show the current state and preview the action on hover
+		&.monitor,
+		&.unmonitor:hover {
+			.maskIcon("../../../assets/icons/hide.svg");
+		}
+		&.unmonitor,
+		&.monitor:hover {
+			.maskIcon("../../../assets/icons/show.svg");
+		}
+		&.restrict,
+		&.unrestrict:hover {
+			.maskIcon("../../../assets/icons/unlock.svg");
+		}
+		&.unrestrict,
+		&.restrict:hover {
+			.maskIcon("../../../assets/icons/lock.svg");
 		}
 	}
 

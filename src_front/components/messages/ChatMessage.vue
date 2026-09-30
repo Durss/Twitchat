@@ -110,7 +110,9 @@
 			<ChatModTools
 				:messageData="messageData"
 				class="mod"
-				v-if="showModTools"
+				v-if="
+					showModTools && (messageData.type == 'message' || messageData.type == 'whisper')
+				"
 				:canDelete="messageData.type != 'whisper'"
 			/>
 
