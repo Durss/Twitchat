@@ -23,6 +23,7 @@
 				v-for="m in filteredMessagesDeduped"
 				:key="m.id"
 				class="subHolder"
+				:class="{ alt: rowAlt.get(m.id) }"
 				data-message
 				:ref="(el: any) => setMessageRef(m.id, el)"
 				:id="'message_' + m.id + '_' + config.order"
@@ -209,6 +210,7 @@ import {
 	onBeforeMount,
 	onBeforeUnmount,
 	ref,
+	toRaw,
 	useTemplateRef,
 	watch,
 } from "vue";
@@ -221,7 +223,6 @@ import { RoughEase } from "gsap/all";
 import { Linear } from "gsap/all";
 import { gsap } from "gsap/gsap-core";
 import GroqSummaryFilterForm from "../GroqSummaryFilterForm.vue";
-import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import type { TwitchatEventOf } from "@/events/TwitchatEvent";
 import * as Sentry from "@sentry/vue";
 
@@ -278,7 +279,8 @@ let selectionDate = 0;
 let selectionTimeout = -1;
 let virtualMessageHeight = 32;
 let prevTs = 0;
-let counter = 0;
+let scrollAdjustFrame = 0;
+const rowAltCache = new WeakMap<TwitchatDataTypes.ChatMessageTypes, boolean>();
 let disposed = false;
 let forceScrollDown = false;
 let loadingOldMessage = false;
@@ -342,6 +344,41 @@ const filteredMessagesDeduped = computed(() => {
 		if (done.has(element.id)) continue;
 		done.set(element.id, true);
 		res.push(element);
+	}
+	return res;
+});
+
+/**
+ * Alternate background flag of each displayed message.
+ * A message gets its value the first time it's displayed (opposite of its neighbor)
+ * and keeps it, even if it leaves the list and comes back when scrolling the history.
+ * With a :nth-child() selector, adding/removing a message at the top of the list
+ * flips the background of all the others (and restyles the whole list).
+ * If a message appears/disappears in the middle of the list, two consecutive messages
+ * may get the same background, which is less disturbing than flipping all the next ones.
+ */
+const rowAlt = computed(() => {
+	const list = filteredMessagesDeduped.value;
+	const res = new Map<string, boolean>();
+	const getAlt = (index: number, neighborIndex: number): boolean => {
+		const message = toRaw(list[index]!);
+		let alt = rowAltCache.get(message);
+		if (alt === undefined) {
+			alt = neighborIndex > -1 ? !res.get(list[neighborIndex]!.id) : false;
+			rowAltCache.set(message, alt);
+		}
+		return alt;
+	};
+	//Start from the first message that already had a value
+	const anchor = Math.max(
+		0,
+		list.findIndex((m) => rowAltCache.has(toRaw(m))),
+	);
+	for (let i = anchor; i < list.length; i++) {
+		res.set(list[i]!.id, getAlt(i, i > anchor ? i - 1 : -1));
+	}
+	for (let i = anchor - 1; i >= 0; i--) {
+		res.set(list[i]!.id, getAlt(i, i + 1));
 	}
 	return res;
 });
@@ -1640,12 +1677,11 @@ async function showPrevMessage(): Promise<void> {
 	let i = list.length - scrollUpIndexOffset;
 	const removed: TwitchatDataTypes.ChatMessageTypes[] = [];
 
-	for (; i > 0; i--) {
-		let m = list[i]!;
+	for (; i >= 0; i--) {
+		const m = list[i]!;
 		if (m.id == lastId) {
 			addNext = true;
 		} else if (addNext) {
-			m = list[i - 1]!;
 			if (await shouldShowMessage(m)) {
 				scrollUpIndexOffset = list.length - i;
 				removed.push(filteredMessages.value.pop()!);
@@ -1679,31 +1715,23 @@ async function showPrevMessage(): Promise<void> {
 /**
  * Call this after adding a new message.
  * Will scroll so the previous message is on the bottom of the list
- * so the new message displays smoothly from the bottom of the screen
+ * so the new message displays smoothly from the bottom of the screen.
+ * The list is measured once per frame whatever the number of messages added
+ * during that frame. Reading its layout right after each insertion would force
+ * the browser to compute styles and layout for every single message.
  */
-async function scrollToPrevMessage(wheelOrigin = false): Promise<void> {
-	await nextTick();
+function scrollToPrevMessage(wheelOrigin = false): void {
 	scrollUpIndexOffset = -1;
-	const messagesHolder = chatMessageHolder.value!;
-	const maxScroll = messagesHolder.scrollHeight - messagesHolder.offsetHeight;
+	if (scrollAdjustFrame) return;
+	scrollAdjustFrame = requestAnimationFrame(() => {
+		scrollAdjustFrame = 0;
+		const messagesHolder = chatMessageHolder.value;
+		if (disposed || !messagesHolder) return;
+		const maxScroll = messagesHolder.scrollHeight - messagesHolder.offsetHeight;
 
-	const messRefs = messagesHolder.querySelectorAll(".messageHolder>.subHolder");
-	if (messRefs.length == 0) return;
-	const lastMessRef = messRefs[messRefs.length - 1] as HTMLDivElement;
+		const lastMessRef = messagesHolder.lastElementChild as HTMLDivElement | null;
+		if (!lastMessRef) return;
 
-	if (
-		storeParams.appearance.alternateMessageBackground.value !== false &&
-		filteredMessages.value.length >= maxMessages
-	) {
-		counter++;
-		if (counter % 2 == 0) {
-			(rootEl.value as HTMLDivElement).classList.add("alternateOdd");
-		} else {
-			(rootEl.value as HTMLDivElement).classList.remove("alternateOdd");
-		}
-	}
-
-	if (lastMessRef) {
 		if (wheelOrigin) {
 			//If scrolling down with mouse wheel while scrolling is locked,
 			//scroll to bottom directly for faster scrolldown
@@ -1714,8 +1742,8 @@ async function scrollToPrevMessage(wheelOrigin = false): Promise<void> {
 			virtualScrollY = messagesHolder.scrollTop =
 				maxScroll - (lastMessRef.offsetHeight + margin);
 		}
-	}
-	replaceReadMarkerAndSelector();
+		replaceReadMarkerAndSelector();
+	});
 }
 
 /**
@@ -2256,19 +2284,9 @@ function showSelectionError(): void {
 	}
 
 	&.alternateBackground {
-		&:not(.alternateOdd) {
-			.messageHolder {
-				.subHolder:nth-child(even) {
-					background-color: var(--background-color-fadest);
-				}
-			}
-		}
-
-		&.alternateOdd {
-			.messageHolder {
-				.subHolder:nth-child(odd) {
-					background-color: var(--background-color-fadest);
-				}
+		.messageHolder {
+			.subHolder.alt {
+				background-color: var(--background-color-fadest);
 			}
 		}
 	}
@@ -2310,6 +2328,8 @@ function showSelectionError(): void {
 		overflow-y: auto;
 		overflow-x: hidden;
 		flex-grow: 1;
+		// avoid useless css computation on holder as it has fixed sizes
+		contain: size layout;
 		//Scrolling is locked to 10px min from the top to avoid infinite
 		//automatic scrolling to prev items, this padding compensates for
 		//this so we can entirely see the 1st message
