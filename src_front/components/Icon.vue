@@ -1,5 +1,5 @@
 <template>
-	<span :class="classes" v-html="svg" v-if="svg"></span>
+	<span :class="classes" v-svg="svg" v-if="svg"></span>
 	<svg
 		class="icon"
 		v-else-if="error"
@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import { vSvg } from "@/directives/svg";
 import { storeCommon } from "@/store/common/storeCommon";
 import StoreProxy from "@/store/StoreProxy";
 import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
@@ -65,7 +66,7 @@ const classes = computed(() => {
 async function loadImage(): Promise<void> {
 	if (disposed.value) return;
 	// Couldn't figure out why but there are quite many sentry issues
-	// about this.$store being undefined here
+	// about store.iconCache being undefined here
 	const cacheMap = store.iconCache || {};
 
 	// store.iconCache = {};//Disable cache for debug
