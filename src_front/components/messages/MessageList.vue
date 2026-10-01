@@ -1119,10 +1119,9 @@ function onAddMessage(e: GlobalEvent): void {
 		}
 	} else {
 		lockedLiveMessages.value = [];
-		let list = filteredMessages.value.concat();
+		const list = filteredMessages.value.concat();
 		list.push(m);
-		list = list.slice(-maxMessages);
-		filteredMessages.value = list;
+		filteredMessages.value = trimOldMessages(list);
 		showLoadingGradient.value = false;
 		scrollToPrevMessage();
 	}
@@ -1658,9 +1657,7 @@ function showNextPendingMessage(): void {
 	//No message added, stop there
 	if (messageCountToAdd == addCount) return;
 
-	if (filteredMessages.value.length > maxMessages) {
-		filteredMessages.value = filteredMessages.value.slice(-maxMessages);
-	}
+	filteredMessages.value = trimOldMessages(filteredMessages.value);
 }
 
 /**
@@ -2017,6 +2014,16 @@ function computeMaxMessageCount(): void {
 		fullListRefresh();
 	}
 	maxMessages = newCount;
+}
+
+/**
+ * Removes a batch of the oldest messages once the list exceeds its max message count
+ */
+function trimOldMessages(
+	list: TwitchatDataTypes.ChatMessageTypes[],
+): TwitchatDataTypes.ChatMessageTypes[] {
+	if (list.length < maxMessages + 10) return list;
+	return list.slice(-maxMessages);
 }
 
 /**
