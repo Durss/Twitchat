@@ -1,137 +1,126 @@
 <template>
-	<div class="chatmessageclippending chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-		
-		<Icon name="clip" alt="notice" class="icon"/>
-		
+	<div class="chatmessageclippending chatMessage highlight" ref="rootEl">
+		<Icon name="clip" alt="notice" class="icon" />
+
 		<div class="loading" v-if="loading && !error">
-			<div class="message">{{ $t("global.moderation_action.clip_creating") }}</div>
-			<Icon name="loader" alt="loading" class="loader"/>
+			<div class="message">{{ t("global.moderation_action.clip_creating") }}</div>
+			<Icon name="loader" alt="loading" class="loader" />
 		</div>
 
 		<div class="holder" v-else-if="!error">
-			<div class="message">{{ $t("global.moderation_action.clip_created") }}</div>
+			<div class="message">{{ t("global.moderation_action.clip_created") }}</div>
 			<div class="ctas">
-				<Button small :loading="highlighting" @click.stop="highlight()" icon="highlight">{{ $t('global.moderation_action.clip_created_highlightBt') }}</Button>
-				<Button small type="link" :href="messageData.clipUrl" target="_blank" icon="newtab">{{ $t('global.moderation_action.clip_created_publishBt') }}</Button>
+				<TTButton
+					small
+					:loading="clipHighlightLoading"
+					@click.stop="clipHighlight()"
+					icon="highlight"
+					>{{ t("global.moderation_action.clip_created_highlightBt") }}</TTButton
+				>
+				<TTButton
+					small
+					type="link"
+					:href="messageData.clipUrl"
+					target="_blank"
+					icon="newtab"
+					>{{ t("global.moderation_action.clip_created_publishBt") }}</TTButton
+				>
 			</div>
 		</div>
 
-		<div v-if="error" class="card-item alert">{{ $t("error.clip_creation") }}</div>
-
+		<div v-if="error" class="card-item alert">{{ t("error.clip_creation") }}</div>
 	</div>
 </template>
 
-<script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
-import type { JsonObject } from 'type-fest';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import AbstractChatMessage from './AbstractChatMessage';
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
+import { useClipHighlight } from "@/composables/useClipHighlight";
+import { storeAccessibility as useStoreAccessibility } from "@/store/accessibility/storeAccessibility";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import Icon from "../Icon.vue";
+import TTButton from "../TTButton.vue";
 
-@Component({
-	components:{
-		Button: TTButton,
-	},
-	emits:["onRead"]
-})
-class ChatMessageClipPending extends AbstractChatMessage {
-	
-	@Prop
-	declare messageData:TwitchatDataTypes.MessageClipCreate;
-	
-	public error:boolean =  false;
-	public loading:boolean =  true;
-	public highlighting:boolean =  false;
-	
-	public interval:number = -1;
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageClipCreate;
+}>();
 
-	public mounted():void {
-		this.$store.accessibility.setAriaPolite(this.$t("global.moderation_action.clip_creating", {LINK:""}));
-		
-		/*
-		//No idea why, but the watcher does not work :(
-		watch(()=>this.messageData.loading, ()=> {
-			console.log("CHANGE 1");
-			this.loading = false;
-			this.$store.accessibility.setAriaPolite(this.$t("global.moderation_action.clip_created", {LINK:""}));
-		});
-		//*/
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
 
-		//This is a stupid solution to the fact the watcher doesn't seem to work
-		//and I have no idea why :/
-		this.interval = window.setInterval(async ()=> {
-			this.loading = this.messageData.loading;
-			this.error = this.messageData.error
+const rootEl = useTemplateRef("rootEl");
+const storeAccessibility = useStoreAccessibility();
+const { t } = useI18n();
 
-			if(!this.loading) {
-				clearInterval(this.interval);
-				if(this.error) {
-					this.$store.accessibility.setAriaPolite(this.$t("error.clip_creation"));
-				}else{
-					this.$store.accessibility.setAriaPolite(this.$t("global.moderation_action.clip_created", {LINK:""}));
-				}
+const error = ref(false);
+const loading = ref(true);
+
+let interval = -1;
+
+useChatMessage(props, emit, rootEl);
+
+//Clip isn't loaded upfront, request it only when highlighting it.
+//MP4 source is skipped as Twitch hasn't processed the clip yet
+const { clipHighlightLoading, clipHighlight } = useClipHighlight(
+	props,
+	() => TwitchUtils.getClipById(props.messageData.clipID),
+	{ fetchMp4: false },
+);
+
+onMounted(() => {
+	storeAccessibility.setAriaPolite(t("global.moderation_action.clip_creating", { LINK: "" }));
+	//This is a stupid solution to the fact the watcher doesn't seem to work
+	//and I have no idea why :/
+	interval = window.setInterval(() => {
+		loading.value = props.messageData.loading;
+		error.value = props.messageData.error;
+
+		if (!loading.value) {
+			clearInterval(interval);
+			if (error.value) {
+				storeAccessibility.setAriaPolite(t("error.clip_creation"));
+			} else {
+				storeAccessibility.setAriaPolite(
+					t("global.moderation_action.clip_created", { LINK: "" }),
+				);
 			}
-		}, 1000);
-
-	}
-
-	public beforeUnmount(): void {
-		clearInterval(this.interval);
-	}
-
-	public async highlight():Promise<void> {
-		this.highlighting = true;
-		const data:TwitchatDataTypes.ChatHighlightInfo = {
-			clip:this.messageData.clipData,
-			date:this.messageData.date,
-			message_id:this.messageData.id,
-			params:this.$store.chat.chatHighlightOverlayParams,
-			dateLabel:this.$store.i18n.tm("global.date_ago"),
 		}
-		const exists = await Utils.getHighlightOverPresence();
-		if(exists) {
-			PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
-			this.$store.chat.highlightedMessageId = this.messageData.id;
-		}else{
-			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
-		}
-		this.highlighting = false;
-	}
+	}, 1000);
+});
 
-}
-export default toNative(ChatMessageClipPending);
+onBeforeUnmount(() => {
+	clearInterval(interval);
+});
 </script>
 
 <style scoped lang="less">
-.chatmessageclippending{
-
+.chatmessageclippending {
 	.holder {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
 		flex: 1;
-		.message{
+		.message {
 			flex: 1;
 		}
 	}
-	
+
 	.ctas {
-		margin-top: .25em;
+		margin-top: 0.25em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		gap: .5em;
-		row-gap: .25em;
+		gap: 0.5em;
+		row-gap: 0.25em;
 	}
 
 	.loading {
 		display: flex;
 		flex-direction: row;
-		gap: .5em;
+		gap: 0.5em;
 		align-items: center;
 		font-style: italic;
 		.icon {

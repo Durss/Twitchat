@@ -1,6 +1,6 @@
 {
 	"exporter": {
-		"importForm":{
+		"importForm": {
 			"title": "Importer des configurations",
 			"parameters": "Configurations",
 			"autoDelete": "Ces paramètres seront automatiquement supprimés le :",
@@ -12,16 +12,15 @@
 			"details": "Détails",
 			"details_head": "Vous êtes sur le point d'importer les paramètres suivants :",
 			"importTypes": {
-				"triggers":"Trigger|Triggers",
-				"timers":"Minuteur|Minuteurs",
-				"counters":"Compteur|Compteurs",
-				"values":"Valeur|Valeurs",
-				"labels":"Label|Labels",
-				"animatedTexts":"Texte animé|Textes animés",
-				"customTrains":"Train personnalisé|Trains personnalisés",
-				"endingCreditsSlots":"Entrée de crédits de fin|Entrées de crédits de fin"
+				"triggers": "Trigger|Triggers",
+				"timers": "Minuteur|Minuteurs",
+				"counters": "Compteur|Compteurs",
+				"values": "Valeur|Valeurs",
+				"labels": "Label|Labels",
+				"animatedTexts": "Texte animé|Textes animés",
+				"customTrains": "Train personnalisé|Trains personnalisés",
+				"endingCreditsSlots": "Entrée de crédits de fin|Entrées de crédits de fin"
 			}
 		}
-
 	}
 }

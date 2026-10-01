@@ -1,11 +1,13 @@
-import { Event } from '@/events/EventDispatcher';
+import { Event } from "@/events/EventDispatcher";
 
 export default class VoicemodEvent extends Event {
-
 	public static VOICE_CHANGE = "VOICE_CHANGE";
-	
-	constructor(type:string, public voiceID?:string, public voiceName?:string) {
+
+	constructor(
+		type: string,
+		public voiceID?: string,
+		public voiceName?: string,
+	) {
 		super(type);
 	}
-	
 }

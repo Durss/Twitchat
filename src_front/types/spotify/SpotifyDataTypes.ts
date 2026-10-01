@@ -5,7 +5,7 @@ export const SpotifyScopes = {
 	EDIT_PUBLIC_PLAYLISTS: "playlist-modify-public",
 	EDIT_PRIVATE_PLAYLISTS: "playlist-modify-private",
 } as const;
-export type SpotifyScopesString = typeof SpotifyScopes[keyof typeof SpotifyScopes];
+export type SpotifyScopesString = (typeof SpotifyScopes)[keyof typeof SpotifyScopes];
 
 export interface SpotifyAuthResult {
 	code: string;
@@ -14,10 +14,10 @@ export interface SpotifyAuthResult {
 
 export interface SpotifyAuthToken {
 	access_token: string;
-	token_type: string;//Bearer
+	token_type: string; //Bearer
 	scope: string;
-	expires_at: number;//In milliseconds
-	expires_in: number;//In seconds
+	expires_at: number; //In milliseconds
+	expires_in: number; //In seconds
 	refresh_token: string;
 }
 
@@ -26,15 +26,14 @@ export interface SpotifyTrack {
 	context?: {
 		external_urls: ExternalUrls[];
 		type: "artist" | "playlist";
-		uri: string
-		href: string
+		uri: string;
+		href: string;
 	};
 	progress_ms: number;
 	item: Item;
 	currently_playing_type: "track" | "episode";
 	actions: Actions;
 	is_playing: boolean;
-
 }
 
 interface ExternalUrls {
@@ -190,12 +189,12 @@ export interface PlaylistCachedIdItem {
 	}[];
 	name: string;
 	uri: string;
-	description: string
-	href: string
-	id: string
-	public: boolean
+	description: string;
+	href: string;
+	id: string;
+	public: boolean;
 	tracks: {
-		total: number
+		total: number;
 		/*
 		href: string
 		limit: number
@@ -242,7 +241,7 @@ export interface PlaylistCachedIdItem {
 			}
 		}[]
 		*/
-	}
+	};
 }
 
 export interface SearchPlaylistItem {

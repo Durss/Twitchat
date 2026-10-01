@@ -1,0 +1,8 @@
+{
+	"meldStudio": {
+		"header": "Connectez Twitchat avec {LINK} et contrôlez-le depuis les Triggers",
+		"connect_error": "La connexion à Meld Studio a échoué.",
+		"ip": "IP",
+		"port": "Port"
+	}
+}

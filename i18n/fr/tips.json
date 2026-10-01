@@ -1,7 +1,7 @@
 {
 	"tips": {
 		"tryBt": "Essayer",
-		"title":"💡 Astuce 💡",
+		"title": "💡 Astuce 💡",
 		"alerts": {
 			"title": "Créez vos propres alertes",
 			"info_1": "Avec Twitchat vous pouvez créer vos propres alertes de sub, follow, sondage, récompenses de points de chaîne,... en contrôlant vos sources OBS, leur contenu et leurs filtres depuis Twitchat."
@@ -57,8 +57,17 @@
 		"highlight": {
 			"title": "Mettre un message en avant",
 			"info": "Vous pouvez mettre un message de tchat ou un clip en avant sur votre stream grâce à un overlay Twitchat dédié.",
-			"config_overlayBt": "Configurer l'overlay",
-			"configure_triggerBt": "Créer des triggers"
+			"config_overlayBt": "Configurer l'overlay"
+		},
+		"quiz": {
+			"title": "Quiz",
+			"info": "Créez des quiz auxquel vos viewers peuvent participer depuis l'extension <strong>Twitchat Companion</strong> ou le tchat.",
+			"createBt": "Créer un quiz"
+		},
+		"bluesky": {
+			"title": "Bluesky",
+			"info": "Connectez votre compte Bluesky pour apparaître automatiquement en live ou encore être alerté·e quand une personne vous follow, vous DM ou vous mentionne.",
+			"connectBt": "Connecter Bluesky"
 		}
 	}
 }

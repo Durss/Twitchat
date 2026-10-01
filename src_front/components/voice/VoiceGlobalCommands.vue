@@ -1,9 +1,17 @@
 <template>
-	<ToggleBlock class="voiceglobalcommands" :title="$t('voice.global_commands_title')" icon="api" medium :open="openLocal">
+	<ToggleBlock
+		class="voiceglobalcommands"
+		:title="t('voice.global_commands_title')"
+		icon="api"
+		medium
+		:open="openLocal"
+	>
 		<div class="content">
-			<div class="head">{{ $t("voice.global_commands") }}</div>
-			
-			<ParamItem class="item" v-for="(i,index) in items"
+			<div class="head">{{ t("voice.global_commands") }}</div>
+
+			<ParamItem
+				class="item"
+				v-for="(i, index) in items"
 				:key="itemIDs[index]"
 				:paramData="i"
 				noBackground
@@ -13,95 +21,91 @@
 	</ToggleBlock>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import VoiceAction from '@/utils/voice/VoiceAction';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import ToggleBlock from '../ToggleBlock.vue';
-import ParamItem from '../params/ParamItem.vue';
+<script setup lang="ts">
+import { storeVoice as useStoreVoice } from "@/store/voice/storeVoice";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import VoiceAction from "@/utils/voice/VoiceAction";
+import { onMounted, ref } from "vue";
+import ToggleBlock from "../ToggleBlock.vue";
+import ParamItem from "../params/ParamItem.vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{
-		ParamItem,
-		ToggleBlock,
-	},
-	emits:["update:modelValue", "update:complete"]
-})
-class VoiceGlobalCommands extends Vue {
+defineProps<{ modelValue?: VoiceAction[] }>();
 
-	@Prop()
-	public modelValue:VoiceAction[] = [];
+const { t } = useI18n();
+const emit = defineEmits<{
+	"update:modelValue": [data: VoiceAction[]];
+	"update:complete": [allDone: boolean];
+}>();
 
-	public items:TwitchatDataTypes.ParameterData<string>[] = [];
-	public itemIDs:string[] = [];
-	public openLocal:boolean = false;
+const storeVoice = useStoreVoice();
 
-	public mounted():void {
-		type VAKeys = keyof typeof VoiceAction;
-		const actions = Object.keys(VoiceAction);
+const items = ref<TwitchatDataTypes.ParameterData<string>[]>([]);
+const itemIDs = ref<string[]>([]);
+const openLocal = ref(false);
 
-		//Search for global labels
-		for (let i = 0; i < actions.length; i++) {
-			const a = actions[i];
-			const isGlobal = VoiceAction[a+"_IS_GLOBAL" as VAKeys] === true;
-			if(!isGlobal) continue;
+onMounted(() => {
+	type VAKeys = keyof typeof VoiceAction;
+	const actions = Object.keys(VoiceAction);
+	//Search for global labels
+	for (let i = 0; i < actions.length; i++) {
+		const a = actions[i];
+		const isGlobal = VoiceAction[(a + "_IS_GLOBAL") as VAKeys] === true;
+		if (!isGlobal) continue;
 
-			const id:string = VoiceAction[a as VAKeys] as string;
-			let text = "";
-			const action = (this.$store.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
-			if(action?.sentences) text = action.sentences;
+		//Actions are stored by their VoiceAction key, not by the event they're bound to
+		const id: string = a as string;
+		let text = "";
+		const action = (storeVoice.voiceActions as VoiceAction[]).find((v) => v.id == id);
+		if (action?.sentences) text = action.sentences;
 
-			this.items.push({
-				type:"string",
-				value:text,
-				labelKey:"voice.commands."+id,
-			});
-			this.itemIDs.push(id);
-		}
-		
-		this.updateCommands(true);
+		items.value.push({
+			type: "string",
+			value: text,
+			labelKey: "voice.commands." + id,
+		});
+		itemIDs.value.push(id);
 	}
 
-	public updateCommands(isInit:boolean = false):void {
-		const data:VoiceAction[] = [];
-		let allDone = true;
-		for (let i = 0; i < this.items.length; i++) {
-			const item = this.items[i]!;
-			data.push({
-				id:this.itemIDs[i],
-				sentences:item.value,
-			})
+	updateCommands(true);
+});
 
-			allDone &&= item.value != "";
-		}
+function updateCommands(isInit: boolean = false): void {
+	const data: VoiceAction[] = [];
+	let allDone = true;
+	for (let i = 0; i < items.value.length; i++) {
+		const item = items.value[i]!;
+		data.push({
+			id: itemIDs.value[i],
+			sentences: item.value,
+		});
 
-		//Do not change open state when editing field otherwise the form
-		//would close after writing the first letter of the last field
-		if(isInit || !allDone) {
-			this.openLocal = !allDone;
-		}
-	
-		this.$emit("update:modelValue", data);
-		this.$emit("update:complete", allDone);
+		allDone &&= item.value != "";
 	}
 
+	//Do not change open state when editing field otherwise the form
+	//would close after writing the first letter of the last field
+	if (isInit || !allDone) {
+		openLocal.value = !allDone;
+	}
+
+	emit("update:modelValue", data);
+	emit("update:complete", allDone);
 }
-export default toNative(VoiceGlobalCommands);
 </script>
 
 <style scoped lang="less">
-.voiceglobalcommands{
+.voiceglobalcommands {
 	.content {
-		gap: .25em;
+		gap: 0.25em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		.head {
-			margin: .5em 0;
-
+			margin: 0.5em 0;
 		}
 		:deep(label) {
-			min-width:100px;
+			min-width: 100px;
 			text-align: right;
 		}
 	}
