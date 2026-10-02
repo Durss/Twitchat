@@ -128,6 +128,7 @@ export default class DataStoreCommon {
 	public static STREAM_SOCKET_SECRET: string = "streamSocketSecret";
 	public static STREAMDECK_CONFIGS: string = "streamDeckConfigs";
 	public static STREAMFOG_CONFIGS: string = "streamFogConfigs";
+	public static STREAMLOOTS_CONFIGS: string = "streamlootsConfigs";
 	public static QUIZ_CONFIGS: string = "quizConfigs";
 	public static BLUESKY_CONFIGS: string = "blueskyConfigs";
 	public static BLUESKY_LINK: string = "blueskyLink";

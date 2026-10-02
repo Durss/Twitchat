@@ -14,6 +14,7 @@ import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
 import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
 import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
 import { storeStreamlabs as useStoreStreamlabs } from "@/store/streamlabs/storeStreamlabs";
+import { storeStreamloots as useStoreStreamloots } from "@/store/streamloots/storeStreamloots";
 import { storeStreamSocket as useStoreStreamSocket } from "@/store/streamsocket/storeStreamSocket";
 import { storeTiktok as useStoreTiktok } from "@/store/tiktok/storeTiktok";
 import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
@@ -57,6 +58,7 @@ export function useConnectionStates() {
 	const storeGroq = useStoreGroq();
 	const storeTwitchBot = useStoreTwitchBot();
 	const storeStreamSocket = useStoreStreamSocket();
+	const storeStreamloots = useStoreStreamloots();
 	const storeBluesky = useStoreBluesky();
 	const storeHeat = useStoreHeat();
 	const storeMeldStudio = useStoreMeldStudio();
@@ -96,6 +98,7 @@ export function useConnectionStates() {
 	const streamsocketDisabled = computed(() => !storeStreamSocket.socketSecret);
 	const twitchbotDisabled = computed(() => storeTwitchBot.authToken == null);
 	const lumiaDisabled = computed(() => !storeLumia.socketToken);
+	const streamlootsDisabled = computed(() => !storeStreamloots.widgetId);
 
 	const spotifyConfiguredRef = ref(!!DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN));
 	const youtubeConfiguredRef = ref(!!DataStore.get(DataStore.YOUTUBE_AUTH_TOKEN));
@@ -140,6 +143,7 @@ export function useConnectionStates() {
 		streamsocketDisabled,
 		twitchbotDisabled,
 		lumiaDisabled,
+		streamlootsDisabled,
 		spotifyDisabled,
 		patreonDisabled,
 		youtubeDisabled,

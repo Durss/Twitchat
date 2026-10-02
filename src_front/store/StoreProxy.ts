@@ -48,6 +48,7 @@ import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { Lense, Video } from "./streamfog/storeStreamfog";
+import type { StreamlootsEvent } from "@/types/StreamlootsTypes";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
 
 /**
@@ -171,6 +172,11 @@ export default class StoreProxy {
 	>;
 	public static quiz: StoreInstance<IQuizState, IQuizGetters, IQuizActions>;
 	public static streamfog: StoreInstance<IStreamfogState, IStreamfogGetters, IStreamfogActions>;
+	public static streamloots: StoreInstance<
+		IStreamlootsState,
+		IStreamlootsGetters,
+		IStreamlootsActions
+	>;
 	public static api: StoreInstance<IAPIState, IAPIGetters, IAPIActions>;
 	public static bluesky: StoreInstance<IBlueskyState, IBlueskyGetters, IBlueskyActions>;
 	public static meldStudio: StoreInstance<
@@ -4522,6 +4528,47 @@ export interface IStreamfogActions {
 	 * Enables playing a video animation
 	 */
 	playVideoAnimation(videoId: string): Promise<boolean>;
+	/**
+	 * Saves current data to server
+	 */
+	saveData(): void;
+}
+
+export interface IStreamlootsState {
+	/**
+	 * UUID at the end of the Streamloots alerts overlay URL
+	 */
+	widgetId: string;
+	/**
+	 * true when the alerts stream is open
+	 */
+	connected: boolean;
+	connecting: boolean;
+	invalidID: boolean;
+}
+
+export interface IStreamlootsGetters {}
+
+export interface IStreamlootsActions {
+	/**
+	 * Populates the store from user's data
+	 */
+	populateData(): void;
+	/**
+	 * Connects to the alerts and emotes streams.
+	 * Accepts either the alerts overlay URL or its widget ID.
+	 * @returns false if the ID is invalid or the alerts stream couldn't be opened in time
+	 */
+	connect(widgetUrlOrId: string): Promise<boolean>;
+	/**
+	 * Closes streams and forgets the widget ID
+	 */
+	disconnect(): void;
+	/**
+	 * Called for every categorized event received.
+	 * Can be called directly to simulate an event.
+	 */
+	onEvent(event: StreamlootsEvent): void;
 	/**
 	 * Saves current data to server
 	 */
