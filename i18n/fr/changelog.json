@@ -77,6 +77,17 @@
 				}
 			},
 			{
+				"i": "streamloots",
+				"l": "Streamloots",
+				"d": "Connectez votre compte Streamloots pour recevoir des notifications en tchat quand des packs sont achetés ou offert, des réactions jouées, des emotes envoyées ou des cartes jouées.\n\nAutomatisez des actions en réponse depuis les triggers.",
+				"a": {
+					"l": "Connecter",
+					"i": "streamloots",
+					"param": "connexions",
+					"subparam": "streamloots"
+				}
+			},
+			{
 				"i": "youtube_jewels",
 				"l": "Joyaux YouTube",
 				"d": "Vous serez maintenant notifié·e lorsque vous recevez des joyaux sur YouTube.\n\nUn événement de trigger dédié est également disponible."
