@@ -1,16 +1,16 @@
 <template>
-	<div :class="classes">
-		<Icon class="icon" :name="messageData.type == 'connect' ? 'checkmark' : 'cross'" />
+	<div :class="classes" ref="rootEl">
+		<Icon class="icon" :name="props.messageData.type == 'connect' ? 'checkmark' : 'cross'" />
 
 		<i18n-t
 			scope="global"
 			class="label"
 			tag="span"
-			v-if="messageData.type == 'connect'"
+			v-if="props.messageData.type == 'connect'"
 			keypath="chat.connect.on"
 		>
 			<template #PLATFORM
-				><strong>{{ messageData.platform }}</strong></template
+				><strong>{{ props.messageData.platform }}</strong></template
 			>
 			<template #ROOM
 				><strong>{{ channelName }}</strong></template
@@ -20,7 +20,7 @@
 		<template v-else>
 			<i18n-t scope="global" class="label" tag="span" keypath="chat.connect.off">
 				<template #PLATFORM
-					><strong>{{ messageData.platform }}</strong></template
+					><strong>{{ props.messageData.platform }}</strong></template
 				>
 				<template #ROOM
 					><strong>{{ channelName }}</strong></template
@@ -33,90 +33,93 @@
 				primary
 				small
 				@click.stop="reconnectChan()"
-				>{{ $t("global.reconnect") }}</TTButton
+				>{{ t("global.reconnect") }}</TTButton
 			>
 		</template>
 	</div>
 </template>
 
-<script lang="ts">
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractChatMessage from "./AbstractChatMessage";
-import TTButton from "../TTButton.vue";
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
 import TwitchMessengerClient from "@/messaging/TwitchMessengerClient";
+import { storeAccessibility as useStoreAccessibility } from "@/store/accessibility/storeAccessibility";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import TTButton from "../TTButton.vue";
 
-@Component({
-	components: {
-		TTButton,
-	},
-	emits: ["onRead"],
-})
-class ChatConnect extends AbstractChatMessage {
-	@Prop
-	declare messageData:
-		| TwitchatDataTypes.MessageConnectData
-		| TwitchatDataTypes.MessageDisconnectData;
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageConnectData | TwitchatDataTypes.MessageDisconnectData;
+}>();
 
-	public message: string = "";
-	public channelName: string = "";
-	public showReconnectBt: boolean = false;
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
 
-	public get classes(): string[] {
-		const res = ["chatconnect", "chatMessage"];
-		if (this.messageData.type == TwitchatDataTypes.TwitchatMessageType.DISCONNECT) {
-			res.push("highlight", "error");
-		}
-		return res;
+const { t } = useI18n();
+const storeAccessibility = useStoreAccessibility();
+const storeAuth = useStoreAuth();
+const storeStream = useStoreStream();
+const storeUsers = useStoreUsers();
+
+const rootEl = useTemplateRef("rootEl");
+useChatMessage(props, emit, rootEl);
+
+const message = ref<string>("");
+const channelName = ref<string>("");
+const reconnecting = ref<boolean>(false);
+
+const classes = computed<string[]>(() => {
+	const res = ["chatconnect", "chatMessage"];
+	if (props.messageData.type == TwitchatDataTypes.TwitchatMessageType.DISCONNECT) {
+		res.push("highlight", "error");
 	}
+	return res;
+});
 
-	public mounted(): void {
-		const chan = this.$store.users.getUserFrom(
-			this.messageData.platform,
-			this.messageData.channel_id,
-			this.messageData.channel_id,
-		);
-		if (chan) {
-			this.channelName = " #" + chan.login;
-			if (this.messageData.type == TwitchatDataTypes.TwitchatMessageType.CONNECT) {
-				this.message = this.$t("chat.connect.on", {
-					PLATFORM: this.messageData.platform,
-					ROOM: this.channelName,
-				});
-			} else {
-				this.message = this.$t("chat.connect.off", { PLATFORM: this.messageData.platform });
-			}
-			this.$store.accessibility.setAriaPolite(this.message);
-			if (this.messageData.type == TwitchatDataTypes.TwitchatMessageType.DISCONNECT) {
-				const chanId = this.messageData.channel_id;
-				window.setTimeout(() => {
-					this.showReconnectBt =
-						!TwitchMessengerClient.instance.getIsConnectedToChannelID(chanId);
-				}, 2000);
-			}
-		}
-	}
+const showReconnectBt = computed<boolean>(() => {
+	if (reconnecting.value) return false;
+	return !TwitchMessengerClient.instance.getIsConnectedToChannelID(props.messageData.channel_id);
+});
 
-	public async reconnectChan(): Promise<void> {
-		this.showReconnectBt = false;
-		const chanId = this.messageData.channel_id;
-		const user = this.$store.users.getUserFrom(this.messageData.platform, chanId, chanId);
-		if (
-			chanId == this.$store.auth.twitch.user.id ||
-			chanId == this.$store.auth.youtube?.user.id
-		) {
-			TwitchMessengerClient.instance.connectToChannel(user.login);
+onMounted(() => {
+	const chan = storeUsers.getUserFrom(
+		props.messageData.platform,
+		props.messageData.channel_id,
+		props.messageData.channel_id,
+	);
+	if (chan) {
+		channelName.value = " #" + chan.login;
+		if (props.messageData.type == TwitchatDataTypes.TwitchatMessageType.CONNECT) {
+			message.value = t("chat.connect.on", {
+				PLATFORM: props.messageData.platform,
+				ROOM: channelName.value,
+			});
 		} else {
-			this.$store.stream.connectToExtraChan(user);
+			message.value = t("chat.connect.off", { PLATFORM: props.messageData.platform });
 		}
-		window.setTimeout(() => {
-			this.showReconnectBt = !TwitchMessengerClient.instance.getIsConnectedToChannelID(
-				this.messageData.channel_id,
-			);
-		}, 5000);
+		storeAccessibility.setAriaPolite(message.value);
 	}
+});
+
+async function reconnectChan(): Promise<void> {
+	reconnecting.value = true;
+	const chanId = props.messageData.channel_id;
+	const user = storeUsers.getUserFrom(props.messageData.platform, chanId, chanId);
+	if (chanId == storeAuth.twitch.user.id || chanId == storeAuth.youtube?.user.id) {
+		TwitchMessengerClient.instance.connectToChannel(user.login);
+	} else {
+		storeStream.connectToExtraChan(user);
+	}
+	// Give it a bit of time before showing the button again if
+	// it's still not connected
+	window.setTimeout(() => {
+		reconnecting.value = false;
+	}, 5000);
 }
-export default toNative(ChatConnect);
 </script>
 
 <style scoped lang="less">
@@ -130,3 +133,4 @@ export default toNative(ChatConnect);
 	}
 }
 </style>
+

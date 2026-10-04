@@ -14,6 +14,7 @@ import MessengerClientEvent from "./MessengerClientEvent";
 import * as Sentry from "@sentry/vue";
 import Logger from "@/utils/Logger";
 import Database from "@/store/Database";
+import { reactive } from "vue";
 
 type AnyUserstate =
 	| tmi.ChatUserstate
@@ -35,7 +36,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _refreshingTokenTO: number = -1;
 	private _watchdogTO: number = -1;
 	private _reconnecting: boolean = false;
-	private _connectedChans: { [key: string]: boolean } = {};
+	private _connectedChans: { [key: string]: boolean } = reactive({});
 	private _channelList: string[] = [];
 	private _connectedChannelCount: number = 0;
 	private _channelIdToLogin: { [key: string]: string } = {};
@@ -233,6 +234,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	/**
 	 * Gets if IRC is connected to the given channel ID
+	 * Reactive, can be used inside a computed
 	 */
 	public getIsConnectedToChannelID(id: string): boolean {
 		return this._connectedChans[id] === true;
