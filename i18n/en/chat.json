@@ -145,6 +145,10 @@
 				"tipeee": "Tipeee alerts",
 				"tiltify": "Tiltify alerts",
 				"patreon": "Patreon alerts",
+				"streamloots_card": "Streamloots cards",
+				"streamloots_purchase": "Streamloots purchases",
+				"streamloots_reaction": "Streamloots reactions",
+				"streamloots_emote": "Streamloots emotes",
 				"tiktok_like": "Tiktok likes",
 				"tiktok_gift": "Tiktok gifts",
 				"tiktok_share": "Tiktok share",
@@ -557,6 +561,21 @@
 		},
 		"patreon": {
 			"new_member": "{USER} subscribed on Patreon with membership {TIER}"
+		},
+		"streamloots": {
+			"card": "{USER} redeemed the {RARITY} {TROLL} card {CARD}",
+			"trolled": "trolled",
+			"rarity": {
+				"common": "common",
+				"rare": "rare",
+				"epic": "epic",
+				"legendary": "legendary"
+			},
+			"purchase": "{USER} bought {COUNT} pack on Streamloots | {USER} bought {COUNT} packs on Streamloots",
+			"gift": "{USER} gifted {COUNT} pack to {GIFTEE} on Streamloots | {USER} gifted {COUNT} packs to {GIFTEE} on Streamloots",
+			"legendary": "{USER} obtained a legendary card on Streamloots",
+			"reaction": "{USER} played the reaction {REACTION} on Streamloots",
+			"emote": "{USER} sent {EMOTE} emote on Streamloots | {USER} sent {EMOTE} emotes on Streamloots"
 		},
 		"unban_request": {
 			"request": "{USER} sent following unban request",

@@ -1,5 +1,6 @@
 import rewardImg from "@/assets/icons/channelPoints.svg";
 import { GoXLRTypes } from "@/types/GoXLRTypes";
+import type { StreamlootsRarity } from "@/types/StreamlootsTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { StoreActions } from "@/types/pinia-helpers";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -2438,6 +2439,79 @@ export const storeDebug = defineStore("debug", {
 						bits: Math.round(Math.random() * 100),
 						sku: "my_sku_id",
 						user: fakeUser,
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_CARD: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const m: TwitchatDataTypes.MessageStreamlootsCardData = {
+						id: Utils.getUUID(),
+						type,
+						date: Date.now(),
+						channel_id: uid,
+						platform: "twitch",
+						userName: fakeUser.displayNameOriginal,
+						cardId: "my_card_id",
+						cardName: "My awesome card",
+						rarity: Utils.pickRand<StreamlootsRarity>(["common", "rare", "epic", "legendary"])!,
+						inputs: [{ label: "Message", value: message, value_chunks: chunks }],
+						trolled: Math.random() > 0.8,
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE: {
+					const m: TwitchatDataTypes.StreamlootsPackPurchaseData = {
+						id: Utils.getUUID(),
+						type,
+						date: Date.now(),
+						channel_id: uid,
+						platform: "twitch",
+						eventType: "purchase",
+						userName: fakeUser.displayNameOriginal,
+						quantity: Math.ceil(Math.random() * 5),
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_REACTION: {
+					const m: TwitchatDataTypes.MessageStreamlootsReactionData = {
+						id: Utils.getUUID(),
+						type,
+						date: Date.now(),
+						channel_id: uid,
+						platform: "twitch",
+						userName: fakeUser.displayNameOriginal,
+						reactionId: "my_reaction_id",
+						reactionName: "My awesome reaction",
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_EMOTE: {
+					const emotes: string[] = [];
+					const count = Math.ceil(Math.random() * 5);
+					for (let i = 0; i < count; i++) {
+						const emote = Utils.pickRand(staticEmotes)!;
+						emotes.push(emote.images.url_2x || emote.images.url_1x);
+					}
+					const m: TwitchatDataTypes.MessageStreamlootsEmoteData = {
+						id: Utils.getUUID(),
+						type,
+						date: Date.now(),
+						channel_id: uid,
+						platform: "twitch",
+						userName: fakeUser.displayNameOriginal,
+						emotes,
 					};
 
 					data = m;

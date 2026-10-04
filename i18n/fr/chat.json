@@ -145,6 +145,10 @@
 				"tipeee": "Alertes Tipeee",
 				"tiltify": "Alertes Tiltify",
 				"patreon": "Alertes Patreon",
+				"streamloots_card": "Cartes Streamloots",
+				"streamloots_purchase": "Achats Streamloots",
+				"streamloots_reaction": "Réactions Streamloots",
+				"streamloots_emote": "Emotes Streamloots",
 				"tiktok_like": "Tiktok likes",
 				"tiktok_gift": "Tiktok cadeaux",
 				"tiktok_share": "Tiktok partages",
@@ -557,6 +561,21 @@
 		},
 		"patreon": {
 			"new_member": "{USER} a pris l'abonnement {TIER} sur Patreon"
+		},
+		"streamloots": {
+			"card": "{USER} a utilisé la carte {TROLL} {RARITY}, {CARD}",
+			"trolled": "trollée",
+			"rarity": {
+				"common": "commune",
+				"rare": "rare",
+				"epic": "épique",
+				"legendary": "légendaire"
+			},
+			"purchase": "{USER} a acheté {COUNT} pack sur Streamloots | {USER} a acheté {COUNT} packs sur Streamloots",
+			"gift": "{USER} a offert {COUNT} pack à {GIFTEE} sur Streamloots | {USER} a offert {COUNT} packs à {GIFTEE} sur Streamloots",
+			"legendary": "{USER} a obtenu une carte légendaire sur Streamloots",
+			"reaction": "{USER} a joué la réaction {REACTION} sur Streamloots",
+			"emote": "{USER} a envoyé l'emote {EMOTE} sur Streamloots | {USER} a envoyé les emotes {EMOTE} sur Streamloots"
 		},
 		"unban_request": {
 			"request": "{USER} a envoyé cette demande d'unban",

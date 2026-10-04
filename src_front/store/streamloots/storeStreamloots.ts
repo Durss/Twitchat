@@ -6,9 +6,13 @@ import type {
 	StreamlootsEvent,
 	StreamlootsRarity,
 } from "@/types/StreamlootsTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { IStreamlootsActions, IStreamlootsGetters, IStreamlootsState } from "../StoreProxy";
+import StoreProxy from "../StoreProxy";
 
 let closeAlertsStream: (() => void) | null = null;
 let closeEmotesStream: (() => void) | null = null;
@@ -96,6 +100,105 @@ export const storeStreamloots = defineStore("streamloots", {
 
 		onEvent(event: StreamlootsEvent): void {
 			console.log("[STREAMLOOTS] Event received", event);
+
+			const channel_id = StoreProxy.auth.twitch.user.id;
+			let message: TwitchatDataTypes.ChatMessageTypes | null = null;
+			switch (event.type) {
+				case "card_redeemed": {
+					message = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitch",
+						channel_id,
+						type: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_CARD,
+						userName: event.username,
+						cardId: event.cardId,
+						cardName: event.cardName,
+						rarity: event.rarity,
+						//Optional inputs may be left empty
+						inputs: event.inputs
+							.filter((input) => input.value.trim().length > 0)
+							.map((input) => ({
+								label: input.label,
+								value: input.value,
+								value_chunks: TwitchUtils.parseMessageToChunks(
+									input.value,
+									undefined,
+									true,
+								),
+							})),
+						trolled: event.trolled,
+					};
+					break;
+				}
+				case "pack_purchased": {
+					message = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitch",
+						channel_id,
+						type: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE,
+						eventType: "purchase",
+						userName: event.username,
+						quantity: event.quantity,
+					};
+					break;
+				}
+				case "pack_gifted": {
+					message = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitch",
+						channel_id,
+						type: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE,
+						eventType: "gift",
+						userName: event.username,
+						giftee: event.giftee,
+						quantity: event.quantity,
+					};
+					break;
+				}
+				case "legendary_obtained": {
+					message = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitch",
+						channel_id,
+						type: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE,
+						eventType: "legendary",
+						userName: event.username,
+					};
+					break;
+				}
+				case "reaction": {
+					message = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitch",
+						channel_id,
+						type: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_REACTION,
+						userName: event.username,
+						reactionId: event.reactionId,
+						reactionName: event.reactionName,
+					};
+					break;
+				}
+				case "emote": {
+					message = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitch",
+						channel_id,
+						type: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_EMOTE,
+						userName: event.username,
+						emotes: event.emotes,
+					};
+					break;
+				}
+				//"promotion" and "unknown" events aren't worth a chat message
+			}
+
+			if (message) void StoreProxy.chat.addMessage(message);
 		},
 
 		saveData(): void {

@@ -1086,6 +1086,22 @@ function shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
 			return props.config.filters.streamsocket_action !== false;
 		}
 
+		case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_CARD: {
+			return props.config.filters.streamloots_card !== false;
+		}
+
+		case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE: {
+			return props.config.filters.streamloots_purchase !== false;
+		}
+
+		case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_REACTION: {
+			return props.config.filters.streamloots_reaction !== false;
+		}
+
+		case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_EMOTE: {
+			return props.config.filters.streamloots_emote !== false;
+		}
+
 		case TwitchatDataTypes.TwitchatMessageType.QUIZ_COMPLETE: {
 			return props.config.filters.quiz_complete !== false;
 		}

@@ -264,6 +264,9 @@ export interface StreamlootsPackGiftedEvent {
 	 * User who gifted the packs
 	 */
 	username: string;
+	/**
+	 * User who received the packs
+	 */
 	giftee: string;
 	quantity: number;
 	raw: StreamlootsAlertPayload;
