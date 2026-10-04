@@ -2434,7 +2434,7 @@ export const storeDebug = defineStore("debug", {
 						date: Date.now(),
 						channel_id: StoreProxy.auth.twitch.user.id,
 						platform: "twitch",
-						actionId: "my_action_id",
+						actionId: Utils.getUUID(),
 						actionName: "My action name",
 						bits: Math.round(Math.random() * 100),
 						sku: "my_sku_id",
@@ -2454,9 +2454,14 @@ export const storeDebug = defineStore("debug", {
 						channel_id: uid,
 						platform: "twitch",
 						userName: fakeUser.displayNameOriginal,
-						cardId: "my_card_id",
+						cardId: Utils.getUUID(),
 						cardName: "My awesome card",
-						rarity: Utils.pickRand<StreamlootsRarity>(["common", "rare", "epic", "legendary"])!,
+						rarity: Utils.pickRand<StreamlootsRarity>([
+							"common",
+							"rare",
+							"epic",
+							"legendary",
+						])!,
 						inputs: [{ label: "Message", value: message, value_chunks: chunks }],
 						trolled: Math.random() > 0.8,
 					};
@@ -2489,7 +2494,7 @@ export const storeDebug = defineStore("debug", {
 						channel_id: uid,
 						platform: "twitch",
 						userName: fakeUser.displayNameOriginal,
-						reactionId: "my_reaction_id",
+						reactionId: Utils.getUUID(),
 						reactionName: "My awesome reaction",
 					};
 

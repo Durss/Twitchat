@@ -514,6 +514,11 @@ export const TriggerEventTypeCategories = {
 		labelKey: "triggers.categories.tiktok",
 		icons: ["tiktok"],
 	} as TriggerEventTypeCategory,
+	STREAMLOOTS: {
+		id: 26,
+		labelKey: "triggers.categories.streamloots",
+		icons: ["streamloots"],
+	} as TriggerEventTypeCategory,
 };
 export type TriggerEventTypeCategoryID =
 	(typeof TriggerEventTypeCategories)[keyof typeof TriggerEventTypeCategories]["id"];
@@ -8267,6 +8272,170 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 	];
 
+	map[TriggerTypes.STREAMLOOTS_CARD] = [
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.user",
+			pointer: "userName",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsCardData>,
+		{
+			tag: "CARD_NAME",
+			descKey: "triggers.placeholders.streamloots_card_name",
+			pointer: "cardName",
+			numberParsable: false,
+			isUserID: false,
+			example: "Hydrate",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsCardData>,
+		{
+			tag: "CARD_ID",
+			descKey: "triggers.placeholders.streamloots_card_id",
+			pointer: "cardId",
+			numberParsable: false,
+			isUserID: false,
+			example: "a1b2c3d4",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsCardData>,
+		{
+			tag: "CARD_RARITY",
+			descKey: "triggers.placeholders.streamloots_card_rarity",
+			pointer: "rarity",
+			numberParsable: false,
+			isUserID: false,
+			example: "legendary",
+			values: [
+				{ labelKey: "chat.streamloots.rarity.common", value: "common" },
+				{ labelKey: "chat.streamloots.rarity.rare", value: "rare" },
+				{ labelKey: "chat.streamloots.rarity.epic", value: "epic" },
+				{ labelKey: "chat.streamloots.rarity.legendary", value: "legendary" },
+			],
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsCardData, string>,
+		{
+			tag: "CARD_TROLLED",
+			descKey: "triggers.placeholders.streamloots_card_trolled",
+			pointer: "trolled",
+			numberParsable: true,
+			isUserID: false,
+			example: "false",
+			values: [
+				{ labelKey: "global.yes", value: true },
+				{ labelKey: "global.no", value: false },
+			],
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsCardData>,
+		{
+			tag: "MESSAGE",
+			descKey: "triggers.placeholders.streamloots_card_message",
+			pointer: "inputs.0.value",
+			numberParsable: false,
+			isUserID: false,
+			example: "Hello world!",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsCardData>,
+	];
+
+	map[TriggerTypes.STREAMLOOTS_PURCHASE] = [
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.user",
+			pointer: "userName",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss",
+		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlootsPackPurchaseData>,
+		{
+			tag: "PACK_COUNT",
+			descKey: "triggers.placeholders.streamloots_pack_count",
+			pointer: "quantity",
+			numberParsable: true,
+			isUserID: false,
+			example: "3",
+		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlootsPackPurchaseData>,
+	];
+
+	map[TriggerTypes.STREAMLOOTS_GIFT] = [
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.user",
+			pointer: "userName",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss",
+		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlootsPackGiftData>,
+		{
+			tag: "RECIPIENT",
+			descKey: "triggers.placeholders.streamloots_gift_recipient",
+			pointer: "giftee",
+			numberParsable: false,
+			isUserID: false,
+			example: "Twitchat",
+		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlootsPackGiftData>,
+		{
+			tag: "PACK_COUNT",
+			descKey: "triggers.placeholders.streamloots_pack_count",
+			pointer: "quantity",
+			numberParsable: true,
+			isUserID: false,
+			example: "3",
+		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlootsPackGiftData>,
+	];
+
+	map[TriggerTypes.STREAMLOOTS_LEGENDARY] = [
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.user",
+			pointer: "userName",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss",
+		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlootsLegendaryObtainedData>,
+	];
+
+	map[TriggerTypes.STREAMLOOTS_REACTION] = [
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.user",
+			pointer: "userName",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsReactionData>,
+		{
+			tag: "REACTION_NAME",
+			descKey: "triggers.placeholders.streamloots_reaction_name",
+			pointer: "reactionName",
+			numberParsable: false,
+			isUserID: false,
+			example: "Applause",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsReactionData>,
+		{
+			tag: "REACTION_ID",
+			descKey: "triggers.placeholders.streamloots_reaction_id",
+			pointer: "reactionId",
+			numberParsable: false,
+			isUserID: false,
+			example: "a1b2c3d4",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsReactionData>,
+	];
+
+	map[TriggerTypes.STREAMLOOTS_EMOTE] = [
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.user",
+			pointer: "userName",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsEmoteData>,
+		{
+			tag: "EMOTES_JSON",
+			descKey: "triggers.placeholders.streamloots_emotes_json",
+			pointer: "emotes",
+			numberParsable: false,
+			isUserID: false,
+			example: '["https://static-cdn.jtvnw.net/emoticons/v2/25/default/dark/2.0"]',
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamlootsEmoteData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders: ITriggerPlaceholder<any>[] = [];
 	for (const c of counters) {
@@ -10824,6 +10993,60 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			value: TriggerTypes.PATREON_NEW_MEMBER,
 			descriptionKey: "triggers.events.PATREON_NEW_MEMBER.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.PATREON,
+		},
+		{
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+			category: TriggerEventTypeCategories.STREAMLOOTS,
+			icon: "streamloots",
+			labelKey: "triggers.events.STREAMLOOTS_CARD.label",
+			value: TriggerTypes.STREAMLOOTS_CARD,
+			descriptionKey: "triggers.events.STREAMLOOTS_CARD.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_CARD,
+		},
+		{
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+			category: TriggerEventTypeCategories.STREAMLOOTS,
+			icon: "streamloots",
+			labelKey: "triggers.events.STREAMLOOTS_PURCHASE.label",
+			value: TriggerTypes.STREAMLOOTS_PURCHASE,
+			descriptionKey: "triggers.events.STREAMLOOTS_PURCHASE.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE,
+		},
+		{
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+			category: TriggerEventTypeCategories.STREAMLOOTS,
+			icon: "streamloots",
+			labelKey: "triggers.events.STREAMLOOTS_GIFT.label",
+			value: TriggerTypes.STREAMLOOTS_GIFT,
+			descriptionKey: "triggers.events.STREAMLOOTS_GIFT.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE,
+		},
+		{
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+			category: TriggerEventTypeCategories.STREAMLOOTS,
+			icon: "streamloots",
+			labelKey: "triggers.events.STREAMLOOTS_LEGENDARY.label",
+			value: TriggerTypes.STREAMLOOTS_LEGENDARY,
+			descriptionKey: "triggers.events.STREAMLOOTS_LEGENDARY.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE,
+		},
+		{
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+			category: TriggerEventTypeCategories.STREAMLOOTS,
+			icon: "streamloots",
+			labelKey: "triggers.events.STREAMLOOTS_REACTION.label",
+			value: TriggerTypes.STREAMLOOTS_REACTION,
+			descriptionKey: "triggers.events.STREAMLOOTS_REACTION.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_REACTION,
+		},
+		{
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+			category: TriggerEventTypeCategories.STREAMLOOTS,
+			icon: "streamloots",
+			labelKey: "triggers.events.STREAMLOOTS_EMOTE.label",
+			value: TriggerTypes.STREAMLOOTS_EMOTE,
+			descriptionKey: "triggers.events.STREAMLOOTS_EMOTE.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_EMOTE,
 		},
 
 		{
