@@ -109,6 +109,8 @@ import ChatShoutout from "./ChatShoutout.vue";
 import ChatStreamelementsEvent from "./ChatStreamelementsEvent.vue";
 import ChatStreamlabsEvent from "./ChatStreamlabsEvent.vue";
 import ChatStreamOnOff from "./ChatStreamOnOff.vue";
+import ChatStreamlootsCard from "./ChatStreamlootsCard.vue";
+import ChatStreamlootsEvent from "./ChatStreamlootsEvent.vue";
 import ChatStreamSocketAction from "./ChatStreamSocketAction.vue";
 import ChatSubscription from "./ChatSubscription.vue";
 import ChatSuspendedTriggerStack from "./ChatSuspendedTriggerStack.vue";
@@ -250,6 +252,10 @@ const componentRef = computed<VueComponent | null>(() => {
 		gigantified_emote: ChatGiantEmote,
 		custom_train_summary: ChatCustomTrainSummary,
 		streamsocket_action: ChatStreamSocketAction,
+		streamloots_card: ChatStreamlootsCard,
+		streamloots_purchase: ChatStreamlootsEvent,
+		streamloots_reaction: ChatStreamlootsEvent,
+		streamloots_emote: ChatStreamlootsEvent,
 		many_replies: ChatManyReplies,
 		quiz_complete: ChatQuizResult,
 		custom_power_up: ChatCustomPowerUp,

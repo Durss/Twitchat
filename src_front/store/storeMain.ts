@@ -847,6 +847,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.prediction.populateData();
 			StoreProxy.customTrain.populateData();
 			StoreProxy.streamerbot.populateData();
+			StoreProxy.streamloots.populateData();
 			void StoreProxy.bluesky.populateData();
 			StoreProxy.streamSocket.populateData();
 			StoreProxy.animatedText.populateData();

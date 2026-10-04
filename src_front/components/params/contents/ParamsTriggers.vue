@@ -870,6 +870,13 @@ function testTrigger(trigger: TriggerData): void {
 						(m as TwitchatDataTypes.KofiCommissionData).amountFormatted =
 							amountFormatted;
 						(m as TwitchatDataTypes.KofiCommissionData).currency = "EUR";
+					} else if (triggerEvent.value == TriggerTypes.STREAMLOOTS_GIFT) {
+						(m as TwitchatDataTypes.StreamlootsPackGiftData).eventType = "gift";
+						(m as TwitchatDataTypes.StreamlootsPackGiftData).giftee =
+							Utils.pickRand(storeUsers.users)?.displayNameOriginal || "Twitchat";
+					} else if (triggerEvent.value == TriggerTypes.STREAMLOOTS_LEGENDARY) {
+						(m as TwitchatDataTypes.StreamlootsLegendaryObtainedData).eventType =
+							"legendary";
 					} else if (triggerEvent.value == TriggerTypes.TIPEEE_SUB) {
 						(m as TwitchatDataTypes.MessageTipeeeDonationData).recurring = true;
 					} else if (triggerEvent.value == TriggerTypes.TIPEEE_RESUB) {

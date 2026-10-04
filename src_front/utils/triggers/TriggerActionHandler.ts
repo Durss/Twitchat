@@ -2064,6 +2064,77 @@ export default class TriggerActionHandler {
 				break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_CARD: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.STREAMLOOTS_CARD,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE: {
+				const eventType: {
+					[key in TwitchatDataTypes.MessageStreamlootsPurchaseData["eventType"]]: TriggerTypesValue;
+				} = {
+					purchase: TriggerTypes.STREAMLOOTS_PURCHASE,
+					gift: TriggerTypes.STREAMLOOTS_GIFT,
+					legendary: TriggerTypes.STREAMLOOTS_LEGENDARY,
+				} as const;
+				if (
+					await this.executeTriggersByType(
+						eventType[message.eventType],
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_REACTION: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.STREAMLOOTS_REACTION,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_EMOTE: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.STREAMLOOTS_EMOTE,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch (message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE: {

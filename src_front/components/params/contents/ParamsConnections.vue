@@ -277,6 +277,17 @@
 
 			<button
 				class="card-item"
+				:class="{ connected: storeStreamloots.connected, disabled: streamlootsDisabled }"
+				@click="subContent = 'streamloots'"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.streamloots' }"
+				key="streamloots"
+			>
+				<Icon name="streamloots" />
+				<p>Streamloots</p>
+			</button>
+
+			<button
+				class="card-item"
 				:class="{ connected: heatConnected, disabled: heatDisabled }"
 				@click="subContent = 'heat'"
 				key="heat"
@@ -365,6 +376,7 @@
 	<ConnectElevenLabs v-else-if="subContent == 'elevenlabs'" />
 	<ConnectStreamdeck v-else-if="subContent == 'streamdeck'" />
 	<ConnectStreamlabs v-else-if="subContent == 'streamlabs'" />
+	<ConnectStreamloots v-else-if="subContent == 'streamloots'" />
 	<ConnectMeldStudio v-else-if="subContent == 'meldStudio'" />
 	<ConnectStreamerBot v-else-if="subContent == 'streamerbot'" />
 	<ConnectPlayability v-else-if="subContent == 'playability'" />
@@ -395,6 +407,7 @@ import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
 import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
 import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
 import { storeStreamlabs as useStoreStreamlabs } from "@/store/streamlabs/storeStreamlabs";
+import { storeStreamloots as useStoreStreamloots } from "@/store/streamloots/storeStreamloots";
 import { storeStreamSocket as useStoreStreamSocket } from "@/store/streamsocket/storeStreamSocket";
 import { storeTiktok as useStoreTiktok } from "@/store/tiktok/storeTiktok";
 import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
@@ -424,6 +437,7 @@ import ConnectStreamelements from "./connexions/ConnectStreamelements.vue";
 import ConnectStreamerBot from "./connexions/ConnectStreamerBot.vue";
 import ConnectStreamfog from "./connexions/ConnectStreamfog.vue";
 import ConnectStreamlabs from "./connexions/ConnectStreamlabs.vue";
+import ConnectStreamloots from "./connexions/ConnectStreamloots.vue";
 import ConnectTiktok from "./connexions/ConnectTiktok.vue";
 import ConnectTiltify from "./connexions/ConnectTiltify.vue";
 import ConnectTipeee from "./connexions/ConnectTipeee.vue";
@@ -444,6 +458,7 @@ const storeTipeee = useStoreTipeee();
 const storeLumia = useStoreLumia();
 const storePatreon = useStorePatreon();
 const storeStreamlabs = useStoreStreamlabs();
+const storeStreamloots = useStoreStreamloots();
 const storeTiktok = useStoreTiktok();
 const storeTiltify = useStoreTiltify();
 const storeDiscord = useStoreDiscord();
@@ -491,6 +506,7 @@ const {
 	streamsocketDisabled,
 	twitchbotDisabled,
 	lumiaDisabled,
+	streamlootsDisabled,
 	spotifyDisabled,
 	patreonDisabled,
 	youtubeDisabled,

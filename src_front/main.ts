@@ -86,6 +86,7 @@ import { storeQuiz } from "./store/quiz/storeQuiz";
 import { storeSammi } from "./store/sammi/storeSammi";
 import { storeStreamerbot } from "./store/streamerbot/storeStreamerbot";
 import { storeStreamfog } from "./store/streamfog/storeStreamfog";
+import { storeStreamloots } from "./store/streamloots/storeStreamloots";
 import { storeStreamSocket } from "./store/streamsocket/storeStreamSocket";
 import { storeTiktok } from "./store/tiktok/storeTiktok";
 import { storeTiltify } from "./store/tiltify/storeTiltify";
@@ -303,6 +304,7 @@ function buildApp() {
 	StoreProxy.default.endingCredits = storeEndingCredits();
 	StoreProxy.default.quiz = storeQuiz();
 	StoreProxy.default.streamfog = storeStreamfog();
+	StoreProxy.default.streamloots = storeStreamloots();
 	StoreProxy.default.api = storeAPI();
 	StoreProxy.default.bluesky = storeBluesky();
 	StoreProxy.default.meldStudio = storeMeldStudio();

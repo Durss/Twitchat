@@ -1647,8 +1647,12 @@ async function preset(
 			ids.push(TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE);
 			ids.push(TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS);
 			ids.push(TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK);
+			ids.push(TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_CARD);
+			ids.push(TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_EMOTE);
 			ids.push(TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY);
 			ids.push(TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT);
+			ids.push(TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE);
+			ids.push(TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_REACTION);
 			ids.push(TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE);
 			// ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
 			ids.push(TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE);
@@ -1676,6 +1680,7 @@ async function preset(
 			ids.push(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION);
 			ids.push(TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS);
 			ids.push(TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY);
+			ids.push(TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE);
 			// ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
 			ids.push(TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION);
 			ids.push(TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE);

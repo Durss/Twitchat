@@ -951,7 +951,8 @@
 			"tiltify": "Titlitfy",
 			"patreon": "Patreon",
 			"tiktok": "TikTok",
-			"twitch_charity": "Twitch Charity"
+			"twitch_charity": "Twitch Charity",
+			"streamloots": "Streamloots"
 		},
 		"placeholders": {
 			"trigger_name": "Current trigger name",
@@ -1297,6 +1298,16 @@
 			"streamsocket_action_id": "Action ID",
 			"streamsocket_action_name": "Action Name",
 			"streamsocket_action_bits": "Action price in bits",
+			"streamloots_card_name": "Card name",
+			"streamloots_card_id": "Card ID",
+			"streamloots_card_rarity": "Card rarity (common, rare, epic, legendary)",
+			"streamloots_card_trolled": "Has the card been trolled?",
+			"streamloots_card_message": "Texts filled by the user when redeeming the card (comma separated if there are many)",
+			"streamloots_pack_count": "Number of packs",
+			"streamloots_gift_recipient": "Name of the user that received the packs",
+			"streamloots_reaction_name": "Reaction name",
+			"streamloots_reaction_id": "Reaction ID",
+			"streamloots_emotes_json": "Emotes image URLs as a JSON array",
 			"meldstudio_layer_visible": "Layer visible?",
 			"meldstudio_layer_name": "Layer name",
 			"meldstudio_layer_id": "Layer ID",
@@ -2093,6 +2104,30 @@
 			"STREAMSOCKET_ACTION": {
 				"label": "StreamSocket action triggered",
 				"description": "Actions to execute when a StreamSocket action is triggered"
+			},
+			"STREAMLOOTS_CARD": {
+				"label": "Streamloots card redeemed",
+				"description": "Actions to execute when a Streamloots card is redeemed"
+			},
+			"STREAMLOOTS_PURCHASE": {
+				"label": "Streamloots packs purchased",
+				"description": "Actions to execute when someone buys Streamloots packs"
+			},
+			"STREAMLOOTS_GIFT": {
+				"label": "Streamloots packs gifted",
+				"description": "Actions to execute when someone gifts Streamloots packs"
+			},
+			"STREAMLOOTS_LEGENDARY": {
+				"label": "Streamloots legendary card obtained",
+				"description": "Actions to execute when someone obtains a legendary card from a Streamloots pack"
+			},
+			"STREAMLOOTS_REACTION": {
+				"label": "Streamloots reaction played",
+				"description": "Actions to execute when a Streamloots subscriber plays a reaction"
+			},
+			"STREAMLOOTS_EMOTE": {
+				"label": "Streamloots emotes sent",
+				"description": "Actions to execute when emotes are sent via Streamloots"
 			},
 			"TWITCH_COMBO": {
 				"label": "Twitch Combo",

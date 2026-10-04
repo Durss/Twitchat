@@ -3414,6 +3414,14 @@ const UserDataSchema = {
 			},
 		},
 
+		streamlootsConfigs: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				widgetId: { type: "string", maxLength: 36 },
+			},
+		},
+
 		meldStudioConfigs: {
 			type: "object",
 			additionalProperties: false,

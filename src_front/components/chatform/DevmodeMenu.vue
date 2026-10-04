@@ -351,6 +351,36 @@
 			<TTButton small @click="simulateEvent($event, 'patreon')" icon="patreon"
 				>Patreon new member</TTButton
 			>
+			<TTButton small @click="simulateEvent($event, 'streamloots_card')" icon="streamloots"
+				>Streamloots card</TTButton
+			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'streamloots_purchase')"
+				icon="streamloots"
+				>Streamloots purchase</TTButton
+			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'streamloots_purchase', 'streamloots_gift')"
+				icon="streamloots"
+				>Streamloots gift</TTButton
+			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'streamloots_purchase', 'streamloots_legendary')"
+				icon="streamloots"
+				>Streamloots legendary</TTButton
+			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'streamloots_reaction')"
+				icon="streamloots"
+				>Streamloots reaction</TTButton
+			>
+			<TTButton small @click="simulateEvent($event, 'streamloots_emote')" icon="streamloots"
+				>Streamloots emotes</TTButton
+			>
 			<TTButton small @click="simulateBlockedUser()" icon="block">Blocked user</TTButton>
 			<TTButton small @click="simulateSuspicious()" icon="shield">Suspicious user</TTButton>
 			<TTButton small @click="simulateRestricted()" icon="shield">Restricted user</TTButton>
@@ -502,7 +532,9 @@ type Subaction =
 	| "skin3"
 	| "gif"
 	| "no_message"
-	| "giantEmote";
+	| "giantEmote"
+	| "streamloots_gift"
+	| "streamloots_legendary";
 
 onMounted(async () => {
 	await nextTick();
@@ -745,6 +777,17 @@ async function simulateEvent(
 				case "se_donation":
 					(message as TwitchatDataTypes.StreamelementsDonationData).eventType =
 						"donation";
+					break;
+				case "streamloots_gift": {
+					const fakeUsers = await TwitchUtils.getFakeUsers();
+					(message as TwitchatDataTypes.StreamlootsPackGiftData).eventType = "gift";
+					(message as TwitchatDataTypes.StreamlootsPackGiftData).giftee =
+						Utils.pickRand(fakeUsers)!.displayNameOriginal;
+					break;
+				}
+				case "streamloots_legendary":
+					(message as TwitchatDataTypes.StreamlootsLegendaryObtainedData).eventType =
+						"legendary";
 					break;
 				case "unban_request_solve": {
 					(message as TwitchatDataTypes.MessageUnbanRequestData).isResolve = true;

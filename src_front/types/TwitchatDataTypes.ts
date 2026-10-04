@@ -4,6 +4,7 @@ import Config from "@/utils/Config";
 import type { OBSItemPath } from "@/utils/OBSWebsocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { GoXLRTypes } from "./GoXLRTypes";
+import type { StreamlootsRarity } from "./StreamlootsTypes";
 import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
 import type { PIN_CHAT_TRIGGER_PREFIX_ID } from "@/store/params/storeParams";
 
@@ -136,6 +137,7 @@ export namespace TwitchatDataTypes {
 		PLAYABILITY: "playability",
 		HIGHLIGHT: "chathighlight",
 		STREAMERBOT: "streamerbot",
+		STREAMLOOTS: "streamloots",
 		TWITCHAT_API: "twitchat_api",
 		STREAMSOCKET: "streamsocket",
 		STREAMELEMENTS: "streamelements",
@@ -5098,6 +5100,7 @@ export namespace TwitchatDataTypes {
 		WEBSOCKET_TOPIC: "websocket_topic",
 		OBS_STOP_STREAM: "obs_stop_stream",
 		YOUTUBE_SUBGIFT: "youtube_subgift",
+		STREAMLOOTS_CARD: "streamloots_card",
 		WARN_ACKNOWLEDGE: "warn_acknowledge",
 		CREDITS_COMPLETE: "credits_complete",
 		HISTORY_SPLITTER: "history_splitter",
@@ -5108,6 +5111,7 @@ export namespace TwitchatDataTypes {
 		OBS_SCENE_CHANGE: "obs_scene_change",
 		CUSTOM_TRAIN_FAIL: "custom_train_fail",
 		GIGANTIFIED_EMOTE: "gigantified_emote",
+		STREAMLOOTS_EMOTE: "streamloots_emote",
 		PLAYABILITY_INPUT: "playability_input",
 		BINGO_GRID_VIEWER: "bingo_grid_viewer",
 		AD_BREAK_COMPLETE: "ad_break_complete",
@@ -5132,6 +5136,8 @@ export namespace TwitchatDataTypes {
 		YOUTUBE_JEWELS_GIFT: "youtube_jewels_gift",
 		SHARED_CHAT_SESSION: "shared_chat_session",
 		CUSTOM_TRAIN_SUMMARY: "custom_train_summary",
+		STREAMLOOTS_PURCHASE: "streamloots_purchase",
+		STREAMLOOTS_REACTION: "streamloots_reaction",
 		CHAT_HIGHLIGHT_CLOSE: "chat_highlight_close",
 		YOUTUBE_SUBSCRIPTION: "youtube_subscription",
 		AD_BREAK_APPROACHING: "ad_break_approaching",
@@ -5236,12 +5242,14 @@ export namespace TwitchatDataTypes {
 		goxlr_fx_state: false,
 		youtube_subgift: true,
 		custom_power_up: true,
+		streamloots_card: true,
 		history_splitter: true,
 		warn_acknowledge: true,
 		obs_stop_stream: false,
 		websocket_topic: false,
 		user_modiversary: true,
 		gigantified_emote: true,
+		streamloots_emote: true,
 		twitchat_started: false,
 		credits_complete: false,
 		user_watch_streak: true,
@@ -5269,6 +5277,8 @@ export namespace TwitchatDataTypes {
 		custom_train_start: false,
 		streamsocket_action: true,
 		custom_train_summary: true,
+		streamloots_purchase: true,
+		streamloots_reaction: true,
 		obs_recording_start: false,
 		youtube_subscription: true,
 		hype_train_progress: false,
@@ -5459,6 +5469,10 @@ export namespace TwitchatDataTypes {
 		| MessageCustomTrainSummaryData
 		| MessageCustomTrainFailData
 		| MessageStreamSocketActionData
+		| MessageStreamlootsCardData
+		| MessageStreamlootsPurchaseData
+		| MessageStreamlootsReactionData
+		| MessageStreamlootsEmoteData
 		| MessageObsWsConnectStateChangeData
 		| MessageManyRepliesData
 		| MessageQuizCompleteData
@@ -5523,6 +5537,10 @@ export namespace TwitchatDataTypes {
 		| typeof TwitchatMessageType.MESSAGE
 		| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE
 		| typeof TwitchatMessageType.STREAMSOCKET_ACTION
+		| typeof TwitchatMessageType.STREAMLOOTS_CARD
+		| typeof TwitchatMessageType.STREAMLOOTS_PURCHASE
+		| typeof TwitchatMessageType.STREAMLOOTS_REACTION
+		| typeof TwitchatMessageType.STREAMLOOTS_EMOTE
 		| typeof TwitchatMessageType.SHARED_CHAT_SESSION
 		| typeof TwitchatMessageType.QUIZ_COMPLETE;
 
@@ -5759,6 +5777,34 @@ export namespace TwitchatDataTypes {
 			icon: "patreon",
 			scopes: [],
 			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.STREAMLOOTS_CARD,
+			labelKey: "chat.filters.message_types.streamloots_card",
+			icon: "streamloots",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			type: TwitchatMessageType.STREAMLOOTS_PURCHASE,
+			labelKey: "chat.filters.message_types.streamloots_purchase",
+			icon: "streamloots",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			type: TwitchatMessageType.STREAMLOOTS_REACTION,
+			labelKey: "chat.filters.message_types.streamloots_reaction",
+			icon: "streamloots",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			type: TwitchatMessageType.STREAMLOOTS_EMOTE,
+			labelKey: "chat.filters.message_types.streamloots_emote",
+			icon: "streamloots",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V17,
 		},
 		{
 			type: TwitchatMessageType.COUNTDOWN,
@@ -9531,6 +9577,124 @@ export namespace TwitchatDataTypes {
 		 * User that triggered the action
 		 */
 		user: TwitchatUser;
+	}
+
+	/**
+	 * Message sent when a Streamloots card is redeemed
+	 */
+	export interface MessageStreamlootsCardData extends AbstractTwitchatMessage {
+		type: "streamloots_card";
+		/**
+		 * Name of the user who redeemed the card
+		 */
+		userName: string;
+		/**
+		 * Card ID
+		 */
+		cardId: string;
+		/**
+		 * Card name
+		 */
+		cardName: string;
+		/**
+		 * Card's rarity
+		 */
+		rarity: StreamlootsRarity;
+		/**
+		 * User inputs
+		 */
+		inputs: {
+			/**
+			 * Label of the input
+			 */
+			label: string;
+			/**
+			 * User input
+			 */
+			value: string;
+			/**
+			 * Parsed user input
+			 */
+			value_chunks: ParseMessageChunk[];
+		}[];
+		/**
+		 * Is it a trolled card?
+		 */
+		trolled: boolean;
+	}
+
+	/**
+	 * Message sent when packs are purchased or gifted on Streamloots
+	 */
+	export type MessageStreamlootsPurchaseData =
+		| StreamlootsPackPurchaseData
+		| StreamlootsPackGiftData
+		| StreamlootsLegendaryObtainedData;
+	interface StreamlootsPurchaseBaseData extends AbstractTwitchatMessage {
+		type: "streamloots_purchase";
+		/**
+		 * Pack purchased, gifted or legendary card obtained
+		 */
+		eventType: "purchase" | "gift" | "legendary";
+		/**
+		 * Name of the user who bought the pack
+		 */
+		userName: string;
+	}
+	export interface StreamlootsPackPurchaseData extends StreamlootsPurchaseBaseData {
+		eventType: "purchase";
+		/**
+		 * Number of packs purchased
+		 */
+		quantity: number;
+	}
+	export interface StreamlootsPackGiftData extends StreamlootsPurchaseBaseData {
+		eventType: "gift";
+		/**
+		 * User that received the gifted packs
+		 */
+		giftee: string;
+		/**
+		 * Number of packs gifted
+		 */
+		quantity: number;
+	}
+	export interface StreamlootsLegendaryObtainedData extends StreamlootsPurchaseBaseData {
+		eventType: "legendary";
+	}
+
+	/**
+	 * Message sent when a Streamloots subscriber plays a reaction
+	 */
+	export interface MessageStreamlootsReactionData extends AbstractTwitchatMessage {
+		type: "streamloots_reaction";
+		/**
+		 * Name of the user who sent the reaction
+		 */
+		userName: string;
+		/**
+		 * Reaction ID
+		 */
+		reactionId: string;
+		/**
+		 * Reaction name
+		 */
+		reactionName: string;
+	}
+
+	/**
+	 * Message sent when emotes are sent via Streamloots
+	 */
+	export interface MessageStreamlootsEmoteData extends AbstractTwitchatMessage {
+		type: "streamloots_emote";
+		/**
+		 * Name of the user who sent the emote
+		 */
+		userName: string;
+		/**
+		 * Emote image URLs
+		 */
+		emotes: string[];
 	}
 
 	/**
