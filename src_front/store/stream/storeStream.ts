@@ -59,6 +59,7 @@ export const storeStream = defineStore("stream", {
 		},
 		autoconnectChans: [],
 		currentVODUrl: "",
+		pendingRestrictions: {},
 	}),
 
 	getters: {} satisfies StoreGetters<IStreamGetters, IStreamState>,
@@ -1870,6 +1871,39 @@ export const storeStream = defineStore("stream", {
 					this.currentVODUrl = vod.url;
 				}
 			} catch (_error) {}
+		},
+
+		tempChatRestrictionReset(channelId: string): void {
+			const currentSettings = this.roomSettings[channelId];
+			const newSettings: TwitchatDataTypes.IRoomSettings = {};
+			this.pendingRestrictions[channelId] = { duration: 600_000 };
+			if (currentSettings?.emotesOnly === true) {
+				this.pendingRestrictions[channelId].emotesOnly = true;
+				newSettings.emotesOnly = false;
+			}
+			if (currentSettings?.subOnly === true) {
+				this.pendingRestrictions[channelId].subOnly = true;
+				newSettings.subOnly = false;
+			}
+			if (
+				typeof currentSettings?.followOnly == "number" ||
+				currentSettings?.followOnly === true
+			) {
+				this.pendingRestrictions[channelId].followOnly =
+					currentSettings.followOnly === true ? 0 : currentSettings.followOnly;
+				newSettings.followOnly = false;
+			}
+
+			void TwitchUtils.setRoomSettings(channelId, newSettings);
+			setTimeout(() => {
+				if (this.pendingRestrictions[channelId]) {
+					void TwitchUtils.setRoomSettings(
+						channelId,
+						this.pendingRestrictions[channelId],
+					);
+					this.pendingRestrictions[channelId] = null;
+				}
+			}, this.pendingRestrictions[channelId].duration);
 		},
 	} satisfies StoreActions<"stream", IStreamState, IStreamGetters, IStreamActions>,
 });

@@ -1652,6 +1652,18 @@ export interface IStreamState {
 		platform: TwitchatDataTypes.ChatPlatform;
 		disconnected?: boolean;
 	}[];
+	/**
+	 * Chat restrictions that are pending for apply.
+	 * Set when streamer clicks the button to temporarilly raise restrictions
+	 * when they receive a raid.
+	 */
+	pendingRestrictions: {
+		[channelId: string]:
+			| (Omit<TwitchatDataTypes.IRoomSettings, "slowMode" | "chatDelay"> & {
+					duration: number;
+			  })
+			| null;
+	};
 }
 
 export interface IStreamGetters {}
@@ -1806,6 +1818,10 @@ export interface IStreamActions {
 	 * Just used to populate the placeholder {CURRENT_VOD_URL}
 	 */
 	grabCurrentStreamVOD(): Promise<void>;
+	/**
+	 * Temporarilly removes current chat restrictions (sub-only, emote-only, ...)
+	 */
+	tempChatRestrictionReset(channelId: string): void;
 }
 
 export interface ITimerState {

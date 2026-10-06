@@ -1,15 +1,25 @@
 <template>
 	<div :class="classes" ref="rootEl">
 		<Icon :name="icon" :theme="theme" />
-		<span class="message" v-html="message"></span>
+		<div>
+			<span class="message" v-html="message"></span>
+			<div class="temporary" v-if="isTemporaryState">
+				<Icon name="timer" />{{
+					t("chat.notice_temporary", { DURATION: Math.ceil(tempDuration / 60_000) })
+				}}
+			</div>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { useChatMessage } from "@/composables/useChatMessage";
 import { storeAccessibility as useStoreAccessibility } from "@/store/accessibility/storeAccessibility";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import Icon from "../Icon.vue";
 
 const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageNoticeData;
@@ -19,13 +29,17 @@ const emit = defineEmits<{
 	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
 }>();
 
+const storeStream = useStoreStream();
 const storeAccessibility = useStoreAccessibility();
 
+const { t } = useI18n();
 const rootEl = useTemplateRef("rootEl");
 useChatMessage(props, emit, rootEl);
 
 const icon = ref<string>("info");
 const theme = ref<string>("secondary");
+const tempDuration = ref(0);
+const isTemporaryState = ref(false);
 
 /**
  * Gets text message with parsed emotes
@@ -76,6 +90,8 @@ const classes = computed<string[]>(() => {
 });
 
 onMounted(() => {
+	const pendingRestrictions = storeStream.pendingRestrictions[props.messageData.channel_id];
+	tempDuration.value = pendingRestrictions?.duration || 0;
 	switch (props.messageData.noticeId) {
 		case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:
 			icon.value = "shield";
@@ -92,6 +108,7 @@ onMounted(() => {
 		case TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_OFF:
 			icon.value = "sub";
 			theme.value = "light";
+			isTemporaryState.value = pendingRestrictions?.subOnly === true;
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_ON:
 			icon.value = "follow";
@@ -100,6 +117,9 @@ onMounted(() => {
 		case TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_OFF:
 			icon.value = "follow";
 			theme.value = "light";
+			isTemporaryState.value =
+				typeof pendingRestrictions?.followOnly === "number" &&
+				pendingRestrictions?.followOnly > 0;
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_ON:
 			icon.value = "emote";
@@ -108,6 +128,7 @@ onMounted(() => {
 		case TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_OFF:
 			icon.value = "emote";
 			theme.value = "light";
+			isTemporaryState.value = pendingRestrictions?.emotesOnly === true;
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_ON:
 			icon.value = "slow";
@@ -129,6 +150,16 @@ onMounted(() => {
 			font-style: italic;
 			font-weight: normal;
 			color: var(--color-secondary);
+		}
+	}
+
+	.temporary {
+		font-style: italic;
+		opacity: 0.75;
+		.icon {
+			height: 1em;
+			margin-bottom: -0.1em;
+			margin-right: 0.25em;
 		}
 	}
 }

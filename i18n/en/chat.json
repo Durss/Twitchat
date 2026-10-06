@@ -14,8 +14,11 @@
 		"fake_tag": "fake",
 		"fake_tag_tt": "This is a fake message. Only you can see it.",
 		"soBt": "Shoutout",
+		"unrestrictBt": "Unrestrict chat",
+		"unrestrictBt_tt": "Raiders might not be\nable to talk.\n\nClick to remove following\nchat restrictions for 10min:\n{RESTRICTIONS}",
 		"right_click_hint_highlight": "right clicking",
 		"right_click_hint": "PogChamp PogChamp PogChamp Hey! Try @:chat.right_click_hint_highlight on this message to discover lots of options!",
+		"notice_temporary": "Will cancel after {DURATION} minutes",
 		"form": {
 			"paramsBt_aria": "Parameters",
 			"cmdsBt_aria": "Chat commands",

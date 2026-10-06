@@ -14,8 +14,11 @@
 		"fake_tag": "fake",
 		"fake_tag_tt": "Ceci est un faux message. Vous êtes seul·e à le voir.",
 		"soBt": "Shoutout",
+		"unrestrictBt": "Lever les restrictions",
+		"unrestrictBt_tt": "Les raiders ne peuvent\npeut-être pas parler.\n\nCliquez pour lever les\nrestrictions de tchat\nsuivantes pour 10min:\n{RESTRICTIONS}",
 		"right_click_hint_highlight": "clic droit",
 		"right_click_hint": "PogChamp PogChamp PogChamp Hey ? Essaie de faire un @:chat.right_click_hint_highlight sur ce message pour découvrir plein d'options ?",
+		"notice_temporary": "S'annulera après {DURATION} minutes",
 		"form": {
 			"paramsBt_aria": "Paramètres",
 			"cmdsBt_aria": "Commandes",
