@@ -79,7 +79,7 @@
 			{
 				"i": "streamloots",
 				"l": "Streamloots",
-				"d": "Connectez votre compte Streamloots pour recevoir des notifications en tchat quand des packs sont achetés ou offert, des réactions jouées, des emotes envoyées ou des cartes jouées.\n\nAutomatisez des actions en réponse depuis les triggers.",
+				"d": "Connectez votre compte <a href='https://streamloots.com' target='_blank'>Streamloots</a> pour recevoir des notifications en tchat quand des packs sont achetés ou offerts, des réactions jouées, des emotes envoyées ou des cartes jouées.\n\nAutomatisez des actions en réponse depuis les triggers.",
 				"a": {
 					"l": "Connecter",
 					"i": "streamloots",
