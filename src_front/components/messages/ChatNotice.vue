@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes" ref="rootEl">
 		<Icon :name="icon" :theme="theme" />
-		<div>
+		<div class="holder">
 			<span class="message" v-html="message"></span>
 			<div class="temporary" v-if="isTemporaryState">
 				<Icon name="timer" />{{
@@ -145,6 +145,9 @@ onMounted(() => {
 
 <style scoped lang="less">
 .chatnotice {
+	.holder {
+		display: inline;
+	}
 	&:not(.highlight) {
 		.message {
 			font-style: italic;

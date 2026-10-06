@@ -37,6 +37,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _watchdogTO: number = -1;
 	private _reconnecting: boolean = false;
 	private _connectedChans: { [key: string]: boolean } = reactive({});
+	private _pendingChans: { [key: string]: boolean } = {};
 	private _channelList: string[] = [];
 	private _connectedChannelCount: number = 0;
 	private _channelIdToLogin: { [key: string]: string } = {};
@@ -99,8 +100,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			const meObj = StoreProxy.auth.twitch.user;
 
 			chans.forEach(async (channel) => {
-				//Skip it if already connected
+				//Skip it if already connected or connecting
 				if (this._connectedChans[channel.id] === true) return;
+				if (this._pendingChans[channel.id] === true) return;
+				this._pendingChans[channel.id] = true;
 
 				this._channelIdToLogin[channel.id] = channel.login;
 				this._channelLoginToId[channel.login] = channel.id;
@@ -201,6 +204,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				if (this._client) {
 					Logger.instance.log("irc", { info: "Join channel " + channel.login });
 					this._client.join(channel.login).catch((error) => {
+						delete this._pendingChans[channel.id];
 						Logger.instance.log("irc", {
 							info: "Failed joining channel " + channel.login,
 							data: error,
@@ -251,6 +255,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			this._channelList.splice(index, 1);
 			void this._client.part("#" + channel);
 		}
+		const channelId = this._channelLoginToId[channel];
+		if (channelId) delete this._pendingChans[channelId];
 
 		// const params = this._client.getOptions();
 		// const index = this._channelList.findIndex(v=>v===channel);
@@ -1141,6 +1147,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		self: boolean,
 		isFakeJoin: boolean = false,
 	): void {
+		if (self && !isFakeJoin) {
+			delete this._pendingChans[this.getChannelID(channelName)];
+		}
+
 		if (this._refreshingToken && self) {
 			//Don't show join info during a reconnect
 			this._refreshingToken = ++this._connectedChannelCount < this._channelList.length;
