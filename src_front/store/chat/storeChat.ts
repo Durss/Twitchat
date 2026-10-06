@@ -3446,6 +3446,16 @@ export const storeChat = defineStore("chat", {
 				new GlobalEvent(GlobalEvent.DELETE_MESSAGE, { message: message, force: false }),
 			);
 			TTSUtils.instance.cancelMessage(message);
+
+			const pendingAutomod = StoreProxy.chat.pendingAutomodMessages;
+			for (let i = 0; i < pendingAutomod.length; i++) {
+				const m = pendingAutomod[i]!;
+				if (m.id == message.id) {
+					pendingAutomod.splice(i, 1);
+					i--;
+				}
+			}
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		delUserMessages(uid: string, channelId: string) {

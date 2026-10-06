@@ -2321,16 +2321,6 @@ export default class EventSub {
 		topic: TwitchEventSubDataTypes.SubscriptionStringTypes,
 		event: TwitchEventSubDataTypes.AutomodMessageHeldEvent,
 	): Promise<void> {
-		console.log(event);
-		// const reasons:string[] = [];
-		// for (let i = 0; i < event.fragments.length; i++) {
-		// 	const f = event.fragments[i];
-		// 	if(!f.automod) continue;
-		// 	for (const key in f.automod.topics) {
-		// 		if(reasons.indexOf(key) == -1) reasons.push(key);
-		// 	}
-		// }
-
 		//Build usable emotes set
 		const chunks: TwitchatDataTypes.ParseMessageChunk[] = [];
 		const words: string[] = [];
