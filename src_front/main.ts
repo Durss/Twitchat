@@ -130,6 +130,12 @@ const i18n = createI18n<false>({
 	missingWarn: Config.instance.IS_PROD,
 });
 
+//Keep the document language in sync with the UI locale so assistive
+//technologies (screen readers, braille displays) use the right voice.
+watchEffect(() => {
+	document.documentElement.lang = i18n.global.locale.value;
+});
+
 //Load labels before everything else so they are available when
 //initializing stores data
 void (async () => {
