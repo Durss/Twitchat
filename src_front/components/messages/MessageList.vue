@@ -290,6 +290,7 @@ let virtualScrollY = -1;
 let currentScrollTop = 0;
 let updateDebounce = -1;
 let prevHeight = 0;
+let prevWidth = 0;
 let openConvTimeout: number = -1;
 let closeConvTimeout: number = -1;
 let prevTouchMove!: TouchEvent;
@@ -1571,7 +1572,8 @@ function renderFrame(ts: number): void {
 	const bottom = lastMessage.offsetTop + lastMessage.offsetHeight;
 	let easeValue = hasResized ? 1 : 0.2;
 
-	if (forceScrollDown) {
+	//Stick to the bottom right away if the holder is resized and scroll isn't locked
+	if (forceScrollDown || (hasResized && !lockScroll.value)) {
 		virtualScrollY = maxScroll;
 	}
 
