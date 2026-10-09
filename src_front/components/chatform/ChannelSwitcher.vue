@@ -49,14 +49,7 @@
 					:class="{ disconnected: !entry.connected }"
 				>
 					<TTButton
-						v-if="
-							entry.isRemoteChan &&
-							(canPinChans ||
-								storeStream.autoconnectChans.find(
-									(v) =>
-										v.id == entry.user.id && v.platform == entry.user.platform,
-								))
-						"
+						v-if="entry.isRemoteChan"
 						class="actionBt"
 						transparent
 						medium
@@ -192,10 +185,6 @@ const popin = useTemplateRef<HTMLDivElement>("popin");
 
 let clickHandler!: (e: MouseEvent) => void;
 const pinnedUsers = ref<{ [key: string]: TwitchatDataTypes.TwitchatUser }>({});
-
-const canPinChans = computed<boolean>(() => {
-	return storeStream.autoconnectChans.length < 6;
-});
 
 const canConnectChans = computed<boolean>(() => {
 	return storeStream.connectedTwitchChans.length < 6;

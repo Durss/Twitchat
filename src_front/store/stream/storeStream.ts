@@ -37,6 +37,7 @@ let remoteChanColorPointer = 0;
 const remoteChanToColor: { [chanId: string]: string } = {};
 const remoteIdToUser: { [chanId: string]: TwitchatDataTypes.TwitchatUser } = {};
 const remoteIdToPromise: { [chanId: string]: Promise<TwitchatDataTypes.TwitchatUser> } = {};
+const MAX_AUTOCONNECT_CHANS = 6;
 
 export const storeStream = defineStore("stream", {
 	state: (): IStreamState => ({
@@ -90,7 +91,18 @@ export const storeStream = defineStore("stream", {
 				const list = JSON.parse(DataStore.get(DataStore.AUTOCONNECT_CHANS) || "[]");
 				if (Array.isArray(list)) {
 					this.autoconnectChans.push(...list);
-					this.autoconnectChans.forEach(async (chan) => {
+					let autoconnectCount = 0;
+					let capped = false;
+					this.autoconnectChans.forEach((chan) => {
+						//Pinned but manually disconnected: keep it pinned without connecting
+						if (chan.disconnected) return;
+						//Any number of channels can be pinned, but only a limited
+						//amount of them are auto connected. Others stay pinned.
+						if (++autoconnectCount > MAX_AUTOCONNECT_CHANS) {
+							chan.disconnected = true;
+							capped = true;
+							return;
+						}
 						StoreProxy.users.getUserFrom(
 							chan.platform,
 							chan.id,
@@ -98,8 +110,6 @@ export const storeStream = defineStore("stream", {
 							undefined,
 							undefined,
 							(user) => {
-								//Pinned but manually disconnected: keep it pinned without connecting
-								if (chan.disconnected) return;
 								void this.connectToExtraChan(user);
 							},
 							undefined,
@@ -108,6 +118,7 @@ export const storeStream = defineStore("stream", {
 							false,
 						);
 					});
+					if (capped) DataStore.set(DataStore.AUTOCONNECT_CHANS, this.autoconnectChans);
 				}
 			} catch (_error) {}
 
