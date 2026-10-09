@@ -25,11 +25,6 @@ export const PREFIX_SPACER = "឴"; // This is not a standard space
 export const SUFFIX_SPACER = "឵"; // This is not a standard space
 
 const commercialTimeouts: { [key: string]: number[] } = {};
-// Given a user's feedback, "hype train cooldown" notification is sent multiple times
-// dunno if i can actually trust them, but just in case this flag makes it so a
-// cooldown alert won't be sent again unless a hype train happened in between
-// Set to true by default to avoid sending a cooldown alert on first launch
-let ignoreHypeTrainCooldown = true;
 const chanColors = ["#e04e00", "#2eb200", "#0500d6", "#d600ab", "#00d6d3", "#e0ae00"];
 const chanIdToColor: { [chanId: string]: string } = {};
 /**
@@ -133,12 +128,10 @@ export const storeStream = defineStore("stream", {
 			// Get next hype train availability and current VOD URL every hours just in case
 			SetIntervalWorker.instance.create(
 				() => {
-					void this.scheduleHypeTrainCooldownAlert();
 					void this.grabCurrentStreamVOD();
 				},
 				60 * 60 * 1000,
 			);
-			void this.scheduleHypeTrainCooldownAlert();
 			void this.grabCurrentStreamVOD();
 
 			/**
@@ -356,8 +349,6 @@ export const storeStream = defineStore("stream", {
 		},
 
 		setHypeTrain(data: TwitchatDataTypes.HypeTrainStateData | undefined) {
-			if (ignoreHypeTrainCooldown) void this.scheduleHypeTrainCooldownAlert();
-			ignoreHypeTrainCooldown = false;
 			this.hypeTrain = data;
 			if (data && data.state == "COMPLETED" && data.approached_at) {
 				const threshold = 5 * 60 * 1000;
@@ -393,14 +384,6 @@ export const storeStream = defineStore("stream", {
 				}
 			}
 			if (data && (data.state == "EXPIRED" || data.state == "COMPLETED")) {
-				// Wait half an hour and check for cooldown before next train
-				setTimeout(
-					() => {
-						void this.scheduleHypeTrainCooldownAlert();
-					},
-					30 * 60 * 60,
-				);
-
 				window.setTimeout(() => {
 					//Hide hype train popin
 					this.setHypeTrain(undefined);
@@ -1836,31 +1819,6 @@ export const storeStream = defineStore("stream", {
 				this.autoconnectChans.push(entry);
 			}
 			DataStore.set(DataStore.AUTOCONNECT_CHANS, this.autoconnectChans);
-		},
-
-		async scheduleHypeTrainCooldownAlert(): Promise<void> {
-			/*
-			const [train] = await TwitchUtils.getHypeTrains(StoreProxy.auth.twitch.user.id);
-			if(train && train.event_data.cooldown_end_time) {
-				if(hypeTrainCooldownTo) SetTimeoutWorker.instance.delete(hypeTrainCooldownTo);
-
-				const remainingTime = new Date(train.event_data.cooldown_end_time).getTime() - Date.now();
-				if(remainingTime <= 0) return;
-
-				hypeTrainCooldownTo = SetTimeoutWorker.instance.create(() => {
-					if(ignoreHypeTrainCooldown) return;
-					const m:TwitchatDataTypes.MessageHypeTrainCooledDownData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitch",
-						channel_id:StoreProxy.auth.twitch.user.id,
-						type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
-					};
-					void StoreProxy.chat.addMessage(m)
-					ignoreHypeTrainCooldown = true;
-				}, remainingTime);
-			}
-				*/
 		},
 
 		async grabCurrentStreamVOD(): Promise<void> {
