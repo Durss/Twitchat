@@ -30,11 +30,19 @@ const commercialTimeouts: { [key: string]: number[] } = {};
 // cooldown alert won't be sent again unless a hype train happened in between
 // Set to true by default to avoid sending a cooldown alert on first launch
 let ignoreHypeTrainCooldown = true;
-//Colors used for channels we're not connected to (ex: shared chat sessions).
-//Channels we're connected to get their color from "connectedTwitchChans"
-const remoteChanColors = ["#d08a64", "#85c56e", "#8180d3", "#d578c2", "#7bd0cf", "#dcc87d"];
-let remoteChanColorPointer = 0;
-const remoteChanToColor: { [chanId: string]: string } = {};
+const chanColors = ["#e04e00", "#2eb200", "#0500d6", "#d600ab", "#00d6d3", "#e0ae00"];
+const chanIdToColor: { [chanId: string]: string } = {};
+/**
+ * Get the color assigned to a channel, or assign it the first free one.
+ */
+function getChanColor(chanId: string): string {
+	if (chanIdToColor[chanId]) return chanIdToColor[chanId];
+	const used = Object.values(chanIdToColor);
+	const color =
+		chanColors.find((c) => !used.includes(c)) ?? chanColors[used.length % chanColors.length]!;
+	chanIdToColor[chanId] = color;
+	return color;
+}
 const remoteIdToUser: { [chanId: string]: TwitchatDataTypes.TwitchatUser } = {};
 const remoteIdToPromise: { [chanId: string]: Promise<TwitchatDataTypes.TwitchatUser> } = {};
 const MAX_AUTOCONNECT_CHANS = 6;
@@ -1767,35 +1775,19 @@ export const storeStream = defineStore("stream", {
 				//Wait for promise to resolve. This will be the case for the first message but
 				//also for any other message received while the user's data is being resolved
 				//to make sure no message is displayed before the channel info get loaded.
-				const user = await remoteIdToPromise[channelId]!;
-
-				remoteIdToUser[channelId] = user;
-				remoteChanToColor[channelId] =
-					remoteChanColors[remoteChanColorPointer % remoteChanColors.length]!;
-				remoteChanColorPointer++;
+				remoteIdToUser[channelId] = await remoteIdToPromise[channelId]!;
 			}
 
 			const user = remoteIdToUser[channelId]!;
 			return {
-				color: remoteChanToColor[channelId]!,
+				color: getChanColor(channelId),
 				name: user.displayNameOriginal || user.login,
 				pic: user.avatarPath?.replace(/300x300/gi, "50x50"),
 			};
 		},
 
 		async connectToExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<void> {
-			const colors = [
-				"#e04e00",
-				"#2eb200",
-				"#0500d6",
-				"#d600ab",
-				"#00d6d3",
-				"#e0ae00",
-			].filter(
-				(color) =>
-					!this.connectedTwitchChans.map((channel) => channel.color).includes(color),
-			);
-			this.connectedTwitchChans.push({ user, color: colors[0]! });
+			this.connectedTwitchChans.push({ user, color: getChanColor(user.id) });
 			TwitchMessengerClient.instance.connectToChannel(user.login);
 			void EventSub.instance.connectToChannel(user);
 			void TwitchUtils.getPinnedMessage(user.id);
@@ -1813,6 +1805,7 @@ export const storeStream = defineStore("stream", {
 		async disconnectFromExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<void> {
 			const index = this.connectedTwitchChans.findIndex((entry) => entry.user.id === user.id);
 			this.connectedTwitchChans.splice(index, 1);
+			if (!remoteIdToUser[user.id]) delete chanIdToColor[user.id];
 			void TwitchMessengerClient.instance.disconnectFromChannel(user.login);
 			void EventSub.instance.disconnectRemoteChan(user);
 
