@@ -3446,11 +3446,10 @@ export default class TriggerActionHandler {
 							}
 							const prom = this.obsSourceNameToQueue[sourceName] ?? Promise.resolve();
 							let resolverOBS!: () => void;
-							this.obsSourceNameToQueue[sourceName] = new Promise<void>(
-								(resolve, _reject) => {
-									resolverOBS = resolve;
-								},
-							);
+							const promOBS = new Promise<void>((resolve, _reject) => {
+								resolverOBS = resolve;
+							});
+							this.obsSourceNameToQueue[sourceName] = promOBS;
 							await prom;
 							if (sourceBusy) {
 								logStep.messages.push({
@@ -4158,7 +4157,10 @@ export default class TriggerActionHandler {
 							});
 
 							resolverOBS();
-							delete this.obsSourceNameToQueue[sourceName];
+							// Only release queue if it's our own
+							if (this.obsSourceNameToQueue[sourceName] === promOBS) {
+								delete this.obsSourceNameToQueue[sourceName];
+							}
 						} else if (step.obsAction == "startstream") {
 							void OBSWebSocket.instance.startStreaming();
 						} else if (step.obsAction == "stopstream") {
