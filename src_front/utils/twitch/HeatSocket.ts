@@ -1,8 +1,6 @@
 import { EventDispatcher } from "@/events/EventDispatcher";
 import HeatEvent from "@/events/HeatEvent";
-import StoreProxy from "@/store/StoreProxy";
 import { ref } from "vue";
-import OBSWebsocket from "../OBSWebsocket";
 
 /**
  * Created : 21/06/2023
@@ -26,7 +24,6 @@ export default class HeatSocket extends EventDispatcher {
 	static get instance(): HeatSocket {
 		if (!HeatSocket._instance) {
 			HeatSocket._instance = new HeatSocket();
-			HeatSocket._instance.initialize();
 		}
 		return HeatSocket._instance;
 	}
@@ -154,23 +151,4 @@ export default class HeatSocket extends EventDispatcher {
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
-
-	private initialize(): void {
-		//Create a global methods that can be called from a popup
-		//@ts-ignore
-		window.simulateHeatClick = (
-			x: number,
-			y: number,
-			altKey: boolean,
-			ctrlKey: boolean,
-			shiftKey: boolean,
-		): void => {
-			const uid = StoreProxy.auth.twitch.user.id;
-			this.fireEvent(uid, x, y, altKey, ctrlKey, shiftKey, true);
-		};
-		//@ts-ignore
-		window.clearOBSCache = (): void => {
-			OBSWebsocket.instance.clearSourceTransformCache();
-		};
-	}
 }

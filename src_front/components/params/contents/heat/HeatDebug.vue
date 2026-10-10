@@ -9,7 +9,10 @@
 		:icons="['debug']"
 	>
 		<div class="content">
-			<div>{{ t("heat.debug.description") }}</div>
+			<div class="description" v-if="storeExtension.companionEnabled">
+				{{ t("heat.debug.description_companion") }}
+			</div>
+			<div class="description" v-else>{{ t("heat.debug.description") }}</div>
 
 			<div ref="areaHolder" class="areaHolder">
 				<HeatDebugPopout />
@@ -20,11 +23,13 @@
 
 <script setup lang="ts">
 import ToggleBlock from "@/components/ToggleBlock.vue";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import HeatDebugPopout from "@/views/HeatDebugPopout.vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 const props = defineProps<{ primary?: boolean; secondary?: boolean; light?: boolean }>();
+const storeExtension = useStoreExtension();
 </script>
 
 <style scoped lang="less">
@@ -45,6 +50,14 @@ const props = defineProps<{ primary?: boolean; secondary?: boolean; light?: bool
 			background-repeat: no-repeat;
 			width: 100%;
 			aspect-ratio: 16/9;
+		}
+
+		.description {
+			line-height: 1.1em;
+			font-size: 0.9em;
+			text-align: center;
+			font-style: italic;
+			opacity: 0.7;
 		}
 	}
 }

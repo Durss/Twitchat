@@ -41,7 +41,8 @@
 			"description": "Send a message when Ulule overlay is clicked"
 		},
 		"debug": {
-			"description": "Extension only works when you're live.\nTo help you test things without going live, click on the area below to simulate an interaction.",
+			"description": "Click the area below.",
+			"description_companion": "Click or type keys in the area below.",
 			"popout": "Open in new window",
 			"obs": "Compute OBS sources positions. These positions are refreshed only every 30s. If you moved a source, click here to get fresh positions."
 		},

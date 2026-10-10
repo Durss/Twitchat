@@ -2715,6 +2715,12 @@ export interface IHeatActions {
 	 */
 	handleClickEvent(event: HeatEvent): Promise<void>;
 	/**
+	 * Handles keys typed by a viewer through the Twitchat Companion extension
+	 * @param keys
+	 * @param userId
+	 */
+	handleKeysEvent(keys: string[], userId?: string): Promise<void>;
+	/**
 	 * Deletes a distorsion data
 	 * @param data
 	 */
