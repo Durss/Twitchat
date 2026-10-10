@@ -1,16 +1,14 @@
 <template>
-	<span class="messagetime" :class="{ extraGap }" v-if="storeParams.appearance.displayTime.value">
+	<span class="messagetime" :class="{ extraGap }">
 		{{ time }}
 	</span>
 </template>
 
 <script setup lang="ts">
 import { useMessageTime } from "@/composables/useMessageTime";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed } from "vue";
 
-const storeParams = useStoreParams();
 const props = defineProps<{
 	messageData: TwitchatDataTypes.ChatMessageTypes;
 }>();
@@ -26,7 +24,7 @@ const extraGap = computed(() => {
 
 <style scoped lang="less">
 .messagetime {
-	font-size: 0.7em;
+	font-size: calc(var(--messageSize) * 0.9);
 	font-family: var(--font-roboto);
 	opacity: 0.7;
 	align-self: flex-start;

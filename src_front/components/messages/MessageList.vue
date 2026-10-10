@@ -290,7 +290,6 @@ let virtualScrollY = -1;
 let currentScrollTop = 0;
 let updateDebounce = -1;
 let prevHeight = 0;
-let prevWidth = 0;
 let openConvTimeout: number = -1;
 let closeConvTimeout: number = -1;
 let prevTouchMove!: TouchEvent;

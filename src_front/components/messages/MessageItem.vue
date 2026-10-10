@@ -33,7 +33,7 @@
 			class="message"
 			:is="componentRef"
 			:messageData="messageData"
-			:data-msg-time="showTime ? messageTime : null"
+			:data-msg-time="showTime ? true : null"
 			@showConversation="$emit('showConversation', $event)"
 			@showUserMessages="$emit('showUserMessages', $event)"
 			@onRead="
@@ -92,6 +92,7 @@ import ChatKofiEvent from "./ChatKofiEvent.vue";
 import ChatLowTrustTreatment from "./ChatLowTrustTreatment.vue";
 import ChatManyReplies from "./ChatManyReplies.vue";
 import ChatMessageClipPending from "./ChatMessageClipPending.vue";
+import ChatModiversary from "./ChatModiversary.vue";
 import ChatNotice from "./ChatNotice.vue";
 import ChatPatreonEvent from "./ChatPatreonEvent.vue";
 import ChatPinNotice from "./ChatPinNotice.vue";
@@ -108,9 +109,9 @@ import ChatSharedChatSession from "./ChatSharedChatSession.vue";
 import ChatShoutout from "./ChatShoutout.vue";
 import ChatStreamelementsEvent from "./ChatStreamelementsEvent.vue";
 import ChatStreamlabsEvent from "./ChatStreamlabsEvent.vue";
-import ChatStreamOnOff from "./ChatStreamOnOff.vue";
 import ChatStreamlootsCard from "./ChatStreamlootsCard.vue";
 import ChatStreamlootsEvent from "./ChatStreamlootsEvent.vue";
+import ChatStreamOnOff from "./ChatStreamOnOff.vue";
 import ChatStreamSocketAction from "./ChatStreamSocketAction.vue";
 import ChatSubscription from "./ChatSubscription.vue";
 import ChatSuspendedTriggerStack from "./ChatSuspendedTriggerStack.vue";
@@ -129,14 +130,12 @@ import ChatUnbanRequest from "./ChatUnbanRequest.vue";
 import ChatWarnAcknowledgment from "./ChatWarnAcknowledgment.vue";
 import ChatWarnUser from "./ChatWarnUser.vue";
 import ChatWatchStreak from "./ChatWatchStreak.vue";
+import ChatYoutubeJewelsGift from "./ChatYoutubeJewelsGift.vue";
 import ChatYoutubeSubgift from "./ChatYoutubeSubgift.vue";
 import ChatYoutubeSubscription from "./ChatYoutubeSubscription.vue";
 import ChatYoutubeSuperChat from "./ChatYoutubeSuperChat.vue";
 import ChatYoutubeSuperSticker from "./ChatYoutubeSuperSticker.vue";
 import MessageTime from "./MessageTime.vue";
-import { useMessageTime } from "@/composables/useMessageTime";
-import ChatModiversary from "./ChatModiversary.vue";
-import ChatYoutubeJewelsGift from "./ChatYoutubeJewelsGift.vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -165,7 +164,6 @@ const emit = defineEmits<{
 const storeParams = useStoreParams();
 const noTimeTypes: TwitchatDataTypes.TwitchatMessageStringType[] = ["history_splitter", "notice"];
 
-const messageTime = useMessageTime(() => props.messageData);
 const showTime = computed(
 	() => !noTimeTypes.includes(props.messageData.type) && storeParams.appearance.displayTime.value,
 );
@@ -311,7 +309,7 @@ const componentRef = computed<VueComponent | null>(() => {
 			content: "00:00";
 			display: inline;
 			visibility: hidden;
-			font-size: 0.7em;
+			font-size: 0.9em;
 			font-family: var(--font-roboto);
 			margin-right: 4px;
 			pointer-events: none;
