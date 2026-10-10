@@ -7,12 +7,14 @@ import type {
 	StreamlootsRarity,
 } from "@/types/StreamlootsTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import ApiHelper from "@/utils/ApiHelper";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { IStreamlootsActions, IStreamlootsGetters, IStreamlootsState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
+import Config from "@/utils/Config";
 
 let closeAlertsStream: (() => void) | null = null;
 let closeEmotesStream: (() => void) | null = null;
@@ -59,6 +61,7 @@ export const storeStreamloots = defineStore("streamloots", {
 				}, 60000);
 
 				const closeAlerts = openStream(
+					"alerts",
 					`https://widgets.streamloots.com/alerts/${widgetId}/media-stream`,
 					(json) => this.onEvent(parseAlert(json as StreamlootsAlertPayload)),
 					(open) => {
@@ -73,6 +76,7 @@ export const storeStreamloots = defineStore("streamloots", {
 
 				//Emotes stream only sends headers on first emote, its open state is meaningless
 				closeEmotesStream = openStream(
+					"emotes",
 					`https://widgets.streamloots.com/emotes/${widgetId}/media-stream`,
 					(json) => {
 						const payload = json as StreamlootsEmotePayload;
@@ -236,6 +240,7 @@ function extractWidgetId(widgetUrlOrId: string): string | null {
  * @returns function closing the stream for good
  */
 function openStream(
+	name: "alerts" | "emotes",
 	url: string,
 	onMessage: (json: unknown) => void,
 	onStateChange?: (open: boolean) => void,
@@ -257,8 +262,10 @@ function openStream(
 			try {
 				json = JSON.parse(event.data);
 			} catch (_error) {
+				logEvent(name, event.data);
 				return;
 			}
+			logEvent(name, json);
 			onMessage(json);
 		};
 		source.onerror = () => {
@@ -281,6 +288,22 @@ function openStream(
 			source = null;
 		}
 	};
+}
+
+/**
+ * Sends a raw stream message to server logs
+ */
+function logEvent(stream: "alerts" | "emotes", data: unknown): void {
+	if (!Config.instance.BETA_MODE) return;
+	void ApiHelper.call("log", "POST", {
+		cat: "streamloots",
+		log: {
+			stream,
+			uid: StoreProxy.auth.twitch.user.id,
+			tt_v: import.meta.env.PACKAGE_VERSION,
+			data,
+		},
+	});
 }
 
 function closeStreams(): void {
@@ -405,4 +428,3 @@ function parseAlert(payload: StreamlootsAlertPayload): StreamlootsEvent {
 interface StreamlootsStoreData {
 	widgetId: string;
 }
-

@@ -70,6 +70,7 @@ export default class Utils {
 		"random",
 		"eventsub",
 		"youtube",
+		"streamloots",
 	] as const;
 	/**
 	 * Saves a log

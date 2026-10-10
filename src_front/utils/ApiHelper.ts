@@ -1256,7 +1256,8 @@ type ApiEndpoints = {
 					| "patreon"
 					| "random"
 					| "eventsub"
-					| "youtube";
+					| "youtube"
+					| "streamloots";
 			};
 			response: {
 				success: boolean;
