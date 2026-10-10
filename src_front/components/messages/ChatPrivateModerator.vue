@@ -1,33 +1,40 @@
 <template>
 	<div
 		class="chatprivatemoderatorevent chatMessage highlight"
-		@contextmenu="onContextMenu($event, messageData, $el)"
+		@contextmenu="onContextMenu($event, props.messageData, rootEl!)"
+		ref="rootEl"
 	>
 		<Icon name="mod" alt="moderator" class="icon" />
 
 		<div class="messageHolder">
 			<a
-				:href="getProfilePage(messageData.user)"
+				:href="getProfilePage(props.messageData.user)"
 				target="_blank"
 				@click.stop.prevent="
-					openUserCard(messageData.user, messageData.channel_id, messageData.platform)
+					openUserCard(
+						props.messageData.user,
+						props.messageData.channel_id,
+						props.messageData.platform,
+					)
 				"
 				data-login
 				class="login bold"
-				>{{ messageData.user.displayNameOriginal }}</a
+				>{{ props.messageData.user.displayNameOriginal }}</a
 			>
 
 			<span
 				class="login"
-				v-if="
-					toUser && toUser.id != $store.auth.twitch.user.id && toUser.temporary !== true
-				"
+				v-if="toUser && toUser.id != storeAuth.twitch.user.id && toUser.temporary !== true"
 				>=>
 				<a
 					:href="getProfilePage(toUser)"
 					target="_blank"
 					@click.stop.prevent="
-						openUserCard(toUser, messageData.channel_id, messageData.platform)
+						openUserCard(
+							toUser,
+							props.messageData.channel_id,
+							props.messageData.platform,
+						)
 					"
 					data-login
 					class="login bold"
@@ -35,34 +42,40 @@
 				>
 			</span>
 
-			<span class="message">
+			<span
+				class="message"
+				:class="{
+					messageWithTime:
+						props.messageData.action != 'question' &&
+						!props.messageData.parentMessage &&
+						!props.messageData.parentMessageFallback,
+				}"
+				v-if="props.messageData.message_chunks"
+			>
 				<ChatMessageChunksParser
-					:platform="messageData.platform"
-					:chunks="messageData.message_chunks"
-					:channel="messageData.channel_id"
+					:platform="props.messageData.platform"
+					:chunks="props.messageData.message_chunks"
+					:channel="props.messageData.channel_id"
 				/>
 			</span>
 
-			<div class="quote" v-if="messageData.parentMessage">
-				<Icon name="quote" />
-
+			<div class="quote" v-if="props.messageData.parentMessage">
 				<MessageItem
 					class="message"
-					:messageData="messageData.parentMessage"
+					disableDate
+					:messageData="props.messageData.parentMessage"
 					@showConversation="
 						(messageData: TwitchatDataTypes.ChatMessageTypes) =>
-							$emit('showConversation', messageData)
+							emit('showConversation', messageData)
 					"
 					@showUserMessages="
 						(messageData: TwitchatDataTypes.ChatMessageTypes) =>
-							$emit('showUserMessages', messageData)
+							emit('showUserMessages', messageData)
 					"
 				/>
 			</div>
 
-			<div class="quote" v-if="messageData.parentMessageFallback">
-				<Icon name="quote" />
-
+			<div class="quote" v-if="props.messageData.parentMessageFallback">
 				<a
 					v-if="fallbackParentUser"
 					:href="getProfilePage(fallbackParentUser)"
@@ -70,7 +83,7 @@
 					@click.stop.prevent="
 						openUserCard(
 							fallbackParentUser,
-							messageData.channel_id,
+							props.messageData.channel_id,
 							fallbackParentUser.platform,
 						)
 					"
@@ -80,9 +93,9 @@
 				>
 
 				<ChatMessageChunksParser
-					:platform="messageData.parentMessageFallback.platform"
-					:chunks="messageData.parentMessageFallback.message"
-					:channel="messageData.channel_id"
+					:platform="props.messageData.parentMessageFallback.platform"
+					:chunks="props.messageData.parentMessageFallback.message"
+					:channel="props.messageData.channel_id"
 				/>
 			</div>
 		</div>
@@ -90,9 +103,9 @@
 		<div
 			class="ctas"
 			v-if="
-				messageData.action == 'question' &&
-				messageData.user.id != $store.auth.twitch.user.id &&
-				messageData.answer == undefined
+				props.messageData.action == 'question' &&
+				props.messageData.user.id != storeAuth.twitch.user.id &&
+				props.messageData.answer == undefined
 			"
 		>
 			<TTButton
@@ -101,7 +114,7 @@
 				primary
 				:loading="loading"
 				@click.stop.prevent="answerQuestion(true)"
-				>{{ $t("global.yes") }}</TTButton
+				>{{ t("global.yes") }}</TTButton
 			>
 			<TTButton
 				icon="cross"
@@ -109,85 +122,96 @@
 				alert
 				:loading="loading"
 				@click.stop.prevent="answerQuestion(false)"
-				>{{ $t("global.no") }}</TTButton
+				>{{ t("global.no") }}</TTButton
 			>
 		</div>
 		<div
 			class="answer"
-			:class="{ rejected: messageData.answer === false }"
-			v-if="messageData.answer != undefined"
+			:class="{ rejected: props.messageData.answer === false }"
+			v-if="props.messageData.answer != undefined"
 		>
-			<template v-if="messageData.answer"
-				><Icon name="checkmark" /> {{ $t("chat.private_mod_message.accepted") }}</template
+			<template v-if="props.messageData.answer"
+				><Icon name="checkmark" /> {{ t("chat.private_mod_message.accepted") }}</template
 			>
 			<template v-else
-				><Icon name="cross" /> {{ $t("chat.private_mod_message.refused") }}</template
+				><Icon name="cross" /> {{ t("chat.private_mod_message.refused") }}</template
 			>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
 import Database from "@/store/Database";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
-import { Component, Prop, toNative } from "vue-facing-decorator";
+import { computed, defineAsyncComponent, onBeforeMount, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
-import AbstractChatMessage from "./AbstractChatMessage";
-import { defineAsyncComponent } from "vue";
 import ChatMessageChunksParser from "./components/ChatMessageChunksParser.vue";
 
-@Component({
-	name: "ChatPrivateModerator",
-	components: {
-		TTButton,
-		MessageItem: defineAsyncComponent(() => import("@/components/messages/MessageItem.vue")),
-		ChatMessageChunksParser,
-	},
-	emits: ["onRead", "showConversation", "showUserMessages"],
-})
-class ChatPrivateModerator extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessagePrivateModeratorData;
+const MessageItem = defineAsyncComponent(() => import("@/components/messages/MessageItem.vue"));
 
-	public get loginsBrightnessFilter(): string {
-		return this.$store.common.theme == "dark" ? "none" : "brightness(80%)";
-	}
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessagePrivateModeratorData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
+}>();
 
-	public loading: boolean = false;
-	public toUser: TwitchatDataTypes.TwitchatUser | null = null;
-	public fallbackParentUser: TwitchatDataTypes.TwitchatUser | null = null;
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+	showConversation: [message: TwitchatDataTypes.ChatMessageTypes];
+	showUserMessages: [message: TwitchatDataTypes.ChatMessageTypes];
+}>();
 
-	public beforeMount(): void {
-		this.toUser = this.$store.users.getUserFrom(
-			"twitch",
-			this.messageData.channel_id,
-			this.messageData.toChannelId,
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeCommon = useStoreCommon();
+const storeUsers = useStoreUsers();
+
+const rootEl = useTemplateRef("rootEl");
+const { onContextMenu, openUserCard, getProfilePage } = useChatMessage(props, emit, rootEl);
+
+const loading = ref<boolean>(false);
+const toUser = ref<TwitchatDataTypes.TwitchatUser | null>(null);
+const fallbackParentUser = ref<TwitchatDataTypes.TwitchatUser | null>(null);
+
+const loginsBrightnessFilter = computed((): string => {
+	return storeCommon.theme == "dark" ? "none" : "brightness(80%)";
+});
+
+onBeforeMount(() => {
+	toUser.value = storeUsers.getUserFrom(
+		"twitch",
+		props.messageData.channel_id,
+		props.messageData.toChannelId,
+	);
+	if (!props.messageData.parentMessage && props.messageData.parentMessageFallback) {
+		fallbackParentUser.value = storeUsers.getUserFrom(
+			props.messageData.parentMessageFallback.platform,
+			props.messageData.channel_id,
+			props.messageData.parentMessageFallback.uid,
+			props.messageData.parentMessageFallback.login,
 		);
-		if (!this.messageData.parentMessage && this.messageData.parentMessageFallback) {
-			this.fallbackParentUser = this.$store.users.getUserFrom(
-				this.messageData.parentMessageFallback.platform,
-				this.messageData.channel_id,
-				this.messageData.parentMessageFallback.uid,
-				this.messageData.parentMessageFallback.login,
-			);
-		}
 	}
+});
 
-	public async answerQuestion(answer: boolean): Promise<void> {
-		this.loading = true;
-		const res = await ApiHelper.call("mod/privateMessage", "PUT", {
-			messageId: this.messageData.id,
-			answer: answer,
-		});
-		if (res.status == 200) {
-			this.messageData.answer = answer;
-			Database.instance.updateMessage(this.messageData);
-		}
-		this.loading = false;
+async function answerQuestion(answer: boolean): Promise<void> {
+	loading.value = true;
+	const res = await ApiHelper.call("mod/privateMessage", "PUT", {
+		messageId: props.messageData.id,
+		answer: answer,
+	});
+	if (res.status == 200) {
+		props.messageData.answer = answer;
+		Database.instance.updateMessage(props.messageData);
 	}
+	loading.value = false;
 }
-export default toNative(ChatPrivateModerator);
 </script>
 
 <style scoped lang="less">
@@ -198,6 +222,7 @@ export default toNative(ChatPrivateModerator);
 	background-image: repeating-linear-gradient(-45deg, @c1, @c1 20px, @c2 20px, @c2 40px);
 
 	.messageHolder {
+		align-self: flex-start;
 		flex-grow: 1;
 	}
 
@@ -205,21 +230,6 @@ export default toNative(ChatPrivateModerator);
 		position: relative;
 		font-style: italic;
 		margin-top: 0.5em;
-		& > .icon {
-			position: absolute;
-			height: 1em;
-			top: -0.35em;
-			left: -0.5em;
-		}
-		.header {
-			display: none;
-			font-style: normal;
-			margin-bottom: 0.5em;
-			.icon {
-				height: 1em;
-				margin-right: 0.25em;
-			}
-		}
 		.message {
 			font-size: 1rem;
 			:deep(.chatmessageholder) {
@@ -229,6 +239,7 @@ export default toNative(ChatPrivateModerator);
 			}
 		}
 		:deep(.login) {
+			font-weight: bold;
 			filter: v-bind(loginsBrightnessFilter);
 		}
 	}
@@ -262,20 +273,16 @@ export default toNative(ChatPrivateModerator);
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		border-top-left-radius: var(--border-radius);
-		border-bottom-right-radius: var(--border-radius);
-		background-color: var(--color-primary);
+		border-radius: var(--border-radius);
+		background-color: var(--color-primary-fade);
 		color: var(--color-light);
-
-		position: absolute;
-		bottom: 0;
-		right: 0;
+		flex-shrink: 0;
 		.icon {
 			height: 1em;
 		}
 
 		&.rejected {
-			background-color: var(--color-alert);
+			background-color: var(--color-alert-fade);
 		}
 	}
 }

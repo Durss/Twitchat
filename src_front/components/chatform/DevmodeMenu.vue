@@ -423,6 +423,24 @@
 				icon="offline"
 				>My stream stoped</TTButton
 			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'private_mod_message', 'question')"
+				icon="mod"
+				>Mod question</TTButton
+			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'private_mod_message', 'message')"
+				icon="mod"
+				>Mod message</TTButton
+			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'private_mod_message', 'mod_quote')"
+				icon="mod"
+				>Mod quote</TTButton
+			>
 			<TTButton small @click="simulateHateRaid()" icon="raid">Hate raid</TTButton>
 			<TTButton small @click="openTriggersLogs()" icon="broadcast"
 				>Show triggers logs</TTButton
@@ -534,7 +552,9 @@ type Subaction =
 	| "no_message"
 	| "giantEmote"
 	| "streamloots_gift"
-	| "streamloots_legendary";
+	| "streamloots_legendary"
+	| "mod_quote"
+	| TwitchatDataTypes.MessagePrivateModeratorData["action"];
 
 onMounted(async () => {
 	await nextTick();
@@ -918,6 +938,29 @@ async function simulateEvent(
 					message.platform = "bluesky";
 					break;
 				}
+				case "mod_quote": {
+					const m = message as TwitchatDataTypes.MessagePrivateModeratorData;
+					m.parentMessage =
+						await storeDebug.simulateMessage<TwitchatDataTypes.MessageChatData>(
+							"message",
+							undefined,
+							false,
+						);
+					if (Math.random() > 0.5) {
+						m.parentMessageFallback = {
+							uid: m.parentMessage.user.id,
+							login: m.parentMessage.user.login,
+							message: m.parentMessage.message_chunks,
+							platform: m.parentMessage.platform,
+						};
+						delete m.parentMessage;
+					}
+					break;
+				}
+			}
+			if (message.type === TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE) {
+				message.action =
+					subAction as TwitchatDataTypes.MessagePrivateModeratorData["action"];
 			}
 			if (type === TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION) {
 				window.setTimeout(() => {
@@ -1586,13 +1629,17 @@ function doSearch() {
 		display: flex;
 		flex-direction: column;
 		gap: 0.25em;
-		width: fit-content;
+		width: 250px;
 
 		.button {
 			white-space: nowrap;
 			flex-shrink: 0;
 			flex-wrap: nowrap;
 		}
+	}
+
+	.search {
+		margin-bottom: 0.5em;
 	}
 }
 </style>

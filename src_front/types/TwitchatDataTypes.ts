@@ -9492,7 +9492,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Optional message ID to reference
 		 */
-		parentMessage?: TranslatableMessage;
+		parentMessage?: TwitchatDataTypes.ChatMessageTypes;
 		/**
 		 * Optional fallback parent message.
 		 * Used in case parentMessage isn't found on history
