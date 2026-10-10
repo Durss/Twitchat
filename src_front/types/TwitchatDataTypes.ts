@@ -2516,9 +2516,25 @@ export namespace TwitchatDataTypes {
 	 * Represents the info about a user's badge
 	 */
 	export interface TwitchatUserBadge {
+		/**
+		 * bitmap icon
+		 */
 		icon: TwitchatImage;
+		/**
+		 * SVG icon name from twitchat's icons
+		 */
+		iconName?: string;
+		/**
+		 * Badge ID
+		 */
 		id: TwitchatUserBadgeType;
+		/**
+		 * Badge's title
+		 */
 		title?: string;
+		/**
+		 * Badge's version used for twitch prediction (pink/blue)
+		 */
 		version?: string;
 	}
 

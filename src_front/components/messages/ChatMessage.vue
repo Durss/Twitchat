@@ -160,29 +160,11 @@
 				v-if="infoBadges.length > 0"
 			/>
 
-			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
-				<span v-for="b in filteredBadges" :key="b.id" v-tooltip="b.tooltipHTML">
-					<Icon v-if="b.icon.sd.indexOf('http') == -1" :name="b.icon.sd" class="badge" />
-					<img v-else :src="b.icon.sd" class="badge" />
-				</span>
-
-				<span
-					class="badge mini"
-					v-for="b in miniBadges"
-					:key="b.class"
-					:class="b.class"
-					v-tooltip="b.label"
-				></span>
-			</div>
-
-			<CustomUserBadges :user="messageData.user" />
-
-			<Icon
-				class="noFollowBadge"
-				v-if="showNofollow"
-				name="unfollow"
-				:alt="t('chat.message.no_follow')"
-				v-tooltip="t('chat.message.no_follow')"
+			<UserBadges
+				:user="messageData.user"
+				:badges="displayedBadges"
+				:miniBadges="storeParams.appearance.minimalistBadges.value === true"
+				:showNoFollow="showNofollow"
 			/>
 
 			<div
@@ -389,7 +371,7 @@ import {
 } from "vue";
 import { useI18n } from "vue-i18n";
 import TTButton from "../TTButton.vue";
-import CustomUserBadges from "../user/CustomUserBadges.vue";
+import UserBadges from "../user/UserBadges.vue";
 import MessageTranslation from "./MessageTranslation.vue";
 import ChatMessageChunksParser from "./components/ChatMessageChunksParser.vue";
 import ChatMessageInfoBadges from "./components/ChatMessageInfoBadges.vue";
@@ -587,88 +569,10 @@ const translateUsername = computed(() => {
 	return dname != uname;
 });
 
-/**
- * Get badges images. Tooltip HTML is precomputed to avoid string concat per render.
- */
-const filteredBadges = computed<(TwitchatDataTypes.TwitchatUserBadge & { tooltipHTML: string })[]>(
-	() => {
-		if (props.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) return [];
-		if (
-			storeParams.appearance.showBadges.value &&
-			storeParams.appearance.minimalistBadges.value !== true
-		) {
-			return (badges.value ?? []).map((b) => ({
-				...b,
-				tooltipHTML:
-					"<div style='text-align:center'><img src=" +
-					(b.icon.hd || b.icon.sd) +
-					" width='64' class='emote'><br>" +
-					b.title +
-					"</div>",
-			}));
-		}
-		return [];
-	},
-);
-
-/**
- * Displays minimalist badges
- */
-const miniBadges = computed<{ label: string; class?: string }[]>(() => {
+const displayedBadges = computed<TwitchatDataTypes.TwitchatUserBadge[]>(() => {
 	if (props.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) return [];
-	const result: { label: string; class?: string }[] = [];
-	if (
-		storeParams.appearance.showBadges.value === true &&
-		storeParams.appearance.minimalistBadges.value === true &&
-		badges.value
-	) {
-		for (const b of badges.value) {
-			switch (b.id) {
-				case "predictions": {
-					const color = (b.version ?? "").indexOf("pink") > -1 ? "pink" : "blue";
-					result.push({ label: b.title ?? "Prediction", class: "prediction " + color });
-					break;
-				}
-				case "subscriber":
-					result.push({
-						label: b.title ?? t("chat.message.badges.subscriber"),
-						class: "subscriber",
-					});
-					break;
-				case "vip":
-					result.push({ label: t("chat.message.badges.vip"), class: "vip" });
-					break;
-				case "premium":
-					result.push({ label: t("chat.message.badges.prime"), class: "premium" });
-					break;
-				case "moderator":
-					result.push({ label: t("chat.message.badges.moderator"), class: "moderator" });
-					break;
-				case "staff":
-					result.push({ label: t("chat.message.badges.twitch_staff"), class: "staff" });
-					break;
-				case "broadcaster":
-					result.push({
-						label: t("chat.message.badges.broadcaster"),
-						class: "broadcaster",
-					});
-					break;
-				case "partner":
-					result.push({ label: t("chat.message.badges.partner"), class: "partner" });
-					break;
-				case "founder":
-					result.push({ label: t("chat.message.badges.founder"), class: "founder" });
-					break;
-				case "ambassador":
-					result.push({
-						label: t("chat.message.badges.ambassador"),
-						class: "ambassador",
-					});
-					break;
-			}
-		}
-	}
-	return result;
+	if (storeParams.appearance.showBadges.value !== true) return [];
+	return badges.value;
 });
 
 /**
@@ -1344,72 +1248,7 @@ function updateBadges(): void {
 	}
 
 	.userBadges {
-		gap: 2px;
-		display: inline-flex;
-		flex-direction: row;
-		color: var(--color-text);
 		margin-right: 0.25em;
-		vertical-align: middle;
-	}
-
-	.badge,
-	:deep(.customUserBadge) {
-		width: 1em;
-		height: 1em;
-		vertical-align: middle;
-
-		&.mini {
-			display: inline-block;
-			width: 0.4em;
-			height: 1em;
-			margin: 0 1px 0px 0;
-			&.prediction {
-				width: 1em;
-				border-radius: 50%;
-				margin-right: 0.25em;
-				&.pink {
-					background-color: #f50e9b;
-				}
-				&.blue {
-					background-color: #387aff;
-				}
-			}
-			&.vip {
-				background-color: #e00bb9;
-			}
-			&.subscriber {
-				background-color: #9147ff;
-			}
-			&.premium {
-				background-color: #00a3ff;
-			}
-			&.moderator {
-				background-color: #39db00;
-			}
-			&.staff {
-				background-color: #666666;
-			}
-			&.broadcaster {
-				background-color: #ff0000;
-			}
-			&.partner {
-				background: linear-gradient(
-					0deg,
-					rgba(145, 71, 255, 1) 0%,
-					rgba(145, 71, 255, 1) 40%,
-					rgba(255, 255, 255, 1) 41%,
-					rgba(255, 255, 255, 1) 59%,
-					rgba(145, 71, 255, 1) 60%,
-					rgba(145, 71, 255, 1) 100%
-				);
-			}
-			&.founder {
-				background: linear-gradient(0deg, #e53fcc 0%, #884ef6 100%);
-			}
-			&.ambassador {
-				background: linear-gradient(0deg, #40e4cb 0%, #9048ff 100%);
-			}
-		}
 	}
 
 	.login {
@@ -1604,12 +1443,6 @@ function updateBadges(): void {
 		.message {
 			font-style: italic;
 		}
-	}
-
-	.noFollowBadge {
-		height: 1em;
-		margin-right: 0.25em;
-		vertical-align: middle;
 	}
 
 	&.announcement {

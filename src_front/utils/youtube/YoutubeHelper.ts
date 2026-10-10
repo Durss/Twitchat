@@ -1332,6 +1332,7 @@ export default class YoutubeHelper {
 		if (chanInfos.is_broadcaster && !chanInfos.badges.find((v) => v.id == "broadcaster")) {
 			chanInfos.badges.push({
 				icon: { sd: StoreProxy.asset("icons/broadcaster.svg") },
+				iconName: "broadcaster",
 				id: "broadcaster",
 				title: StoreProxy.i18n.t("chat.message.badges.broadcaster"),
 			});
@@ -1339,6 +1340,7 @@ export default class YoutubeHelper {
 		if (chanInfos.is_moderator && !chanInfos.badges.find((v) => v.id == "moderator")) {
 			chanInfos.badges.push({
 				icon: { sd: StoreProxy.asset("icons/mod.svg") },
+				iconName: "mod",
 				id: "moderator",
 				title: StoreProxy.i18n.t("chat.message.badges.moderator"),
 			});
@@ -1348,6 +1350,7 @@ export default class YoutubeHelper {
 		if (user.is_partner && !chanInfos.badges.find((v) => v.id == "partner")) {
 			chanInfos.badges.push({
 				icon: { sd: StoreProxy.asset("icons/partner.svg") },
+				iconName: "partner",
 				id: "partner",
 				title: StoreProxy.i18n.t("chat.message.badges.partner"),
 			});

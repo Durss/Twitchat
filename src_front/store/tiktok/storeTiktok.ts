@@ -172,8 +172,10 @@ export const storeTiktok = defineStore("tiktok", {
 								user.channelInfo[json.data.tikfinityUserId.toString()]!;
 							chanInfo.is_moderator = true;
 							chanInfo.badges.push({
-								icon: { sd: "mod" },
+								icon: { sd: StoreProxy.asset("icons/mod.svg") },
+								iconName: "mod",
 								id: "moderator",
+								title: StoreProxy.i18n.t("chat.message.badges.moderator"),
 							});
 						}
 					}

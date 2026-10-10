@@ -68,19 +68,12 @@
 								@limitReached="manageBadges = true"
 							/>
 
-							<img
-								v-for="b in badges"
-								:key="b.id"
-								class="badge"
-								:src="b.icon.hd"
-								:alt="b.title"
-								v-tooltip="b.title"
-							/>
-
-							<CustomUserBadges
-								:tooltip="t('usercard.remove_badgesBt')"
+							<UserBadges
 								:user="user"
-								@select="removeCustomBadge"
+								:badges="badges"
+								hdImages
+								removableCustomBadges
+								@removeCustom="removeCustomBadge"
 							/>
 
 							<template v-if="!edittingLogin">
@@ -612,8 +605,8 @@ import MessageItem from "../messages/MessageItem.vue";
 import ChatModTools from "../messages/components/ChatModTools.vue";
 import CustomBadgeSelector from "./CustomBadgeSelector.vue";
 import CustomBadgesManager from "./CustomBadgesManager.vue";
-import CustomUserBadges from "./CustomUserBadges.vue";
 import CustomUserNameManager from "./CustomUserNameManager.vue";
+import UserBadges from "./UserBadges.vue";
 
 const emit = defineEmits<{
 	close: [];
@@ -1447,13 +1440,9 @@ watch(
 					}
 				}
 
-				.badge,
-				:deep(.customUserBadge) {
-					height: 0.8em;
+				.userBadges {
+					font-size: 0.8em;
 					margin-right: 3px;
-					&.customUserBadge {
-						cursor: not-allowed;
-					}
 				}
 
 				.editLoginBt {
