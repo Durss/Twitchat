@@ -904,11 +904,6 @@ async function simulateEvent(
 
 				case "youtube": {
 					if (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-						// message.message = "!q coucou durssSLIP";
-
-						// const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
-						// message.message_chunks = chunks;
-						// message.message_html = TwitchUtils.messageChunksToHTML(chunks);
 						message.youtube_liveId = "xxxx";
 					}
 					message.platform = "youtube";

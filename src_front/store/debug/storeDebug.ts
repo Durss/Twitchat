@@ -2607,7 +2607,7 @@ export const storeDebug = defineStore("debug", {
 					const message = await this.simulateMessage<TwitchatDataTypes.MessageChatData>(
 						TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 						undefined,
-						true,
+						false,
 					);
 					message.twitch_modiversary = Math.round(Math.random() * 10 + 1) * 12;
 					if (fakeUser.temporary) {
@@ -2631,6 +2631,7 @@ export const storeDebug = defineStore("debug", {
 						message_chunks: message.message_chunks,
 						message_size: message.message_size,
 					};
+					if (postOnChat) void StoreProxy.chat.addMessage(message);
 
 					data = m;
 					break;
