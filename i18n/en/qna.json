@@ -18,6 +18,7 @@
 			"delete_tt": "Delete session",
 			"owner": "Moderating Q&A session of {USER}",
 			"shared": "Q&A session shared with your mods",
+			"votes_tt": "Number of answers this message received",
 			"close_confirm": {
 				"title": "Close session?",
 				"description": "Viewers won't be able to submit new entries. Current entries will remain."

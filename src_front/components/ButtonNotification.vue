@@ -1,44 +1,61 @@
 <template>
-	<div class="buttonnotification" :class="{disabled}" @click="onClick($event)" v-newflag="newflag">
-		<Icon :name="icon" class="icon" v-if="icon" />
-		<span class="label" v-if="$slots.default != undefined"><slot></slot></span>
+	<div
+		class="buttonnotification"
+		:class="{ disabled }"
+		@click="onClick($event)"
+		v-newflag="newflag"
+	>
+		<span v-if="iconEmoji" class="icon emoji">{{ iconEmoji }}</span>
+		<img v-else-if="icon && icon.startsWith('http')" :src="icon" alt="" class="icon image" />
+		<Icon v-else :name="icon" class="icon" v-if="icon" />
+		<span class="label" v-if="!isEmptySlot(slots.default)"><slot /></span>
 		<span v-if="count > 0" class="count">{{ count }}</span>
 	</div>
 </template>
 
-<script lang="ts">
-import { gsap } from 'gsap';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+<script setup lang="ts">
+import { gsap } from "gsap";
+import { getCurrentInstance, useSlots } from "vue";
+import Icon from "./Icon.vue";
+import { useEmptySlot } from "@/composables/useEmptySlot";
 
-@Component({
-	components:{},
-	emits:[],
-})
-class ButtonNotification extends Vue {
+const props = withDefaults(
+	defineProps<{
+		icon?: string;
+		iconEmoji?: string;
+		count?: number;
+		disabled?: boolean;
+		newflag?: { date: number; id: string };
+	}>(),
+	{
+		count: 0,
+		disabled: false,
+	},
+);
 
-	@Prop()
-	public icon!:string;
+const instance = getCurrentInstance();
+const slots = useSlots();
+const { isEmptySlot } = useEmptySlot();
 
-	@Prop({type:Number, default:0})
-	public count!:number;
-
-	@Prop({type:Boolean, default:false})
-	public disabled!:boolean;
-
-	@Prop({type:Object})
-	public newflag!:{date:number, id:string};
-
-	public onClick(event:MouseEvent):void {
-		gsap.fromTo(this.$el, {scaleX:.7}, {duration:1.4, scale:1, clearProps:"scaleX", ease:"elastic.out(2)"});
-		gsap.fromTo(this.$el, {scaleY:.7}, {duration:1.2, scale:1, clearProps:"all", ease:"elastic.out(2)", delay:.05});
+function onClick(event: MouseEvent): void {
+	const el = instance?.proxy?.$el;
+	if (el) {
+		gsap.fromTo(
+			el,
+			{ scaleX: 0.7 },
+			{ duration: 1.4, scale: 1, clearProps: "scaleX", ease: "elastic.out(2)" },
+		);
+		gsap.fromTo(
+			el,
+			{ scaleY: 0.7 },
+			{ duration: 1.2, scale: 1, clearProps: "all", ease: "elastic.out(2)", delay: 0.05 },
+		);
 	}
-
 }
-export default toNative(ButtonNotification);
 </script>
 
 <style scoped lang="less">
-.buttonnotification{
+.buttonnotification {
 	min-width: 2em;
 	min-height: 2em;
 	cursor: pointer;
@@ -47,11 +64,12 @@ export default toNative(ButtonNotification);
 	justify-content: center;
 	border-radius: var(--border-radius);
 	position: relative;
+	padding: 0.2em;
 
 	&::before {
 		//Offset "new flag" so it's closer to the icon
-		top: .25em;
-		left: .25em;
+		top: 0.25em;
+		left: 0.25em;
 	}
 
 	&.disabled {
@@ -71,6 +89,17 @@ export default toNative(ButtonNotification);
 			width: 7px;
 			height: 7px;
 		}
+
+		&.emoji {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.25em;
+		}
+		&.image {
+			height: 1.25em;
+			width: 1.25em;
+		}
 	}
 
 	&:hover {
@@ -83,26 +112,26 @@ export default toNative(ButtonNotification);
 		top: 0;
 		right: 0;
 		transform: translate(20%, -60%);
-			border-radius: 1em;
-			font-size: 12px;
-			padding: .25em .5em;
-			font-family: var(--font-roboto);
-			color: var(--color-light);
-			background-color: var(--color-secondary);
+		border-radius: 1em;
+		font-size: 12px;
+		padding: 0.25em 0.5em;
+		font-family: var(--font-roboto);
+		color: var(--color-light);
+		background-color: var(--color-secondary);
 	}
 
 	.label {
 		margin-left: 2px;
 	}
-	&:has(.icon + .label){
+	&:has(.icon + .label) {
 		.label {
-			font-size: .8em;
+			font-size: 0.8em;
 			font-weight: b;
 		}
 	}
 }
 @media only screen and (max-width: 600px) {
-	.buttonnotification{
+	.buttonnotification {
 		width: 1.5em;
 		height: 1.5em;
 	}

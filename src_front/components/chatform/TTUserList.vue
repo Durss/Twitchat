@@ -1,8 +1,8 @@
 <template>
-	<div class="ttuserlist sidePanel">
+	<div class="ttuserlist sidePanel" ref="rootEl">
 		<div class="head">
 			<ClearButton @click="close" />
-			<h1 class="title"><Icon name="user" />Twitchat users : {{userCount}}</h1>
+			<h1 class="title"><Icon name="user" />Twitchat users : {{ userCount }}</h1>
 		</div>
 
 		<div class="content" ref="content">
@@ -10,13 +10,21 @@
 
 			<div class="card-item stats">
 				<div class="table">
-					<p>Active users last 24h :</p><p>{{activeLast24h}}</p>
-					<p>Active users last 7 days :</p><p>{{activeLast7days}}</p>
-					<p>Active users last 30 days :</p><p>{{activeLast30days}}</p>
+					<p>Active users last 24h :</p>
+					<p>{{ activeLast24h }}</p>
+					<p>Active users last 7 days :</p>
+					<p>{{ activeLast7days }}</p>
+					<p>Active users last 30 days :</p>
+					<p>{{ activeLast30days }}</p>
 				</div>
 				<div class="ctas">
-					<TTButton small :loading="loading" icon="refresh" @click="updateList()">Reload</TTButton>
-					<div class="partners"><label @click="onlyPartners = !onlyPartners">Partners:</label><ToggleButton v-model="onlyPartners" clear /></div>
+					<TTButton small :loading="loading" icon="refresh" @click="updateList()"
+						>Reload</TTButton
+					>
+					<div class="partners">
+						<label @click="onlyPartners = !onlyPartners">Partners:</label
+						><ToggleButton v-model="onlyPartners" clear />
+					</div>
 					<!-- <TTButton small :disabled="loading" title="Load 24h" icon="user" @click="loadTimeframe(1)" />
 					<TTButton small :disabled="loading" title="Load 7d" icon="user" @click="loadTimeframe(7)" />
 					<TTButton small :disabled="loading" title="Load 30d" icon="user" @click="loadTimeframe(30)" /> -->
@@ -24,178 +32,189 @@
 			</div>
 
 			<div class="list" ref="list">
-				<a v-for="u in filteredItems"
+				<a
+					v-for="u in filteredItems"
 					:key="u.id"
 					class="card-item user"
 					ref="userCard"
-					:href="u.user? 'https://twitch.tv/' + u.user.login : '#'"
+					:href="u.user ? 'https://twitch.tv/' + u.user.login : '#'"
 					target="_blank"
 				>
 					<div class="header" v-if="u.user">
-						<img :src="getProfilePicURL(u)" alt="profile" class="icon">
+						<img :src="getProfilePicURL(u)" alt="profile" class="icon" />
 
 						<span class="title">
-							{{u.user.login}}
-							<Icon name="partner" alt="partner" class="partner" v-if="u.user.broadcaster_type == 'partner'" />
+							{{ u.user.login }}
+							<Icon
+								name="partner"
+								alt="partner"
+								class="partner"
+								v-if="u.user.broadcaster_type == 'partner'"
+							/>
 						</span>
 					</div>
 					<div class="header error" v-else>
 						<Icon name="user" alt="profile" class="icon" theme="light" />
-						<span class="title">#{{u.id}}</span>
+						<span class="title">#{{ u.id }}</span>
 					</div>
-					<div class="details">{{formatDate(u)}}</div>
-
+					<div class="details">{{ formatDate(u) }}</div>
 				</a>
 			</div>
 
-			<TTButton class="loadBt" v-if="!loading && showLoadMoreBt && users.length > 0"
-			small title="Load more"
-			icon="add"
-			@click="loadNextUsers()" />
+			<TTButton
+				class="loadBt"
+				v-if="!loading && showLoadMoreBt && users.length > 0"
+				small
+				title="Load more"
+				icon="add"
+				@click="loadNextUsers()"
+			/>
 
 			<Icon class="loader" name="loader" v-if="loading" />
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import ApiHelper from '@/utils/ApiHelper';
-import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
-import ClearButton from '../ClearButton.vue';
-import ToggleButton from '../ToggleButton.vue';
-import Icon from '../Icon.vue';
+<script setup lang="ts">
+import { asset } from "@/composables/useAsset";
+import { useSidePanel } from "@/composables/useSidePanel";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import ApiHelper from "@/utils/ApiHelper";
+import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { computed, nextTick, onMounted, ref, useTemplateRef } from "vue";
+import ClearButton from "../ClearButton.vue";
+import Icon from "../Icon.vue";
+import TTButton from "../TTButton.vue";
+import ToggleButton from "../ToggleButton.vue";
 
-@Component({
-	components:{
-		Icon,
-		TTButton,
-		ClearButton,
-		ToggleButton,
-	},
-	emits:["close"]
-})
-class TTUserList extends AbstractSidePanel {
+interface UserData {
+	id: string;
+	date: number;
+	user: TwitchDataTypes.UserInfo;
+}
 
-	public users:UserData[] = [];
-	public usersSpool:UserData[] = [];
-	public loading:boolean = true;
-	public onlyPartners:boolean = false;
-	public showLoadMoreBt:boolean = false;
-	public spoolChunkSize:number = 200;
-	public userCount:number = 0;
-	public activeLast24h:number = 0;
-	public activeLast7days:number = 0;
-	public activeLast30days:number = 0;
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	public get filteredItems():UserData[] {
-		if(this.onlyPartners) {
-			return this.usersSpool.filter(v=> v.user && v.user.broadcaster_type == "partner");
-		}
-		return this.usersSpool;
+const { getAsset } = asset();
+const storeCommon = useStoreCommon();
+const rootEl = useTemplateRef("rootEl");
+const content = useTemplateRef("content");
+const list = useTemplateRef("list");
+const { close } = useSidePanel(rootEl, () => emit("close"));
+
+const users = ref<UserData[]>([]);
+const usersSpool = ref<UserData[]>([]);
+const loading = ref(true);
+const onlyPartners = ref(false);
+const showLoadMoreBt = ref(false);
+const spoolChunkSize = 200;
+const userCount = ref(0);
+const activeLast24h = ref(0);
+const activeLast7days = ref(0);
+const activeLast30days = ref(0);
+
+const filteredItems = computed<UserData[]>(() => {
+	if (onlyPartners.value) {
+		return usersSpool.value.filter((v) => v.user && v.user.broadcaster_type == "partner");
 	}
+	return usersSpool.value;
+});
 
-	public formatDate(u:UserData):string {
-		const d = new Date(u.date);
-		return Utils.formatDate(d);
-	}
+function formatDate(u: UserData): string {
+	const d = new Date(u.date);
+	return Utils.formatDate(d);
+}
 
-	public mounted():void {
-		const content = this.$refs.content as HTMLDivElement;
-		content.addEventListener("scroll", (ev:Event):void => {
-			if ((content.clientHeight + content.scrollTop) >= content.scrollHeight) {
-				if(!this.loading) {
-					this.loadNextUsers();
-				}
+onMounted(() => {
+	const contentEl = content.value!;
+	contentEl.addEventListener("scroll", (ev: Event): void => {
+		if (contentEl.clientHeight + contentEl.scrollTop >= contentEl.scrollHeight) {
+			if (!loading.value) {
+				loadNextUsers();
 			}
-		});
-		super.open();
-		this.updateList();
-	}
+		}
+	});
+	updateList();
+});
 
-	public getProfilePicURL(u:UserData):string {
-		if(!u.user.profile_image_url) return  this.$asset("icons/user.svg");
-		return u.user.profile_image_url.replace("300x300", "70x70");
-	}
+function getProfilePicURL(u: UserData): string {
+	if (!u.user.profile_image_url) return getAsset("icons/user.svg");
+	return u.user.profile_image_url.replace("300x300", "70x70");
+}
 
-	public async updateList():Promise<void> {
-		let res;
-		this.loading = true;
-		this.users = [];
-		this.usersSpool = [];
-		try {
-			const {json} = await ApiHelper.call("user/all", "GET");
-			if(json.success) {
-				const users = json.users;
-				this.activeLast24h = 0;
-				this.activeLast7days = 0;
-				this.activeLast30days = 0;
-				const offset24h = Date.now() - 24 * 60 * 60 * 1000;
-				const offset7days = Date.now() - 7 * 24 * 60 * 60 * 1000;
-				const offset30days = Date.now() - 30 * 24 * 60 * 60 * 1000;
-				this.users = users.sort((a, b) => b.date - a.date);
-				for (const c of users) {
-					const date = c.date;
-					if(date > offset24h) this.activeLast24h++;
-					if(date > offset7days) this.activeLast7days++;
-					if(date > offset30days) this.activeLast30days++;
-				}
-				this.userCount = this.users.length;
-				this.loadNextUsers();
-			}else{
-				this.$store.common.alert(json.message);
-				this.$emit("close");
+async function updateList(): Promise<void> {
+	loading.value = true;
+	users.value = [];
+	usersSpool.value = [];
+	try {
+		const { json } = await ApiHelper.call("user/all", "GET");
+		if (json.success) {
+			const usersList = json.users;
+			activeLast24h.value = 0;
+			activeLast7days.value = 0;
+			activeLast30days.value = 0;
+			const offset24h = Date.now() - 24 * 60 * 60 * 1000;
+			const offset7days = Date.now() - 7 * 24 * 60 * 60 * 1000;
+			const offset30days = Date.now() - 30 * 24 * 60 * 60 * 1000;
+			users.value = usersList.sort((a, b) => b.date - a.date);
+			for (const c of usersList) {
+				const date = c.date;
+				if (date > offset24h) activeLast24h.value++;
+				if (date > offset7days) activeLast7days.value++;
+				if (date > offset30days) activeLast30days.value++;
 			}
-		}catch(err:unknown) {
-			this.$store.common.alert("An error occured while loading users<br>");
+			userCount.value = users.value.length;
+			loadNextUsers();
+		} else {
+			storeCommon.alert(json.message);
+			emit("close");
 		}
-		this.loading = false;
+	} catch (err: unknown) {
+		storeCommon.alert("An error occured while loading users<br>");
+	}
+	loading.value = false;
+}
+
+async function loadTimeframe(days: number): Promise<void> {
+	const limit = Date.now() - days * 24 * 60 * 60 * 1000;
+	let i = 0;
+	for (; i < users.value.length; i++) {
+		const u = users.value[i]!;
+		if (u.date < limit) break;
 	}
 
-	public async loadTimeframe(days:number):Promise<void> {
-		const limit = Date.now() - (days * 24 * 60 * 60 * 1000);
-		let i = 0;
-		for (; i < this.users.length; i++) {
-			const u = this.users[i]!;
-			if(u.date < limit) break;
-		}
-
-		if(i > 0) {
-			this.loadNextUsers(i);
-		}
-	}
-
-	public async loadNextUsers(chunk?:number):Promise<void> {
-		this.loading = true;
-		chunk = chunk? chunk : this.spoolChunkSize;
-		let users = this.users.splice(0, chunk);
-		const ids = users.map(u => u.id).filter( v => parseInt(v).toString() == v);
-		const channels = await TwitchUtils.getUserInfo(ids);
-		for (const c of channels) {
-			const index = users.findIndex(u => u.id == c.id);
-			users[index]!.user = c;
-		}
-		this.usersSpool = this.usersSpool.concat(users);
-		this.loading = false;
-		this.showLoadMoreBt = false;
-
-		await this.$nextTick();
-		const content = this.$refs.content as HTMLDivElement;
-		const list = this.$refs.list as HTMLDivElement;
-		this.showLoadMoreBt = (list.offsetTop + list.clientHeight) < content.clientHeight;
+	if (i > 0) {
+		loadNextUsers(i);
 	}
 }
 
-interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
-export default toNative(TTUserList);
+async function loadNextUsers(chunk?: number): Promise<void> {
+	loading.value = true;
+	chunk = chunk ? chunk : spoolChunkSize;
+	let usersChunk = users.value.splice(0, chunk);
+	const ids = usersChunk.map((u) => u.id).filter((v) => parseInt(v).toString() == v);
+	const channels = await TwitchUtils.getUserInfo(ids);
+	for (const c of channels) {
+		const index = usersChunk.findIndex((u) => u.id == c.id);
+		usersChunk[index]!.user = c;
+	}
+	usersSpool.value = usersSpool.value.concat(usersChunk);
+	loading.value = false;
+	showLoadMoreBt.value = false;
+
+	await nextTick();
+	const contentEl = content.value!;
+	const listEl = list.value!;
+	showLoadMoreBt.value = listEl.offsetTop + listEl.clientHeight < contentEl.clientHeight;
+}
 </script>
 
 <style scoped lang="less">
-.ttuserlist{
+.ttuserlist {
 	.noResult {
 		.center();
 		position: absolute;
@@ -207,7 +226,6 @@ export default toNative(TTUserList);
 	}
 
 	.content {
-
 		max-width: 100%;
 		.stats {
 			flex-shrink: 0;
@@ -218,7 +236,7 @@ export default toNative(TTUserList);
 				color: var(--color-text);
 				p:nth-child(odd) {
 					text-align: right;
-					margin-right: .5em;
+					margin-right: 0.5em;
 				}
 				p:nth-child(even) {
 					font-weight: bold;
@@ -226,7 +244,7 @@ export default toNative(TTUserList);
 			}
 
 			.ctas {
-				margin-top: .5em;
+				margin-top: 0.5em;
 				display: flex;
 				flex-direction: row;
 				justify-content: space-evenly;
@@ -236,7 +254,7 @@ export default toNative(TTUserList);
 					color: var(--color-text);
 					label {
 						cursor: pointer;
-						margin-right: .5em;
+						margin-right: 0.5em;
 					}
 				}
 			}
@@ -245,7 +263,7 @@ export default toNative(TTUserList);
 		.list {
 			@itemWidth: 200px;
 			display: grid;
-			gap: .5em;
+			gap: 0.5em;
 			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 
 			.user {
@@ -253,7 +271,7 @@ export default toNative(TTUserList);
 				color: var(--color-text);
 
 				&:hover {
-						background-color: var(--color-primary);
+					background-color: var(--color-primary);
 					.header {
 						background-color: var(--color-primary-light);
 					}
@@ -261,7 +279,7 @@ export default toNative(TTUserList);
 
 				.header {
 					.partner {
-						width: .8em;
+						width: 0.8em;
 						vertical-align: middle;
 					}
 
@@ -274,12 +292,13 @@ export default toNative(TTUserList);
 				}
 
 				.details {
-					font-size: .8em;
+					font-size: 0.8em;
 				}
 			}
 		}
 
-		.loadBt, .loader {
+		.loadBt,
+		.loader {
 			margin: auto;
 		}
 	}

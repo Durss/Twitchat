@@ -1,0 +1,16 @@
+{
+	"featureFlags": {
+		"title": "Feature flags",
+		"subtitle": "Grant access to specific Twitchat features per user",
+		"param_flag": "Feature flag",
+		"search_label": "Search a Twitch user to grant access",
+		"addBt": "Grant access",
+		"list": "Current grants",
+		"empty": "No user assigned to this flag",
+		"empty_open": "Open to everyone",
+		"remove_confirm": {
+			"title": "Revoke access?",
+			"description": "Remove {USER} from feature flag \"{FLAG}\"?"
+		}
+	}
+}
