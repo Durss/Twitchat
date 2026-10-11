@@ -2086,6 +2086,7 @@ export default class TriggerActionHandler {
 				} = {
 					purchase: TriggerTypes.STREAMLOOTS_PURCHASE,
 					gift: TriggerTypes.STREAMLOOTS_GIFT,
+					community_gift: TriggerTypes.STREAMLOOTS_COMMUNITY_GIFT,
 					legendary: TriggerTypes.STREAMLOOTS_LEGENDARY,
 				} as const;
 				if (

@@ -23,6 +23,15 @@
 				>
 					<strong>{{ messageData.giftee }}</strong>
 				</template>
+				<template
+					#COLLECTION
+					v-if="
+						messageData.type == 'streamloots_purchase' &&
+						messageData.eventType == 'community_gift'
+					"
+				>
+					<strong>{{ messageData.collectionName }}</strong>
+				</template>
 				<template #REACTION v-if="messageData.type == 'streamloots_reaction'">
 					<strong>{{ messageData.reactionName }}</strong>
 				</template>

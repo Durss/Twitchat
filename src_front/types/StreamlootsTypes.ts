@@ -54,7 +54,7 @@ export interface StreamlootsAlertPayload {
 		 * Event type.
 		 * Reactions have no type. Check for "reaction" property instead.
 		 */
-		type?: "redemption" | "purchase" | "legendary-card-obtained";
+		type?: "redemption" | "purchase" | "legendary-card-obtained" | "random-community-gift";
 		fields?: {
 			name:
 				| AutocompletableString
@@ -62,6 +62,7 @@ export interface StreamlootsAlertPayload {
 				| "rarity"
 				| "quantity"
 				| "giftee"
+				| "collectionName"
 				| "publicPageLink";
 			value: string | number;
 		}[];
@@ -194,6 +195,7 @@ export type StreamlootsEvent =
 	| StreamlootsCardRedeemedEvent
 	| StreamlootsPackPurchasedEvent
 	| StreamlootsPackGiftedEvent
+	| StreamlootsCommunityGiftEvent
 	| StreamlootsReactionEvent
 	| StreamlootsEmoteEvent
 	| StreamlootsPromotionEvent
@@ -272,6 +274,26 @@ export interface StreamlootsPackGiftedEvent {
 	raw: StreamlootsAlertPayload;
 }
 
+/**
+ * Packs gifted to the community, viewers claim them on the streamer's page
+ */
+export interface StreamlootsCommunityGiftEvent {
+	type: "community_gift";
+	/**
+	 * Gifter's name
+	 */
+	username: string;
+	/**
+	 * Number of packs gifted
+	 */
+	quantity: number;
+	/**
+	 * Pack's collection name
+	 */
+	collectionName: string;
+	raw: StreamlootsAlertPayload;
+}
+
 export interface StreamlootsReactionEvent {
 	type: "reaction";
 	username: string;
@@ -329,4 +351,3 @@ export interface StreamlootsUnknownEvent {
 	type: "unknown";
 	raw: StreamlootsAlertPayload;
 }
-

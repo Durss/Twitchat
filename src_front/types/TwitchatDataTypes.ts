@@ -9645,13 +9645,14 @@ export namespace TwitchatDataTypes {
 	export type MessageStreamlootsPurchaseData =
 		| StreamlootsPackPurchaseData
 		| StreamlootsPackGiftData
+		| StreamlootsCommunityGiftData
 		| StreamlootsLegendaryObtainedData;
 	interface StreamlootsPurchaseBaseData extends AbstractTwitchatMessage {
 		type: "streamloots_purchase";
 		/**
 		 * Pack purchased, gifted or legendary card obtained
 		 */
-		eventType: "purchase" | "gift" | "legendary";
+		eventType: "purchase" | "gift" | "community_gift" | "legendary";
 		/**
 		 * Name of the user who bought the pack
 		 */
@@ -9674,6 +9675,17 @@ export namespace TwitchatDataTypes {
 		 * Number of packs gifted
 		 */
 		quantity: number;
+	}
+	export interface StreamlootsCommunityGiftData extends StreamlootsPurchaseBaseData {
+		eventType: "community_gift";
+		/**
+		 * Number of packs gifted to the community
+		 */
+		quantity: number;
+		/**
+		 * Name of this pack's collection
+		 */
+		collectionName: string;
 	}
 	export interface StreamlootsLegendaryObtainedData extends StreamlootsPurchaseBaseData {
 		eventType: "legendary";

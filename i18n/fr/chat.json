@@ -576,6 +576,7 @@
 			},
 			"purchase": "{USER} a acheté {COUNT} pack sur Streamloots | {USER} a acheté {COUNT} packs sur Streamloots",
 			"gift": "{USER} a offert {COUNT} pack à {GIFTEE} sur Streamloots | {USER} a offert {COUNT} packs à {GIFTEE} sur Streamloots",
+			"community_gift": "{USER} a offert {COUNT} pack {COLLECTION} à la communauté sur Streamloots | {USER} a offert {COUNT} packs {COLLECTION} à la communauté sur Streamloots",
 			"legendary": "{USER} a obtenu une carte légendaire sur Streamloots",
 			"reaction": "{USER} a joué la réaction {REACTION} sur Streamloots",
 			"emote": "{USER} a envoyé l'emote {EMOTE} sur Streamloots | {USER} a envoyé les emotes {EMOTE} sur Streamloots"

@@ -874,6 +874,11 @@ function testTrigger(trigger: TriggerData): void {
 						(m as TwitchatDataTypes.StreamlootsPackGiftData).eventType = "gift";
 						(m as TwitchatDataTypes.StreamlootsPackGiftData).giftee =
 							Utils.pickRand(storeUsers.users)?.displayNameOriginal || "Twitchat";
+					} else if (triggerEvent.value == TriggerTypes.STREAMLOOTS_COMMUNITY_GIFT) {
+						(m as TwitchatDataTypes.StreamlootsCommunityGiftData).eventType =
+							"community_gift";
+						(m as TwitchatDataTypes.StreamlootsCommunityGiftData).collectionName =
+							"My super pack";
 					} else if (triggerEvent.value == TriggerTypes.STREAMLOOTS_LEGENDARY) {
 						(m as TwitchatDataTypes.StreamlootsLegendaryObtainedData).eventType =
 							"legendary";

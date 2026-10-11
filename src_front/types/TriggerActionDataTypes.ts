@@ -8379,6 +8379,33 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlootsPackGiftData>,
 	];
 
+	map[TriggerTypes.STREAMLOOTS_COMMUNITY_GIFT] = [
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.user",
+			pointer: "userName",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss",
+		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlootsCommunityGiftData>,
+		{
+			tag: "PACK_COUNT",
+			descKey: "triggers.placeholders.streamloots_pack_count",
+			pointer: "quantity",
+			numberParsable: true,
+			isUserID: false,
+			example: "10",
+		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlootsCommunityGiftData>,
+		{
+			tag: "COLLECTION_NAME",
+			descKey: "triggers.placeholders.streamloots_collection_name",
+			pointer: "collectionName",
+			numberParsable: false,
+			isUserID: false,
+			example: "Just Chatting!",
+		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlootsCommunityGiftData>,
+	];
+
 	map[TriggerTypes.STREAMLOOTS_LEGENDARY] = [
 		{
 			tag: USER_NAME,
@@ -11019,6 +11046,15 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.STREAMLOOTS_GIFT.label",
 			value: TriggerTypes.STREAMLOOTS_GIFT,
 			descriptionKey: "triggers.events.STREAMLOOTS_GIFT.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE,
+		},
+		{
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+			category: TriggerEventTypeCategories.STREAMLOOTS,
+			icon: "streamloots",
+			labelKey: "triggers.events.STREAMLOOTS_COMMUNITY_GIFT.label",
+			value: TriggerTypes.STREAMLOOTS_COMMUNITY_GIFT,
+			descriptionKey: "triggers.events.STREAMLOOTS_COMMUNITY_GIFT.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE,
 		},
 		{

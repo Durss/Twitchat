@@ -368,6 +368,12 @@
 			>
 			<TTButton
 				small
+				@click="simulateEvent($event, 'streamloots_purchase', 'streamloots_community_gift')"
+				icon="streamloots"
+				>Streamloots community gift</TTButton
+			>
+			<TTButton
+				small
 				@click="simulateEvent($event, 'streamloots_purchase', 'streamloots_legendary')"
 				icon="streamloots"
 				>Streamloots legendary</TTButton
@@ -552,6 +558,7 @@ type Subaction =
 	| "no_message"
 	| "giantEmote"
 	| "streamloots_gift"
+	| "streamloots_community_gift"
 	| "streamloots_legendary"
 	| "mod_quote"
 	| TwitchatDataTypes.MessagePrivateModeratorData["action"];
@@ -805,6 +812,12 @@ async function simulateEvent(
 						Utils.pickRand(fakeUsers)!.displayNameOriginal;
 					break;
 				}
+				case "streamloots_community_gift":
+					(message as TwitchatDataTypes.StreamlootsCommunityGiftData).eventType =
+						"community_gift";
+					(message as TwitchatDataTypes.StreamlootsCommunityGiftData).collectionName =
+						"My awesome pack";
+					break;
 				case "streamloots_legendary":
 					(message as TwitchatDataTypes.StreamlootsLegendaryObtainedData).eventType =
 						"legendary";

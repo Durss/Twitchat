@@ -1305,6 +1305,7 @@
 			"streamloots_card_message": "Texts filled by the user when redeeming the card (comma separated if there are many)",
 			"streamloots_pack_count": "Number of packs",
 			"streamloots_gift_recipient": "Name of the user that received the packs",
+			"streamloots_collection_name": "Name of the collection the packs belong to",
 			"streamloots_reaction_name": "Reaction name",
 			"streamloots_reaction_id": "Reaction ID",
 			"streamloots_emotes_json": "Emotes image URLs as a JSON array",
@@ -2114,8 +2115,12 @@
 				"description": "Actions to execute when someone buys Streamloots packs"
 			},
 			"STREAMLOOTS_GIFT": {
-				"label": "Streamloots packs gifted",
+				"label": "Streamloots packs gifted to someone",
 				"description": "Actions to execute when someone gifts Streamloots packs"
+			},
+			"STREAMLOOTS_COMMUNITY_GIFT": {
+				"label": "Streamloots packs gifted to the community",
+				"description": "Actions to execute when someone gifts Streamloots packs to the community for viewers to claim"
 			},
 			"STREAMLOOTS_LEGENDARY": {
 				"label": "Streamloots legendary card obtained",

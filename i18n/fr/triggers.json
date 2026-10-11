@@ -1307,6 +1307,7 @@
 			"streamloots_card_message": "Textes saisis par l'utilisateur en utilisant la carte (séparés par des virgules s'il y en a plusieurs)",
 			"streamloots_pack_count": "Nombre de packs",
 			"streamloots_gift_recipient": "Nom de l'utilisateur ayant reçu les packs",
+			"streamloots_collection_name": "Nom de la collection des packs",
 			"streamloots_reaction_name": "Nom de la réaction",
 			"streamloots_reaction_id": "ID de la réaction",
 			"streamloots_emotes_json": "URLs des images des emotes sous forme de tableau JSON",
@@ -2114,8 +2115,12 @@
 				"description": "Actions à exécuter lorsque quelqu'un achète des packs Streamloots"
 			},
 			"STREAMLOOTS_GIFT": {
-				"label": "Packs Streamloots offerts",
+				"label": "Packs Streamloots offerts à quelqu'un",
 				"description": "Actions à exécuter lorsque quelqu'un offre des packs Streamloots"
+			},
+			"STREAMLOOTS_COMMUNITY_GIFT": {
+				"label": "Packs Streamloots offerts à la communauté",
+				"description": "Actions à exécuter lorsque quelqu'un offre des packs Streamloots à la communauté, à récupérer par les viewers"
 			},
 			"STREAMLOOTS_LEGENDARY": {
 				"label": "Carte légendaire Streamloots obtenue",

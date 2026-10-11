@@ -162,6 +162,20 @@ export const storeStreamloots = defineStore("streamloots", {
 					};
 					break;
 				}
+				case "community_gift": {
+					message = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitch",
+						channel_id,
+						type: TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE,
+						eventType: "community_gift",
+						userName: event.username,
+						quantity: event.quantity,
+						collectionName: event.collectionName,
+					};
+					break;
+				}
 				case "legendary_obtained": {
 					message = {
 						id: Utils.getUUID(),
@@ -419,6 +433,15 @@ function parseAlert(payload: StreamlootsAlertPayload): StreamlootsEvent {
 				return { type: "pack_gifted", username, giftee, quantity, raw: payload };
 			}
 			return { type: "pack_purchased", username, quantity, raw: payload };
+		}
+		case "random-community-gift": {
+			return {
+				type: "community_gift",
+				username,
+				quantity: parseInt(getField(data, "quantity") || "1"),
+				collectionName: getField(data, "collectionName") || "",
+				raw: payload,
+			};
 		}
 	}
 
