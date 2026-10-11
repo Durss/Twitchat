@@ -46,7 +46,6 @@ export interface StreamlootsAlertPayload {
 	};
 	/**
 	 * Overlays acknowledge display with this ID. Don't do it ourself!
-	 * Missing on purchase alerts
 	 */
 	ack?: { correlationId: string };
 	data?: {
@@ -135,13 +134,13 @@ export interface StreamlootsAlertPayload {
 						 */
 						timer?: {
 							pageId?: string;
-							soundUrl?: string;
+							soundUrl?: string | null;
 							delay?: number;
 							verticalDirection?: AutocompletableString | "topToBottom";
 							textToShow?: AutocompletableString | "cardName" | "cardDescription";
 							showCardImage?: boolean;
 							showStreamlootsPage?: boolean;
-							timerSoundConfiguration?: AutocompletableString | "default";
+							timerSoundConfiguration?: AutocompletableString | "default" | null;
 							volume?: number;
 						};
 					};
@@ -165,10 +164,22 @@ export interface StreamlootsAlertPayload {
 		 */
 		highlight?: boolean;
 		/**
-		 * Duration of timer cards
+		 * Duration of timer cards.
+		 * 0 on other cards
 		 */
 		duration?: number;
 		badges?: { kingMidas?: boolean };
+		/**
+		 * Set when a card is redeemed.
+		 * ID of the redemption on Streamloots' activity feed
+		 */
+		redemptionId?: string;
+		/**
+		 * Visual effect configured on the card (ex: "MusicNotes"), played over
+		 * the alert. Either an effect ID or an object with the ID and effect options.
+		 * Streamloots' overlay ignores it on trolled cards
+		 */
+		overlayEffect?: string | { id: string; [option: string]: unknown };
 	};
 }
 
