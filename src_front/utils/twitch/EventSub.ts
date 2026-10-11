@@ -3169,6 +3169,8 @@ export default class EventSub {
 						event.message.fragments,
 						event.broadcaster_user_id,
 					);
+				// oxlint-disable-next-line no-control-regex
+				const isSlashMe = /\u0001ACTION .*\u0001/.test(event.message.text);
 				const messageHTML = TwitchUtils.messageChunksToHTML(messageChunks);
 				const message: TwitchatDataTypes.MessageChatData = {
 					id: event.message_id,
@@ -3184,7 +3186,8 @@ export default class EventSub {
 						event.chatter_user_name,
 					),
 					answers: [],
-					message: event.message.text,
+					// oxlint-disable-next-line no-control-regex
+					message: event.message.text.replace(/\u0001ACTION (.*)\u0001/, "$1"),
 					message_chunks: messageChunks,
 					message_html: messageHTML,
 					message_size: TwitchUtils.computeMessageSize(messageChunks),
@@ -3205,9 +3208,7 @@ export default class EventSub {
 				)
 					return;
 
-				//Check if it's a /me message
-				// oxlint-disable-next-line no-control-regex
-				if (/\u0001ACTION .*\u0001/.test(event.message.text)) {
+				if (isSlashMe) {
 					message.twitch_isSlashMe = true;
 				}
 
