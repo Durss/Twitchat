@@ -22,12 +22,22 @@
 			{
 				"i": "quiz",
 				"l": "Quizzes",
-				"d": "Create quizzes your viewers can play from the Twitchat Companion extension or from the chat.<ul><li>3 question types</li><li>All the options you could dream of</li><li>Import/export your questions as CSV</li><li>Live leaderboard</li></ul>A <strong>/quickquiz</strong> command can also create an ephemeral single question quiz.",
+				"d": "Create quizzes your viewers can play from the Twitchat Companion extension or from the chat.<ul><li>3 question types</li><li>All the options you could dream of</li><li>Import/export your questions as CSV</li><li>Live leaderboard</li></ul>A <strong>/quickquiz</strong> command can also create an ephemeral single question quiz for premium users.",
 				"g": "update_images/quiz.png",
 				"a": {
 					"l": "Try",
 					"param": "overlays",
 					"subparam": "quiz"
+				}
+			},
+			{
+				"i": "bingo_grid",
+				"l": "Bingo grids",
+				"d": "Your viewers can now tick bingo grid cells right on your stream thanks to the new Twitchat Companion extension.\n\nPremium users can share their active grid with other streamers to play together.",
+				"a": {
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "bingogrid"
 				}
 			},
 			{
@@ -93,6 +103,11 @@
 				"d": "You'll now be notified when you receive jewels on YouTube.\n\nA dedicated trigger event is also available."
 			},
 			{
+				"i": "fear",
+				"l": "Jump scare rewards",
+				"d": "Your channel point rewards and custom power ups have a new \"Jump scare\" option.\nWhen enabled, you'll get notified 3s after they are redeemed."
+			},
+			{
 				"i": "edit",
 				"l": "Stream prefix & suffix",
 				"d": "Define a prefix and/or a suffix that will automatically be added to your stream title anytime you update it from Twitchat.\n\n",
@@ -115,7 +130,7 @@
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "Triggers now <strong>execute in parallel</strong>. A queue has been set to all tour triggers to preseve previous behavior.\n\nTriggers can now have a <strong>custom icon</strong> to spot them at a glance in your list.\n\nFind your Triggers thanks to a new search field.\n\nNew conditions interface.\n\n14 new events:<ul><li>Quiz complete</li><li>Custom Power Up redeemed</li><li>Jewels received on YouTube</li><li>User joins a raffle</li><li>Meld Studio: start/stop streaming, scene change, layer visibility, effect enabled and track mute</li><li>Shared chat session started/joined/left</li></ul>7 new actions:<ul><li>Toggle clickable area</li><li>Edit a label</li>{_LI}<li>Ask for streamer input</li><li>Post on Bluesky</li><li>Control Meld Studio</li><li>Change OBS filters settings</li><li>Change OBS sources audio tracks</li></ul>"
+				"d": "Triggers now <strong>execute in parallel</strong>. A queue has been set to all tour triggers to preseve previous behavior.\n\nTriggers can now have a <strong>custom icon</strong> to spot them at a glance in your list.\n\nFind your Triggers thanks to a new search field.\n\nNew conditions interface.\n\n22 new events:<ul><li>Quiz complete</li><li>Keys typed on the stream from Twitchat Companion</li><li>Custom Power Up redeemed</li><li>Jewels received on YouTube</li><li>User joins a raffle</li><li>Meld Studio: start/stop streaming, scene change, layer visibility, effect enabled and track mute</li><li>Streamloots: card played, packs purchased, packs gifted to someone or to the community, legendary card obtained, reaction played and emotes sent</li><li>Shared chat session started/joined/left</li></ul>7 new actions:<ul><li>Toggle clickable area</li><li>Edit a label</li>{_LI}<li>Ask for streamer input</li><li>Post on Bluesky</li><li>Control Meld Studio</li><li>Change OBS filters settings</li><li>Change OBS sources audio tracks</li></ul>"
 			},
 			{
 				"i": "twitchat_api",

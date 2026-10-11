@@ -174,6 +174,12 @@
 									</template>
 								</i18n-t>
 							</div> -->
+							<RewardListItem
+								v-if="item.i == 'fear'"
+								class="reward"
+								:reward="fakeReward"
+								:manageable="true"
+							/>
 
 							<TTButton
 								type="link"
@@ -256,6 +262,9 @@ import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
 import MessageItem from "../messages/MessageItem.vue";
 import SponsorTable from "../premium/SponsorTable.vue";
+import RewardListItem from "../chatform/RewardListItem.vue";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes.js";
+import { asset } from "@/composables/useAsset.js";
 
 const emit = defineEmits<{
 	close: [];
@@ -282,8 +291,31 @@ const showPremiumFeatures = ref<boolean>(false);
 const readAtSpeedOfLight = ref<boolean>(false);
 const currentSlide = ref<number>(0);
 const buildIndex = ref<number>(0);
-
 const jewelMessage = ref<TwitchatDataTypes.ChatMessageTypes | null>(null);
+const defaultRewardImg = asset().getAsset("icons/channelPoints.svg");
+const fakeReward: TwitchDataTypes.Reward = {
+	background_color: "#008667",
+	broadcaster_id: "",
+	broadcaster_login: "",
+	broadcaster_name: "",
+	cost: 666,
+	id: "",
+	is_enabled: true,
+	is_in_stock: true,
+	is_paused: false,
+	is_user_input_required: false,
+	global_cooldown_setting: { is_enabled: false, global_cooldown_seconds: 0 },
+	max_per_user_per_stream_setting: { is_enabled: false, max_per_user_per_stream: 0 },
+	max_per_stream_setting: { is_enabled: false, max_per_stream: 0 },
+	should_redemptions_skip_request_queue: false,
+	title: "HEY 😠 !!!",
+	prompt: "",
+	default_image: {
+		url_1x: defaultRewardImg,
+		url_2x: defaultRewardImg,
+		url_4x: defaultRewardImg,
+	},
+};
 
 /**
  * Build the slides from the locale messages.
@@ -952,6 +984,18 @@ function skinPagination(): void {
 			:deep(.background) {
 				background-color: lighten(#1c40ff, 10%) !important;
 			}
+		}
+	}
+
+	.reward {
+		pointer-events: none;
+		* {
+			pointer-events: none;
+		}
+		:deep(.jumpscare) {
+			outline: 2px solid red;
+			padding: 0.25em 0.5em;
+			border-radius: 0.25em;
 		}
 	}
 

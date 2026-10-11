@@ -45,7 +45,7 @@
 		"search_in_actions": "Search in actions",
 		"create_counterBt": "Create counters",
 		"trigger_queue": "Execution queue",
-		"trigger_queue_info": "o make some triggers execute one after another, put them in the same execution queue.",
+		"trigger_queue_info": "To make some triggers execute one after another, put them in the same execution queue.",
 		"trigger_queue_input_placeholder": "execution queue...",
 		"trigger_queue_priority": "Priority within the queue. The higher the  priority, the sooner the trigger executes",
 		"trigger_queue_priority_disabled": "Set an execution queue to define a priority",

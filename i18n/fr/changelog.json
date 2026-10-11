@@ -3,13 +3,13 @@
 		"version": "Version {VERSION}",
 		"title": "Nouveautés",
 		"companion_details": "{LINK} est une extensions Twitch permettant à vos viewers de jouer aux bingos, participer aux quiz ou cliquer sur votre stream.",
-		"companion_details_link": "Twichat Companion",
+		"companion_details_link": "Twitchat Companion",
 		"streamdeck_plugin": "Plugin Stream Deck",
 		"streamsocket_plugin": "Installer l'extension StreamSocket",
 		"highlights": [
 			{
 				"i": "twitchat_companion",
-				"l": "Twichat Companion",
+				"l": "Twitchat Companion",
 				"d": "Une toute nouvelle extension Twitch pensée pour Twitchat.\n\nVos viewers peuvent désormais jouer aux Bingos, participer aux Quiz, cliquer sur votre stream et même y écrire, directement depuis Twitch, sur ordinateur <strong>et sur mobile</strong>.",
 				"g": "update_images/companion.png",
 				"a": {
@@ -22,12 +22,22 @@
 			{
 				"i": "quiz",
 				"l": "Quiz",
-				"d": "Créez des quizs auxquels vos viewers peuvent jouer depuis l'extension Twichat Companion ou le tchat.<ul><li>3 types de question</li><li>Toutes les options dont vous rêvez</li><li>Import/export de vos questions en CSV</li><li>Classement en direct</li></ul>Une commande <strong>/quickquiz</strong> peut aussi créer un quiz éphémère d'une seule question.",
+				"d": "Créez des quizs auxquels vos viewers peuvent jouer depuis l'extension <a href=\"https://dashboard.twitch.tv/extensions/zo8hnik5ey8nv1zcb97hh65sol97a2\" target=\"_blank\">Twitchat Companion</a> ou le tchat.<ul><li>3 types de question</li><li>Toutes les options dont vous rêvez</li><li>Import/export de vos questions en CSV</li><li>Classement en direct</li></ul>Une commande <strong>/quickquiz</strong> peut aussi créer un quiz éphémère d'une seule question pour les membres Premium.",
 				"g": "update_images/quiz.png",
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",
 					"subparam": "quiz"
+				}
+			},
+			{
+				"i": "bingo_grid",
+				"l": "Grilles de bingo",
+				"d": "Vos viewers peuvent désormais cocher les cases directement sur votre stream via la nouvelle extension <a href=\"https://dashboard.twitch.tv/extensions/zo8hnik5ey8nv1zcb97hh65sol97a2\" target=\"_blank\">Twitchat Companion</a>.\n\nLes abonné·es Premium peuvent temporairement partager leur grille de bingo currante avec d'autres streamers pour jouer avec.",
+				"a": {
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "bingogrid"
 				}
 			},
 			{
@@ -93,6 +103,11 @@
 				"d": "Vous serez maintenant notifié·e lorsque vous recevez des joyaux sur YouTube.\n\nUn événement de trigger dédié est également disponible."
 			},
 			{
+				"i": "fear",
+				"l": "Récompenses jump scare",
+				"d": "Vos récompenses de points de chaîne et power ups ont une nouvelle option \"Jump scare\".\nLorsque l'option est active vous serez notifié·e seulement 3s après l'achat de la récompense."
+			},
+			{
 				"i": "edit",
 				"l": "Préfixe & suffixe de stream",
 				"d": "Définissez un préfixe et/ou un suffixe automatiquement ajoutés au titre de votre stream chaque fois que vous le modifiez depuis Twitchat.\n\n",
@@ -115,7 +130,7 @@
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "Les triggers <strong>s'exécutent désormais en parallèle</strong>. Une file d'exécution a été définie sur tous vos triggers pour préserver le comportement précédent.\n\nLes triggers peuvent désormais avoir une <strong>icône personnalisée</strong> pour les repérer d'un coup d'œil dans votre liste.\n\nRetrouvez vos triggers grâce à un nouveau champ de recherche.\n\nNouvelle interface pour les conditions.\n\n14 nouveaux événements :<ul><li>Quiz terminé</li><li>Power up custom acheté</li><li>Joyaux YouTube reçus</li><li>Quelqu'un rejoint un tirage au sort</li><li>Meld Studio : démarrage/arrêt du stream, changement de scène, visibilité d'un calque, activation d'un effet et mute d'une piste</li><li>Session de tchat partgagée démarrée/rejointe/quittée</li></ul>7 nouvelles actions :<ul><li>Activer/désactiver une zone cliquable</li><li>Modifier un label</li>{_LI}<li>Demander une saisie</li><li>Publier sur Bluesky</li><li>Contrôler Meld Studio</li><li>Modifier les paramètres de filtres OBS</li><li>Modifier les pistes audio d'une source OBS</li></ul>"
+				"d": "Les triggers <strong>s'exécutent désormais en parallèle</strong>. Une file d'exécution a été définie sur tous vos triggers pour préserver le comportement précédent.\n\nLes triggers peuvent désormais avoir une <strong>icône personnalisée</strong> pour les repérer d'un coup d'œil dans votre liste.\n\nRetrouvez vos triggers grâce à un nouveau champ de recherche.\n\nNouvelle interface pour les conditions.\n\n22 nouveaux événements :<ul><li>Quiz terminé</li><li>Touches saisies sur le stream depuis <a href=\"https://dashboard.twitch.tv/extensions/zo8hnik5ey8nv1zcb97hh65sol97a2\" target=\"_blank\">Twitchat Companion</a></li><li>Power up custom acheté</li><li>Joyaux YouTube reçus</li><li>Quelqu'un rejoint un tirage au sort</li><li>Meld Studio : démarrage/arrêt du stream, changement de scène, visibilité d'un calque, activation d'un effet et mute d'une piste</li><li>Streamloots : carte jouée, packs achetés, packs offerts à quelqu'un ou à la communauté, carte légendaire obtenue, réaction jouée et emotes envoyées</li><li>Session de tchat partgagée démarrée/rejointe/quittée</li></ul>7 nouvelles actions :<ul><li>Activer/désactiver une zone cliquable</li><li>Modifier un label</li>{_LI}<li>Demander une saisie</li><li>Publier sur Bluesky</li><li>Contrôler Meld Studio</li><li>Modifier les paramètres de filtres OBS</li><li>Modifier les pistes audio d'une source OBS</li></ul>"
 			},
 			{
 				"i": "twitchat_api",
