@@ -182,7 +182,7 @@ export const storeDonationGoals = defineStore("donationGoals", {
 							stepConfig: currentStep,
 							stepIndex: currentStepIndex,
 						};
-						void TriggerActionHandler.instance.execute(triggerEvent);
+						TriggerActionHandler.instance.execute(triggerEvent);
 					}
 					donationGoalStatesCache[overlay.id] = currentStepIndex;
 				}

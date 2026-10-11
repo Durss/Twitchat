@@ -49,6 +49,7 @@ import { evalMath } from "../utils/evalMath";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
 import ChatCommandCaptureUtils from "./ChatCommandCaptureUtils";
+import { getTriggerEventKeys, TRIGGER_EVENT_KEY_SPLITTER } from "./TriggerEventKeys";
 import { TriggerTypes, type TriggerTypesValue } from "@/types/TriggerTypes";
 
 /**
@@ -101,14 +102,14 @@ export default class TriggerActionHandler {
 	// private actionsSpool:TwitchatDataTypes.ChatMessageTypes[] = [];
 	private userCooldowns: { [key: string]: number } = {};
 	private globalCooldowns: { [key: string]: number } = {};
-	private lastAnyMessageSent: string = "";
+	private triggerSentMessages: { text: string; expires: number }[] = [];
 	private obsSourceNameToQueue: { [key: string]: Promise<void> } = {};
 	private triggerTypeToQueue: {
 		[key: string]: { promise: Promise<void>; resolver: () => void; name: string }[];
 	} = {};
 	private liveChannelCache: { [key: string]: TwitchatDataTypes.StreamInfo } | null = null;
 	private triggerType2Triggers: { [key: string]: TriggerData[] } = {};
-	private HASHMAP_KEY_SPLITTER: string = "_";
+	private HASHMAP_KEY_SPLITTER: string = TRIGGER_EVENT_KEY_SPLITTER;
 
 	constructor() {}
 
@@ -137,11 +138,11 @@ export default class TriggerActionHandler {
 	 * @param message
 	 * @param testMode
 	 */
-	public async execute(
+	public execute(
 		message: TwitchatDataTypes.ChatMessageTypes,
 		testMode = false,
 		forcedTriggerId?: string,
-	): Promise<void> {
+	): void {
 		const hasMultipleOccurences =
 			message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
 			message.occurrenceCount != undefined;
@@ -153,7 +154,7 @@ export default class TriggerActionHandler {
 		) {
 			const mLoc = message as TwitchatDataTypes.GreetableMessages;
 			if (mLoc.todayFirst === true && !hasMultipleOccurences) {
-				await this.executeTriggersByType(
+				this.executeTriggersByType(
 					TriggerTypes.FIRST_TODAY,
 					message,
 					testMode,
@@ -168,7 +169,7 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				//Only trigger one of "first ever", "first today"
 				if (message.twitch_isFirstMessage === true && !hasMultipleOccurences) {
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.FIRST_ALL_TIME,
 						message,
 						testMode,
@@ -180,7 +181,7 @@ export default class TriggerActionHandler {
 					//Do nothing, it's already done before the switch
 					//Keep this condition to avoid having both "returning" and "today first" triggered
 				} else if (message.twitch_isReturning === true && !hasMultipleOccurences) {
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.RETURNING_USER,
 						message,
 						testMode,
@@ -190,7 +191,7 @@ export default class TriggerActionHandler {
 					);
 				}
 				if (message.twitch_announcementColor) {
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.ANNOUNCEMENTS,
 						message,
 						testMode,
@@ -200,7 +201,7 @@ export default class TriggerActionHandler {
 					);
 				}
 				if (message.twitch_animationId) {
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.POWER_UP_MESSAGE,
 						message,
 						testMode,
@@ -212,7 +213,7 @@ export default class TriggerActionHandler {
 
 				if (message.message) {
 					const cmd = message.message.trim().split(" ")[0]!.toLowerCase();
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.CHAT_COMMAND,
 						message,
 						testMode,
@@ -223,7 +224,7 @@ export default class TriggerActionHandler {
 				}
 
 				if (message.answersTo) {
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.MESSAGE_ANSWER,
 						message,
 						testMode,
@@ -233,13 +234,8 @@ export default class TriggerActionHandler {
 					);
 				}
 
-				if (
-					message.user.id != StoreProxy.auth.twitch.user.id ||
-					this.lastAnyMessageSent != message.message
-				) {
-					//Only parse this trigger if the message receive isn't sent by us
-					//or if the text is different than the last one sent by this trigger
-					await this.executeTriggersByType(
+				if (!this.isTriggerMessageEcho(message)) {
+					this.executeTriggersByType(
 						TriggerTypes.ANY_MESSAGE,
 						message,
 						testMode,
@@ -252,40 +248,32 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.POWER_UP_CELEBRATION,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.POWER_UP_CELEBRATION,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.POWER_UP_GIANT_EMOTE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.POWER_UP_GIANT_EMOTE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
 				const id = message.powerUpId;
-				await this.executeTriggersByType(
+				this.executeTriggersByType(
 					TriggerTypes.POWER_UP_CUSTOM,
 					message,
 					testMode,
@@ -293,36 +281,28 @@ export default class TriggerActionHandler {
 					undefined,
 					forcedTriggerId,
 				);
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.POWER_UP_CUSTOM,
-						message,
-						testMode,
-						id,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.POWER_UP_CUSTOM,
+					message,
+					testMode,
+					id,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 				if (this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
 
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.FOLLOW,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.FOLLOW,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -330,29 +310,23 @@ export default class TriggerActionHandler {
 				if (this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
 
 				if (message.is_gift) {
-					if (
-						await this.executeTriggersByType(
-							TriggerTypes.SUBGIFT,
-							message,
-							testMode,
-							undefined,
-							undefined,
-							forcedTriggerId,
-						)
-					) {
-						return;
-					}
-				} else if (
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
+						TriggerTypes.SUBGIFT,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					);
+				} else {
+					this.executeTriggersByType(
 						TriggerTypes.SUB,
 						message,
 						testMode,
 						undefined,
 						undefined,
 						forcedTriggerId,
-					)
-				) {
-					return;
+					);
 				}
 				break;
 			}
@@ -360,24 +334,20 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.RAID: {
 				if (this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
 
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.RAID,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.RAID,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				const id = message.reward.id;
-				await this.executeTriggersByType(
+				this.executeTriggersByType(
 					TriggerTypes.REWARD_REDEEM,
 					message,
 					testMode,
@@ -385,18 +355,14 @@ export default class TriggerActionHandler {
 					undefined,
 					forcedTriggerId,
 				);
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.REWARD_REDEEM,
-						message,
-						testMode,
-						id,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.REWARD_REDEEM,
+					message,
+					testMode,
+					id,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -405,36 +371,28 @@ export default class TriggerActionHandler {
 				const event = complete
 					? TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE
 					: TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 				if (this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
 
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.CHEER,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.CHEER,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -443,36 +401,28 @@ export default class TriggerActionHandler {
 					message.isStart === true
 						? TriggerTypes.PREDICTION_START
 						: TriggerTypes.PREDICTION_RESULT;
-				if (
-					await this.executeTriggersByType(
-						eventType,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.POLL: {
 				const eventType =
 					message.isStart === true ? TriggerTypes.POLL_START : TriggerTypes.POLL_RESULT;
-				if (
-					await this.executeTriggersByType(
-						eventType,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -481,98 +431,74 @@ export default class TriggerActionHandler {
 					message.isStart === true
 						? TriggerTypes.CHAT_POLL_START
 						: TriggerTypes.CHAT_POLL_RESULT;
-				if (
-					await this.executeTriggersByType(
-						eventType,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.BINGO_RESULT,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.BINGO_RESULT,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.QUIZ_COMPLETE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.QUIZ_COMPLETE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.QUIZ_COMPLETE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.RAFFLE_RESULT,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.RAFFLE_RESULT,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAFFLE_PICK_WINNER: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.RAFFLE_PICK_WINNER,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.RAFFLE_PICK_WINNER,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAFFLE_JOIN: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.RAFFLE_JOIN,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.RAFFLE_JOIN,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -580,51 +506,39 @@ export default class TriggerActionHandler {
 				const event = message.complete
 					? TriggerTypes.COUNTDOWN_STOP
 					: TriggerTypes.COUNTDOWN_START;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIMER: {
 				const event = message.stopped ? TriggerTypes.TIMER_STOP : TriggerTypes.TIMER_START;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.CHAT_ALERT,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.CHAT_ALERT,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -634,119 +548,92 @@ export default class TriggerActionHandler {
 					message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_START
 						? TriggerTypes.MUSIC_START
 						: TriggerTypes.MUSIC_STOP;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 			case TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE: {
 				const event = message.failCode
 					? TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED
 					: TriggerTypes.TRACK_ADDED_TO_QUEUE;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.VOICEMOD: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.VOICEMOD,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.VOICEMOD,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
-				if (
-					message.received &&
-					(await this.executeTriggersByType(
+				if (message.received) {
+					this.executeTriggersByType(
 						TriggerTypes.SHOUTOUT_IN,
 						message,
 						testMode,
 						undefined,
 						undefined,
 						forcedTriggerId,
-					))
-				) {
-					return;
-				}
-				if (
-					!message.received &&
-					(await this.executeTriggersByType(
+					);
+				} else {
+					this.executeTriggersByType(
 						TriggerTypes.SHOUTOUT_OUT,
 						message,
 						testMode,
 						undefined,
 						undefined,
 						forcedTriggerId,
-					))
-				) {
-					return;
+					);
 				}
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.HIGHLIGHT_CHAT_MESSAGE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.HIGHLIGHT_CHAT_MESSAGE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT_CLOSE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.HIGHLIGHT_CHAT_MESSAGE_CLOSE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.HIGHLIGHT_CHAT_MESSAGE_CLOSE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE: {
-				await this.executeTriggersByType(
+				this.executeTriggersByType(
 					TriggerTypes.OBS_SCENE,
 					message,
 					testMode,
@@ -754,18 +641,14 @@ export default class TriggerActionHandler {
 					undefined,
 					forcedTriggerId,
 				);
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.OBS_SCENE,
-						message,
-						testMode,
-						message.sceneName.toLowerCase(),
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.OBS_SCENE,
+					message,
+					testMode,
+					message.sceneName.toLowerCase(),
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -773,18 +656,14 @@ export default class TriggerActionHandler {
 				const event = message.visible
 					? TriggerTypes.OBS_SOURCE_ON
 					: TriggerTypes.OBS_SOURCE_OFF;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						message.sourceName.toLowerCase(),
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					message.sourceName.toLowerCase(),
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -796,18 +675,14 @@ export default class TriggerActionHandler {
 					message.sourceName.toLowerCase() +
 					this.HASHMAP_KEY_SPLITTER +
 					message.filterName.toLowerCase();
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						subEvent,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					subEvent,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -815,98 +690,74 @@ export default class TriggerActionHandler {
 				const event = message.muted
 					? TriggerTypes.OBS_INPUT_MUTE
 					: TriggerTypes.OBS_INPUT_UNMUTE;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						message.inputName.toLowerCase(),
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					message.inputName.toLowerCase(),
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_START_STREAM: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.OBS_START_STREAM,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.OBS_START_STREAM,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_STOP_STREAM: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.OBS_STOP_STREAM,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.OBS_STOP_STREAM,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_START: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.OBS_RECORDING_START,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.OBS_RECORDING_START,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_STOP: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.OBS_RECORDING_STOP,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.OBS_RECORDING_STOP,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_STARTED: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.TWITCHAT_STARTED,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.TWITCHAT_STARTED,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -921,115 +772,87 @@ export default class TriggerActionHandler {
 					prev: TriggerTypes.OBS_PLAYBACK_PREVIOUS,
 					restart: TriggerTypes.OBS_PLAYBACK_RESTARTED,
 				};
-				if (
-					await this.executeTriggersByType(
-						stateToType[message.state],
-						message,
-						testMode,
-						message.inputName.toLowerCase(),
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					stateToType[message.state],
+					message,
+					testMode,
+					message.inputName.toLowerCase(),
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.PINNED: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.PIN_MESSAGE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.PIN_MESSAGE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.UNPINNED: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.UNPIN_MESSAGE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.UNPIN_MESSAGE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BAN: {
 				const event = message.duration_s ? TriggerTypes.TIMEOUT : TriggerTypes.BAN;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.UNBAN: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.UNBAN,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.UNBAN,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.WARN_CHATTER,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.WARN_CHATTER,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.WARN_ACKNOWLEDGE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.WARN_ACKNOWLEDGE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.WARN_ACKNOWLEDGE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1039,18 +862,14 @@ export default class TriggerActionHandler {
 					message.info.user.id == StoreProxy.auth.twitch.user.id
 						? TriggerTypes.STREAM_ONLINE
 						: TriggerTypes.FOLLOWED_STREAM_ONLINE;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1060,66 +879,50 @@ export default class TriggerActionHandler {
 					message.info.user.id == StoreProxy.auth.twitch.user.id
 						? TriggerTypes.STREAM_OFFLINE
 						: TriggerTypes.FOLLOWED_STREAM_OFFLINE;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAID_STARTED: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.RAID_STARTED,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.RAID_STARTED,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.USER_WATCH_STREAK,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.USER_WATCH_STREAK,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.MODIVERSARY,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.MODIVERSARY,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1133,50 +936,38 @@ export default class TriggerActionHandler {
 				let subEvent: string | undefined = undefined;
 				if (message.areaId) subEvent = message.areaId;
 				if (message.obsSource) subEvent = message.obsSource;
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.HEAT_CLICK,
-						message,
-						testMode,
-						subEvent,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.HEAT_CLICK,
+					message,
+					testMode,
+					subEvent,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_COMPANION_KEYS: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.TWITCHAT_COMPANION_KEYS,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.TWITCHAT_COMPANION_KEYS,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.CLIP_CREATED,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.CLIP_CREATED,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1184,18 +975,14 @@ export default class TriggerActionHandler {
 				const eventType = message.pressed
 					? TriggerTypes.GOXLR_BUTTON_PRESSED
 					: TriggerTypes.GOXLR_BUTTON_RELEASED;
-				if (
-					await this.executeTriggersByType(
-						eventType,
-						message,
-						testMode,
-						message.button,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType,
+					message,
+					testMode,
+					message.button,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1203,34 +990,26 @@ export default class TriggerActionHandler {
 				const eventType = message.enabled
 					? TriggerTypes.GOXLR_FX_ENABLED
 					: TriggerTypes.GOXLR_FX_DISABLED;
-				if (
-					await this.executeTriggersByType(
-						eventType,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.GOXLR_SAMPLE_COMPLETE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.GOXLR_SAMPLE_COMPLETE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1238,25 +1017,20 @@ export default class TriggerActionHandler {
 				const eventType = message.mute
 					? TriggerTypes.GOXLR_INPUT_MUTE
 					: TriggerTypes.GOXLR_INPUT_UNMUTE;
-				if (
-					await this.executeTriggersByType(
-						eventType,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE: {
-				let executed = false;
 				if (message.added > 0) {
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.COUNTER_ADD,
 						message,
 						testMode,
@@ -1264,7 +1038,7 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					const result = await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.COUNTER_ADD,
 						message,
 						testMode,
@@ -1272,10 +1046,9 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					executed ||= result;
 				}
 				if (message.added < 0) {
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.COUNTER_DEL,
 						message,
 						testMode,
@@ -1283,7 +1056,7 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					const result = await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.COUNTER_DEL,
 						message,
 						testMode,
@@ -1291,10 +1064,9 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					executed ||= result;
 				}
 				if (message.maxed) {
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.COUNTER_MAXED,
 						message,
 						testMode,
@@ -1302,7 +1074,7 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					const result = await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.COUNTER_MAXED,
 						message,
 						testMode,
@@ -1310,10 +1082,9 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					executed ||= result;
 				}
 				if (message.mined) {
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.COUNTER_MINED,
 						message,
 						testMode,
@@ -1321,7 +1092,7 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					const result = await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.COUNTER_MINED,
 						message,
 						testMode,
@@ -1329,10 +1100,9 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					executed ||= result;
 				}
 				if (message.looped) {
-					await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.COUNTER_LOOPED,
 						message,
 						testMode,
@@ -1340,7 +1110,7 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					const result = await this.executeTriggersByType(
+					this.executeTriggersByType(
 						TriggerTypes.COUNTER_LOOPED,
 						message,
 						testMode,
@@ -1348,9 +1118,8 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					executed ||= result;
 				}
-				await this.executeTriggersByType(
+				this.executeTriggersByType(
 					TriggerTypes.COUNTER_EDIT,
 					message,
 					testMode,
@@ -1358,7 +1127,7 @@ export default class TriggerActionHandler {
 					undefined,
 					forcedTriggerId,
 				);
-				const result = await this.executeTriggersByType(
+				this.executeTriggersByType(
 					TriggerTypes.COUNTER_EDIT,
 					message,
 					testMode,
@@ -1366,15 +1135,11 @@ export default class TriggerActionHandler {
 					undefined,
 					forcedTriggerId,
 				);
-				executed ||= result;
-				if (executed) {
-					return;
-				}
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE: {
-				await this.executeTriggersByType(
+				this.executeTriggersByType(
 					TriggerTypes.VALUE_UPDATE,
 					message,
 					testMode,
@@ -1382,18 +1147,14 @@ export default class TriggerActionHandler {
 					undefined,
 					forcedTriggerId,
 				);
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.VALUE_UPDATE,
-						message,
-						testMode,
-						message.value.id,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.VALUE_UPDATE,
+					message,
+					testMode,
+					message.value.id,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1418,99 +1179,75 @@ export default class TriggerActionHandler {
 					TriggerTypes.HYPE_TRAIN_CANCELED;
 				map[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE] =
 					TriggerTypes.HYPE_TRAIN_END;
-				if (
-					await this.executeTriggersByType(
-						map[message.type]!,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					map[message.type]!,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START:
 			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.AD_STARTED,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.AD_STARTED,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.AD_APPROACHING,
-						message,
-						testMode,
-						message.delay_ms.toString(),
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.AD_APPROACHING,
+					message,
+					testMode,
+					message.delay_ms.toString(),
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.AD_COMPLETE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.AD_COMPLETE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.JOIN: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.USER_JOIN,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.USER_JOIN,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.LEAVE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.USER_LEAVE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.USER_LEAVE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1522,34 +1259,26 @@ export default class TriggerActionHandler {
 					type = TriggerTypes.QNA_STOP;
 				if (message.type == TwitchatDataTypes.TwitchatMessageType.QNA_DELETE)
 					type = TriggerTypes.QNA_DELETE;
-				if (
-					await this.executeTriggersByType(
-						type,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					type,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.CREDITS_COMPLETE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.CREDITS_COMPLETE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1562,18 +1291,14 @@ export default class TriggerActionHandler {
 					patreon_pledge: TriggerTypes.STREAMLABS_PATREON_PLEDGE,
 					charity: TriggerTypes.STREAMLABS_CHARITY_TIP,
 				} as const;
-				if (
-					await this.executeTriggersByType(
-						eventType[message.eventType],
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType[message.eventType],
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1583,18 +1308,14 @@ export default class TriggerActionHandler {
 				} = {
 					donation: TriggerTypes.STREAMELEMENTS_DONATION,
 				} as const;
-				if (
-					await this.executeTriggersByType(
-						eventType[message.eventType],
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType[message.eventType],
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1607,18 +1328,14 @@ export default class TriggerActionHandler {
 					subscription: TriggerTypes.KOFI_SUBSCRIPTION,
 					commission: TriggerTypes.KOFI_COMMISSION,
 				} as const;
-				if (
-					await this.executeTriggersByType(
-						eventType[message.eventType],
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType[message.eventType],
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1627,18 +1344,14 @@ export default class TriggerActionHandler {
 				if (message.recurring && message.recurringCount > 1)
 					eventType = TriggerTypes.TIPEEE_RESUB;
 				else if (message.recurring) eventType = TriggerTypes.TIPEEE_SUB;
-				if (
-					await this.executeTriggersByType(
-						eventType,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1649,131 +1362,99 @@ export default class TriggerActionHandler {
 				if (message.complete) eventType = TriggerTypes.BINGO_GRID_ALL;
 				if (message.colIndex > -1 || message.rowIndex > -1 || message.diagonal > -1)
 					eventType = TriggerTypes.BINGO_GRID_LINE;
-				if (
-					await this.executeTriggersByType(
-						eventType,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID_VIEWER: {
 				if (!StoreProxy.auth.featureFlags.includes("bingo_grid")) return;
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.BINGO_GRID_VIEWER_LINE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.BINGO_GRID_VIEWER_LINE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.YOUTUBE_SUPER_CHAT,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.YOUTUBE_SUPER_CHAT,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.YOUTUBE_SUPER_STICKER,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.YOUTUBE_SUPER_STICKER,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_JEWELS_GIFT: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.YOUTUBE_JEWELS,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.YOUTUBE_JEWELS,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.YOUTUBE_SUBSCRIPTION,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.YOUTUBE_SUBSCRIPTION,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.YOUTUBE_SUBGIFT,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.YOUTUBE_SUBGIFT,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.WEBSOCKET_TOPIC: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.WEBSOCKET_TOPIC,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.WEBSOCKET_TOPIC,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1783,18 +1464,14 @@ export default class TriggerActionHandler {
 				} = {
 					donation: TriggerTypes.TILTIFY_TIP,
 				} as const;
-				if (
-					await this.executeTriggersByType(
-						eventType[message.eventType],
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType[message.eventType],
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1804,98 +1481,74 @@ export default class TriggerActionHandler {
 				} = {
 					new_member: TriggerTypes.PATREON_NEW_MEMBER,
 				} as const;
-				if (
-					await this.executeTriggersByType(
-						eventType[message.eventType],
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType[message.eventType],
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.TIKTOK_GIFT,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.TIKTOK_GIFT,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.TIKTOK_SUB,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.TIKTOK_SUB,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.TIKTOK_LIKE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.TIKTOK_LIKE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.TIKTOK_SHARE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.TIKTOK_SHARE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.CLEAR_CHAT,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.CLEAR_CHAT,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -1905,178 +1558,134 @@ export default class TriggerActionHandler {
 					: message.restricted
 						? TriggerTypes.RESTRICT_ON
 						: TriggerTypes.MONITOR_RESTRICT_OFF;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.TWITCH_CHARITY_DONATION,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.TWITCH_CHARITY_DONATION,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.PLAYABILITY_INPUT: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.PLAYABILITY_INPUT,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.PLAYABILITY_INPUT,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.GOAL_STEP_COMPLETE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.GOAL_STEP_COMPLETE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.GOAL_STEP_COMPLETE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_COOLDOWN: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.CUSTOM_TRAIN_COOLDOWN,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.CUSTOM_TRAIN_COOLDOWN,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_FAIL: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.CUSTOM_TRAIN_FAIL,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.CUSTOM_TRAIN_FAIL,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_LEVEL_UP: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.CUSTOM_TRAIN_LEVEL_UP,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.CUSTOM_TRAIN_LEVEL_UP,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_START: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.CUSTOM_TRAIN_START,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.CUSTOM_TRAIN_START,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_SUMMARY: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.CUSTOM_TRAIN_COMPLETE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.CUSTOM_TRAIN_COMPLETE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMSOCKET_ACTION: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.STREAMSOCKET_ACTION,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.STREAMSOCKET_ACTION,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_CARD: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.STREAMLOOTS_CARD,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.STREAMLOOTS_CARD,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -2089,68 +1698,52 @@ export default class TriggerActionHandler {
 					community_gift: TriggerTypes.STREAMLOOTS_COMMUNITY_GIFT,
 					legendary: TriggerTypes.STREAMLOOTS_LEGENDARY,
 				} as const;
-				if (
-					await this.executeTriggersByType(
-						eventType[message.eventType],
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventType[message.eventType],
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_REACTION: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.STREAMLOOTS_REACTION,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.STREAMLOOTS_REACTION,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_EMOTE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.STREAMLOOTS_EMOTE,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.STREAMLOOTS_EMOTE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch (message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.STREAM_INFO_UPDATE,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.STREAM_INFO_UPDATE,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE: {
@@ -2158,78 +1751,58 @@ export default class TriggerActionHandler {
 						const event = m.enabled
 							? TriggerTypes.EMERGENCY_MODE_START
 							: TriggerTypes.EMERGENCY_MODE_STOP;
-						if (
-							await this.executeTriggersByType(
-								event,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							event,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.MOD: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.MOD,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.MOD,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.UNMOD: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.UNMOD,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.UNMOD,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.VIP: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.VIP,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.VIP,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.UNVIP: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.UNVIP,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.UNVIP,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE: {
@@ -2237,138 +1810,102 @@ export default class TriggerActionHandler {
 						const event = m.enabled
 							? TriggerTypes.SHIELD_MODE_ON
 							: TriggerTypes.SHIELD_MODE_OFF;
-						if (
-							await this.executeTriggersByType(
-								event,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							event,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_ON: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.SUB_ONLY_ON,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.SUB_ONLY_ON,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_OFF: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.SUB_ONLY_OFF,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.SUB_ONLY_OFF,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_ON: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.FOLLOW_ONLY_ON,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.FOLLOW_ONLY_ON,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_OFF: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.FOLLOW_ONLY_OFF,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.FOLLOW_ONLY_OFF,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_ON: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.EMOTE_ONLY_ON,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.EMOTE_ONLY_ON,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_OFF: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.EMOTE_ONLY_OFF,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.EMOTE_ONLY_OFF,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_ON: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.SLOW_MODE_ON,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.SLOW_MODE_ON,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_OFF: {
-						if (
-							await this.executeTriggersByType(
-								TriggerTypes.SLOW_MODE_OFF,
-								message,
-								testMode,
-								undefined,
-								undefined,
-								forcedTriggerId,
-							)
-						) {
-							return;
-						}
+						this.executeTriggersByType(
+							TriggerTypes.SLOW_MODE_OFF,
+							message,
+							testMode,
+							undefined,
+							undefined,
+							forcedTriggerId,
+						);
 						break;
 					}
 				}
@@ -2380,71 +1917,55 @@ export default class TriggerActionHandler {
 					message.state == "connected"
 						? TriggerTypes.OBS_CONNECTED
 						: TriggerTypes.OBS_DISCONNECTED;
-				if (
-					await this.executeTriggersByType(
-						event,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					event,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.MANY_REPLIES: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.MANY_REPLIES,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.MANY_REPLIES,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_LAYER_VISIBILITY_CHANGE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE,
-						message,
-						testMode,
-						message.meldstudioLayerVisibilityChange.layerId,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE,
+					message,
+					testMode,
+					message.meldstudioLayerVisibilityChange.layerId,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE,
-						message,
-						testMode,
-						message.meldstudioFilterVisibilityChange.effectId,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE,
+					message,
+					testMode,
+					message.meldstudioFilterVisibilityChange.effectId,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_SCENE_CHANGE: {
-				await this.executeTriggersByType(
+				this.executeTriggersByType(
 					TriggerTypes.MELDSTUDIO_SCENE_CHANGE,
 					message,
 					testMode,
@@ -2452,66 +1973,50 @@ export default class TriggerActionHandler {
 					undefined,
 					forcedTriggerId,
 				);
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.MELDSTUDIO_SCENE_CHANGE,
-						message,
-						testMode,
-						message.meldstudioSceneChange.sceneId,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.MELDSTUDIO_SCENE_CHANGE,
+					message,
+					testMode,
+					message.meldstudioSceneChange.sceneId,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_TRACK_MUTE_CHANGE: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE,
-						message,
-						testMode,
-						message.meldstudioTrackMuteChange.trackId,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE,
+					message,
+					testMode,
+					message.meldstudioTrackMuteChange.trackId,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_START_STREAM: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.MELDSTUDIO_START_STREAM,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.MELDSTUDIO_START_STREAM,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_STOP_STREAM: {
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.MELDSTUDIO_STOP_STREAM,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					TriggerTypes.MELDSTUDIO_STOP_STREAM,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 
@@ -2522,18 +2027,14 @@ export default class TriggerActionHandler {
 					leave: TriggerTypes.SHARED_CHAT_LEAVE,
 					end: TriggerTypes.SHARED_CHAT_END,
 				} as const;
-				if (
-					await this.executeTriggersByType(
-						eventToTrigger[message.event],
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
+				this.executeTriggersByType(
+					eventToTrigger[message.event],
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
 				break;
 			}
 		}
@@ -2601,105 +2102,10 @@ export default class TriggerActionHandler {
 		for (let i = 0; i < triggers.length; i++) {
 			const t = triggers[i];
 			if (!t || !t.type) continue;
-			let keys: string[] = [t.type as string];
-			switch (t.type) {
-				case TriggerTypes.CHAT_COMMAND: {
-					keys[0] += this.HASHMAP_KEY_SPLITTER + t.chatCommand;
-					if (t.chatCommandAliases) {
-						for (let i = 0; i < t.chatCommandAliases.length; i++) {
-							keys.push(t.type + this.HASHMAP_KEY_SPLITTER + t.chatCommandAliases[i]);
-						}
-					}
-					break;
-				}
-
-				case TriggerTypes.AD_APPROACHING:
-					keys[0] += this.HASHMAP_KEY_SPLITTER + (t.adBreakDelay || 0).toString();
-					break;
-
-				case TriggerTypes.REWARD_REDEEM:
-					keys[0] += this.HASHMAP_KEY_SPLITTER + t.rewardId;
-					break;
-
-				case TriggerTypes.POWER_UP_CUSTOM:
-					keys[0] += this.HASHMAP_KEY_SPLITTER + t.powerUpId;
-					break;
-
-				case TriggerTypes.OBS_SCENE:
-					keys[0] += this.HASHMAP_KEY_SPLITTER + t.obsScene;
-					break;
-
-				case TriggerTypes.OBS_SOURCE_ON:
-				case TriggerTypes.OBS_SOURCE_OFF:
-					keys[0] += this.HASHMAP_KEY_SPLITTER + t.obsSource;
-					break;
-
-				case TriggerTypes.OBS_FILTER_ON:
-				case TriggerTypes.OBS_FILTER_OFF:
-					keys[0] +=
-						this.HASHMAP_KEY_SPLITTER +
-						t.obsSource +
-						this.HASHMAP_KEY_SPLITTER +
-						t.obsFilter;
-					break;
-
-				case TriggerTypes.OBS_PLAYBACK_STARTED:
-				case TriggerTypes.OBS_PLAYBACK_ENDED:
-				case TriggerTypes.OBS_PLAYBACK_PAUSED:
-				case TriggerTypes.OBS_PLAYBACK_RESTARTED:
-				case TriggerTypes.OBS_PLAYBACK_NEXT:
-				case TriggerTypes.OBS_PLAYBACK_PREVIOUS:
-				case TriggerTypes.OBS_INPUT_MUTE:
-				case TriggerTypes.OBS_INPUT_UNMUTE:
-					keys[0] += this.HASHMAP_KEY_SPLITTER + t.obsInput;
-					break;
-
-				case TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE:
-				case TriggerTypes.MELDSTUDIO_SCENE_CHANGE:
-				case TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE:
-				case TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE:
-					keys[0] += this.HASHMAP_KEY_SPLITTER + t.meldItem;
-					break;
-
-				case TriggerTypes.COUNTER_EDIT:
-				case TriggerTypes.COUNTER_ADD:
-				case TriggerTypes.COUNTER_DEL:
-				case TriggerTypes.COUNTER_LOOPED:
-				case TriggerTypes.COUNTER_MAXED:
-				case TriggerTypes.COUNTER_MINED:
-					keys[0] += this.HASHMAP_KEY_SPLITTER + t.counterId;
-					break;
-
-				case TriggerTypes.VALUE_UPDATE:
-					keys[0] += this.HASHMAP_KEY_SPLITTER + t.valueId;
-					break;
-
-				case TriggerTypes.HEAT_CLICK: {
-					if ((!t.heatClickSource || t.heatClickSource == "obs") && t.heatObsSource) {
-						keys[0] += this.HASHMAP_KEY_SPLITTER + t.heatObsSource;
-					} else if (t.heatClickSource == "area" && t.heatAreaIds) {
-						keys = [];
-						for (let i = 0; i < t.heatAreaIds.length; i++) {
-							keys.push(t.type + this.HASHMAP_KEY_SPLITTER + t.heatAreaIds[i]);
-						}
-					}
-					break;
-				}
-
-				case TriggerTypes.GOXLR_BUTTON_PRESSED:
-				case TriggerTypes.GOXLR_BUTTON_RELEASED: {
-					if (t.goxlrButtons) {
-						keys = [];
-						for (let i = 0; i < t.goxlrButtons.length; i++) {
-							keys.push(t.type + this.HASHMAP_KEY_SPLITTER + t.goxlrButtons[i]);
-						}
-					}
-				}
-			}
+			const keys = getTriggerEventKeys(t);
 
 			for (let i = 0; i < keys.length; i++) {
-				let key = keys[i]!;
-				keys[i] = key = key.toLowerCase();
+				const key = keys[i]!;
 				if (!this.triggerType2Triggers[key]) {
 					this.triggerType2Triggers[key] = [];
 				}
@@ -2741,6 +2147,20 @@ export default class TriggerActionHandler {
 	}
 
 	/**
+	 * Checks if given message was sent by the "chat message" trigger action.
+	 * Used to avoid "any message" trigger to indefinitely loop on itself.
+	 */
+	private isTriggerMessageEcho(message: TwitchatDataTypes.MessageChatData): boolean {
+		const isBot = message.user.id == StoreProxy.twitchBot.userInfos?.id;
+		const isSelf = message.user.id == StoreProxy.auth.twitch.user.id;
+		if (!isBot && !isSelf) return false;
+		const text = message.message.trim();
+		const index = this.triggerSentMessages.findIndex((v) => v.text == text);
+		if (index > -1) this.triggerSentMessages.splice(index, 1);
+		return isBot || index > -1;
+	}
+
+	/**
 	 * Executes triggers by their type
 	 *
 	 * @param triggerType	type of triggers to execute
@@ -2748,39 +2168,34 @@ export default class TriggerActionHandler {
 	 * @param testMode 		is it a test execution ?
 	 * @param subEvent 		sub event value (reward ID, counter ID, )
 	 * @param ttsID
-	 *
-	 * @returns true if the trigger was executed
 	 */
-	private async executeTriggersByType(
+	private executeTriggersByType(
 		triggerType: TriggerTypesValue,
 		message: TwitchatDataTypes.ChatMessageTypes,
 		testMode: boolean,
 		subEvent?: string,
 		ttsID?: string,
 		forcedTriggerId?: string,
-	): Promise<boolean> {
+	): void {
 		// Ignore "any xxx" trigger when testing a specifc trigger
-		if (subEvent == "*" && testMode && forcedTriggerId) return false;
+		if (subEvent == "*" && testMode && forcedTriggerId) return;
 		if (forcedTriggerId) {
 			const trigger = StoreProxy.triggers.triggerList.find((v) => v.id == forcedTriggerId);
 			//Don't let the forced trigger answer for a type it isn't, otherwise a
 			//single message dispatching to several types executes it once per type
 			if (trigger && trigger.type == triggerType) {
-				if (await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
-					return true;
-				}
+				void this.executeTrigger(trigger, message, testMode, subEvent, ttsID);
 			}
-			return false;
+			return;
 		}
 
 		let key = triggerType as string;
-		let executed = false;
 		if (subEvent) key += this.HASHMAP_KEY_SPLITTER + subEvent;
 		key = key.toLowerCase();
 
 		const isPremium = StoreProxy.auth.isPremium;
 		const triggers = this.triggerType2Triggers[key];
-		if (!triggers || triggers.length == 0) return false;
+		if (!triggers || triggers.length == 0) return;
 
 		const sourceChanId = message.twitchSharedChatSourceId || message.channel_id;
 
@@ -2796,12 +2211,8 @@ export default class TriggerActionHandler {
 				)
 					continue;
 			}
-			if (await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
-				executed = true;
-			}
+			void this.executeTrigger(trigger, message, testMode, subEvent, ttsID);
 		}
-
-		return executed;
 	}
 
 	/**
@@ -4409,6 +3820,19 @@ export default class TriggerActionHandler {
 							'"' +
 							(replyTo ? " as reply to " + replyTo.id : ""),
 					});
+					//Registered before sending as the echo may be received before
+					//the send request completes.
+					//Strip any "/command" as it's not part of the echo (ex: /me, /announce)
+					const now = Date.now();
+					const sentMessage = {
+						text: text.replace(/^\/\S+/, "").trim(),
+						expires: now + 30000,
+					};
+					// Cleanup expired entries
+					this.triggerSentMessages = this.triggerSentMessages.filter(
+						(v) => v.expires > now,
+					);
+					this.triggerSentMessages.push(sentMessage);
 					const success = await MessengerProxy.instance.sendMessage(
 						text,
 						platforms,
@@ -4417,15 +3841,14 @@ export default class TriggerActionHandler {
 						true,
 					);
 					if (!success) {
+						const index = this.triggerSentMessages.indexOf(sentMessage);
+						if (index > -1) this.triggerSentMessages.splice(index, 1);
 						logStep.messages.push({
 							date: Date.now(),
 							value: "❌ An error occured sending the given message. If message is a /command, the error might be due to command execution failing.",
 						});
 						log.error = true;
 						logStep.error = true;
-					}
-					if (trigger.type == TriggerTypes.ANY_MESSAGE) {
-						this.lastAnyMessageSent = text;
 					}
 				} else //Handle highlight action
 				if (step.type == "highlight") {
@@ -10033,7 +9456,7 @@ export default class TriggerActionHandler {
 						if (postMessage) {
 							await StoreProxy.chat.addMessage(message);
 						} else {
-							await TriggerActionHandler.instance.execute(message);
+							TriggerActionHandler.instance.execute(message);
 						}
 						dateOffset++;
 					}
@@ -10054,7 +9477,7 @@ export default class TriggerActionHandler {
 						if (postMessage) {
 							await StoreProxy.chat.addMessage(message);
 						} else {
-							await TriggerActionHandler.instance.execute(message);
+							TriggerActionHandler.instance.execute(message);
 						}
 						dateOffset++;
 					}

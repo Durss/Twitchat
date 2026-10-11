@@ -1028,7 +1028,7 @@ export default class MessengerProxy {
 				message: messageData,
 				channel_id: messageData.channel_id,
 			};
-			void TriggerActionHandler.instance.execute(trigger);
+			TriggerActionHandler.instance.execute(trigger);
 			return true;
 		} else if (cmd == "/quickquiz") {
 			void StoreProxy.main

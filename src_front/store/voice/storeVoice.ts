@@ -96,7 +96,7 @@ export const storeVoice = defineStore("voice", {
 						voiceName: e.voiceName,
 						channel_id: StoreProxy.auth.twitch.user.id,
 					};
-					void TriggerActionHandler.instance.execute(trigger);
+					TriggerActionHandler.instance.execute(trigger);
 				},
 			);
 		},

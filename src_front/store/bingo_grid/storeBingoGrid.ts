@@ -380,7 +380,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 							bingoCount: entry.count,
 							user,
 						};
-						void TriggerActionHandler.instance.execute(message);
+						TriggerActionHandler.instance.execute(message);
 					}
 				}
 			});

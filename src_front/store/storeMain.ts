@@ -640,7 +640,7 @@ export const storeMain = defineStore("main", {
 					type: TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON,
 					channel_id: StoreProxy.auth.twitch.user.id,
 				};
-				void TriggerActionHandler.instance.execute(message);
+				TriggerActionHandler.instance.execute(message);
 			}
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, onGoXLRButton);
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_RELEASED, onGoXLRButton);
@@ -658,7 +658,7 @@ export const storeMain = defineStore("main", {
 					type: TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE,
 					channel_id: StoreProxy.auth.twitch.user.id,
 				};
-				void TriggerActionHandler.instance.execute(message);
+				TriggerActionHandler.instance.execute(message);
 			}
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_ENABLED, onGoXLRFx);
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_DISABLED, onGoXLRFx);
@@ -676,7 +676,7 @@ export const storeMain = defineStore("main", {
 					type: TwitchatDataTypes.TwitchatMessageType.GOXLR_SOUND_INPUT,
 					channel_id: StoreProxy.auth.twitch.user.id,
 				};
-				void TriggerActionHandler.instance.execute(message);
+				TriggerActionHandler.instance.execute(message);
 			}
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FADER_MUTE, onGoXLRMute);
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FADER_UNMUTE, onGoXLRMute);
@@ -696,7 +696,7 @@ export const storeMain = defineStore("main", {
 						buttonId: e.samplerButtonId!,
 						channel_id: StoreProxy.auth.twitch.user.id,
 					};
-					void TriggerActionHandler.instance.execute(message);
+					TriggerActionHandler.instance.execute(message);
 				},
 			);
 
@@ -790,7 +790,7 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Execute twitchat start trigger
 			 */
-			void TriggerActionHandler.instance.execute(
+			TriggerActionHandler.instance.execute(
 				{
 					id: Utils.getUUID(),
 					channel_id: StoreProxy.auth.twitch.user.id,

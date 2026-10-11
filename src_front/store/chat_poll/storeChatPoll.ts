@@ -179,7 +179,7 @@ export const storeChatPoll = defineStore("chatPoll", {
 				//Executes the start poll trigger if there was no poll data before
 				if (!this.data) {
 					message.isStart = true;
-					void TriggerActionHandler.instance.execute(message);
+					TriggerActionHandler.instance.execute(message);
 				}
 
 				this.data = data;

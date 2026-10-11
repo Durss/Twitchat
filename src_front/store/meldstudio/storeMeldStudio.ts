@@ -167,7 +167,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 												visible: v.visible,
 											},
 										};
-									void TriggerActionHandler.instance.execute(event);
+									TriggerActionHandler.instance.execute(event);
 								}
 								this.visibilityCache[v.id] = v.visible;
 							});
@@ -186,7 +186,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 												enabled: v.enabled,
 											},
 										};
-									void TriggerActionHandler.instance.execute(event);
+									TriggerActionHandler.instance.execute(event);
 								}
 								this.visibilityCache[v.id] = v.enabled;
 							});
@@ -205,7 +205,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 												muted: v.muted,
 											},
 										};
-									void TriggerActionHandler.instance.execute(event);
+									TriggerActionHandler.instance.execute(event);
 								}
 								this.muteCache[v.id] = v.muted;
 							});
@@ -224,7 +224,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 										prev_sceneName: this.currentSCene?.name || "",
 									},
 								};
-								void TriggerActionHandler.instance.execute(event);
+								TriggerActionHandler.instance.execute(event);
 							}
 							if (newScene) {
 								this.currentSCene = { name: newScene.name, id: newScene.id };
@@ -249,7 +249,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 									: TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_STOP_STREAM,
 								channel_id: StoreProxy.auth.twitch.user.id,
 							};
-							void TriggerActionHandler.instance.execute(m);
+							TriggerActionHandler.instance.execute(m);
 						});
 
 						this.connected = true;

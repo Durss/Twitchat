@@ -68,7 +68,7 @@ export const storePrediction = defineStore("prediction", {
 			if (data != null) {
 				if (!this.data) {
 					data.isStart = true;
-					void TriggerActionHandler.instance.execute(data);
+					TriggerActionHandler.instance.execute(data);
 				} else {
 					data.isStart = false;
 				}

@@ -563,7 +563,7 @@ function testTrigger(trigger: TriggerData): void {
 							break;
 						}
 					}
-					void TriggerActionHandler.instance.execute(data, true);
+					TriggerActionHandler.instance.execute(data, true);
 				},
 				false,
 			);
@@ -921,7 +921,7 @@ function testTrigger(trigger: TriggerData): void {
 						(m as TwitchatDataTypes.MessageChatPollData).isStart = true;
 					}
 
-					void TriggerActionHandler.instance.execute(m, true, trigger.id);
+					TriggerActionHandler.instance.execute(m, true, trigger.id);
 				},
 				false,
 			);

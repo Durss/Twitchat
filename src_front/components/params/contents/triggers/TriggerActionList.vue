@@ -127,7 +127,14 @@
 						<ParamItem
 							noBackground
 							class="priority"
-							v-tooltip="t('triggers.trigger_queue_priority')"
+							v-tooltip="
+								t(
+									triggerData.queue
+										? 'triggers.trigger_queue_priority'
+										: 'triggers.trigger_queue_priority_disabled',
+								)
+							"
+							:disabled="!triggerData.queue"
 							:paramData="param_queue_priority"
 							v-model="triggerData.queuePriority"
 						/>
@@ -1039,9 +1046,16 @@ onBeforeUnmount(() => {
 						border-top-right-radius: 0 !important;
 						border-bottom-right-radius: 0 !important;
 					}
+					.vs--single {
+						.vs__selected-options {
+							flex-wrap: nowrap;
+						}
+					}
 				}
 				.priority {
 					flex-basis: 50px;
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
 					:deep(.content),
 					:deep(.holder),
 					:deep(input) {
@@ -1060,20 +1074,27 @@ onBeforeUnmount(() => {
 
 		.nameInput {
 			:deep(input) {
-				padding-right: 1.5em;
+				padding-left: 2em;
+			}
+			:deep(.inputHolder) {
+				max-width: 300px;
+				flex-basis: 300px;
 			}
 
 			.emoteBt {
-				border-radius: 0;
+				border-radius: 0.5em;
 				padding: 0;
 				margin-left: -1.5em;
 				height: 1.5em;
 				width: 1.5em;
+				position: absolute;
+				right: calc(300px - 1.5em);
 				img {
-					height: 1em;
+					height: 1.25em;
 					object-fit: contain;
 					border-radius: 0.25em;
 					vertical-align: middle;
+					padding: 0;
 				}
 				.icon {
 					margin: 0;

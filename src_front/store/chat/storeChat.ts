@@ -1958,7 +1958,7 @@ export const storeChat = defineStore("chat", {
 										message: message,
 										channel_id: message.channel_id,
 									};
-									void TriggerActionHandler.instance.execute(trigger);
+									TriggerActionHandler.instance.execute(trigger);
 								}
 							}
 
@@ -3334,7 +3334,7 @@ export const storeChat = defineStore("chat", {
 				PublicAPI.instance.broadcast("ON_BITS", wsMessage);
 			}
 
-			void TriggerActionHandler.instance.execute(message);
+			TriggerActionHandler.instance.execute(message);
 			if (!isFromRemoteChan || StoreProxy.tts.params.allRemoteChans != false) {
 				void TTSUtils.instance.addMessageToQueue(message);
 			}
@@ -3603,7 +3603,7 @@ export const storeChat = defineStore("chat", {
 			} else {
 				this.highlightedMessageId = null;
 				await PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", undefined);
-				await TriggerActionHandler.instance.execute({
+				TriggerActionHandler.instance.execute({
 					type: TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT_CLOSE,
 					channel_id: StoreProxy.auth.twitch.user.id,
 					date: Date.now(),

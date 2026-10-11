@@ -224,7 +224,7 @@ export const storeHeat = defineStore("heat", {
 				keys,
 				text,
 			};
-			void TriggerActionHandler.instance.execute(message);
+			TriggerActionHandler.instance.execute(message);
 		},
 
 		createScreen(): string {
@@ -467,7 +467,7 @@ export const storeHeat = defineStore("heat", {
 					y: event.coordinates.y * 100,
 				},
 			};
-			void TriggerActionHandler.instance.execute(message);
+			TriggerActionHandler.instance.execute(message);
 
 			// Requested to specifically click an area ID
 			if (event.areaId) {
@@ -486,7 +486,7 @@ export const storeHeat = defineStore("heat", {
 				// Apply cooldown if any
 				if (isCooledDown(area, user.id)) return;
 
-				void TriggerActionHandler.instance.execute(clone);
+				TriggerActionHandler.instance.execute(clone);
 				log.targets.push({
 					customAreaID: event.areaId,
 					x: event.coordinates.x,
@@ -524,7 +524,7 @@ export const storeHeat = defineStore("heat", {
 							JSON.stringify(message),
 						) as TwitchatDataTypes.MessageHeatClickData;
 						clone.areaId = a.id;
-						void TriggerActionHandler.instance.execute(clone);
+						TriggerActionHandler.instance.execute(clone);
 					}
 				}
 			}
@@ -681,7 +681,7 @@ export const storeHeat = defineStore("heat", {
 				//Execute triggers related to that source
 				const clone = JSON.parse(JSON.stringify(message)) as typeof message;
 				clone.obsSource = rect.source.sourceName;
-				void TriggerActionHandler.instance.execute(clone, event.testMode);
+				TriggerActionHandler.instance.execute(clone, event.testMode);
 
 				//Compute click position relative to the browser source
 				const rotatedClick = Utils.rotatePointAround(

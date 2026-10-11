@@ -543,7 +543,7 @@ export const storeRaffle = defineStore("raffle", {
 						entryCount: raffle.entries.length,
 						user: user || undefined,
 					};
-					void TriggerActionHandler.instance.execute(raffleJoinMessage);
+					TriggerActionHandler.instance.execute(raffleJoinMessage);
 
 					const messageParams =
 						raffle.messages?.raffleJoin || StoreProxy.chat.botMessages.raffleJoin;
@@ -612,7 +612,7 @@ export const storeRaffle = defineStore("raffle", {
 				platform: "twitchat",
 				type: TwitchatDataTypes.TwitchatMessageType.RAFFLE_PICK_WINNER,
 			};
-			void TriggerActionHandler.instance.execute(message);
+			TriggerActionHandler.instance.execute(message);
 
 			const sUsers = StoreProxy.users;
 			//Compute entries scores for ponderation

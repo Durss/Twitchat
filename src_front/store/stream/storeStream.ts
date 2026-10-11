@@ -145,7 +145,7 @@ export const storeStream = defineStore("stream", {
 					platform: "twitchat",
 					type: TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE,
 				};
-				void TriggerActionHandler.instance.execute(message);
+				TriggerActionHandler.instance.execute(message);
 			});
 
 			/**

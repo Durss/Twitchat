@@ -858,7 +858,7 @@ async function simulateEvent(
 						m.pinLevel = index;
 						m.pinned = true;
 						// storeChat.addMessage(m);
-						void TriggerActionHandler.instance.execute(m);
+						TriggerActionHandler.instance.execute(m);
 					}, 100);
 					break;
 				}

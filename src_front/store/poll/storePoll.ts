@@ -59,7 +59,7 @@ export const storePoll = defineStore("poll", {
 				//Executes the start poll trigger if there was no poll data before
 				if (!this.data) {
 					data.isStart = true;
-					void TriggerActionHandler.instance.execute(data);
+					TriggerActionHandler.instance.execute(data);
 				} else {
 					data.isStart = false;
 				}

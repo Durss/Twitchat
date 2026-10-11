@@ -92,7 +92,7 @@ export const storeOBS = defineStore("obs", {
 					id: Utils.getUUID(),
 					platform: "twitchat",
 				};
-				void TriggerActionHandler.instance.execute(m);
+				TriggerActionHandler.instance.execute(m);
 			});
 
 			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", async () => {
@@ -105,7 +105,7 @@ export const storeOBS = defineStore("obs", {
 					id: Utils.getUUID(),
 					platform: "twitchat",
 				};
-				void TriggerActionHandler.instance.execute(m);
+				TriggerActionHandler.instance.execute(m);
 
 				const res = await OBSWebsocket.instance.socket.call("GetInputList", {
 					inputKind: "browser_source",
@@ -204,7 +204,7 @@ export const storeOBS = defineStore("obs", {
 						StoreProxy.common.currentOBSScene = e.sceneName;
 
 						StoreProxy.common.updateCurrentObsScene(e.sceneName);
-						void TriggerActionHandler.instance.execute(m);
+						TriggerActionHandler.instance.execute(m);
 					}, 30);
 				},
 			);
@@ -223,7 +223,7 @@ export const storeOBS = defineStore("obs", {
 					visible: event.data.event.sceneItemEnabled,
 					channel_id: StoreProxy.auth.twitch.user.id,
 				};
-				void TriggerActionHandler.instance.execute(m);
+				TriggerActionHandler.instance.execute(m);
 			});
 
 			/**
@@ -239,7 +239,7 @@ export const storeOBS = defineStore("obs", {
 					muted: event.data.inputMuted,
 					channel_id: StoreProxy.auth.twitch.user.id,
 				};
-				void TriggerActionHandler.instance.execute(m);
+				TriggerActionHandler.instance.execute(m);
 			});
 
 			/**
@@ -256,7 +256,7 @@ export const storeOBS = defineStore("obs", {
 					enabled: event.data.filterEnabled,
 					channel_id: StoreProxy.auth.twitch.user.id,
 				};
-				void TriggerActionHandler.instance.execute(m);
+				TriggerActionHandler.instance.execute(m);
 			});
 
 			/**
@@ -275,7 +275,7 @@ export const storeOBS = defineStore("obs", {
 				if (!event.data.outputActive) {
 					m = { ...m, type: TwitchatDataTypes.TwitchatMessageType.OBS_STOP_STREAM };
 				}
-				void TriggerActionHandler.instance.execute(m);
+				TriggerActionHandler.instance.execute(m);
 			});
 
 			/**
@@ -285,7 +285,7 @@ export const storeOBS = defineStore("obs", {
 				const type = event.data.outputActive
 					? TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_START
 					: TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_STOP;
-				void TriggerActionHandler.instance.execute(
+				TriggerActionHandler.instance.execute(
 					{
 						id: Utils.getUUID(),
 						channel_id: StoreProxy.auth.twitch.user.id,
@@ -347,7 +347,7 @@ export const storeOBS = defineStore("obs", {
 					state: typeToState[event.type]!,
 					channel_id: StoreProxy.auth.twitch.user.id,
 				};
-				void TriggerActionHandler.instance.execute(m);
+				TriggerActionHandler.instance.execute(m);
 			}
 
 			/**

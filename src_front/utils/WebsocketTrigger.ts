@@ -97,7 +97,7 @@ export default class WebsocketTrigger {
 							topic: json.topic,
 							platform: "twitchat",
 						};
-						void TriggerActionHandler.instance.execute(m);
+						TriggerActionHandler.instance.execute(m);
 					}
 				} catch (_error) {}
 			};

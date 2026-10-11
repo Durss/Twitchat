@@ -137,7 +137,7 @@ export const storePlayability = defineStore("playability", {
 									inputType: event.type,
 									inputValue: event.value,
 								};
-								void TriggerActionHandler.instance.execute(message);
+								TriggerActionHandler.instance.execute(message);
 							});
 						}
 					}
