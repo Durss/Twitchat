@@ -123,6 +123,11 @@ watch(
 	@btSize: 25px;
 	width: @btSize * 3;
 	.item {
+		//The native input is hidden, show its keyboard focus on the visible control
+		&:has(input:focus-visible) {
+			outline: auto;
+		}
+
 		width: @btSize;
 		height: @btSize;
 		position: relative;

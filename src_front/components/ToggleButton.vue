@@ -105,6 +105,11 @@ watch(
 
 <style scoped lang="less">
 .togglebutton {
+	//The native input is hidden, show its keyboard focus on the visible control
+	&:has(.input:focus-visible) {
+		outline: auto;
+	}
+
 	@size: 1.25em;
 	width: @size * 2;
 	min-width: @size * 2;
