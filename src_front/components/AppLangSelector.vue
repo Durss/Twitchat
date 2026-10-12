@@ -129,6 +129,10 @@ watch(
 			opacity: 0;
 			position: absolute;
 		}
+		//The native input is hidden, show its keyboard focus on the label
+		input:focus-visible + label {
+			outline: auto;
+		}
 		input[type="radio"]:checked + label {
 			font-weight: bold;
 			background-color: var(--color-secondary);
