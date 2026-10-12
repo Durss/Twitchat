@@ -6,30 +6,35 @@ import ts from "typescript";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const INPUT_FILE = path.join(__dirname, "../src_front/utils/PlaceholderModifiers.ts");
+const INPUT_FILES = [
+	path.join(__dirname, "../src_front/utils/PlaceholderModifiers.ts"),
+	//Modifiers needing the stores, registered by the app on boot
+	path.join(__dirname, "../src_front/utils/OptionalPlaceholderModifiers.ts"),
+];
 const OUTPUT_FILE = path.join(__dirname, "../PLACEHOLDER_MODIFIERS.md");
 const INJECT_MARKER = "<!-- INJECT_AFTER -->";
 
 /**
  * Generates the placeholder modifiers documentation from the JSDoc
- * comments of the MODIFIERS map.
+ * comments of the MODIFIERS map of every input file.
  *
  * Everything above the INJECT_AFTER marker of the output file is
  * hand written and preserved, everything below is regenerated.
  */
 function main() {
-	console.log("Reading " + path.basename(INPUT_FILE) + "...");
-	const source = fs.readFileSync(INPUT_FILE, "utf-8");
-	const sourceFile = ts.createSourceFile(
-		INPUT_FILE,
-		source,
-		ts.ScriptTarget.Latest,
-		true, //setParentNodes, needed to read the JSDoc
-	);
-
-	const regions = extractRegions(source);
-	const modifiers = extractModifiers(sourceFile, source, regions);
-	console.log("Found " + modifiers.length + " modifiers in " + regions.length + " categories");
+	const modifiers = INPUT_FILES.flatMap((file) => {
+		console.log("Reading " + path.basename(file) + "...");
+		const source = fs.readFileSync(file, "utf-8");
+		const sourceFile = ts.createSourceFile(
+			file,
+			source,
+			ts.ScriptTarget.Latest,
+			true, //setParentNodes, needed to read the JSDoc
+		);
+		return extractModifiers(sourceFile, source, extractRegions(source));
+	});
+	const categoryCount = new Set(modifiers.map((m) => m.category)).size;
+	console.log("Found " + modifiers.length + " modifiers in " + categoryCount + " categories");
 
 	const undocumented = modifiers.filter((m) => !m.description && !m.aliasOf);
 	if (undocumented.length > 0) {

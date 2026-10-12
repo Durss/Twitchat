@@ -16,16 +16,46 @@ import {
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { getUserIdFromLogin } from "./CounterValueUserIndex";
-import { registerModifier, type IModifierContext } from "./PlaceholderModifiers";
+import {
+	registerModifier,
+	type IModifierContext,
+	type PlaceholderModifier,
+} from "./PlaceholderModifiers";
 
 type CounterOrValueData = TwitchatDataTypes.CounterData | TwitchatDataTypes.ValueData;
+
+/**
+ * The JSDoc of each entry is turned into PLACEHOLDER_MODIFIERS.md by
+ * "npm run genmodifiers", along with the ones of PlaceholderModifiers.ts
+ */
+const MODIFIERS: { [name: string]: PlaceholderModifier } = {
+	//#region Values / Counters
+	/**
+	 * Gets the value of a per-user Counter or Value for a specific user.
+	 * @param user Name or ID of the user. Can be a placeholder.
+	 * @example {VALUE_MY-VALUE.user("Durss")} => durss's value
+	 * @example {COUNTER_VALUE_MY-COUNTER.user("Durss")} => durss's counter
+	 * @example {VALUE_MY-VALUE.user("{CUSTOM_USER}")} => custom user's value
+	 * @example {VALUE_MY-VALUE.user("29961813")} => durss's value
+	 */
+	user: counterValueUserModifier,
+	/**
+	 * Tells if a specific user is part of a per-user Counter or Value.
+	 * Gives "true" or "false".
+	 * @param user Name or ID of the user. Can be a placeholder.
+	 * @example {VALUE_MY-VALUE.has("Durss")} => true
+	 * @example {COUNTER_VALUE_MY-COUNTER.has("{CUSTOM_USER}")} => false
+	 * @example {VALUE_MY-VALUE.has("29961813")} => true
+	 */
+	has: counterValueHasModifier,
+	//#endregion
+};
 
 /**
  * Register optional modifiers
  */
 export function registerOptionalPlaceholderModifiers(): void {
-	registerModifier("user", counterValueUserModifier);
-	registerModifier("has", counterValueHasModifier);
+	for (const [name, handler] of Object.entries(MODIFIERS)) registerModifier(name, handler);
 }
 
 /**

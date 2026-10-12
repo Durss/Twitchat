@@ -129,8 +129,8 @@ If you want to actually return something that looks a placeholder without it bei
 | [`htmlescape`](#htmlescape)     | Encoding          | Makes the value safe to put inside HTML.                                                                   |
 | [`base64`](#base64)             | Encoding          | Encodes the value to base 64.                                                                              |
 | [`base64decode`](#base64decode) | Encoding          | Decodes a base 64 value.                                                                                   |
-| [`user`](#user)                 | Values / Counters | Get the Value/Counter's value of a speciifc user                                                           |
-| [`has`](#has)                   | Values / Counters | Get if the user exists on a per-user Counter/Value                                                         |
+| [`user`](#user)                 | Values / Counters | Gets the value of a per-user Counter or Value for a specific user.                                         |
+| [`has`](#has)                   | Values / Counters | Tells if a specific user is part of a per-user Counter or Value.                                           |
 
 ## Text
 
@@ -366,7 +366,7 @@ Hides the end of the value behind a repeated character.
 | Argument | Description                                                                  |
 | -------- | ---------------------------------------------------------------------------- |
 | `keep`   | How many characters to leave visible. Defaults to 0, which hides everything. |
-| `char`   | Character to hide behind. Defaults to "\*".                                  |
+| `char`   | Character to hide behind. Defaults to "*".                                   |
 
 ```
 {USER.mask(3)} => Dur**
@@ -800,44 +800,33 @@ Decodes a base 64 value. Invalid values are left untouched.
 {PAYLOAD.base64decode} => hello
 ```
 
+## Values / Counters
+
 ### user
 
-Gets the value of a per-user Counter of Value for a specific user.
+Gets the value of a per-user Counter or Value for a specific user.
+
+| Argument | Description                                   |
+| -------- | --------------------------------------------- |
+| `user`   | Name or ID of the user. Can be a placeholder. |
 
 ```
 {VALUE_MY-VALUE.user("Durss")} => durss's value
 {COUNTER_VALUE_MY-COUNTER.user("Durss")} => durss's counter
-```
-
-You can also use placeholders:
-
-```
 {VALUE_MY-VALUE.user("{CUSTOM_USER}")} => custom user's value
-```
-
-A user ID can be given in place of the name
-
-```
 {VALUE_MY-VALUE.user("29961813")} => durss's value
 ```
 
 ### has
 
-Gets if a specific user exists on a per-user Counter or Value
+Tells if a specific user is part of a per-user Counter or Value. Gives "true" or "false".
+
+| Argument | Description                                   |
+| -------- | --------------------------------------------- |
+| `user`   | Name or ID of the user. Can be a placeholder. |
 
 ```
-{VALUE_MY-VALUE.has("Durss")} => durss exists?
-{COUNTER_VALUE_MY-COUNTER.has("Durss")} => durss exists?
-```
-
-You can also use placeholders:
-
-```
-{VALUE_MY-VALUE.has("{CUSTOM_USER}")} => custom user exists?
-```
-
-A user ID can be given in place of the name
-
-```
-{VALUE_MY-VALUE.has("29961813")} => durss exists?
+{VALUE_MY-VALUE.has("Durss")} => true
+{COUNTER_VALUE_MY-COUNTER.has("{CUSTOM_USER}")} => false
+{VALUE_MY-VALUE.has("29961813")} => true
 ```

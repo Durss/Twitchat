@@ -5,7 +5,8 @@
  */
 
 import { readFileSync } from "node:fs";
-import { afterAll, beforeEach, describe, expect, it } from "vite-plus/test";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { registerOptionalPlaceholderModifiers } from "./OptionalPlaceholderModifiers";
 import {
 	applyModifiers,
 	configureI18n,
@@ -21,6 +22,13 @@ import {
 	unescapeLiteralPlaceholders,
 } from "./PlaceholderModifiers";
 
+//OptionalPlaceholderModifiers only needs these two constants from there, the
+//real module drags the whole app in, which can't load outside a browser
+vi.mock("@/types/TriggerActionDataTypes", () => ({
+	COUNTER_VALUE_PLACEHOLDER_PREFIX: "COUNTER_VALUE_",
+	VALUE_PLACEHOLDER_PREFIX: "VALUE_",
+}));
+
 /**
  * Every modifier a test actually ran, filled by parse().
  * Checked by the "modifier coverage" suite at the bottom of this file.
@@ -29,12 +37,17 @@ const executedModifiers = new Set<string>();
 
 /**
  * Modifiers this module declares itself, captured before any test registers
- * one of its own. The documentation and coverage suites police that built in
- * catalogue only: modifiers registered by the app (see
- * StorePlaceholderModifiers) live outside this file, and outside the
- * documentation generated from it.
+ * one of its own. The coverage suite polices that built in catalogue only.
  */
 const builtinModifiers = getModifierNames();
+
+/**
+ * Every modifier offered to the user: the built in ones plus the optional
+ * ones needing the stores, registered here the way the app does on boot.
+ * The documentation is generated from both.
+ */
+registerOptionalPlaceholderModifiers();
+const appModifiers = getModifierNames();
 
 /**
  * Replays what TriggerActionHandler does: replaces the {TAG...} occurrences
@@ -139,10 +152,10 @@ describe("documentation", () => {
 	const allDocumented = new Set([...documented, ...aliases]);
 
 	it("documents every modifier", () => {
-		expect(builtinModifiers.filter((name) => !allDocumented.has(name))).toEqual([]);
+		expect(appModifiers.filter((name) => !allDocumented.has(name))).toEqual([]);
 	});
 	it("documents no modifier that no longer exists", () => {
-		expect([...allDocumented].filter((name) => !builtinModifiers.includes(name))).toEqual([]);
+		expect([...allDocumented].filter((name) => !appModifiers.includes(name))).toEqual([]);
 	});
 });
 
