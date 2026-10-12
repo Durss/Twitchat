@@ -285,6 +285,7 @@ import DataStore from "@/store/DataStore";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
 import {
 	computed,
@@ -763,13 +764,9 @@ function onKeyDown(e: KeyboardEvent, isCapture: boolean = false): void {
 		keydownCaptureTarget = document.activeElement;
 		return;
 	}
-	const node = keydownCaptureTarget ?? document.activeElement?.nodeName;
-	const isContentEditable = document.activeElement?.getAttribute("contenteditable");
 	if (
 		e.key?.toLowerCase() == "escape" &&
-		node != "INPUT" &&
-		node != "TEXTAREA" &&
-		!isContentEditable
+		!Utils.isTextField(keydownCaptureTarget ?? document.activeElement)
 	) {
 		close();
 	}

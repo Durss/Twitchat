@@ -1,5 +1,6 @@
 import { gsap } from "gsap";
 import { onMounted, onBeforeUnmount, type Ref } from "vue";
+import Utils from "@/utils/Utils";
 
 /**
  * Composable that replaces AbstractSidePanel base class.
@@ -17,13 +18,7 @@ export function useSidePanel(
 
 	function onKeyDown(e: KeyboardEvent): void {
 		if (closed) return;
-		const node = document.activeElement?.nodeName;
-		if (
-			e.key &&
-			e.key.toLowerCase() == "escape" &&
-			node != "INPUT" &&
-			document.activeElement?.getAttribute("contenteditable") != "true"
-		) {
+		if (e.key?.toLowerCase() == "escape" && !Utils.isTextField()) {
 			closed = true;
 			void close();
 		}

@@ -30,6 +30,17 @@ export default class Utils {
 	}
 
 	/**
+	 * Tells if the given element (the focused one by default) is a text field:
+	 * an <input>, a <textarea> or a contenteditable element, whatever the value
+	 * of its "contenteditable" attribute ("true" or "plaintext-only").
+	 * Panels closing on Escape use it to leave the key to the field.
+	 */
+	public static isTextField(el: Element | null = document.activeElement): boolean {
+		if (!(el instanceof HTMLElement)) return false;
+		return el.nodeName == "INPUT" || el.nodeName == "TEXTAREA" || el.isContentEditable;
+	}
+
+	/**
 	 * Generates a random UUID
 	 */
 	public static getUUID(): string {

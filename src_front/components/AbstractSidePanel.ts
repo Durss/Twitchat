@@ -1,5 +1,6 @@
 import { gsap } from "gsap";
 import { ComponentBase, Vue } from "vue-facing-decorator";
+import Utils from "@/utils/Utils";
 
 @ComponentBase({
 	name: "AbstractSidePanel",
@@ -66,13 +67,7 @@ export default class AbstractSidePanel extends Vue {
 	 */
 	private onKeyDown(e: KeyboardEvent): void {
 		if (this.closed) return;
-		const node = document.activeElement?.nodeName;
-		if (
-			e.key &&
-			e.key.toLowerCase() == "escape" &&
-			node != "INPUT" &&
-			document.activeElement?.getAttribute("contenteditable") != "true"
-		) {
+		if (e.key?.toLowerCase() == "escape" && !Utils.isTextField()) {
 			this.closed = true;
 			void this.close();
 		}
