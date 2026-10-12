@@ -1735,8 +1735,12 @@ async function onSelectItem(item: string): Promise<void> {
 function onKeyDown(e: KeyboardEvent): void {
 	if (e.shiftKey) return; //Avoid blocking browser tab navigation
 	if (e.ctrlKey || e.metaKey) return; //Avoid blocking browser tab navigation
-	//Avoid leaving the input form
-	if (e.key == "Tab") e.preventDefault();
+	//Keep focus on the input only if Tab can autocomplete the current word (see onTab)
+	if (e.key == "Tab") {
+		const caretPos = inputRef.value?.selectionStart ?? message.value.length;
+		const word = message.value.substring(0, caretPos).split(/\s/).pop() ?? "";
+		if (word.length > 1) e.preventDefault();
+	}
 
 	if (!openAutoComplete.value) {
 		//Navigate through sent message history
