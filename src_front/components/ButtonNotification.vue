@@ -1,7 +1,9 @@
 <template>
-	<div
+	<button
+		type="button"
 		class="buttonnotification"
 		:class="{ disabled }"
+		:aria-disabled="disabled || undefined"
 		@click="onClick($event)"
 		v-newflag="newflag"
 	>
@@ -10,7 +12,7 @@
 		<Icon v-else :name="icon" class="icon" v-if="icon" />
 		<span class="label" v-if="!isEmptySlot(slots.default)"><slot /></span>
 		<span v-if="count > 0" class="count">{{ count }}</span>
-	</div>
+	</button>
 </template>
 
 <script setup lang="ts">
@@ -65,6 +67,7 @@ function onClick(event: MouseEvent): void {
 	border-radius: var(--border-radius);
 	position: relative;
 	padding: 0.2em;
+	color: inherit;
 
 	&::before {
 		//Offset "new flag" so it's closer to the icon
