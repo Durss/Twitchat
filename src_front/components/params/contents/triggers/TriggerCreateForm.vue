@@ -403,27 +403,18 @@ function populate(): void {
 		);
 	}
 
-	if (triggerTypeList.length > 0) {
-		let currCat = triggerTypeList[0]!.trigger!.category;
-		let catEvents: TriggerTypeDefinition[] = [];
-		for (let i = 0; i < triggerTypeList.length; i++) {
-			const ev = triggerTypeList[i]!;
-			if (!ev.trigger) continue;
-			if (ev.trigger.disabled) continue;
-			if (ev.trigger.category != currCat || i === triggerTypeList.length - 1) {
-				if (i === triggerTypeList.length - 1) catEvents.push(ev.trigger);
-				if (!catEvents[0]) continue;
-				const cat: TriggerCategory = {
-					category: catEvents[0].category,
-					events: catEvents,
-				};
-				eventCategories.value.push(cat);
-				catEvents = [ev.trigger];
-			} else {
-				catEvents.push(ev.trigger);
-			}
-			currCat = ev.trigger.category;
+	//Group consecutive triggers by category
+	let catEvents: TriggerTypeDefinition[] = [];
+	for (const ev of triggerTypeList) {
+		if (!ev.trigger || ev.trigger.disabled) continue;
+		if (catEvents[0] && catEvents[0].category != ev.trigger.category) {
+			eventCategories.value.push({ category: catEvents[0].category, events: catEvents });
+			catEvents = [];
 		}
+		catEvents.push(ev.trigger);
+	}
+	if (catEvents[0]) {
+		eventCategories.value.push({ category: catEvents[0].category, events: catEvents });
 	}
 
 	eventCategories.value.forEach((v) => {
