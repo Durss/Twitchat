@@ -13,7 +13,7 @@
 			/>
 
 			<Icon v-if="data.icon" :name="data.icon" class="icon" />
-			<ClearButton aria-label="close" @click="cancel()" />
+			<ClearButton @click="cancel()" />
 
 			<div v-if="data.title || data.titleLabel" class="head">
 				<span class="title">{{ data.title ?? t(data.titleLabel!) }}</span>
