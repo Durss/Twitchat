@@ -67,7 +67,7 @@ export default class AbstractSidePanel extends Vue {
 	 */
 	private onKeyDown(e: KeyboardEvent): void {
 		if (this.closed) return;
-		if (e.key?.toLowerCase() == "escape" && !Utils.isTextField()) {
+		if (e.key?.toLowerCase() == "escape" && !Utils.blurFocusedTextField(e.target)) {
 			this.closed = true;
 			void this.close();
 		}

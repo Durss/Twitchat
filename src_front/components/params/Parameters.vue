@@ -766,7 +766,7 @@ function onKeyDown(e: KeyboardEvent, isCapture: boolean = false): void {
 	}
 	if (
 		e.key?.toLowerCase() == "escape" &&
-		!Utils.isTextField(keydownCaptureTarget ?? document.activeElement)
+		!Utils.blurFocusedTextField(keydownCaptureTarget ?? document.activeElement)
 	) {
 		close();
 	}

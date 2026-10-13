@@ -29,15 +29,33 @@ export default class Utils {
 		return document.body.classList.contains("light");
 	}
 
+	private static readonly TEXT_INPUT_TYPES = new Set([
+		"text",
+		"search",
+		"email",
+		"url",
+		"tel",
+		"password",
+		"number",
+		"date",
+		"time",
+		"datetime-local",
+		"month",
+		"week",
+	]);
 	/**
-	 * Tells if the given element (the focused one by default) is a text field:
-	 * an <input>, a <textarea> or a contenteditable element, whatever the value
-	 * of its "contenteditable" attribute ("true" or "plaintext-only").
-	 * Panels closing on Escape use it to leave the key to the field.
+	 * Blurs the given element (defaults to the focused one) if it's a text field.
+	 * Returns true if element was blurred.
+	 * Used by modals and panels to avoid closing if an input has focus.
 	 */
-	public static isTextField(el: Element | null = document.activeElement): boolean {
-		if (!(el instanceof HTMLElement)) return false;
-		return el.nodeName == "INPUT" || el.nodeName == "TEXTAREA" || el.isContentEditable;
+	public static blurFocusedTextField(el: EventTarget | null = document.activeElement): boolean {
+		const isTextField =
+			el instanceof HTMLTextAreaElement ||
+			(el instanceof HTMLInputElement && Utils.TEXT_INPUT_TYPES.has(el.type)) ||
+			(el instanceof HTMLElement && el.isContentEditable);
+		if (!isTextField) return false;
+		el.blur();
+		return true;
 	}
 
 	/**

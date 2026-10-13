@@ -831,7 +831,7 @@ function closePanel(): Promise<void> {
  */
 function onSidePanelKeyDown(e: KeyboardEvent): void {
 	if (panelClosed) return;
-	if (e.key?.toLowerCase() == "escape" && !Utils.isTextField()) {
+	if (e.key?.toLowerCase() == "escape" && !Utils.blurFocusedTextField(e.target)) {
 		panelClosed = true;
 		void closePanel();
 	}

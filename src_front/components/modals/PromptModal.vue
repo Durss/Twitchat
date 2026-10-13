@@ -53,6 +53,7 @@
 
 <script setup lang="ts">
 import { storeMain as useStoreMain } from "@/store/storeMain.js";
+import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -171,7 +172,8 @@ function renderTimeout(): void {
 
 function onKeyDown(e: KeyboardEvent): void {
 	if (!data.value || e.key != "Escape") return;
-	cancel();
+	//First Escape leaves the text field, the next one closes the prompt
+	if (!Utils.blurFocusedTextField()) cancel();
 	e.preventDefault();
 	e.stopPropagation();
 }

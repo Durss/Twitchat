@@ -18,7 +18,7 @@ export function useSidePanel(
 
 	function onKeyDown(e: KeyboardEvent): void {
 		if (closed) return;
-		if (e.key?.toLowerCase() == "escape" && !Utils.isTextField()) {
+		if (e.key?.toLowerCase() == "escape" && !Utils.blurFocusedTextField(e.target)) {
 			closed = true;
 			void close();
 		}
