@@ -831,13 +831,7 @@ function closePanel(): Promise<void> {
  */
 function onSidePanelKeyDown(e: KeyboardEvent): void {
 	if (panelClosed) return;
-	const node = document.activeElement?.nodeName;
-	if (
-		e.key &&
-		e.key.toLowerCase() == "escape" &&
-		node != "INPUT" &&
-		document.activeElement?.getAttribute("contenteditable") != "true"
-	) {
+	if (e.key?.toLowerCase() == "escape" && !Utils.blurFocusedTextField(e.target)) {
 		panelClosed = true;
 		void closePanel();
 	}
