@@ -9,6 +9,7 @@ import Logger from "../utils/Logger.js";
 import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 import DiscordController from "./DiscordController.js";
+import MaintenanceController from "./MaintenanceController.js";
 import { PatreonMember } from "./PatreonController.js";
 import SSEController from "./SSEController.js";
 import TwitchExtensionController from "./TwitchExtensionController.js";
@@ -516,6 +517,9 @@ export default class UserController extends AbstractController {
 	 * Get/set a user's data
 	 */
 	private async postUserData(request: FastifyRequest, response: FastifyReply) {
+		// refuse to write data from outdated app version (lower major)
+		if (MaintenanceController.refuseOutdatedApp(request, response)) return;
+
 		const userInfo = await super.twitchUserGuard(request, response);
 		if (userInfo == false) return;
 		const body: any = request.body as any;

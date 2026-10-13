@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="robots" content="noindex" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=1" />
+		<title>Twitchat - Maintenance</title>
+		<style>
+			:root {
+				--color-text: #eeeeee;
+				--color-text-fade: rgba(238, 238, 238, 0.5);
+				--color-primary-fader: rgba(0, 134, 103, 0.4);
+				--color-secondary: #e04e00;
+				--color-secondary-light: #ff7023;
+				--color-secondary-extralight: #ffa87a;
+				--background-color-fader: rgba(255, 255, 255, 0.15);
+				--background-color-fadest: rgba(255, 255, 255, 0.05);
+				--border-radius: 0.5rem;
+			}
+			body.light {
+				--color-text: #101010;
+				--color-text-fade: rgba(16, 16, 16, 0.5);
+				--color-primary-fader: rgba(3, 147, 114, 0.4);
+				--background-color-fader: rgba(0, 0, 0, 0.15);
+				--background-color-fadest: rgba(0, 0, 0, 0.075);
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				padding: 0;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+				font-family: Inter, Helvetica, Arial, sans-serif;
+				color: var(--color-text);
+				background-color: #18181b;
+			}
+			body.light {
+				background-color: #ffffff;
+			}
+
+			a {
+				color: var(--color-secondary-light);
+			}
+			a:hover {
+				color: var(--color-secondary-extralight);
+			}
+			body.light a {
+				color: var(--color-secondary);
+			}
+			body.light a:hover {
+				color: var(--color-secondary-light);
+			}
+
+			.home-gradient-bg {
+				background: linear-gradient(180deg, var(--color-primary-fader) 0%, transparent 100%);
+				width: 100%;
+				height: 100vh;
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+
+			.holder {
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				z-index: 1;
+				display: flex;
+				flex-direction: column;
+				gap: 1em;
+				width: 380px;
+				max-width: 100vw;
+				max-height: 100vh;
+				overflow-y: auto;
+				padding: 0.5em;
+				border-radius: 0.5em;
+				backdrop-filter: blur(10px);
+				background: linear-gradient(
+					180deg,
+					rgba(0, 0, 0, 0.7) 0%,
+					rgba(0, 0, 0, 0.85) 50%,
+					rgba(0, 0, 0, 0.7) 100%
+				);
+				box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5);
+			}
+			body.light .holder {
+				background: linear-gradient(
+					180deg,
+					rgba(255, 255, 255, 0.5) 0%,
+					rgba(255, 255, 255, 0.6) 50%,
+					rgba(255, 255, 255, 0.5) 100%
+				);
+			}
+
+			.holder > .head {
+				align-self: center;
+				padding-top: 20px;
+			}
+			.holder > .head > .icon {
+				height: 50px;
+			}
+
+			.holder > .content {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 1em;
+				text-align: center;
+				line-height: 1.5em;
+			}
+			.holder > .content > .title {
+				font-size: 1.25em;
+				font-weight: bold;
+			}
+			.holder > .content > .quote {
+				font-style: italic;
+				word-break: break-word;
+				white-space: pre-line;
+				line-height: 1.2em;
+				border-radius: var(--border-radius);
+				border-left: 2px solid var(--background-color-fader);
+				background-image: linear-gradient(
+					90deg,
+					var(--background-color-fadest),
+					transparent
+				);
+				padding: 0.5em;
+			}
+			.holder > .content > .quote:empty {
+				display: none;
+			}
+			.holder > .content > .spinner {
+				width: 30px;
+				height: 30px;
+				display: block;
+			}
+			body.light .holder > .content > .spinner {
+				filter: invert();
+			}
+			.holder > .content > .status {
+				font-size: 0.8em;
+				color: var(--color-text-fade);
+			}
+		</style>
+	</head>
+
+	<body>
+		<script type="text/javascript">
+			try {
+				let theme = localStorage.getItem("twitchat_theme");
+				//Apply theme from storage
+				if (theme) {
+					document.body.classList.add(theme === "light" ? "light" : "dark");
+				} else if (matchMedia("(prefers-color-scheme: light)").matches) {
+					//Apply theme from browser pref
+					document.body.classList.add("light");
+				} else {
+					document.body.classList.add("dark");
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		</script>
+
+		<div class="home-gradient-bg"></div>
+
+		<div class="holder">
+			<div class="head">
+				<img class="icon" src="/twitchat.svg" alt="twitchat" />
+			</div>
+
+			<div class="content">
+				<div class="title" id="title">Twitchat is under maintenance</div>
+				<div id="description"></div>
+				<div class="quote" id="message"></div>
+				<img class="spinner" src="/loader.svg" alt="loading" />
+				<div class="status" id="status"></div>
+				<a id="discord" href="https://discord.gg/fmqD2xUYvP" target="_blank" rel="noopener"></a>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			const POLL_INTERVAL = 10000;
+			//Random offset so clients don't all poll at the same time
+			const POLL_OFFSET = Math.random() * 5000;
+			//Max random delay before going back so users don't all hit the server at once
+			const MAX_RETURN_DELAY = 30000;
+			const REQUEST_TIMEOUT = 8000;
+
+			const labels = {
+				en: {
+					title: "Twitchat is under maintenance",
+					description:
+						"Twitchat is moving to a new server. You can keep this page open, it will take you back to Twitchat as soon as it's done.",
+					lastCheck: "Last check: {TIME}",
+					back: "Maintenance is over! Going back to Twitchat in {SECONDS}s…",
+					discord: "Follow updates on Discord",
+				},
+				fr: {
+					title: "Twitchat est en maintenance",
+					description:
+						"Twitchat déménage sur un nouveau serveur. Tu peux laisser cette page ouverte, elle te ramènera sur Twitchat dès que ce sera terminé.",
+					lastCheck: "Dernière vérification : {TIME}",
+					back: "Maintenance terminée ! Retour sur Twitchat dans {SECONDS}s…",
+					discord: "Suivre l'avancement sur Discord",
+				},
+			};
+			const lang = navigator.language?.toLowerCase().startsWith("fr") ? "fr" : "en";
+			const t = labels[lang];
+			document.documentElement.lang = lang;
+			document.title = "Twitchat - " + t.title;
+			document.getElementById("title").innerText = t.title;
+			document.getElementById("description").innerText = t.description;
+			document.getElementById("discord").innerText = t.discord;
+
+			const statusHolder = document.getElementById("status");
+			const messageHolder = document.getElementById("message");
+			let firstPoll = true;
+
+			/**
+			 * Get the page to go back to.
+			 * Only accept relative paths, "//host" and "/\host" would send
+			 * the user to another website.
+			 */
+			function getReturnPath() {
+				const from = new URLSearchParams(document.location.search).get("from") || "";
+				if (!/^\/(?![\/\\])/.test(from) || /^\/maintenance/i.test(from)) return "/chat";
+				return from;
+			}
+
+			/**
+			 * Go back to the app after the given delay
+			 */
+			function goBack(delay) {
+				const end = Date.now() + delay;
+				const tick = () => {
+					const remaining = Math.max(0, Math.ceil((end - Date.now()) / 1000));
+					statusHolder.innerText = t.back.replace("{SECONDS}", remaining);
+					if (remaining <= 0) {
+						document.location.href = getReturnPath();
+						return;
+					}
+					setTimeout(tick, 250);
+				};
+				tick();
+			}
+
+			/**
+			 * Check maintenance status.
+			 * Only an explicit "off" state sends the user back. Network errors,
+			 * timeouts, 5xx and non-JSON responses (proxy error pages) all mean
+			 * "stay", otherwise a server that's down would send users back to
+			 * a broken app.
+			 */
+			async function poll() {
+				const controller = new AbortController();
+				const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+				try {
+					const res = await fetch("/api/maintenance/status", {
+						cache: "no-store",
+						signal: controller.signal,
+					});
+					const json = res.ok ? await res.json() : null;
+					const data = json?.success === true ? json.data : null;
+					if (data?.state === "off") {
+						//No need to wait if maintenance was already over when opening the page
+						goBack(firstPoll ? 0 : Math.random() * MAX_RETURN_DELAY);
+						return;
+					}
+					if (data) messageHolder.innerText = data.message || "";
+				} catch (error) {
+					//Server unreachable, try again later
+				} finally {
+					clearTimeout(timeout);
+				}
+
+				firstPoll = false;
+				statusHolder.innerText = t.lastCheck.replace("{TIME}", new Date().toLocaleTimeString());
+				setTimeout(poll, POLL_INTERVAL + POLL_OFFSET);
+			}
+
+			poll();
+		</script>
+	</body>
+</html>

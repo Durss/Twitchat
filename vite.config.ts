@@ -195,6 +195,16 @@ export default defineConfig({
 							res.end(fs.readFileSync(publicHtmlPath));
 							return;
 						}
+					} else if (/^\/maintenance(\/|\?|$)/i.test(url)) {
+						const maintenanceHtmlPath = path.resolve(
+							__dirname,
+							"static/maintenance.html",
+						);
+						if (fs.existsSync(maintenanceHtmlPath)) {
+							res.setHeader("Content-Type", "text/html");
+							res.end(fs.readFileSync(maintenanceHtmlPath));
+							return;
+						}
 					}
 
 					next();

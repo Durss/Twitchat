@@ -148,6 +148,15 @@ export default class MiddlewareController extends AbstractController {
 			} else //Redirect /public/ route to overlay's html page
 			if (/^\/public\//gi.test(request.url)) {
 				staticFile = path.join(Config.PUBLIC_ROOT, "public.html");
+			} else //Redirect /maintenance route to the standalone maintenance page
+			if (/^\/maintenance(\/|\?|$)/i.test(request.url)) {
+				// redirect to home if no maintenance in progress
+				if (MaintenanceController.maintenanceStatus.state == "off") {
+					this.disableCache(response);
+					response.status(302).header("Location", "/").send();
+					return;
+				}
+				staticFile = path.join(Config.PUBLIC_ROOT, "maintenance.html");
 			}
 
 			if (staticFile) {
