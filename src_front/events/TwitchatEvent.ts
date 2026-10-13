@@ -38,7 +38,14 @@ export type TwitchatEventMap = {
 	/**
 	 * Twitchat completed initialization and is ready.
 	 */
-	ON_TWITCHAT_READY: undefined;
+	ON_TWITCHAT_READY: {
+		/**
+		 * Twitchat version (ex: "17.0.0").
+		 * Overlays reload if this version has a higher major version than
+		 * what the overlay has.
+		 */
+		appVersion: string;
+	};
 	/**
 	 * OBS Websocket connection established
 	 */

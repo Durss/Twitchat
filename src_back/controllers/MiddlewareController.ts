@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import AbstractController from "./AbstractController.js";
+import MaintenanceController from "./MaintenanceController.js";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
 import * as fs from "fs";
@@ -65,8 +66,12 @@ export default class MiddlewareController extends AbstractController {
 					return false; //Force rate limiting on auth endpoints
 				}
 				// Apply rate limit only to API endpoints except /api/configs which
-				// actually only returns a static JSON
-				return !/\/api\//.test(request.url) || request.url == "/api/configs";
+				// actually only returns a static JSON, and the maintenance status.
+				return (
+					!/\/api\//.test(request.url) ||
+					request.url == "/api/configs" ||
+					request.url.split("?")[0] == MaintenanceController.STATUS_PATH
+				);
 			},
 			onBanReach: (request: FastifyRequest, _key: string) => {
 				this.expandCustomRateLimitDuration(request);
