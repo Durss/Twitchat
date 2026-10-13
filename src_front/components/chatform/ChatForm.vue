@@ -2358,6 +2358,16 @@ defineExpose({
 				}
 			}
 
+			//Keep the white flash but drop the zoom pulses
+			@media (prefers-reduced-motion: reduce) {
+				.blink-enter-active {
+					animation: none;
+				}
+				.blink-enter-from {
+					transform: none;
+				}
+			}
+
 			.viewCount {
 				cursor: pointer;
 				gap: 0.25em;
