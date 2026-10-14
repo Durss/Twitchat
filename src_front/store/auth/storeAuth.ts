@@ -43,7 +43,7 @@ export const storeAuth = defineStore("auth", {
 
 	getters: {
 		isAdmin(): boolean {
-			return this.twitch.user.is_admin === true;
+			return this.twitch.user?.is_admin === true;
 		},
 		isPremium(): boolean {
 			return this.premiumType != "";

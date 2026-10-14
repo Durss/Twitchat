@@ -1,4 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { reactive, type Reactive } from "vue";
 import { TwitchScopes, type TwitchScopesString } from "./twitch/TwitchScopes";
@@ -750,4 +751,5 @@ export interface ServerConfig {
 	tiltify_client_id: string;
 	tiltify_scopes: string;
 	twitchExtension_client_id: string;
+	maintenance?: TwitchatDataTypes.MaintenanceData;
 }

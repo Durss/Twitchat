@@ -493,90 +493,94 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface IParameterCategory {
 		features: {
-			[key in
-				| "spoilersEnabled"
-				| "alertMode"
-				| "firstMessage"
-				| "saveHistory"
-				| "antiHateRaid"
-				| "antiHateRaidDeleteMessage"
-				| "antiHateRaidEmergency"
-				| "autoTranslate"
-				| "autoTranslateFirst"
-				| "autoTranslateLang"
-				| "autoTranslateSpoken"
-				| "manyRepliesAlert"
-				| "manyRepliesAlertThreshold"
-				| "mergeConsecutive"
-				| "mergeConsecutive_maxSize"
-				| "mergeConsecutive_maxSizeTotal"
-				| "mergeConsecutive_minDuration"
-				| "groupIdenticalMessage"
-				| "markAsRead"
-				| "conversationsEnabled"
-				| "userHistoryEnabled"
-				| "lockAutoScroll"
-				| "liveMessages"
-				| "liveAlerts"
-				| "autoRemod"
-				| "showModTools"
-				| "raffleHighlightUser"
-				| "raffleHighlightUserDuration"
-				| "offlineEmoteOnly"
-				| "stopStreamOnRaid"
-				| "showUserPronouns"
-				| "chatShoutout"]: ParameterData<string | number | boolean | string[]>;
+			[
+				key in
+					| "spoilersEnabled"
+					| "alertMode"
+					| "firstMessage"
+					| "saveHistory"
+					| "antiHateRaid"
+					| "antiHateRaidDeleteMessage"
+					| "antiHateRaidEmergency"
+					| "autoTranslate"
+					| "autoTranslateFirst"
+					| "autoTranslateLang"
+					| "autoTranslateSpoken"
+					| "manyRepliesAlert"
+					| "manyRepliesAlertThreshold"
+					| "mergeConsecutive"
+					| "mergeConsecutive_maxSize"
+					| "mergeConsecutive_maxSizeTotal"
+					| "mergeConsecutive_minDuration"
+					| "groupIdenticalMessage"
+					| "markAsRead"
+					| "conversationsEnabled"
+					| "userHistoryEnabled"
+					| "lockAutoScroll"
+					| "liveMessages"
+					| "liveAlerts"
+					| "autoRemod"
+					| "showModTools"
+					| "raffleHighlightUser"
+					| "raffleHighlightUserDuration"
+					| "offlineEmoteOnly"
+					| "stopStreamOnRaid"
+					| "showUserPronouns"
+					| "chatShoutout"
+			]: ParameterData<string | number | boolean | string[]>;
 		};
 		appearance: {
-			[key in
-				| "splitViewVertical"
-				| "censorDeletedMessages"
-				| "multiChatAvatar"
-				| "multiChatColor"
-				| "sharedChatHide"
-				| "hideAnswersTo"
-				| "highlightusernames"
-				| "highlightMods"
-				| "highlightMods_color"
-				| "highlightVips"
-				| "highlightVips_color"
-				| "highlightSubs"
-				| "highlightSubs_color"
-				| "highlightPartners"
-				| "highlightPartners_color"
-				| "highlightMentions"
-				| "highlightMentions_color"
-				| "highlightMentions_custom"
-				| "raidHighlightUser"
-				| "raidHighlightUser_color"
-				| "raidHighlightUserDuration"
-				| "raidHighlightUserTrack"
-				| "highlight1stEver"
-				| "highlight1stEver_color"
-				| "highlight1stToday"
-				| "highlight1stToday_color"
-				| "highlightNonFollowers"
-				| "helloBadge"
-				| "firstUserBadge"
-				| "recentAccountUserBadge"
-				| "translateNames"
-				| "showRewardsInfos"
-				| "showViewersCount"
-				| "showRaidViewersCount"
-				| "showRaidStreamInfo"
-				| "alternateMessageBackground"
-				| "showEmotes"
-				| "bttvEmotes"
-				| "ffzEmotes"
-				| "sevenTVEmotes"
-				| "showBadges"
-				| "minimalistBadges"
-				| "fadeAnswers"
-				| "displayTime"
-				| "displayTimeRelative"
-				| "dyslexicFont"
-				| "adhdFont"
-				| "defaultSize"]: ParameterData<string | number | boolean | string[]>;
+			[
+				key in
+					| "splitViewVertical"
+					| "censorDeletedMessages"
+					| "multiChatAvatar"
+					| "multiChatColor"
+					| "sharedChatHide"
+					| "hideAnswersTo"
+					| "highlightusernames"
+					| "highlightMods"
+					| "highlightMods_color"
+					| "highlightVips"
+					| "highlightVips_color"
+					| "highlightSubs"
+					| "highlightSubs_color"
+					| "highlightPartners"
+					| "highlightPartners_color"
+					| "highlightMentions"
+					| "highlightMentions_color"
+					| "highlightMentions_custom"
+					| "raidHighlightUser"
+					| "raidHighlightUser_color"
+					| "raidHighlightUserDuration"
+					| "raidHighlightUserTrack"
+					| "highlight1stEver"
+					| "highlight1stEver_color"
+					| "highlight1stToday"
+					| "highlight1stToday_color"
+					| "highlightNonFollowers"
+					| "helloBadge"
+					| "firstUserBadge"
+					| "recentAccountUserBadge"
+					| "translateNames"
+					| "showRewardsInfos"
+					| "showViewersCount"
+					| "showRaidViewersCount"
+					| "showRaidStreamInfo"
+					| "alternateMessageBackground"
+					| "showEmotes"
+					| "bttvEmotes"
+					| "ffzEmotes"
+					| "sevenTVEmotes"
+					| "showBadges"
+					| "minimalistBadges"
+					| "fadeAnswers"
+					| "displayTime"
+					| "displayTimeRelative"
+					| "dyslexicFont"
+					| "adhdFont"
+					| "defaultSize"
+			]: ParameterData<string | number | boolean | string[]>;
 		};
 	}
 	export type ParameterCategory = keyof IParameterCategory;
@@ -2846,6 +2850,32 @@ export namespace TwitchatDataTypes {
 		text: { [key: string]: string };
 		dateEnd?: number;
 		versionMax?: string;
+	}
+
+	/**
+	 * Represents server's maintenance state
+	 */
+	export interface MaintenanceData {
+		/**
+		 * off: no maintenance
+		 * announced: banner with countdown until "lockAt", then clients leave the app
+		 * locked: server refuses API calls, users should be redirected to maintenance
+		 */
+		state: "off" | "announced" | "locked";
+		/**
+		 * Server timestamp at which clients must me redirected to maintenance page
+		 */
+		lockAt: number;
+		/**
+		 * Remaining ms before "lockAt" when server sent the data.
+		 * Use this instead of "lockAt" in case client's clock is off
+		 */
+		lockIn: number;
+		/**
+		 * Optional message per language to display to users
+		 * ex: {en:"...", fr:"..."}
+		 */
+		message: { [lang: string]: string };
 	}
 
 	/**

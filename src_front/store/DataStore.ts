@@ -49,10 +49,19 @@ export default class DataStore extends DataStoreCommon {
 	 ******************/
 
 	/**
+	 * Sends any pending save right awa
+	 */
+	static flush(): Promise<void> {
+		return this.save(false, true);
+	}
+
+	/**
 	 * Save user's data server side
+	 * @param force forces upload even if server data is more recent
+	 * @param immediate skips the debounce delay
 	 * @returns
 	 */
-	static override async save(force: boolean = false): Promise<void> {
+	static override async save(force: boolean = false, immediate: boolean = false): Promise<void> {
 		if (!force) {
 			//Nothing will be sent to the server, release any awaiting caller
 			if (
@@ -166,7 +175,7 @@ export default class DataStore extends DataStoreCommon {
 						this.flushSavePromises();
 					}
 				},
-				force ? 0 : 5000,
+				force || immediate ? 0 : 5000,
 			);
 		});
 	}

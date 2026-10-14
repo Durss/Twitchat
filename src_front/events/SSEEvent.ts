@@ -38,6 +38,7 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static TWITCHEXT_QUIZ_ANSWER = "TWITCHEXT_QUIZ_ANSWER" as const;
 	public static REMOTE_ACTION = "REMOTE_ACTION" as const;
 	public static FEATURE_FLAGS_UPDATE = "FEATURE_FLAGS_UPDATE" as const;
+	public static MAINTENANCE = "MAINTENANCE" as const;
 
 	constructor(
 		eventType: T,
@@ -171,6 +172,7 @@ export type EventTypeMap = {
 	SERVER_UPDATE: {
 		delay: number;
 	};
+	MAINTENANCE: TwitchatDataTypes.MaintenanceData;
 	TWITCHEXT_CLICK: {
 		px: number;
 		py: number;

@@ -29,11 +29,15 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
+import { watch } from "vue";
 import DataStore from "./DataStore";
 import Database from "./Database";
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from "./StoreProxy";
 import type TwitchatEvent from "@/events/TwitchatEvent";
 import { TriggerTypes } from "@/types/TriggerTypes";
+
+let maintenanceTimeout: number = -1;
+let leavingForMaintenance: boolean = false;
 
 export const storeMain = defineStore("main", {
 	state: (): IMainState => ({
@@ -60,6 +64,7 @@ export const storeMain = defineStore("main", {
 		iconCache: {},
 		outdatedDataVersion: false,
 		offlineMode: false,
+		maintenance: null,
 		suspendedTriggerStacks: [],
 		promptParams: [],
 	}),
@@ -166,6 +171,10 @@ export const storeMain = defineStore("main", {
 				return;
 			}
 			Config.instance.populateServerConfigs(jsonConfigs);
+
+			//Ongoing maintenance. Leaving is decided once authentication is
+			//done so admins stay, everyone else is sent to the maintenance page.
+			if (jsonConfigs.maintenance) this.setMaintenanceState(jsonConfigs.maintenance);
 
 			//Makes sure all parameters have a unique ID !
 			let uniqueIdsCheck: { [key: number]: boolean } = {};
@@ -301,6 +310,10 @@ export const storeMain = defineStore("main", {
 			//Reload labels when server tells
 			SSEHelper.instance.addEventListener(SSEEvent.LABELS_UPDATE, () => {
 				void this.reloadLabels(true);
+			});
+			//Server maintenance announced, started or ended
+			SSEHelper.instance.addEventListener(SSEEvent.MAINTENANCE, (event) => {
+				if (event.data) this.setMaintenanceState(event.data);
 			});
 
 			//Warn the user about the automatic "ad" message sent every 2h
@@ -1034,6 +1047,49 @@ export const storeMain = defineStore("main", {
 		hideOutdatedDataVersionAlert(offlineMode: boolean): void {
 			this.outdatedDataVersion = false;
 			this.offlineMode = offlineMode;
+		},
+
+		setMaintenanceState(data: TwitchatDataTypes.MaintenanceData): void {
+			window.clearTimeout(maintenanceTimeout);
+			if (data.state == "off") {
+				this.maintenance = null;
+				return;
+			}
+
+			this.maintenance = { ...data, lockAt: Date.now() + data.lockIn };
+			maintenanceTimeout = window.setTimeout(() => {
+				void this.leaveForMaintenance();
+			}, data.lockIn);
+		},
+
+		async leaveForMaintenance(): Promise<void> {
+			if (leavingForMaintenance) return;
+			if (/^\/overlay/i.test(document.location.pathname)) return;
+			leavingForMaintenance = true;
+
+			// Wait for app boot to complete so we know if we're an admin or not
+			if (!this.initComplete) {
+				await new Promise<void>((resolve) => {
+					watch(
+						() => this.initComplete,
+						() => resolve(),
+						{ once: true },
+					);
+				});
+			}
+
+			// keep admin on app
+			if (StoreProxy.auth.isAdmin) {
+				leavingForMaintenance = false;
+				return;
+			}
+
+			// Force save, give up after 10s
+			await Promise.race([DataStore.flush(), Utils.promisedTimeout(10000)]);
+
+			// redirect to maintenance page
+			const from = document.location.pathname + document.location.search;
+			document.location.href = "/maintenance?from=" + encodeURIComponent(from);
 		},
 
 		suspendedTriggerStack(callStack: TriggerCallStack): void {

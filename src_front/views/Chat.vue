@@ -205,6 +205,8 @@
 
 		<OutdatedDataVersionAlert v-if="storeMain.outdatedDataVersion" />
 
+		<MaintenanceBanner v-if="storeMain.maintenance" />
+
 		<div class="bottom">
 			<ChatForm
 				class="chatForm"
@@ -367,6 +369,7 @@ import Extensions from "@/components/chatform/Extensions.vue";
 import GroqHistory from "@/components/chatform/GroqHistory.vue";
 import HelpGenocideVictims from "@/components/chatform/HelpGenocideVictims.vue";
 import LiveFollowings from "@/components/chatform/LiveFollowings.vue";
+import MaintenanceBanner from "@/components/chatform/MaintenanceBanner.vue";
 import MessageSearch from "@/components/chatform/MessageSearch.vue";
 import NonPremiumCleanup from "@/components/chatform/NonPremiumCleanup.vue";
 import OutdatedDataVersionAlert from "@/components/chatform/OutdatedDataVersionAlert.vue";

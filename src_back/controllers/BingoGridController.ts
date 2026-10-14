@@ -8,6 +8,7 @@ import Logger from "../utils/Logger.js";
 import TwitchUtils from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
+import MaintenanceController from "./MaintenanceController.js";
 import SSEController, { SSECode as SSETopic } from "./SSEController.js";
 import TwitchExtensionController from "./TwitchExtensionController.js";
 
@@ -1115,6 +1116,7 @@ export default class BingoGridController extends AbstractController {
 		const ageMax = 15 * 24 * 60 * 60 * 1000;
 		setInterval(
 			async () => {
+				if (MaintenanceController.isServerLocked) return;
 				const now = Date.now();
 				const folders: string[] = [Config.BINGO_ROOT];
 				while (folders.length > 0) {

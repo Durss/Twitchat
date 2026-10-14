@@ -176,6 +176,14 @@ export default class Config {
 		});
 	}
 
+	public static get MAINTENANCE_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/maintenance.json"),
+			beta: path.join(this.DATA_ROOT, "/maintenance.json"),
+			prod: path.join(this.DATA_ROOT, "/maintenance.json"),
+		});
+	}
+
 	/**
 	 * Canonical list of feature flags. Keep in sync with frontend FeatureFlag type.
 	 */

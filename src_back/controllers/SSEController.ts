@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 import Logger from "../utils/Logger.js";
+import MaintenanceController from "./MaintenanceController.js";
 
 interface SSERegisterToken {
 	uid: string;
@@ -48,12 +49,15 @@ export default class SSEController extends AbstractController {
 	 * PUBLIC METHODS *
 	 ******************/
 	public initialize(): void {
+		//Clients must connect while locked so they're told to leave
 		this.server.post(
 			"/api/sse/auth",
+			MaintenanceController.ROUTE_ALLOWED,
 			async (request, response) => await this.postSseAuth(request, response),
 		);
 		this.server.get(
 			"/api/sse/register",
+			MaintenanceController.ROUTE_ALLOWED,
 			async (request, response) => await this.postRegisterSSE(request, response),
 		);
 
@@ -63,18 +67,10 @@ export default class SSEController extends AbstractController {
 			options: { cleanup?: boolean; exit?: boolean },
 			exitCode?: number,
 		) {
-			let i = 0;
-			const keys = Object.keys(SSEController.uidToResponse);
-			keys.forEach((uid) => {
-				const entry = SSEController.uidToResponse[uid];
-				if (!entry || entry.length === 0) return;
-
-				console.log("Sending SERVER_UPDATE to", uid);
-				SSEController.sendToUser(uid, "SERVER_UPDATE", { delay: 5000 + i * 50 });
-				//Stagger users so they don't all reconnect on the same tick
-				i++;
-			});
-			Logger.info("Sent SERVER_UPDATE to", keys.length.toString(), "users");
+			//Stagger users so they don't all reconnect on the same tick
+			SSEController.broadcast("SERVER_UPDATE", (_uid, index) => ({
+				delay: 5000 + index * 50,
+			}));
 
 			await Utils.promisedTimeout(3000);
 			if (options.cleanup) console.log("clean");
@@ -121,6 +117,20 @@ export default class SSEController extends AbstractController {
 			});
 		});
 		return true;
+	}
+
+	/**
+	 * Push an event to every connected user
+	 * @param code
+	 * @param getData builds the payload sent to each user
+	 */
+	public static broadcast(
+		code: keyof typeof SSECode,
+		getData?: (uid: string, index: number) => unknown,
+	): void {
+		const uids = Object.keys(this.uidToResponse);
+		uids.forEach((uid, index) => this.sendToUser(uid, code, getData?.(uid, index)));
+		Logger.info("Sent " + code + " to", uids.length.toString(), "users");
 	}
 
 	/**
@@ -201,6 +211,19 @@ export default class SSEController extends AbstractController {
 			id: "connecting",
 			data: JSON.stringify({ success: true, code: SSECode.CONNECTING }),
 		});
+
+		// tell client if a maintenance is ongoing or coming
+		const maintenance = MaintenanceController.maintenanceStatus;
+		if (maintenance.state != "off") {
+			response.sse({
+				id: "maintenance",
+				data: JSON.stringify({
+					success: true,
+					code: SSECode.MAINTENANCE,
+					data: maintenance,
+				}),
+			});
+		}
 
 		// Burn the JTI so the same token can't be reused. Auto-cleanup once the
 		// JWT would have expired anyway.
@@ -342,4 +365,5 @@ export const SSECode = {
 	TWITCHEXT_QUIZ_ANSWER: "TWITCHEXT_QUIZ_ANSWER",
 	REMOTE_ACTION: "REMOTE_ACTION",
 	FEATURE_FLAGS_UPDATE: "FEATURE_FLAGS_UPDATE",
+	MAINTENANCE: "MAINTENANCE",
 } as const;

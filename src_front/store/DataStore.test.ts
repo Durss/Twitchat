@@ -327,6 +327,49 @@ describe("DataStore unsynced changes", () => {
 	});
 });
 
+describe("DataStore flush before maintenance", () => {
+	/**
+	 * Starts a flush and tells when it's done
+	 */
+	function startFlush(store: Awaited<ReturnType<typeof launch>>) {
+		const state = { done: false };
+		void store.flush().then(() => (state.done = true));
+		return state;
+	}
+
+	it("sends a pending save right away instead of waiting for the debounce", async () => {
+		const store = await launch(deviceA);
+		await flushUploads();
+		void store.set("theme", "A");
+
+		const flush = startFlush(store);
+		await vi.advanceTimersByTimeAsync(10);
+		expect(flush.done).toBe(true);
+		expect(server.file!.theme).toBe("A");
+	});
+
+	it("resolves right away when nothing is pending", async () => {
+		const store = await launch(deviceA);
+		await flushUploads();
+
+		const flush = startFlush(store);
+		await vi.advanceTimersByTimeAsync(0);
+		expect(flush.done).toBe(true);
+	});
+
+	it("doesn't hang when the server refuses the save", async () => {
+		const store = await launch(deviceA);
+		await flushUploads();
+		server.down = true;
+		void store.set("theme", "A");
+
+		const flush = startFlush(store);
+		await vi.advanceTimersByTimeAsync(10);
+		expect(flush.done).toBe(true);
+		expect(server.file!.theme).toBe("initial");
+	});
+});
+
 describe("DataStore private data", () => {
 	it("never uploads secrets, neither with user data nor with the emergency backup", async () => {
 		const store = await launch(deviceA);

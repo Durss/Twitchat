@@ -267,6 +267,10 @@ export interface IMainState {
 	 */
 	offlineMode: boolean;
 	/**
+	 * If set, server is in maintenance mode
+	 */
+	maintenance: TwitchatDataTypes.MaintenanceData | null;
+	/**
 	 * Triggers susspended from execution due to super high frequency
 	 * and loop
 	 */
@@ -400,6 +404,15 @@ export interface IMainActions {
 	 */
 	showOutdatedDataVersionAlert(): void;
 	hideOutdatedDataVersionAlert(offlineMode: boolean): void;
+	/**
+	 * Called when server maintenance state changes
+	 * @param data
+	 */
+	setMaintenanceState(data: TwitchatDataTypes.MaintenanceData): void;
+	/**
+	 * Saves any pending data and redirects to the maintenance page.
+	 */
+	leaveForMaintenance(): Promise<void>;
 	/**
 	 * Called when a trigger's exec stack is suspended
 	 * @param callstack
@@ -2546,6 +2559,21 @@ export interface IAdminActions {
 	 * Removes gifted premium membership from given user
 	 */
 	ungiftPremium(login: string): Promise<void>;
+	/**
+	 * Get current server maintenance state
+	 */
+	getMaintenance(): Promise<TwitchatDataTypes.MaintenanceData | null>;
+	/**
+	 * Update server maintenance state
+	 * @param state
+	 * @param lockInMinutes delay before clients leave the app (state "announced" only)
+	 * @param message optional message per language shown to users
+	 */
+	setMaintenance(
+		state: TwitchatDataTypes.MaintenanceData["state"],
+		lockInMinutes?: number,
+		message?: TwitchatDataTypes.MaintenanceData["message"],
+	): Promise<TwitchatDataTypes.MaintenanceData | null>;
 }
 
 export interface ICountersState {

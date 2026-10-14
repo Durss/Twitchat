@@ -5,6 +5,7 @@
 
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import OBSWebSocket from "obs-websocket-js";
+import OverlayVersionChecker from "./utils/OverlayVersionChecker";
 import SFXRUtils from "./utils/SFXRUtils";
 import { isLocalNetworkHost } from "./utils/utils/isLocalHost";
 
@@ -94,6 +95,9 @@ function onMessage(message: IEnvelope): void {
 		if (messageIdsDone[message.id] === true) return;
 		messageIdsDone[message.id] = true;
 	}
+
+	//Reload overlay if app runs a newer major version
+	if (message.type == "ON_TWITCHAT_READY") OverlayVersionChecker.check(message.data);
 
 	if (message.type == "ON_TWITCHAT_READY" || message.type == "ON_OBS_WEBSOCKET_CONNECTED") {
 		if (connected) return;
