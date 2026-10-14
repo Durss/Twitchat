@@ -42,6 +42,7 @@ let signingOut = false;
 // which is the only way to keep a reference on it (see startOAuthProcess())
 const OAUTH_POPUP_NAME = "twitchat_bluesky_auth";
 const OAUTH_POPUP_FEATURES = "width=600,height=700,menubar=no,toolbar=no";
+let pendingSignIn: AbortController | null = null;
 
 function readLocalLink(): ILocalLink | null {
 	try {
@@ -65,6 +66,7 @@ export const storeBluesky = defineStore("bluesky", {
 	state: (): IBlueskyState => ({
 		connected: false,
 		connectionError: null,
+		authPending: false,
 		autoLive: false,
 		dmsAlerts: false,
 		mentionsAlerts: false,
@@ -182,46 +184,45 @@ export const storeBluesky = defineStore("bluesky", {
 			this.connected = false;
 			this.connectionError = null;
 			sessionDeleted = false;
+			this.authPending = true;
+			const aborter = new AbortController();
+			pendingSignIn?.abort();
+			pendingSignIn = aborter;
+			const stopWaiting = () => {
+				if (!aborter.signal.aborted) this.authPending = false;
+			};
+			let closeWatcher: ReturnType<typeof setInterval> | undefined;
 
 			//Open the popup right away, before any async work, so the browser doesn't
 			//block it.
 			const popup = window.open("about:blank", OAUTH_POPUP_NAME, OAUTH_POPUP_FEATURES);
 
-			const client = await this.initClient();
-			if (!client) {
-				popup?.close();
-				return false;
-			}
-			handle = handle.replace(/^@/, "");
-			const scope = readDMs
-				? "atproto transition:generic transition:chat.bsky"
-				: "atproto transition:generic";
+			try {
+				const client = await this.initClient();
+				if (!client) return false;
+				handle = handle.replace(/^@/, "");
+				const scope = readDMs
+					? "atproto transition:generic transition:chat.bsky"
+					: "atproto transition:generic";
 
-			//Popup blocked by the browser, fallback to a full page redirect
-			if (!popup) {
-				try {
+				//Popup blocked by the browser, fallback to a full page redirect
+				if (!popup) {
 					const url = await client.authorize(handle, { scope });
 					window.open(url, "_self", "noopener");
 					return true;
-				} catch (error) {
-					console.warn("Bluesky authorization failed", error);
-					return false;
 				}
-			}
 
-			// Detect popup close to abort auth
-			const aborter = new AbortController();
-			//The lib closes the popup itself once it got the result, so this watcher
-			//also fires on the success path. If it wins the race it aborts a completed
-			//sign in, and the lib then revokes the session it just created.
-			let aborted = false;
-			const closeWatcher = setInterval(() => {
-				if (!popup.closed || aborted) return;
-				aborted = true;
-				aborter.abort();
-			}, 500);
+				// We cannot safely detect when popup is closed to abort auth in case user
+				// dismissed it. As soon as we're redirected to bluesky auth popup.closed
+				// turns "true".
+				// Instead we just consider auth isn't pending anymore once app is focused back
+				closeWatcher = setInterval(() => {
+					if (!popup.closed) return;
+					clearInterval(closeWatcher);
+					if (document.hasFocus()) stopWaiting();
+					else window.addEventListener("focus", stopWaiting, { once: true });
+				}, 500);
 
-			try {
 				await client.signInPopup(handle, {
 					scope,
 					signal: aborter.signal,
@@ -230,16 +231,19 @@ export const storeBluesky = defineStore("bluesky", {
 					redirect_uri: `https://${document.location.host}/popupBlueskyAuthResult.html`,
 				});
 				//Finalize popup auth
-				void this.authenticate();
+				await this.authenticate();
 				return true;
 			} catch (error) {
-				console.warn("Bluesky popup auth failed", error);
-				return false;
+				console.warn("Bluesky authorization failed", error);
+				//Not worth an error if the user isn't waiting on it anymore
+				return aborter.signal.aborted || !this.authPending;
 			} finally {
 				clearInterval(closeWatcher);
+				window.removeEventListener("focus", stopWaiting);
+				stopWaiting();
 				//Nothing closes it if the flow failed before the popup got navigated
 				//anywhere. It's a no-op if the lib already closed it.
-				popup.close();
+				popup?.close();
 			}
 		},
 

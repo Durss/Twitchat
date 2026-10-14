@@ -4622,6 +4622,7 @@ export interface IAPIActions {
 export interface IBlueskyState {
 	connected: boolean;
 	connectionError: string | null;
+	authPending: boolean;
 	autoLive: boolean;
 	dmsAlerts: boolean;
 	mentionsAlerts: boolean;
