@@ -2,7 +2,7 @@
 	"maintenance": {
 		"banner": "Une maintenance débute à {TIME} <i>(dans {DURATION})</i>.",
 		"banner_now": "Twitchat passe en maintenance, sauvegarde de tes données…",
-		"banner_admin": "Maintenance en cours.\nTu n'es pas redirigé·e car tu es admin.",
+		"banner_admin": "Maintenance en cours",
 		"admin_title": "Maintenance du serveur",
 		"admin_state": "État actuel : {STATE}",
 		"admin_lockAt": "Les clients partent à {TIME}",

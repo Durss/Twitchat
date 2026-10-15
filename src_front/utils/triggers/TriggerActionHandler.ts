@@ -2355,6 +2355,24 @@ export default class TriggerActionHandler {
 		if (!noLogs.includes(trigger.type))
 			log = Logger.instance.log("triggers", log) as LogTrigger;
 
+		//Heat clicks can be restricted to non-anonymous users.
+		//Checked before joining the queue as leaving after joining it would block
+		//the next triggers of the queue forever.
+		if (
+			!testMode &&
+			message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK &&
+			message.anonymous &&
+			trigger.heatAllowAnon !== true
+		) {
+			log.entries.push({
+				date: Date.now(),
+				type: "message",
+				value: "❌ Anonymous clicks are not allowed",
+			});
+			log.skipped = true;
+			return false;
+		}
+
 		//Wait for potential previous trigger of the exact same type to finish their execution
 		const queueKey = trigger.queue; // || trigger.id;
 		let queue: (typeof this.triggerTypeToQueue)[string] = [];
@@ -2430,14 +2448,6 @@ export default class TriggerActionHandler {
 					message.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_COMPANION_KEYS
 				) {
 					//Get the full user from those limited data.
-					//Heat clicks can be restricted to non-anonymous users.
-					if (
-						message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK &&
-						message.anonymous &&
-						trigger.heatAllowAnon !== true
-					) {
-						return false;
-					}
 					executingUser = StoreProxy.users.getUserFrom(
 						message.platform,
 						message.channel_id,
