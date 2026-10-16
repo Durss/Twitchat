@@ -403,7 +403,7 @@ export default class DataStore extends DataStoreCommon {
 			v = 70;
 		}
 		if (v == 70) {
-			this.migrateTriggersToParallelExecution(data);
+			//Dropped migration
 			v = latestVersion;
 		}
 
@@ -1285,56 +1285,5 @@ export default class DataStore extends DataStoreCommon {
 				}
 			});
 		}
-	}
-
-	/**
-	 * Triggers of the same event used to execute one after another, they now
-	 * execute in parallel.
-	 * Put the triggers without queue in a queue per event to keep their order.
-	 */
-	private static migrateTriggersToParallelExecution(data: any): void {
-		const triggers: TriggerData[] = data[DataStore.TRIGGERS];
-		if (!triggers || !Array.isArray(triggers)) return;
-
-		const calledTriggers = new Set<string>();
-		const usedNames = new Set<string>();
-		for (const t of triggers) {
-			if (!t) continue;
-			if (t.queue) usedNames.add(t.queue);
-			if (!Array.isArray(t.actions)) continue;
-			for (const a of t.actions) {
-				if (!a) continue;
-				if (a.type == "trigger" && a.triggerId) calledTriggers.add(a.triggerId);
-				if (a.type == "random" && a.mode == "trigger" && Array.isArray(a.triggers)) {
-					a.triggers.forEach((id) => calledTriggers.add(id));
-				}
-			}
-		}
-
-		const eventToQueue: { [key: string]: string } = {};
-		for (const t of triggers) {
-			if (!t || !t.type || t.queue || calledTriggers.has(t.id)) continue;
-
-			//Schedules and slash commands are executed one by one, not by event
-			const individual =
-				t.type == TriggerTypes.SCHEDULE || t.type == TriggerTypes.SLASH_COMMAND;
-			const key = (!individual && getTriggerEventKeys(t)[0]) || t.id;
-
-			if (!eventToQueue[key]) {
-				const labelKey = TriggerTypeDefinitionFromType(t.type)?.labelKey;
-				const label =
-					labelKey && StoreProxy.i18n?.te(labelKey) ? StoreProxy.i18n.t(labelKey) : "";
-				let name = Utils.slugify(label + " " + (t.name || t.chatCommand || "")) || "queue";
-				if (usedNames.has(name)) {
-					let index = 1;
-					while (usedNames.has(name + "_" + index)) index++;
-					name += "_" + index;
-				}
-				usedNames.add(name);
-				eventToQueue[key] = name;
-			}
-			t.queue = eventToQueue[key];
-		}
-		data[DataStore.TRIGGERS] = triggers;
 	}
 }

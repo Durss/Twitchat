@@ -274,9 +274,12 @@ function copybannedUsers(): void {
 /**
  * Connect to raided chat
  */
-function remoteConnect(): void {
+async function remoteConnect(): Promise<void> {
 	remoteConnecting.value = true;
-	storeStream.connectToExtraChan(user.value!);
+	if (!(await storeStream.connectToExtraChan(user.value!))) {
+		remoteConnecting.value = false;
+		return;
+	}
 	window.setTimeout(() => {
 		canRemoteConnect.value = false;
 	}, 500);

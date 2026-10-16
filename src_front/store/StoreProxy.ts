@@ -1808,9 +1808,11 @@ export interface IStreamActions {
 	): Promise<TwitchatDataTypes.AbstractTwitchatMessage["channelSource"] | undefined>;
 	/**
 	 * Connects to an extra channel
+	 * Returns false if there's not enough room left on EventSub's
+	 * socket for this channel's subscriptions
 	 * @param login
 	 */
-	connectToExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<void>;
+	connectToExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<boolean>;
 	/**
 	 * Disconnects from an extra channel
 	 * @param login

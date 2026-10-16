@@ -32,6 +32,7 @@ export default class TwitchUtils {
 	private static emotesCacheHashmap: { [key: string]: TwitchatDataTypes.Emote } = {};
 	private static adblockAlertSent: boolean = false;
 	private static callHistory: { date: number; path: string; params: URLSearchParams }[] = [];
+	private static rateLimitReportedUntil: { [bucket: string]: number } = {};
 	private static uid: string = "";
 	private static scopes = ref<string[]>([]);
 	private static accessToken: string = "";
@@ -4353,19 +4354,25 @@ export default class TwitchUtils {
 	 * @param attemptCount
 	 */
 	private static async onRateLimit(headers: Headers): Promise<void> {
-		Sentry.captureException("[TWITCH] Twitch API quota exceeded", {
-			attachments: [
-				{
-					filename: "logs_history.json",
-					data: JSON.stringify({ uid: this.uid, history: this.callHistory }),
-				},
-			],
-		});
 		let resetDate =
 			(parseInt(headers.get("ratelimit-reset") || "0") ||
 				Math.round(Date.now() / 1000) + 1000) *
 				1000 +
 			1000;
+		// eventSub subscriptions and other endpoints have different buckets
+		const bucket = headers.get("ratelimit-limit") || "unknown";
+		// avoid spamming sentry
+		if (Date.now() >= (this.rateLimitReportedUntil[bucket] || 0)) {
+			this.rateLimitReportedUntil[bucket] = resetDate;
+			Sentry.captureException("[TWITCH] Twitch API quota exceeded", {
+				attachments: [
+					{
+						filename: "logs_history.json",
+						data: JSON.stringify({ uid: this.uid, history: this.callHistory }),
+					},
+				],
+			});
+		}
 		await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
 	}
 

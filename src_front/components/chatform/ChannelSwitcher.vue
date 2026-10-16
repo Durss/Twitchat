@@ -97,7 +97,7 @@
 						icon="offline"
 						transparent
 						medium
-						:disabled="!canConnectChans"
+						:disabled="!EventSub.instance.canConnectToChannel(entry.user)"
 						v-tooltip="t('global.connect')"
 						@click.capture.stop="connect(entry.user)"
 					/>
@@ -130,6 +130,7 @@ import {
 	useTemplateRef,
 	watch,
 } from "vue";
+import EventSub from "@/utils/twitch/EventSub";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import SearchUserForm from "../SearchUserForm.vue";
@@ -186,8 +187,12 @@ const popin = useTemplateRef<HTMLDivElement>("popin");
 let clickHandler!: (e: MouseEvent) => void;
 const pinnedUsers = ref<{ [key: string]: TwitchatDataTypes.TwitchatUser }>({});
 
+/**
+ * Is there room left on EventSub's socket for at least a channel we're not a mod of.
+ * Picked channel is checked by connectToExtraChan()
+ */
 const canConnectChans = computed<boolean>(() => {
-	return storeStream.connectedTwitchChans.length < 6;
+	return EventSub.instance.canConnectToChannel();
 });
 
 const channels = computed<ChannelEntry[]>(() => {
@@ -312,7 +317,6 @@ function cycleChannel(event: MouseEvent): void {
  * Connect to given twitch channel
  */
 function connect(target: TwitchatDataTypes.TwitchatUser): void {
-	if (!canConnectChans.value) return;
 	void storeStream.connectToExtraChan(target);
 }
 

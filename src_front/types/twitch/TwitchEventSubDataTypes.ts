@@ -59,6 +59,7 @@ export namespace TwitchEventSubDataTypes {
 		SUSPICIOUS_USER_UPDATE: "channel.suspicious_user.update",
 		CHAT_CLEAR: "channel.chat.clear",
 		DELETE_MESSAGE: "channel.chat.message_delete",
+		CHAT_NOTIFICATION: "channel.chat.notification",
 		WHISPERS: "user.whisper.message",
 		BITS_USE: "channel.bits.use",
 		CUSTOM_POWER_UP_REDEEM: "channel.custom_power_up_redemption.add",
@@ -1037,6 +1038,229 @@ export namespace TwitchEventSubDataTypes {
 		target_user_name: string;
 		target_user_login: string;
 		message_id: string;
+	}
+
+	export interface ChatNotificationEvent {
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		chatter_user_id: string;
+		chatter_user_login: string;
+		chatter_user_name: string;
+		chatter_is_anonymous: boolean;
+		color: string;
+		badges: {
+			set_id: string;
+			id: string;
+			info: string;
+		}[];
+		/**
+		 * Message Twitch shows in the chat room for this notice
+		 */
+		system_message: string;
+		message_id: string;
+		message: {
+			text: string;
+			fragments: MessageFragments;
+		};
+		notice_type: ChatNotificationType;
+		//Each notice object below is null unless "notice_type" matches its name
+		sub: ChatNotificationSub | null;
+		resub: ChatNotificationResub | null;
+		sub_gift: ChatNotificationSubGift | null;
+		community_sub_gift: ChatNotificationCommunitySubGift | null;
+		gift_paid_upgrade: ChatNotificationGiftPaidUpgrade | null;
+		prime_paid_upgrade: ChatNotificationPrimePaidUpgrade | null;
+		pay_it_forward: ChatNotificationPayItForward | null;
+		raid: ChatNotificationRaid | null;
+		unraid: ChatNotificationUnraid | null;
+		announcement: ChatNotificationAnnouncement | null;
+		bits_badge_tier: ChatNotificationBitsBadgeTier | null;
+		charity_donation: ChatNotificationCharityDonation | null;
+		watch_streak: ChatNotificationWatchStreak | null;
+		modiversary: ChatNotificationModiversary | null;
+		gifted_drops_summary: ChatNotificationGiftedDropsSummary | null;
+		//"shared_chat_*" objects hold the same data as their non-shared counterpart
+		//for a notice that happened on another participant of the shared chat session
+		shared_chat_sub?: ChatNotificationSub | null;
+		shared_chat_resub?: ChatNotificationResub | null;
+		shared_chat_sub_gift?: ChatNotificationSubGift | null;
+		shared_chat_community_sub_gift?: ChatNotificationCommunitySubGift | null;
+		shared_chat_gift_paid_upgrade?: ChatNotificationGiftPaidUpgrade | null;
+		shared_chat_prime_paid_upgrade?: ChatNotificationPrimePaidUpgrade | null;
+		shared_chat_pay_it_forward?: ChatNotificationPayItForward | null;
+		shared_chat_raid?: ChatNotificationRaid | null;
+		shared_chat_announcement?: ChatNotificationAnnouncement | null;
+		shared_chat_modiversary?: ChatNotificationModiversary | null;
+		shared_chat_gifted_drops_summary?: ChatNotificationGiftedDropsSummary | null;
+		//Only in the doc's payload example, missing from its field reference
+		shared_chat_unraid?: ChatNotificationUnraid | null;
+		shared_chat_bits_badge_tier?: ChatNotificationBitsBadgeTier | null;
+		shared_chat_charity_donation?: ChatNotificationCharityDonation | null;
+		//Source fields are null unless the notice happened on another
+		//participant of the shared chat session
+		source_broadcaster_user_id?: string | null;
+		source_broadcaster_user_login?: string | null;
+		source_broadcaster_user_name?: string | null;
+		source_message_id?: string | null;
+		source_badges?:
+			| {
+					set_id: string;
+					id: string;
+					info: string;
+			  }[]
+			| null;
+		/**
+		 * Whether the notification is only sent to the source channel.
+		 * Null if not in a shared chat session
+		 */
+		is_source_only?: boolean | null;
+	}
+
+	export type ChatNotificationType =
+		| "sub"
+		| "resub"
+		| "sub_gift"
+		| "community_sub_gift"
+		| "gift_paid_upgrade"
+		| "prime_paid_upgrade"
+		| "raid"
+		| "unraid"
+		| "pay_it_forward"
+		| "announcement"
+		| "bits_badge_tier"
+		| "charity_donation"
+		| "watch_streak"
+		| "modiversary"
+		| "gifted_drops_summary"
+		| "shared_chat_sub"
+		| "shared_chat_resub"
+		| "shared_chat_sub_gift"
+		| "shared_chat_community_sub_gift"
+		| "shared_chat_gift_paid_upgrade"
+		| "shared_chat_prime_paid_upgrade"
+		| "shared_chat_raid"
+		| "shared_chat_pay_it_forward"
+		| "shared_chat_announcement"
+		| "shared_chat_modiversary"
+		| "shared_chat_gifted_drops_summary"
+		| "unknown";
+
+	/**
+	 * 1000 is also used for Prime subs
+	 */
+	export type ChatNotificationSubTier = "1000" | "2000" | "3000";
+
+	export interface ChatNotificationSub {
+		sub_tier: ChatNotificationSubTier;
+		is_prime: boolean;
+		duration_months: number;
+	}
+
+	export interface ChatNotificationResub {
+		cumulative_months: number;
+		duration_months: number;
+		streak_months: number | null;
+		//The doc's payload example shows "sub_plan" instead
+		sub_tier: ChatNotificationSubTier;
+		is_prime?: boolean;
+		is_gift: boolean;
+		gifter_is_anonymous?: boolean | null;
+		gifter_user_id: string | null;
+		gifter_user_name: string | null;
+		gifter_user_login?: string | null;
+	}
+
+	export interface ChatNotificationSubGift {
+		duration_months: number;
+		/**
+		 * Amount of gifts the gifter has given in this channel.
+		 * Null if anonymous
+		 */
+		cumulative_total?: number | null;
+		recipient_user_id: string;
+		recipient_user_name: string;
+		recipient_user_login: string;
+		sub_tier: ChatNotificationSubTier;
+		/**
+		 * Null if not part of a community gift
+		 */
+		community_gift_id?: string | null;
+	}
+
+	export interface ChatNotificationCommunitySubGift {
+		id: string;
+		total: number;
+		sub_tier: ChatNotificationSubTier;
+		/**
+		 * Amount of gifts the gifter has given in this channel.
+		 * Null if anonymous
+		 */
+		cumulative_total?: number | null;
+	}
+
+	export interface ChatNotificationGiftPaidUpgrade {
+		gifter_is_anonymous: boolean;
+		gifter_user_id?: string | null;
+		gifter_user_name?: string | null;
+	}
+
+	export interface ChatNotificationPrimePaidUpgrade {
+		sub_tier: ChatNotificationSubTier;
+	}
+
+	export interface ChatNotificationPayItForward {
+		gifter_is_anonymous: boolean;
+		gifter_user_id: string | null;
+		gifter_user_name?: string | null;
+		gifter_user_login: string | null;
+	}
+
+	export interface ChatNotificationRaid {
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		viewer_count: number;
+		profile_image_url: string;
+	}
+
+	/**
+	 * Empty payload
+	 */
+	export type ChatNotificationUnraid = Record<string, never>;
+
+	export interface ChatNotificationAnnouncement {
+		color: string;
+	}
+
+	export interface ChatNotificationBitsBadgeTier {
+		tier: number;
+	}
+
+	export interface ChatNotificationCharityDonation {
+		charity_name: string;
+		amount: {
+			/**
+			 * Amount in the currency's minor unit (550 for $5.50)
+			 */
+			value: number;
+			//Spelled "decimal_place" in the doc, "decimal_places" everywhere else in Twitch's API
+			decimal_place: number;
+			currency: string;
+		};
+	}
+
+	export interface ChatNotificationWatchStreak {
+		streak_count: number;
+		channel_points_awarded: number;
+	}
+
+	export interface ChatNotificationModiversary {
+		months: number;
+	}
+
+	export interface ChatNotificationGiftedDropsSummary {
+		recipient_count: number;
 	}
 
 	export interface CharityStartEvent extends CharityProgressEvent {

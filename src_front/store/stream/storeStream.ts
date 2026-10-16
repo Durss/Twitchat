@@ -11,6 +11,7 @@ import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import TriggerUtils from "@/utils/TriggerUtils";
 import Utils from "@/utils/Utils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
+import { toast } from "@/utils/toast/toast";
 import EventSub from "@/utils/twitch/EventSub";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import staticEmotes from "@/utils/twitch/staticEmoteList.json";
@@ -40,7 +41,6 @@ function getChanColor(chanId: string): string {
 }
 const remoteIdToUser: { [chanId: string]: TwitchatDataTypes.TwitchatUser } = {};
 const remoteIdToPromise: { [chanId: string]: Promise<TwitchatDataTypes.TwitchatUser> } = {};
-const MAX_AUTOCONNECT_CHANS = 6;
 
 export const storeStream = defineStore("stream", {
 	state: (): IStreamState => ({
@@ -94,18 +94,12 @@ export const storeStream = defineStore("stream", {
 				const list = JSON.parse(DataStore.get(DataStore.AUTOCONNECT_CHANS) || "[]");
 				if (Array.isArray(list)) {
 					this.autoconnectChans.push(...list);
-					let autoconnectCount = 0;
-					let capped = false;
 					this.autoconnectChans.forEach((chan) => {
 						//Pinned but manually disconnected: keep it pinned without connecting
 						if (chan.disconnected) return;
-						//Any number of channels can be pinned, but only a limited
-						//amount of them are auto connected. Others stay pinned.
-						if (++autoconnectCount > MAX_AUTOCONNECT_CHANS) {
-							chan.disconnected = true;
-							capped = true;
-							return;
-						}
+						//Any number of channels can be pinned. Those that don't fit on
+						//EventSub's socket are disconnected (but stay pinned) by EventSub
+						//when its session starts.
 						StoreProxy.users.getUserFrom(
 							chan.platform,
 							chan.id,
@@ -121,7 +115,6 @@ export const storeStream = defineStore("stream", {
 							false,
 						);
 					});
-					if (capped) DataStore.set(DataStore.AUTOCONNECT_CHANS, this.autoconnectChans);
 				}
 			} catch (_error) {}
 
@@ -1769,8 +1762,22 @@ export const storeStream = defineStore("stream", {
 			};
 		},
 
-		async connectToExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<void> {
-			this.connectedTwitchChans.push({ user, color: getChanColor(user.id) });
+		async connectToExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<boolean> {
+			//Not enough room left on EventSub's socket for this channel's subscriptions
+			if (!EventSub.instance.canConnectToChannel(user)) {
+				toast(
+					StoreProxy.i18n.t("chat.form.extra_chan_limit", {
+						USER: user.displayNameOriginal,
+					}),
+					{ type: "error" },
+				);
+				return false;
+			}
+
+			//Called again when reconnecting to a channel we lost IRC connection with
+			if (!this.connectedTwitchChans.some((v) => v.user.id === user.id)) {
+				this.connectedTwitchChans.push({ user, color: getChanColor(user.id) });
+			}
 			TwitchMessengerClient.instance.connectToChannel(user.login);
 			void EventSub.instance.connectToChannel(user);
 			void TwitchUtils.getPinnedMessage(user.id);
@@ -1783,6 +1790,7 @@ export const storeStream = defineStore("stream", {
 				delete pinned.disconnected;
 				DataStore.set(DataStore.AUTOCONNECT_CHANS, this.autoconnectChans);
 			}
+			return true;
 		},
 
 		async disconnectFromExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<void> {

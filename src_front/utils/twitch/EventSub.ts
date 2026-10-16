@@ -11,11 +11,24 @@ import TwitchUtils from "./TwitchUtils";
 import ApiHelper from "../ApiHelper";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import Database from "@/store/Database";
+import { toast } from "@/utils/toast/toast";
+import { ref } from "vue";
+
+interface SubscriptionDescriptor {
+	topic: TwitchEventSubDataTypes.SubscriptionStringTypes;
+	version: "beta" | "1" | "2" | "3";
+	condition?: { [key: string]: any };
+}
 
 /**
  * Created : 02/12/2022
  */
 export default class EventSub {
+	/**
+	 * Max subscriptions Twitch allows per websocket connection
+	 */
+	public static readonly MAX_SUBSCRIPTIONS = 300;
+
 	public lastChannelUpdateInfos = {
 		title: "",
 		category: "",
@@ -23,6 +36,7 @@ export default class EventSub {
 		viewers: 0,
 		live: false,
 	};
+	public subscriptionCount = ref(0);
 
 	private static _instance: EventSub;
 	private socket!: WebSocket;
@@ -41,6 +55,7 @@ export default class EventSub {
 	private chanSubscriptions: {
 		[chanId: string]: { topic: string; uid: string; key: string; id: string }[];
 	} = {};
+	private pendingSubscriptions: { [chanId: string]: Set<string> } = {};
 	private connectedChannels: { [chanId: string]: TwitchatDataTypes.TwitchatUser } = {};
 	private sharedChatParticipants: {
 		[sessionId: string]: TwitchatDataTypes.TwitchatUser[];
@@ -126,18 +141,33 @@ export default class EventSub {
 					this.connectedAt = Date.now();
 					this.connecting = false;
 					this.sessionID = payload.session.id;
+					this.pendingSubscriptions = {};
 					//Handover completed, the previous socket can go
 					this.clearHandover();
 					if (disconnectPrevious) {
 						console.log("[EVENTSUB] Create subscriptions");
+						this.chanSubscriptions = {};
 						void this.connectToChannel(StoreProxy.auth.twitch.user);
 						//Remote channels lose their subscriptions along with the
 						//previous session and nothing else restores them
 						Object.values(this.connectedChannels).forEach((chan) => {
 							if (chan.id === StoreProxy.auth.twitch.user.id) return;
+							//Pinned channels get connected before the session starts,
+							//room left can only be checked now
+							if (!this.canConnectToChannel(chan)) {
+								toast(
+									StoreProxy.i18n.t("chat.form.extra_chan_limit", {
+										USER: chan.displayNameOriginal,
+									}),
+									{ type: "error" },
+								);
+								void StoreProxy.stream.disconnectFromExtraChan(chan);
+								return;
+							}
 							void this.connectToChannel(chan);
 						});
 					}
+					this.updateSubscriptionCount();
 				}
 
 				case "session_keepalive": {
@@ -164,16 +194,14 @@ export default class EventSub {
 					this.scheduleReconnect();
 					//Remove subscriptions that got revoked
 					let payload = message.payload as TwitchEventSubDataTypes.RevocationPayload;
-					const subscriptions =
-						this.chanSubscriptions[payload.subscription.condition.broadcaster_user_id];
-					if (!subscriptions) break;
-					for (let i = 0; i < subscriptions.length; i++) {
-						const sub = subscriptions[i]!;
-						if (sub.topic == payload.subscription.type) {
-							subscriptions.splice(i, 1);
-							i--;
-						}
+					for (const chanId in this.chanSubscriptions) {
+						const subscriptions = this.chanSubscriptions[chanId]!;
+						const index = subscriptions.findIndex(
+							(v) => v.id === payload.subscription.id,
+						);
+						if (index > -1) subscriptions.splice(index, 1);
 					}
+					this.updateSubscriptionCount();
 					break;
 				}
 
@@ -306,304 +334,148 @@ export default class EventSub {
 
 	/**
 	 * Connect to a channel.
-	 * Will connect to appropriate topics depending on wether we're a mod
-	 * on the given channel or not (make sure user.channelInfo[uid] is properly populated)
+	 * Creates the subscriptions we don't have yet for it
 	 * @param user
 	 */
 	public async connectToChannel(user: TwitchatDataTypes.TwitchatUser): Promise<void> {
-		const me = StoreProxy.auth.twitch.user;
 		const channelId = user.id;
-		const myUID = me.id;
-		const isBroadcaster = me.id == user.id;
-		const isMod = me.channelInfo[channelId]?.is_moderator === true || isBroadcaster;
-		this.chanSubscriptions[channelId] = [];
+		const myUID = StoreProxy.auth.twitch.user.id;
 		this.connectedChannels[channelId] = user;
+		if (!this.chanSubscriptions[channelId]) this.chanSubscriptions[channelId] = [];
+
+		//No session yet, subscriptions will be created on "session_welcome"
+		if (!this.sessionID) return;
+
+		//Subscriptions we already have are skipped by createSubscription()
+		this.getChannelSubscriptions(channelId).forEach((sub) => {
+			void this.createSubscription(channelId, myUID, sub.topic, sub.version, sub.condition);
+		});
+	}
+
+	/**
+	 * Lists the subscriptions needed for given channel.
+	 * Depends on granted scopes and on wether we're a mod on the given
+	 * channel or not (make sure user.channelInfo[uid] is properly populated)
+	 * @param channelId
+	 * @param isMod forces moderator state instead of reading it from channelInfo
+	 */
+	private getChannelSubscriptions(channelId: string, isMod?: boolean): SubscriptionDescriptor[] {
+		const me = StoreProxy.auth.twitch.user;
+		const myUID = me.id;
+		const isBroadcaster = me.id == channelId;
+		if (isMod === undefined) isMod = me.channelInfo[channelId]?.is_moderator === true;
+		isMod ||= isBroadcaster;
+		const subs: SubscriptionDescriptor[] = [];
+		const add = (
+			topic: SubscriptionDescriptor["topic"],
+			version: SubscriptionDescriptor["version"],
+			condition?: SubscriptionDescriptor["condition"],
+		): void => {
+			subs.push({ topic, version, condition });
+		};
 
 		if (isBroadcaster) {
-			void this.createSubscription(
-				channelId,
-				myUID,
-				TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE,
-				"2",
-			);
+			add(TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "2");
 
-			void this.createSubscription(
-				channelId,
-				myUID,
-				TwitchEventSubDataTypes.SubscriptionTypes.RAID,
-				"1",
-				{ from_broadcaster_user_id: channelId },
-			);
+			add(TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {
+				from_broadcaster_user_id: channelId,
+			});
 
 			//Used by online/offline triggers
-			void this.createSubscription(
-				channelId,
-				myUID,
-				TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON,
-				"1",
-			);
-			void this.createSubscription(
-				channelId,
-				myUID,
-				TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF,
-				"1",
-			);
+			add(TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
+			add(TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
 
 			if (TwitchUtils.hasScopes([TwitchScopes.CHARITY_READ])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_DONATE,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_PROGRESS,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_START,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_STOP,
-					"1",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_DONATE, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_PROGRESS, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_START, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_STOP, "1");
 			}
 
 			if (TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN,
-					"1",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
 			}
 
 			if (TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM,
-					"2",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM,
-					"1",
-				);
-				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "2");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
+				// add(TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
 			}
 			if (TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_START,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_PROGRESS,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END,
-					"1",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_START, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_PROGRESS, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END, "1");
 			}
 
 			//*
 			if (TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.POLL_START,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.POLL_END,
-					"1",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.POLL_END, "1");
 			}
 			if (TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START,
-					"2",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS,
-					"2",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END,
-					"2",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START, "2");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "2");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "2");
 			}
 			//*/
 
 			//Not using those as IRC does it better
 			if (TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.SUB,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.RESUB,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.SUB_END,
-					"1",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.SUB, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.RESUB, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.SUB_END, "1");
 			}
 
 			//Not using this as IRC does it better
 			// if(TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
+			// add(TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
 			// }
 			if (TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.CUSTOM_POWER_UP_REDEEM,
-					"beta",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.CUSTOM_POWER_UP_REDEEM, "beta");
 			}
 
 			//Don't need it
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1");
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_UPDATE, "1");
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_DELETE, "1");
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_START, "1");
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_PROGRESS, "1");
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_END, "1");
+			// add(TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1");
+			// add(TwitchEventSubDataTypes.SubscriptionTypes.REWARD_UPDATE, "1");
+			// add(TwitchEventSubDataTypes.SubscriptionTypes.REWARD_DELETE, "1");
+			// add(TwitchEventSubDataTypes.SubscriptionTypes.GOAL_START, "1");
+			// add(TwitchEventSubDataTypes.SubscriptionTypes.GOAL_PROGRESS, "1");
+			// add(TwitchEventSubDataTypes.SubscriptionTypes.GOAL_END, "1");
 
-			void this.createSubscription(
-				channelId,
-				myUID,
-				TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_BEGIN,
-				"1",
-			);
+			add(TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_BEGIN, "1");
 
-			void this.createSubscription(
-				channelId,
-				myUID,
-				TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_UPDATE,
-				"1",
-			);
+			add(TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_UPDATE, "1");
 
-			void this.createSubscription(
-				channelId,
-				myUID,
-				TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_END,
-				"1",
-			);
+			add(TwitchEventSubDataTypes.SubscriptionTypes.SHARED_CHAT_END, "1");
 		}
 
 		if (isMod) {
 			if (TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW,
-					"2",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
 			}
 
 			if (TwitchUtils.hasScopes(TwitchChannelModerateV2Scopes)) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE,
-					"2",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE, "2");
 			} else {
 				//This topic does not support moderator token
 				if (isBroadcaster && TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) {
-					void this.createSubscription(
-						channelId,
-						myUID,
-						TwitchEventSubDataTypes.SubscriptionTypes.UNBAN,
-						"1",
-					);
+					add(TwitchEventSubDataTypes.SubscriptionTypes.UNBAN, "1");
 				}
 				if (TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS])) {
-					void this.createSubscription(
-						channelId,
-						myUID,
-						TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW,
-						"1",
-					);
-					void this.createSubscription(
-						channelId,
-						myUID,
-						TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED,
-						"1",
-					);
+					add(TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "1");
+					add(TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "1");
 				}
 				if (TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
-					void this.createSubscription(
-						channelId,
-						myUID,
-						TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT,
-						"1",
-					);
+					add(TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT, "1");
 				}
 				if (TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
-					void this.createSubscription(
-						channelId,
-						myUID,
-						TwitchEventSubDataTypes.SubscriptionTypes.DELETE_MESSAGE,
-						"1",
-						{ user_id: myUID },
-					);
+					add(TwitchEventSubDataTypes.SubscriptionTypes.DELETE_MESSAGE, "1", {
+						user_id: myUID,
+					});
 				}
 			}
 
@@ -611,123 +483,58 @@ export default class EventSub {
 				//Using channel.ban event even if subscribing to channel.moderate V2.
 				//The later does not allow to compute an accurate timeout duration.
 				//This topic gives more accurate data in this case
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.BAN,
-					"1",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.BAN, "1");
 			}
 			if (TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_ACKNOWLEDGE,
-					"1",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_ACKNOWLEDGE, "1");
 			}
 
 			if (TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START,
-					"1",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
 			}
 
 			if (TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT,
-					"1",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
 			}
 
 			if (TwitchUtils.hasScopes([TwitchScopes.AUTOMOD])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_TERMS_UPDATE,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_UPDATE,
-					"2",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_TERMS_UPDATE, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_UPDATE, "2");
 
 				// if(!isBroadcaster) {
 				//Only subbing to this as a moderator.
 				//Broadcaster uses PubSub alternative that, to date, gives more details.
 				//Eventsub doesn't tell which part of the message triggered the automod.
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD,
-					"2",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD, "2");
 				// }
 			}
 
 			if (TwitchUtils.hasScopes([TwitchScopes.SUSPICIOUS_USERS])) {
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_MESSAGE,
-					"1",
-				);
-				void this.createSubscription(
-					channelId,
-					myUID,
-					TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_UPDATE,
-					"1",
-				);
+				add(TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_MESSAGE, "1");
+				add(TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_UPDATE, "1");
 			}
 		}
 
 		if (TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
-			void this.createSubscription(
-				channelId,
-				myUID,
-				TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES,
-				"1",
-				{ user_id: myUID },
-			);
-			void this.createSubscription(
-				channelId,
-				myUID,
-				TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR,
-				"1",
-				{ user_id: myUID },
-			);
+			add(TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", { user_id: myUID });
+			add(TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR, "1", { user_id: myUID });
+			//Used for incoming raids instead of "channel.raid".
+			//"channel.raid" requires no authorization so it costs 1 on any
+			//channel whose broadcaster didn't authorize Twitchat (max total
+			//cost is 10). This one is bound to our "user:read:chat" scope
+			//and costs 0.
+			add(TwitchEventSubDataTypes.SubscriptionTypes.CHAT_NOTIFICATION, "1", {
+				user_id: myUID,
+			});
 		}
 
 		// if (TwitchUtils.hasScopes([TwitchScopes.WHISPER_MANAGE])) {
 		// this.createSubscription("", "", TwitchEventSubDataTypes.SubscriptionTypes.WHISPERS, "1", {user_id:myUID});
 		// }
 
-		void this.createSubscription(
-			channelId,
-			myUID,
-			TwitchEventSubDataTypes.SubscriptionTypes.RAID,
-			"1",
-			{ to_broadcaster_user_id: channelId },
-		);
+		return subs;
 	}
 
 	/**
@@ -737,11 +544,24 @@ export default class EventSub {
 	 */
 	public async disconnectRemoteChan(channel: TwitchatDataTypes.TwitchatUser): Promise<void> {
 		delete this.connectedChannels[channel.id];
-		if (!this.chanSubscriptions[channel.id]) return;
-		this.chanSubscriptions[channel.id]!.forEach((entry) => {
+		delete this.pendingSubscriptions[channel.id];
+		this.chanSubscriptions[channel.id]?.forEach((entry) => {
 			void TwitchUtils.eventsubDeleteSubscriptions(entry.id);
 		});
 		delete this.chanSubscriptions[channel.id];
+		this.updateSubscriptionCount();
+	}
+
+	/**
+	 * Tells if there's enough room left on the socket for the subscriptions
+	 * of given channel.
+	 * Without a channel, tells if there's room for a channel we're not
+	 * a moderator of, which is the one needing the less subscriptions.
+	 * @param user
+	 */
+	public canConnectToChannel(user?: TwitchatDataTypes.TwitchatUser): boolean {
+		const total = this.subscriptionCount.value + this.getMissingSubscriptionCount(user);
+		return total <= EventSub.MAX_SUBSCRIPTIONS;
 	}
 
 	/*******************
@@ -845,15 +665,15 @@ export default class EventSub {
 		condition?: { [key: string]: any },
 	): Promise<void> {
 		const key = this.getSubscriptionKey(topic, uid, condition);
-		if (
-			this.chanSubscriptions[channelId] &&
-			this.chanSubscriptions[channelId].findIndex((v) => v.key === key) > -1
-		) {
-			//Already subscribed to this topic, stop there
-			console.warn(`[EVENTSUB] Already subscribed to "${topic}" on channel ${channelId}.`);
-			return;
-		}
+		//Already subscribed to this topic, stop there
+		if (this.hasSubscription(channelId, key)) return;
+
 		const sessionID = this.sessionID;
+		let pending = this.pendingSubscriptions[channelId];
+		if (!pending) pending = this.pendingSubscriptions[channelId] = new Set();
+		pending.add(key);
+		this.updateSubscriptionCount();
+
 		void TwitchUtils.eventsubSubscribe(
 			channelId,
 			uid,
@@ -864,15 +684,19 @@ export default class EventSub {
 			//Don't wait out a rate limit for a session that already got replaced
 			() => this.sessionID === sessionID,
 		).then((res) => {
+			// The socket may have reconnected while the request was in flight.
+			// Pending subscriptions got reset along with the session
+			if (this.sessionID !== sessionID) return;
+
+			this.pendingSubscriptions[channelId]?.delete(key);
+			this.updateSubscriptionCount();
+
 			if (res === false) {
 				console.warn(
 					`[EVENTSUB] No subscription for "${topic}" on channel ${channelId}, its events won't be received`,
 				);
 				return;
 			}
-
-			// The socket may have reconnected while the request was in flight
-			if (this.sessionID !== sessionID) return;
 
 			const current = this.chanSubscriptions[channelId];
 
@@ -884,7 +708,43 @@ export default class EventSub {
 			}
 
 			current.push({ id: res, uid, topic, key });
+			this.updateSubscriptionCount();
 		});
+	}
+
+	/**
+	 * Tells if given subscription exists or is being created on given channel
+	 */
+	private hasSubscription(channelId: string, key: string): boolean {
+		if (this.pendingSubscriptions[channelId]?.has(key)) return true;
+		return this.chanSubscriptions[channelId]?.some((v) => v.key === key) === true;
+	}
+
+	/**
+	 * Count the number of subscriptions required to connect to given channel.
+	 * Allows to know in advance if we'll reach the max limit
+	 */
+	private getMissingSubscriptionCount(user?: TwitchatDataTypes.TwitchatUser): number {
+		if (!user) return this.getChannelSubscriptions("", false).length;
+		const myUID = StoreProxy.auth.twitch.user.id;
+		return this.getChannelSubscriptions(user.id).filter((sub) => {
+			const key = this.getSubscriptionKey(sub.topic, myUID, sub.condition);
+			return !this.hasSubscription(user.id, key);
+		}).length;
+	}
+
+	/**
+	 * Counts active and pending subscriptions
+	 */
+	private updateSubscriptionCount(): void {
+		let count = 0;
+		for (const chanId in this.chanSubscriptions) {
+			count += this.chanSubscriptions[chanId]!.length;
+		}
+		for (const chanId in this.pendingSubscriptions) {
+			count += this.pendingSubscriptions[chanId]!.size;
+		}
+		this.subscriptionCount.value = count;
 	}
 
 	/**
@@ -946,6 +806,23 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.RAID: {
 				void this.raidEvent(topic, payload.event as TwitchEventSubDataTypes.RaidEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_NOTIFICATION: {
+				const event = payload.event as TwitchEventSubDataTypes.ChatNotificationEvent;
+				//Only incoming raids are handled from this topic.
+				//Ignoring "shared_chat_raid" that are raids on other shared chat participants
+				if (event.notice_type !== "raid" || !event.raid) break;
+				void this.raidEvent(topic, {
+					from_broadcaster_user_id: event.raid.user_id,
+					from_broadcaster_user_login: event.raid.user_login,
+					from_broadcaster_user_name: event.raid.user_name,
+					to_broadcaster_user_id: event.broadcaster_user_id,
+					to_broadcaster_user_login: event.broadcaster_user_login,
+					to_broadcaster_user_name: event.broadcaster_user_name,
+					viewers: event.raid.viewer_count,
+				});
 				break;
 			}
 
