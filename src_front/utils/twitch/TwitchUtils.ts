@@ -1106,32 +1106,35 @@ export default class TwitchUtils {
 
 	/**
 	 * Get a list of channels the user is a moderator on.
+	 * Returns false if loading failed due to missing scope or a failing query
 	 */
-	public static async getModeratedChannels(): Promise<TwitchDataTypes.ModeratedUser[]> {
-		if (!this.hasScopes([TwitchScopes.LIST_MODERATED_CHANS])) return [];
+	public static async getModeratedChannels(): Promise<TwitchDataTypes.ModeratedUser[] | false> {
+		if (!this.hasScopes([TwitchScopes.LIST_MODERATED_CHANS])) return false;
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/channels");
 		url.searchParams.append("user_id", this.uid);
 		url.searchParams.append("first", "100");
 
 		let list: TwitchDataTypes.ModeratedUser[] = [];
-		let cursor: string | null = null;
-		do {
+		let cursor: string | undefined = undefined;
+		while (true) {
 			if (cursor) url.searchParams.set("after", cursor);
 			const res = await this.callApi(url);
-			if (res.status == 200) {
-				const json: {
-					data: TwitchDataTypes.ModeratedUser[];
-					pagination?: { cursor?: string };
-				} = await res.json();
-				list = list.concat(json.data);
-				cursor = null;
-				if (json.pagination?.cursor) {
-					cursor = json.pagination.cursor;
-				}
-			} else if (res.status == 500) break;
-		} while (cursor != null);
-		return list;
+			if (res.status == 429) {
+				//Rate limit reached, try the same page again after it's reset to full
+				await this.onRateLimit(res.headers);
+				continue;
+			}
+			// don't return a partial list
+			if (res.status != 200) return false;
+			const json: {
+				data: TwitchDataTypes.ModeratedUser[];
+				pagination?: { cursor?: string };
+			} = await res.json();
+			list = list.concat(json.data);
+			cursor = json.pagination?.cursor;
+			if (!cursor) return list;
+		}
 	}
 
 	/**

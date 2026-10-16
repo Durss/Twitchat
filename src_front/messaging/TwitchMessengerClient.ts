@@ -108,29 +108,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				this._channelIdToLogin[channel.id] = channel.login;
 				this._channelLoginToId[channel.login] = channel.id;
 
-				//Check if we're a mod on this channel by testing if the get chatters endpoint
-				//returns something or not (no dedicated API for this ATM)
-				if (
-					StoreProxy.auth.twitchModeratedChannels.find(
-						(c) => c.broadcaster_id == channel.id,
-					)
-				) {
-					//Go through getUserFrom() that will init the channelInfo property for later use
-					//Flag self as mod of that channel
-					const me = StoreProxy.users.getUserFrom(
-						"twitch",
-						channel.id,
-						meObj.id,
-						meObj.login,
-						meObj.displayNameOriginal,
-						undefined,
-						undefined,
-						false,
-						undefined,
-						false,
-					);
-					me.channelInfo[channel.id]!.is_moderator = true;
-				}
 				const u = StoreProxy.users.getUserFrom(
 					"twitch",
 					channel.id,
@@ -841,7 +818,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		delete user.temporary; //Avoids useless server call
 
 		if (tags.color) user.color = tags.color;
-		if (isMod) channelInfo.is_moderator = true;
+		if (isMod) {
+			if (user.id == StoreProxy.auth.twitch.user.id) {
+				StoreProxy.auth.setModeratorState(channelId, true);
+			} else {
+				channelInfo.is_moderator = true;
+			}
+		}
 		if (isVip) channelInfo.is_vip = true;
 		if (isSub) channelInfo.is_subscriber = true;
 		if (isSubGifter) channelInfo.is_gifter = true;

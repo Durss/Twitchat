@@ -636,11 +636,19 @@ export const storeUsers = defineStore("users", {
 		},
 
 		flagMod(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
+			if (platform == "twitch" && uid == StoreProxy.auth.twitch.user.id) {
+				StoreProxy.auth.setModeratorState(channelId, true);
+				return;
+			}
 			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
 			if (chanInfo) chanInfo.is_moderator = true;
 		},
 
 		flagUnmod(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
+			if (platform == "twitch" && uid == StoreProxy.auth.twitch.user.id) {
+				StoreProxy.auth.setModeratorState(channelId, false);
+				return;
+			}
 			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
 			if (chanInfo) chanInfo.is_moderator = false;
 		},
@@ -763,7 +771,11 @@ export const storeUsers = defineStore("users", {
 				bannedUser.channelInfo[channelId]!.autoRemod =
 					channelId == StoreProxy.auth.twitch.user.id;
 			}
-			bannedUser.channelInfo[channelId]!.is_moderator = false;
+			if (platform == "twitch" && bannedUser.id == StoreProxy.auth.twitch.user.id) {
+				StoreProxy.auth.setModeratorState(channelId, false);
+			} else {
+				bannedUser.channelInfo[channelId]!.is_moderator = false;
+			}
 			//Set ban state
 			if (duration_s) {
 				bannedUser.channelInfo[channelId]!.banEndDate = banEndDate;

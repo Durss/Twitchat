@@ -38,7 +38,7 @@
 				</template>
 			</i18n-t>
 
-			<div class="actions" v-if="me.channelInfo[poll.channel_id]?.is_moderator">
+			<div class="actions" v-if="storeAuth.isModerator(poll.channel_id)">
 				<TTButton alert @click="endPoll()" :loading="loading">{{
 					$t("poll.state.endBt")
 				}}</TTButton>

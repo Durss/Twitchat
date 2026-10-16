@@ -362,7 +362,7 @@ function onSearchChange(): void {
 			const hastoreDiscordCmd = storeDiscord.discordLinked && storeDiscord.chatCmdTarget;
 			const isBroadcaster = me.id === currentChanId;
 			const isAdmin = storeAuth.twitch.user.is_admin === true;
-			const isMod = me.channelInfo[currentChanId]?.is_moderator === true;
+			const isMod = storeAuth.isModerator(currentChanId);
 
 			//Search in global slash commands
 			for (let j = 0; j < cmds.length; j++) {

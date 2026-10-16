@@ -1061,12 +1061,7 @@ const raffleEntryCount = computed((): number => {
 });
 
 const isModeratedChannel = computed((): boolean => {
-	const chanId = storeStream.currentChatChannel.id;
-	if (chanId == storeAuth.twitch.user.id) return true;
-	return (
-		chanId != storeAuth.twitch.user.id &&
-		storeAuth.twitchModeratedChannels.findIndex((v) => v.broadcaster_id == chanId) > -1
-	);
+	return storeAuth.isModerator(storeStream.currentChatChannel.id);
 });
 
 const pinnedMenuItems = computed(() => {

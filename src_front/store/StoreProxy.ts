@@ -552,6 +552,22 @@ export interface IAuthActions {
 	 * @param scopes
 	 */
 	twitch_updateAuthScopes(code: string): Promise<boolean>;
+	/**
+	 * Check if we're a moderator on given channel
+	 * @param channelId
+	 */
+	isModerator(channelId: string): boolean;
+	/**
+	 * Update our moderation state on given channel
+	 * @param channelId
+	 * @param isMod
+	 */
+	setModeratorState(channelId: string, isMod: boolean): void;
+	/**
+	 * Defines which channels we're a moderator on
+	 * @param list
+	 */
+	setModeratedChannels(list: TwitchDataTypes.ModeratedUser[]): void;
 }
 
 export interface IAutomodState {

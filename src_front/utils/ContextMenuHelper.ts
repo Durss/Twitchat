@@ -205,7 +205,7 @@ export default class ContextMenuHelper {
 			//Pin / Unpin message
 			if (
 				message.platform == "twitch" &&
-				StoreProxy.auth.twitch.user.channelInfo[message.channel_id]?.is_moderator &&
+				StoreProxy.auth.isModerator(message.channel_id) &&
 				message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			) {
 				const isPinned =

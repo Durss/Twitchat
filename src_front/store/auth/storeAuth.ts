@@ -19,6 +19,49 @@ let refreshTokenTO: number = -1;
 let refreshTokenFailCount: number = 0;
 let refreshTokenPromise: Promise<TwitchDataTypes.AuthTokenResult | false> | null = null;
 
+/**
+ * Set mod flag on self for given channel
+ */
+function setSelfModFlag(
+	me: TwitchatDataTypes.TwitchatUser,
+	channelId: string,
+	isMod: boolean,
+): boolean {
+	let chanInfo = me.channelInfo[channelId];
+	const wasMod = chanInfo?.is_moderator === true;
+	if (wasMod === isMod) return false;
+	if (!chanInfo) {
+		chanInfo = me.channelInfo[channelId] = {
+			badges: [],
+			following_date_ms: 0,
+			is_banned: false,
+			is_broadcaster: false,
+			is_following: null,
+			is_gifter: false,
+			is_new: false,
+			is_raider: false,
+			is_subscriber: false,
+			is_vip: false,
+			online: false,
+			is_moderator: false,
+		};
+	}
+	chanInfo.is_moderator = isMod;
+	return true;
+}
+
+/**
+ * Makes sure qe're subscribed to moderator topic on EventSub if we're connected
+ * to given chennel
+ */
+function subscribeModeratorTopics(channelId: string): void {
+	const chan = StoreProxy.stream.connectedTwitchChans.find((v) => v.user.id === channelId);
+	if (!chan) return;
+	//Not enough room left on EventSub's socket, channel will only have chat subscriptions
+	if (!EventSub.instance.canConnectToChannel(chan.user)) return;
+	void EventSub.instance.connectToChannel(chan.user);
+}
+
 export const storeAuth = defineStore("auth", {
 	state: (): IAuthState => ({
 		authenticated: false,
@@ -275,42 +318,7 @@ export const storeAuth = defineStore("auth", {
 
 				//Preload channels we're a moderator of
 				const moderatedChans = await TwitchUtils.getModeratedChannels();
-				this.twitchModeratedChannels = moderatedChans;
-				moderatedChans.forEach((chan) => {
-					if (!this.twitch.user.channelInfo[chan.broadcaster_id]) {
-						this.twitch.user.channelInfo[chan.broadcaster_id] = {
-							badges: [],
-							following_date_ms: 0,
-							is_banned: false,
-							is_broadcaster: false,
-							is_following: null,
-							is_gifter: false,
-							is_new: false,
-							is_raider: false,
-							is_subscriber: false,
-							is_vip: false,
-							online: false,
-							is_moderator: true,
-						};
-					} else {
-						this.twitch.user.channelInfo[chan.broadcaster_id]!.is_moderator = true;
-					}
-				});
-				void TwitchUtils.getUserInfo(moderatedChans.map((v) => v.broadcaster_id)).then(
-					(userList) => {
-						const hashmap: {
-							[uid: string]: IAuthState["twitchModeratedChannels"][number];
-						} = {};
-						this.twitchModeratedChannels.forEach(
-							(u) => (hashmap[u.broadcaster_id] = u),
-						);
-						userList.forEach((user) => {
-							const modedChan = hashmap[user.id];
-							if (!modedChan) return;
-							modedChan.avatar = user.profile_image_url;
-						});
-					},
-				);
+				if (moderatedChans !== false) this.setModeratedChannels(moderatedChans);
 
 				void MessengerProxy.instance.connect();
 				void EventSub.instance.connect();
@@ -508,8 +516,8 @@ export const storeAuth = defineStore("auth", {
 						this.twitch.user.id,
 					);
 					void TwitchUtils.loadEmoteSets(this.twitch.user.id);
-					void TwitchUtils.getModeratedChannels().then(async (moderatedChans) => {
-						this.twitchModeratedChannels = moderatedChans;
+					void TwitchUtils.getModeratedChannels().then((moderatedChans) => {
+						if (moderatedChans !== false) this.setModeratedChannels(moderatedChans);
 					});
 					return true;
 				} catch (_error) {
@@ -518,6 +526,79 @@ export const storeAuth = defineStore("auth", {
 				}
 			}
 			return false;
+		},
+
+		isModerator(channelId: string): boolean {
+			const me = this.twitch.user;
+			return channelId === me.id || me.channelInfo[channelId]?.is_moderator === true;
+		},
+
+		setModeratorState(channelId: string, isMod: boolean): void {
+			// force self as our own mod
+			if (channelId === this.twitch.user.id) return;
+			// if mod state hasn't changed, no need to go further
+			if (!setSelfModFlag(this.twitch.user, channelId, isMod)) return;
+
+			const index = this.twitchModeratedChannels.findIndex(
+				(v) => v.broadcaster_id === channelId,
+			);
+			if (!isMod) {
+				if (index > -1) this.twitchModeratedChannels.splice(index, 1);
+				return;
+			}
+			subscribeModeratorTopics(channelId);
+			if (index > -1) return;
+			StoreProxy.users.getUserFrom(
+				"twitch",
+				channelId,
+				channelId,
+				undefined,
+				undefined,
+				(chan) => {
+					// State may have changed while loading channel info
+					if (!this.isModerator(channelId)) return;
+					if (this.twitchModeratedChannels.some((v) => v.broadcaster_id === channelId))
+						return;
+					this.twitchModeratedChannels.push({
+						broadcaster_id: chan.id,
+						broadcaster_login: chan.login,
+						broadcaster_name: chan.displayNameOriginal,
+						avatar: chan.avatarPath,
+					});
+				},
+				undefined,
+				undefined,
+				undefined,
+				false,
+			);
+		},
+
+		setModeratedChannels(list: TwitchDataTypes.ModeratedUser[]): void {
+			const me = this.twitch.user;
+			// Channels we're not a moderator of anymore
+			this.twitchModeratedChannels.forEach((chan) => {
+				if (list.some((v) => v.broadcaster_id === chan.broadcaster_id)) return;
+				setSelfModFlag(me, chan.broadcaster_id, false);
+				// no need to unsubscribe eventsub topic, twitch revokes them automatically
+			});
+			this.twitchModeratedChannels = list;
+			list.forEach((chan) => {
+				if (setSelfModFlag(me, chan.broadcaster_id, true)) {
+					subscribeModeratorTopics(chan.broadcaster_id);
+				}
+			});
+
+			void TwitchUtils.getUserInfo(list.map((v) => v.broadcaster_id)).then((userList) => {
+				const hashmap: {
+					[uid: string]: IAuthState["twitchModeratedChannels"][number];
+				} = {};
+				this.twitchModeratedChannels.forEach((u) => (hashmap[u.broadcaster_id] = u));
+				userList.forEach((user) => {
+					const modedChan = hashmap[user.id];
+					if (!modedChan) return;
+					modedChan.avatar = user.profile_image_url;
+				});
+			});
 		},
 	} satisfies StoreActions<"auth", IAuthState, IAuthGetters, IAuthActions>,
 });

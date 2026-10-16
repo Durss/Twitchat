@@ -354,17 +354,14 @@ export default class EventSub {
 
 	/**
 	 * Lists the subscriptions needed for given channel.
-	 * Depends on granted scopes and on wether we're a mod on the given
-	 * channel or not (make sure user.channelInfo[uid] is properly populated)
+	 * Depends on granted scopes and on wether we're a mod on the given channel or not
 	 * @param channelId
 	 * @param isMod forces moderator state instead of reading it from channelInfo
 	 */
 	private getChannelSubscriptions(channelId: string, isMod?: boolean): SubscriptionDescriptor[] {
-		const me = StoreProxy.auth.twitch.user;
-		const myUID = me.id;
-		const isBroadcaster = me.id == channelId;
-		if (isMod === undefined) isMod = me.channelInfo[channelId]?.is_moderator === true;
-		isMod ||= isBroadcaster;
+		const myUID = StoreProxy.auth.twitch.user.id;
+		const isBroadcaster = myUID == channelId;
+		if (isMod === undefined) isMod = StoreProxy.auth.isModerator(channelId);
 		const subs: SubscriptionDescriptor[] = [];
 		const add = (
 			topic: SubscriptionDescriptor["topic"],

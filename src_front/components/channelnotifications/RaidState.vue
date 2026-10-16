@@ -215,9 +215,7 @@ const raidInfo = computed(() => storeStream.currentRaid!);
 
 const isModeratedChan = computed(() => {
 	if (!user.value) return false;
-	const chaninfo = storeAuth.twitch.user.channelInfo[user.value.id];
-	if (!chaninfo) return false;
-	return chaninfo.is_broadcaster || chaninfo.is_moderator;
+	return storeAuth.isModerator(user.value.id);
 });
 
 function getBanDuration(user: TwitchatDataTypes.TwitchatUser): string {

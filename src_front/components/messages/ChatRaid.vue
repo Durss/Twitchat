@@ -159,7 +159,6 @@ const hasRoomRestrictions = computed(() => {
 	if (!canModerateChannel.value) return false;
 	if (storeStream.pendingRestrictions[props.messageData.channel_id]) return false;
 	const settings = storeStream.roomSettings[storeAuth.twitch.user.id];
-	console.log(settings);
 	if (!settings) return false;
 	return typeof settings.followOnly == "number" || settings.subOnly || settings.emotesOnly;
 });
@@ -190,7 +189,7 @@ const restrictionsTooltip = computed(() => {
 });
 
 const canModerateChannel = computed(() => {
-	return storeAuth.twitch.user.channelInfo[props.messageData.channel_id]?.is_moderator === true;
+	return storeAuth.isModerator(props.messageData.channel_id);
 });
 
 onBeforeMount(() => {
