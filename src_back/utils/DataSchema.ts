@@ -182,6 +182,19 @@ const UserDataSchema = {
 				tip_tipeee_ponderate: { type: "integer", minimum: 0, maximum: 999999 },
 				tip_tiltify_ponderate: { type: "integer", minimum: 0, maximum: 999999 },
 				tip_twitchCharity_ponderate: { type: "integer", minimum: 0, maximum: 999999 },
+				patreon_tiers: {
+					type: "array",
+					minItems: 0,
+					maxItems: 100,
+					items: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							id: { type: "string", maxLength: 40 },
+							chances: { type: "integer", minimum: 1, maximum: 100 },
+						},
+					},
+				},
 				followRatio: { type: "integer", minimum: 0, maximum: 100 },
 				vipRatio: { type: "integer", minimum: 0, maximum: 100 },
 				subRatio: { type: "integer", minimum: 0, maximum: 100 },
