@@ -1,103 +1,183 @@
 <template>
-	<div class="chatroomsettings chatMessage highlight primary">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
+	<div class="chatroomsettings chatMessage highlight primary" ref="rootEl">
 		<Icon class="icon lock" name="lock" />
 		<div class="content">
 			<div>
 				<i18n-t scope="global" tag="span" keypath="chat.room_settings.title">
-					<template #ROOM><strong>#{{messageData.channel_name}}</strong></template>
+					<template #ROOM
+						><strong>#{{ props.messageData.channel_name }}</strong></template
+					>
 				</i18n-t>
 			</div>
-			<div class="restriction" v-if="messageData.settings.subOnly" ref="sub">
-				<span><Icon class="icon" name="sub" />{{$t("chat.room_settings.sub_only")}}</span>
-				<TTButton v-if="isMod" class="unsetBt" @click="unset('sub')" small light>{{$t("chat.room_settings.unsetBt")}}</TTButton>
+			<div
+				class="restriction"
+				v-if="props.messageData.settings.subOnly"
+				:class="{ disabled: disabled.sub }"
+			>
+				<span><Icon class="icon" name="sub" />{{ t("chat.room_settings.sub_only") }}</span>
+				<TTButton v-if="isMod" class="unsetBt" @click.stop="unset('sub')" small light>{{
+					t("chat.room_settings.unsetBt")
+				}}</TTButton>
 			</div>
-			<div class="restriction" v-if="messageData.settings.emotesOnly" ref="emote">
-				<span><Icon class="icon" name="emote" />{{$t("chat.room_settings.emote_only")}}</span>
-				<TTButton v-if="isMod" class="unsetBt" @click="unset('emote')" small light>{{$t("chat.room_settings.unsetBt")}}</TTButton>
+			<div
+				class="restriction"
+				v-if="props.messageData.settings.emotesOnly"
+				:class="{ disabled: disabled.emote }"
+			>
+				<span
+					><Icon class="icon" name="emote" />{{
+						t("chat.room_settings.emote_only")
+					}}</span
+				>
+				<TTButton v-if="isMod" class="unsetBt" @click.stop="unset('emote')" small light>{{
+					t("chat.room_settings.unsetBt")
+				}}</TTButton>
 			</div>
-			<div class="restriction" v-if="typeof messageData.settings.followOnly == 'number'" ref="follow">
-				<span><Icon class="icon" name="follow" />{{$t("chat.room_settings.follow_only")}}</span>
-				<TTButton v-if="isMod" class="unsetBt" @click="unset('follow')" small light>{{$t("chat.room_settings.unsetBt")}}</TTButton>
+			<div
+				class="restriction"
+				v-if="typeof props.messageData.settings.followOnly == 'number'"
+				:class="{ disabled: disabled.follow }"
+			>
+				<span
+					><Icon class="icon" name="follow" />{{
+						t(
+							"chat.room_settings.follow_only",
+							{
+								DURATION: props.messageData.settings.followOnly,
+							},
+							typeof props.messageData.settings.followOnly == "number" &&
+								props.messageData.settings.followOnly > 0
+								? 2
+								: 1,
+						)
+					}}</span
+				>
+				<TTButton v-if="isMod" class="unsetBt" @click.stop="unset('follow')" small light>{{
+					t("chat.room_settings.unsetBt")
+				}}</TTButton>
 			</div>
-			<div class="restriction" v-if="messageData.settings.slowMode" ref="slow">
-				<span><Icon class="icon" name="slow" />{{$t("chat.room_settings.slow_mode")}} ({{messageData.settings.slowMode}}s)</span>
-				<TTButton v-if="isMod" class="unsetBt" @click="unset('slow')" small light>{{$t("chat.room_settings.unsetBt")}}</TTButton>
+			<div
+				class="restriction"
+				v-if="props.messageData.settings.slowMode"
+				:class="{ disabled: disabled.slow }"
+			>
+				<span
+					><Icon class="icon" name="slow" />{{
+						t(
+							"chat.room_settings.slow_mode",
+							{
+								DURATION: props.messageData.settings.slowMode,
+							},
+							props.messageData.settings.slowMode,
+						)
+					}}</span
+				>
+				<TTButton v-if="isMod" class="unsetBt" @click.stop="unset('slow')" small light>{{
+					t("chat.room_settings.unsetBt")
+				}}</TTButton>
 			</div>
-			<div class="restriction" v-if="messageData.settings.chatDelay" ref="delay">
-				<span><Icon class="icon" name="timer" />{{$t("chat.room_settings.chat_delay")}} ({{messageData.settings.chatDelay}}s)</span>
-				<TTButton v-if="isMod" class="unsetBt" @click="unset('delay')" small light>{{$t("chat.room_settings.unsetBt")}}</TTButton>
+			<div
+				class="restriction"
+				v-if="props.messageData.settings.chatDelay"
+				:class="{ disabled: disabled.delay }"
+			>
+				<span
+					><Icon class="icon" name="timer" />{{
+						t(
+							"chat.room_settings.chat_delay",
+							{
+								DURATION: props.messageData.settings.chatDelay,
+							},
+							props.messageData.settings.chatDelay,
+						)
+					}}</span
+				>
+				<TTButton v-if="isMod" class="unsetBt" @click.stop="unset('delay')" small light>{{
+					t("chat.room_settings.unsetBt")
+				}}</TTButton>
 			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import Splitter from '../Splitter.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import AbstractChatMessage from './AbstractChatMessage';
-import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
-import Icon from '../Icon.vue';
+<script setup lang="ts">
+import TTButton from "@/components/TTButton.vue";
+import { useChatMessage } from "@/composables/useChatMessage";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { toast } from "@/utils/toast/toast";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { onBeforeMount, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import Icon from "../Icon.vue";
 
-@Component({
-	components:{
-		Icon,
-		TTButton,
-		Splitter,
-		ToggleBlock,
-		ChatTipAndTrickAd,
-	},
-	emits:["onRead"]
-})
-class ChatRoomSettings extends AbstractChatMessage {
+type RoomSetting = "sub" | "follow" | "delay" | "slow" | "emote";
 
-	@Prop
-	declare messageData:TwitchatDataTypes.MessageRoomSettingsData;
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageRoomSettingsData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
+}>();
 
-	public isMod:boolean = false
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
 
-	public beforeMount(): void {
-		const authUser = this.$store.auth[this.messageData.platform].user;
-		const user = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, authUser.id, authUser.login, authUser.displayName, undefined, undefined, undefined, undefined, false);
-		this.isMod = user.channelInfo[this.messageData.channel_id]!.is_moderator && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+
+const rootEl = useTemplateRef("rootEl");
+useChatMessage(props, emit, rootEl);
+
+const isMod = ref<boolean>(false);
+const disabled = ref<Partial<Record<RoomSetting, boolean>>>({});
+
+onBeforeMount(() => {
+	isMod.value =
+		props.messageData.platform == "twitch" &&
+		storeAuth.isModerator(props.messageData.channel_id) &&
+		TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
+});
+
+function unset(prop: RoomSetting): void {
+	const settings: TwitchatDataTypes.IRoomSettings = {};
+	switch (prop) {
+		case "sub":
+			settings.subOnly = false;
+			break;
+		case "follow":
+			settings.followOnly = false;
+			break;
+		case "delay":
+			settings.chatDelay = 0;
+			break;
+		case "slow":
+			settings.slowMode = 0;
+			break;
+		case "emote":
+			settings.emotesOnly = false;
+			break;
 	}
-
-	public unset(prop:"sub"|"follow"|"delay"|"slow"|"emote"):void {
-		const settings:TwitchatDataTypes.IRoomSettings = {};
-		switch(prop) {
-			case "sub":		settings.subOnly = false; break;
-			case "follow":	settings.followOnly = false; break;
-			case "delay":	settings.chatDelay = 0; break;
-			case "slow":	settings.slowMode = 0; break;
-			case "emote":	settings.emotesOnly = false; break;
+	TwitchUtils.setRoomSettings(props.messageData.channel_id, settings).then((res) => {
+		if (res) {
+			disabled.value[prop] = true;
+		} else {
+			toast(t("error.room_settings_update"));
 		}
-		TwitchUtils.setRoomSettings(this.messageData.channel_id, settings).then(res=> {
-			if(res) {
-				(this.$refs[prop] as HTMLDivElement).classList.add("disabled");
-			}else {
-				this.$store.common.alert(this.$t("error.room_settings_update"));
-			}
-		});
-	}
-
+	});
 }
-export default toNative(ChatRoomSettings);
 </script>
 
 <style scoped lang="less">
-.chatroomsettings{
+.chatroomsettings {
 	.content {
 		display: flex;
 		flex-direction: column;
 
 		.restriction {
 			margin-left: 1em;
-			margin-top: .25em;
+			margin-top: 0.25em;
 			&.disabled {
 				text-decoration: line-through;
 				.unsetBt {
@@ -106,18 +186,18 @@ export default toNative(ChatRoomSettings);
 			}
 
 			.unsetBt {
-				background-color: rgba(255, 255, 255, .1);
+				background-color: rgba(255, 255, 255, 0.1);
 				margin-left: 1em;
 				// padding: .75em;
 			}
 		}
 		.icon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 			vertical-align: middle;
 		}
 	}
-	&>.icon {
+	& > .icon {
 		height: 2.5em;
 		width: auto;
 		// align-self: flex-start;

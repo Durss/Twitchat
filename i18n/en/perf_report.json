@@ -1,0 +1,13 @@
+{
+	"perf_report": {
+		"title": "Twitchat seems laggy",
+		"message": "Do you want to send a diagnostics to help me figure out the issue?",
+		"details": "Includes a short recording of Twitchat with all texts stripped out.",
+		"sending": "Diagnostics is being collected, it will be sent within a minute…",
+		"sendBt": "Send",
+		"ignoreBt": "Ignore",
+		"sent": "Report sent, thank you!",
+		"failed": "The report could not be sent"
+	}
+}
+

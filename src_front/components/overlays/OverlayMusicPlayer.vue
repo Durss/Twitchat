@@ -3,30 +3,72 @@
 		<transition name="slide">
 			<div class="content" v-if="isPlaying" id="music_holder">
 				<div class="cover" id="music_cover" v-if="params?.showCover !== false">
-					<img :src="cover">
+					<img :src="cover" />
 				</div>
 
 				<div class="infos" id="music_content">
 					<div id="music_infos" class="trackHolder">
-						<Vue3Marquee :duration="duration"
-						:animateOnOverflowOnly="true"
-						:clone="noScroll === false"
-						v-if="noScroll !== true && !resetScrolling">
+						<Vue3Marquee
+							:duration="duration"
+							:animateOnOverflowOnly="true"
+							:clone="noScroll === false"
+							v-if="noScroll !== true && !resetScrolling"
+						>
 							<div class="track">
-								<div class="custom" id="music_info_custom_template" v-if="customTrackInfo" v-html="customTrackInfo"></div>
-								<div class="artist" id="music_artist" v-if="params?.showArtist !== false">{{artist}}</div>
-								<div class="title" id="music_title" v-if="params?.showTitle !== false">{{title}}</div>
+								<div
+									class="custom"
+									id="music_info_custom_template"
+									v-if="customTrackInfo"
+									v-html="customTrackInfo"
+								></div>
+								<div
+									class="artist"
+									id="music_artist"
+									v-if="params?.showArtist !== false"
+								>
+									{{ artist }}
+								</div>
+								<div
+									class="title"
+									id="music_title"
+									v-if="params?.showTitle !== false"
+								>
+									{{ title }}
+								</div>
 							</div>
 						</Vue3Marquee>
 						<div class="staticInfos">
 							<div class="track" v-if="noScroll === true || resetScrolling">
-								<div class="custom" id="music_info_custom_template" v-if="customTrackInfo" v-html="customTrackInfo"></div>
-								<div class="artist" id="music_artist" v-if="params?.showArtist !== false">{{artist}}</div>
-								<div class="title" id="music_title" v-if="params?.showTitle !== false">{{title}}</div>
+								<div
+									class="custom"
+									id="music_info_custom_template"
+									v-if="customTrackInfo"
+									v-html="customTrackInfo"
+								></div>
+								<div
+									class="artist"
+									id="music_artist"
+									v-if="params?.showArtist !== false"
+								>
+									{{ artist }}
+								</div>
+								<div
+									class="title"
+									id="music_title"
+									v-if="params?.showTitle !== false"
+								>
+									{{ title }}
+								</div>
 							</div>
 						</div>
 					</div>
-					<div class="progressbar" ref="progressbar" id="music_progress" @click="onSeek($event)" v-if="params?.showProgressbar !== false">
+					<div
+						class="progressbar"
+						ref="progressbar"
+						id="music_progress"
+						@click="onSeek($event)"
+						v-if="params?.showProgressbar !== false"
+					>
 						<div class="fill" id="music_progress_fill" :style="progressStyles"></div>
 					</div>
 				</div>
@@ -35,213 +77,216 @@
 	</div>
 </template>
 
-<script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import { gsap } from 'gsap/gsap-core';
-import { watch } from 'vue';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import { Vue3Marquee } from 'vue3-marquee'
-import AbstractOverlay from './AbstractOverlay';
-import DOMPurify from 'isomorphic-dompurify';
+<script setup lang="ts">
+import { asset } from "@/composables/useAsset";
+import { useOverlayConnector } from "@/composables/useOverlayConnector";
+import type TwitchatEvent from "@/events/TwitchatEvent";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
+import { gsap } from "gsap/gsap-core";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
+import { useRoute } from "vue-router";
+import { Vue3Marquee } from "vue3-marquee";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers";
+import DOMPurify from "isomorphic-dompurify";
 
-@Component({
-	components:{
-		Vue3Marquee,
+const props = withDefaults(
+	defineProps<{
+		embed?: boolean;
+		keepEmbedTransitions?: boolean;
+		playbackPos?: number;
+		staticTrackData?: TwitchatDataTypes.MusicTrackData;
+		staticOverlayParams?: TwitchatDataTypes.MusicPlayerParamsData;
+	}>(),
+	{
+		embed: false,
+		keepEmbedTransitions: false,
 	},
-	emits:["seek"]
-})
-class OverlayMusicPlayer extends AbstractOverlay {
+);
 
-	@Prop({
-			type: Boolean,
-			default: false,
-		})
-	public embed!:boolean;
-	@Prop({
-			type: Boolean,
-			default: false,
-		})
-	public keepEmbedTransitions!:boolean;
-	@Prop
-	public playbackPos!:number;
-	@Prop
-	public staticTrackData!:TwitchatDataTypes.MusicTrackData;
+const emit = defineEmits<{
+	seek: [percent: number];
+}>();
 
-	public artist = "";
-	public title = "";
-	public cover = "";
-	public skin = "";
-	public customTrackInfo = "";
-	public progress = 0;
-	public isPlaying = false;
-	public resetScrolling = false;
-	public params:TwitchatDataTypes.MusicPlayerParamsData|null = null;
+const route = useRoute();
+const { getAsset } = asset();
 
-	public get noScroll():boolean {
-		if(Object.hasOwn(this.$route.query, "noScroll")) return true;
-		if(this.params) {
-			if(this.params.noScroll === true) return true;
-		}
-		return false;
+const progressbar = useTemplateRef("progressbar");
+
+const artist = ref("");
+const title = ref("");
+const cover = ref<string | undefined>(undefined);
+const skin = ref<string | undefined>(undefined);
+const customTrackInfo = ref("");
+const progress = ref(0);
+const isPlaying = ref(false);
+const resetScrolling = ref(false);
+const params = ref<TwitchatDataTypes.MusicPlayerParamsData | null>(null);
+
+const noScroll = computed(() => {
+	if (Object.hasOwn(route.query, "noScroll")) return true;
+	if (params.value) {
+		if (params.value.noScroll === true) return true;
 	}
+	return false;
+});
 
-	private onTrackHandler!:(e:TwitchatEvent) => void;
-
-	public get classes():string[] {
-		let res = ["overlaymusicplayer"];
-		if(this.embed !== false) res.push("embed")
-		if(this.keepEmbedTransitions !== false) res.push("keepEmbedTransitions")
-		if(this.params) {
-			if(this.params.noScroll === true) res.push("noScroll")
-			if(this.params.openFromLeft === true) res.push("left")
-		}
-		if(this.skin) res.push(this.skin);
-		return res;
+const classes = computed<string[]>(() => {
+	let res = ["overlaymusicplayer"];
+	if (props.embed !== false) res.push("embed");
+	if (props.keepEmbedTransitions !== false) res.push("keepEmbedTransitions");
+	if (params.value) {
+		if (params.value.noScroll === true) res.push("noScroll");
+		if (params.value.openFromLeft === true) res.push("left");
 	}
+	if (skin.value) res.push(skin.value);
+	return res;
+});
 
-	public get duration():number {
-		return Math.max(this.artist.length, this.title.length, 20) / 2;
-	}
+const duration = computed<number>(() => {
+	return Math.max(artist.value.length, title.value.length, 20) / 2;
+});
 
-	public get progressStyles():{[key:string]:string} {
-		return {
-			width: `${this.progress*100}%`,
-		};
-	}
+const progressStyles = computed<{ [key: string]: string }>(() => {
+	return {
+		width: `${progress.value * 100}%`,
+	};
+});
 
-	public mounted():void {
-		this.onTrackHandler = async (e:TwitchatEvent) => {
-			if(e.data && ((e.data as unknown) as {params:TwitchatDataTypes.MusicPlayerParamsData}).params){
-				const obj = (e.data as unknown) as  { params:TwitchatDataTypes.MusicPlayerParamsData }
-				this.params = obj.params;
-			}
-			if((e.data as {trackName?:string}).trackName) {
-				const prevArtist = this.artist;
-				const prevTitle = this.title;
-				const obj = (e.data as unknown) as
-							{
-								trackName:string,
-								artistName:string,
-								trackDuration:number,
-								trackPlaybackPos:number,
-								cover:string,
-								skin:string,
-								params:TwitchatDataTypes.MusicPlayerParamsData,
-							}
-				this.artist = obj.artistName;
-				this.title = obj.trackName;
-				this.cover = obj.cover;
-				this.skin = obj.skin;
-				console.log(obj)
-				this.isPlaying = true;
-				let customTrackInfo = obj.params.customInfoTemplate;
-				customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist || "no music");
-				customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title || "no music");
-				customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
-				this.customTrackInfo = DOMPurify.sanitize(customTrackInfo);
-
-				const newProgress = (obj.trackPlaybackPos/obj.trackDuration);
-				this.progress = newProgress;
-				const duration = (obj.trackDuration*(1-newProgress))/1000;
-				gsap.killTweensOf(this);
-				gsap.to(this, {duration, progress:1, ease:"linear"});
-
-				if(this.params?.noScroll !== true) {
-					//If it's a new track, reset the scrolling
-					if(prevArtist != this.artist && prevTitle != this.title) {
-						this.resetScrolling = true;
-						await this.$nextTick();
-						this.resetScrolling = false;
-					}
-				}
-			}else{
-				this.isPlaying = this.params?.autoHide !== false;
-				if(this.params?.erase === true) {
-					this.artist = "no music";
-					this.title = "no music";
-					this.cover = this.$asset("img/defaultCover.svg");
-				}
-				gsap.killTweensOf(this);
-				if(this.params) {
-					this.params.showProgressbar = false;
-				}
-			}
-			if(!/http?s:\/\/.{5,}/.test(this.cover)) {
-				this.cover = this.$asset("img/defaultCover.svg");
-			}
-		};
-
-		if(!this.staticTrackData) {
-			PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
-			//Wait a little to give it time to OBS websocket to establish connexion
-		}else{
-			this.onTrackChangeLocal();
-			this.progress = 50;
-		}
-		if(this.embed) {
-			//Called when seeking
-			watch(()=>this.$store.music.musicPlayerParams, ()=> this.onTrackChangeLocal(), {deep:true});
-			this.onTrackChangeLocal();
-		}
-	}
-
-	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
-	}
-
-	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
-	}
-
-	public onSeek(e:MouseEvent):void {
-		const bar = this.$refs.progressbar as HTMLDivElement;
-		const bounds = bar.getBoundingClientRect();
-		const percent = e.offsetX/bounds.width;
-		this.$emit("seek", percent);
-	}
-
-	private onTrackChangeLocal():void {
-		this.params = this.$store.music.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
-		if(this.staticTrackData) {
-			this.artist = this.staticTrackData.artist;
-			this.title = this.staticTrackData.title;
-			this.cover = this.staticTrackData.cover;
-			if(!this.cover) {
-				this.cover = this.$asset("img/default_music_cover.png");
-			}
-			this.isPlaying = true;
-			let customTrackInfo = this.params.customInfoTemplate;
-			customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist || "no music");
-			customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title || "no music");
-			customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
-			this.customTrackInfo = DOMPurify.sanitize(customTrackInfo);
-
-			const newProgress = 600/this.staticTrackData.duration;
-			this.progress = newProgress;
-			const duration = this.staticTrackData.duration*(1-newProgress);
-			gsap.killTweensOf(this);
-			gsap.to(this, {duration, progress:1, ease:"linear"});
-		}else{
-			this.isPlaying = false;
-		}
-	}
-
+if (!props.staticOverlayParams && props.staticTrackData) {
+	useOverlayConnector(requestInfo);
 }
-export default toNative(OverlayMusicPlayer);
+
+onMounted(() => {
+	if (!props.staticTrackData) {
+		PublicAPI.instance.addEventListener("ON_CURRENT_TRACK", onTrack);
+	} else {
+		onTrackChangeLocal();
+		progress.value = 50;
+	}
+	if (props.staticOverlayParams) {
+		params.value = props.staticOverlayParams;
+	}
+	if (props.staticOverlayParams || props.staticTrackData) {
+		onTrackChangeLocal();
+	}
+});
+
+onBeforeUnmount(() => {
+	PublicAPI.instance.removeEventListener("ON_CURRENT_TRACK", onTrack);
+	gsap.killTweensOf(progress);
+});
+
+function requestInfo(): void {
+	PublicAPI.instance.broadcast("GET_CURRENT_TRACK");
+}
+
+function onSeek(e: MouseEvent): void {
+	const bounds = progressbar.value!.getBoundingClientRect();
+	const percent = e.offsetX / bounds.width;
+	emit("seek", percent);
+}
+
+async function onTrack(e: TwitchatEvent<"ON_CURRENT_TRACK">): Promise<void> {
+	if (e.data && e.data.params) {
+		params.value = e.data.params;
+	}
+	if (e.data.trackName && e.data.artistName) {
+		const prevArtist = artist.value;
+		const prevTitle = title.value;
+		artist.value = e.data.artistName;
+		title.value = e.data.trackName;
+		cover.value = e.data.cover;
+		skin.value = e.data.skin;
+		isPlaying.value = true;
+		let trackInfo = params.value?.customInfoTemplate || "";
+		if (trackInfo)
+			trackInfo = replacePlaceholders(trackInfo, {
+				ARTIST: artist.value || "no music",
+				TITLE: title.value || "no music",
+				COVER: cover.value || "",
+			});
+		customTrackInfo.value = DOMPurify.sanitize(trackInfo);
+
+		const newProgress = e.data.trackPlaybackPos! / e.data.trackDuration!;
+		progress.value = newProgress;
+		const duration = (e.data.trackDuration! * (1 - newProgress)) / 1000;
+		gsap.killTweensOf(progress);
+		gsap.to(progress, { duration, value: 1, ease: "linear" });
+
+		if (params.value?.noScroll !== true) {
+			//If it's a new track, reset the scrolling
+			if (prevArtist != artist.value && prevTitle != title.value) {
+				resetScrolling.value = true;
+				await nextTick();
+				resetScrolling.value = false;
+			}
+		}
+	} else {
+		isPlaying.value = params.value?.autoHide !== false;
+		if (params.value?.erase === true) {
+			artist.value = "no music";
+			title.value = "no music";
+			cover.value = getAsset("img/defaultCover.svg");
+		}
+		gsap.killTweensOf(progress);
+		if (params.value) {
+			params.value.showProgressbar = false;
+		}
+	}
+	if (!/http?s:\/\/.{5,}/.test(cover.value || "")) {
+		cover.value = getAsset("img/defaultCover.svg");
+	}
+}
+
+function onTrackChangeLocal(): void {
+	if (props.staticTrackData) {
+		artist.value = props.staticTrackData.artist;
+		title.value = props.staticTrackData.title;
+		cover.value = props.staticTrackData.cover;
+		if (!cover.value) {
+			cover.value = getAsset("img/default_music_cover.png");
+		}
+		isPlaying.value = true;
+		let trackInfo = props.staticOverlayParams?.customInfoTemplate || "";
+		if (trackInfo) {
+			trackInfo = replacePlaceholders(trackInfo, {
+				ARTIST: artist.value || "no music",
+				TITLE: title.value || "no music",
+				COVER: cover.value,
+			});
+			customTrackInfo.value = DOMPurify.sanitize(trackInfo);
+		} else {
+			customTrackInfo.value = "";
+		}
+
+		const newProgress = 600 / props.staticTrackData.duration;
+		progress.value = newProgress;
+		const duration = props.staticTrackData.duration * (1 - newProgress);
+		gsap.killTweensOf(progress);
+		gsap.to(progress, { duration, value: 1, ease: "linear" });
+	} else {
+		isPlaying.value = false;
+	}
+}
+
+if (props.staticOverlayParams) {
+	watch(
+		() => props.staticOverlayParams,
+		() => onTrackChangeLocal(),
+		{ deep: true },
+	);
+}
 </script>
 
 <style scoped lang="less">
-.overlaymusicplayer{
-
-
+.overlaymusicplayer {
 	&.embed {
 		width: 100%;
 		aspect-ratio: 300 / 54;
 		margin: auto;
-		margin-top: .5em;
-		margin-bottom: .5em;
+		margin-top: 0.5em;
+		margin-bottom: 0.5em;
 
 		.content {
 			width: 100%;
@@ -297,7 +342,7 @@ export default toNative(OverlayMusicPlayer);
 			width: @maxHeight;
 			height: @maxHeight;
 			object-fit: cover;
-			overflow:hidden;
+			overflow: hidden;
 			img {
 				width: 100%;
 				height: 100%;
@@ -306,11 +351,11 @@ export default toNative(OverlayMusicPlayer);
 
 		.infos {
 			color: var(--color-light);
-			@minFontSize: calc(@maxHeight/3);
+			@minFontSize: calc(@maxHeight / 3);
 			font-size: ~"min(@{minFontSize}, 50vh)";
 			flex: 1;
-			padding: 0 .25em;
-			min-width: 0px;//Tell flexbox it's ok to shrink it
+			padding: 0 0.25em;
+			min-width: 0px; //Tell flexbox it's ok to shrink it
 			display: flex;
 			flex-direction: column;
 			justify-content: stretch;
@@ -335,14 +380,15 @@ export default toNative(OverlayMusicPlayer);
 						padding-right: 1rem;
 					}
 
-					.artist, .title {
+					.artist,
+					.title {
 						padding-right: 1rem;
 						display: flex;
 						line-height: 1.2em;
 					}
 					.artist {
 						font-weight: bold;
-						font-size: .8em;
+						font-size: 0.8em;
 						align-items: flex-end;
 					}
 					.title {
@@ -355,7 +401,8 @@ export default toNative(OverlayMusicPlayer);
 					width: 100%;
 					.track {
 						// font-size: .8em;
-						.artist, .title {
+						.artist,
+						.title {
 							width: 100%;
 							padding-right: 0 !important;
 							display: block;
@@ -368,7 +415,7 @@ export default toNative(OverlayMusicPlayer);
 			}
 		}
 		.progressbar {
-			height: .24em;
+			height: 0.24em;
 			max-width: 100%;
 			.fill {
 				background-color: var(--color-primary);

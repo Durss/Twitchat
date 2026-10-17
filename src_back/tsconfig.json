@@ -4,38 +4,25 @@
 		"target": "esnext",
 		"moduleResolution": "nodenext",
 		"strict": true,
-		"noImplicitAny": false,
+		"noImplicitAny": true,
 		"noImplicitThis": false,
-		"strictNullChecks": false,
+		"strictNullChecks": true,
 		"importHelpers": false,
 		"experimentalDecorators": true,
 		"sourceMap": false,
 		"isolatedModules": true,
 		"esModuleInterop": true,
-		"baseUrl": ".",
 		"outDir": "../server",
 		"skipLibCheck": true,
 		"incremental": true,
+		"noUncheckedIndexedAccess": true,
+		"noPropertyAccessFromIndexSignature": true,
 		"tsBuildInfoFile": "../server/.tsbuildinfo",
 		"paths": {
-			"@/*": [
-				"./*"
-			]
+			"@/*": ["./*"]
 		},
-		"lib": [
-			"esnext",
-			"dom",
-			"dom.iterable",
-			"scripthost"
-		]
+		"lib": ["esnext", "dom", "dom.iterable", "scripthost"]
 	},
-	"include": [
-		"./**/*.ts",
-		"./**/*.tsx"
-	],
-	"exclude": [
-		"node_modules",
-		"server",
-		"static/labels.json"
-	]
+	"include": ["./**/*.ts", "./**/*.tsx"],
+	"exclude": ["node_modules", "server", "static/labels.json"]
 }

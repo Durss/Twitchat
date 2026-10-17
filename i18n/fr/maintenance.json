@@ -1,0 +1,28 @@
+{
+	"maintenance": {
+		"banner": "Une maintenance débute à {TIME} <i>(dans {DURATION})</i>.",
+		"banner_now": "Twitchat passe en maintenance, sauvegarde de tes données…",
+		"banner_admin": "Maintenance en cours",
+		"admin_title": "Maintenance du serveur",
+		"admin_state": "État actuel : {STATE}",
+		"admin_lockAt": "Les clients partent à {TIME}",
+		"admin_error": "Une erreur est survenue lors de la mise à jour de la maintenance",
+		"param_lockIn": "Délai avant verrouillage (minutes)",
+		"param_message": "Message affiché aux utilisateur·ices (optionnel)",
+		"announce_bt": "Annoncer la maintenance",
+		"lock_bt": "Verrouiller maintenant",
+		"off_bt": "Terminer la maintenance",
+		"announce_confirm": {
+			"title": "Annoncer la maintenance ?",
+			"description": "Tout le monde verra un compte à rebours puis sera redirigé vers la page de maintenance. Le serveur refuse tous les appels API 30s après."
+		},
+		"lock_confirm": {
+			"title": "Verrouiller maintenant ?",
+			"description": "Tout le monde est redirigé immédiatement vers la page de maintenance. Le serveur refuse tous les appels API 30s après."
+		},
+		"off_confirm": {
+			"title": "Terminer la maintenance ?",
+			"description": "Les personnes en attente sur la page de maintenance seront renvoyées vers Twitchat."
+		}
+	}
+}
