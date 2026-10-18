@@ -1,11 +1,12 @@
 <template>
-	<button :class="classes" type="button">
+	<button :class="classes" type="button" :aria-label="ariaLabel">
 		<Icon class="icon" :name="icon" :theme="theme" />
 	</button>
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, ref } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 const props = withDefaults(
 	defineProps<{
@@ -19,7 +20,15 @@ const props = withDefaults(
 		icon: "cross",
 	},
 );
+const { t } = useI18n();
 const classes = ref<string[]>([]);
+
+//Accessible name from the icon, still can be overridden
+const ariaLabel = computed(() => {
+	if (props.icon == "cross") return t("global.close");
+	if (props.icon == "back") return t("global.back");
+	return undefined;
+});
 
 onBeforeMount(() => {
 	classes.value.push("clearbutton");

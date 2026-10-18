@@ -2,7 +2,7 @@
 	<div class="usercard sidePanel" v-if="user" ref="rootEl">
 		<div class="content">
 			<template v-if="loading">
-				<ClearButton aria-label="close" @click="closeCard()" />
+				<ClearButton @click="closeCard()" />
 				<div class="header">
 					<Icon name="loader" alt="loading" class="loader" />
 					<div class="title">
@@ -12,7 +12,7 @@
 			</template>
 
 			<template v-else-if="error">
-				<ClearButton aria-label="close" @click="closeCard()" />
+				<ClearButton @click="closeCard()" />
 				<div class="header">
 					<div class="title">
 						<span class="label">{{ user.displayName }}</span>
@@ -25,7 +25,7 @@
 			<template v-else>
 				<!-- v-show (not v-if) keeps the batch-rendered message history alive while a manager is open -->
 				<div class="holder details" v-show="!manageBadges && !manageUserNames">
-					<ClearButton aria-label="close" @click="closeCard()" />
+					<ClearButton @click="closeCard()" />
 					<div class="header">
 						<a :href="profilePage" target="_blank">
 							<div class="avatar">
