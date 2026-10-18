@@ -463,6 +463,9 @@
 				>Download</TTButton
 			>
 			<TTButton small @click="fakeConversation()" icon="whispers">Fake conversation</TTButton>
+			<TTButton small @click="incrementalMessages()" icon="whispers"
+				>200 incremental</TTButton
+			>
 		</div>
 	</div>
 </template>
@@ -1275,6 +1278,26 @@ async function fakeConversation(): Promise<void> {
 		};
 		storeChat.addMessage(messageData, false);
 		await Utils.promisedTimeout(Math.random() * 500);
+	}
+}
+
+async function incrementalMessages(): Promise<void> {
+	let total = 200;
+	for (let i = 0; i < total; i++) {
+		const message = i + "/" + total;
+		const notif: TwitchatDataTypes.MessageCustomData = {
+			id: Utils.getUUID(),
+			channel_id: storeAuth.twitch.user.id,
+			date: Date.now(),
+			platform: "twitchat",
+			type: TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+			message,
+			message_chunks: [{ type: "text", value: message }],
+			message_html: message,
+			fake: true,
+		};
+		await storeChat.addMessage(notif);
+		await Utils.promisedTimeout(1);
 	}
 }
 

@@ -3365,8 +3365,9 @@ export const storeChat = defineStore("chat", {
 
 				//Don't keep automod accept/reject message
 				if (
-					message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
-					message.twitch_automod
+					(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
+						message.twitch_automod) ||
+					message.type == TwitchatDataTypes.TwitchatMessageType.CUSTOM
 				) {
 					const i = findMessageIndex(message.id);
 					if (i > -1) messageList.splice(i, 1);
@@ -3785,7 +3786,7 @@ export const storeChat = defineStore("chat", {
 						mess.id == message_parent_id &&
 						TwitchatDataTypes.IsTranslatableMessage[mess.type]
 					) {
-						message.parentMessage = mess as TwitchatDataTypes.TranslatableMessage;
+						message.parentMessage = mess;
 						break;
 					}
 				}
