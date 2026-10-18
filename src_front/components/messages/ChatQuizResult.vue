@@ -14,7 +14,7 @@
 				<strong v-if="rankedUsers[0]?.isAnonymous">{{
 					rankedUsers[0]?.name || $t("global.loading")
 				}}</strong>
-				<a href="#" @click.stop="openWinner()" v-else
+				<a href="#" @click="openWinner()" v-else
 					><strong>{{
 						messageData.quizResult.winner.displayName || $t("global.loading")
 					}}</strong></a
@@ -26,7 +26,6 @@
 				:icons="['leaderboard']"
 				:open="false"
 				:title="$t('chat.quiz_result.leaderboard_bt')"
-				@click.stop
 				@update:open="onExpandLeaderboard()"
 			>
 				<SearchForm v-model="userSearch" :debounceDelay="0" @submit="nextSearchResult()" />

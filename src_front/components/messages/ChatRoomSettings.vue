@@ -15,7 +15,7 @@
 				:class="{ disabled: disabled.sub }"
 			>
 				<span><Icon class="icon" name="sub" />{{ t("chat.room_settings.sub_only") }}</span>
-				<TTButton v-if="isMod" class="unsetBt" @click.stop="unset('sub')" small light>{{
+				<TTButton v-if="isMod" class="unsetBt" @click="unset('sub')" small light>{{
 					t("chat.room_settings.unsetBt")
 				}}</TTButton>
 			</div>
@@ -29,7 +29,7 @@
 						t("chat.room_settings.emote_only")
 					}}</span
 				>
-				<TTButton v-if="isMod" class="unsetBt" @click.stop="unset('emote')" small light>{{
+				<TTButton v-if="isMod" class="unsetBt" @click="unset('emote')" small light>{{
 					t("chat.room_settings.unsetBt")
 				}}</TTButton>
 			</div>
@@ -52,7 +52,7 @@
 						)
 					}}</span
 				>
-				<TTButton v-if="isMod" class="unsetBt" @click.stop="unset('follow')" small light>{{
+				<TTButton v-if="isMod" class="unsetBt" @click="unset('follow')" small light>{{
 					t("chat.room_settings.unsetBt")
 				}}</TTButton>
 			</div>
@@ -72,7 +72,7 @@
 						)
 					}}</span
 				>
-				<TTButton v-if="isMod" class="unsetBt" @click.stop="unset('slow')" small light>{{
+				<TTButton v-if="isMod" class="unsetBt" @click="unset('slow')" small light>{{
 					t("chat.room_settings.unsetBt")
 				}}</TTButton>
 			</div>
@@ -92,7 +92,7 @@
 						)
 					}}</span
 				>
-				<TTButton v-if="isMod" class="unsetBt" @click.stop="unset('delay')" small light>{{
+				<TTButton v-if="isMod" class="unsetBt" @click="unset('delay')" small light>{{
 					t("chat.room_settings.unsetBt")
 				}}</TTButton>
 			</div>

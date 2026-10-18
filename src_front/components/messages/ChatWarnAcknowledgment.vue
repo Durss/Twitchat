@@ -11,7 +11,7 @@
 					class="userlink"
 					:href="'https://twitch.tv/' + messageData.user.login"
 					target="_blank"
-					@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id)"
+					@click.prevent="openUserCard(messageData.user, messageData.channel_id)"
 					>{{ messageData.user.displayName }}</a
 				>
 			</template>

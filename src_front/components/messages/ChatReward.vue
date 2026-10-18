@@ -11,7 +11,7 @@
 
 				<TTButton
 					v-if="entry.vo.message_html == undefined && getCanRefund()"
-					@click.stop="refund()"
+					@click="refund()"
 					v-tooltip="
 						entry.count > 1
 							? $t('chat.reward.refundOne_tt')
@@ -29,7 +29,7 @@
 					<template #USER>
 						<a
 							class="userlink"
-							@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+							@click="openUserCard(messageData.user, messageData.channel_id)"
 							>{{ entry.vo.user.displayName }}</a
 						>
 					</template>
@@ -57,7 +57,7 @@
 			<div class="prompt quote" v-if="messageData.message_html">
 				<TTButton
 					v-if="getCanRefund(messageData)"
-					@click.stop="refund(messageData)"
+					@click="refund(messageData)"
 					v-tooltip="$t('chat.reward.refund_tt')"
 					class="refundBt"
 					icon="refundPoints"
@@ -76,7 +76,7 @@
 			>
 				<TTButton
 					v-if="getCanRefund(child)"
-					@click.stop="refund(child)"
+					@click="refund(child)"
 					v-tooltip="$t('chat.reward.refund_tt')"
 					class="refundBt"
 					icon="refundPoints"

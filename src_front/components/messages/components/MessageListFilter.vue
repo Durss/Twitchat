@@ -1435,6 +1435,8 @@ async function previewSubMessage(
  */
 function clickPreview(e: MouseEvent): void {
 	e.stopPropagation();
+	//Let message's links/buttons do their job without closing the preview
+	if (Utils.isInteractiveElement(e)) return;
 	e.preventDefault();
 	previewData.value = [];
 }

@@ -4,7 +4,7 @@
 			<div v-if="isDonate || isDonateReminder" class="card-item primary sponsor">
 				<div class="header">
 					<ClearButton
-						@click.stop="deleteMessage()"
+						@click="deleteMessage()"
 						v-if="storeParams.donationReminderEnabled"
 					/>
 					<div class="title">{{ t("chat.sponsor.title") }}</div>
@@ -27,7 +27,7 @@
 						primary
 						light
 						:aria-label="t('chat.sponsor.tipBt_aria')"
-						@click.stop="openParamPage(contentDonate)"
+						@click="openParamPage(contentDonate)"
 						>{{ t("chat.sponsor.tipBt") }}</TTButton
 					>
 
@@ -36,7 +36,7 @@
 							v-if="!storeParams.donationReminderEnabled"
 							light
 							primary
-							@click.stop="storeParams.donationReminderEnabled = true"
+							@click="storeParams.donationReminderEnabled = true"
 							icon="timer"
 							>{{ t("chat.sponsor.remind_meBt") }}</TTButton
 						>
@@ -51,7 +51,7 @@
 				<div class="header">
 					<ClearButton
 						:aria-label="t('chat.closeBt_aria')"
-						@click.stop="deleteMessage()"
+						@click="deleteMessage()"
 					/>
 					<div class="title">{{ t("tips.title") }}</div>
 				</div>
@@ -62,7 +62,7 @@
 				<div class="header">
 					<ClearButton
 						:aria-label="t('chat.closeBt_aria')"
-						@click.stop="deleteMessage()"
+						@click="deleteMessage()"
 					/>
 					<div class="title">{{ t("chat.discord.title") }}</div>
 				</div>
@@ -87,7 +87,7 @@
 				<div class="header">
 					<ClearButton
 						:aria-label="t('chat.closeBt_aria')"
-						@click.stop="showConfirm ? (showConfirm = false) : confirmGngngnClose()"
+						@click="showConfirm ? (showConfirm = false) : confirmGngngnClose()"
 					/>
 					<div class="title">{{ t("chat.adalert.title") }}</div>
 				</div>
@@ -119,7 +119,7 @@
 				<div class="header">
 					<ClearButton
 						:aria-label="t('chat.closeBt_aria')"
-						@click.stop="deleteMessage()"
+						@click="deleteMessage()"
 					/>
 					<div class="title">{{ t("chat.donor.title") }}</div>
 				</div>
@@ -176,7 +176,7 @@
 
 			<div v-if="isAdBreakScopeRequest" class="card-item primary adBreak">
 				<div class="header">
-					<ClearButton @click.stop="deleteMessage()" />
+					<ClearButton @click="deleteMessage()" />
 					<div class="title">
 						<Icon name="ad" class="icon small" theme="light" />
 						{{ t("chat.adBreakScope.header") }}

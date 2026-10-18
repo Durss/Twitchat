@@ -10,7 +10,7 @@
 			<template #USER>
 				<a
 					class="userlink"
-					@click.stop="openUserCard(props.messageData.user, props.messageData.channel_id)"
+					@click="openUserCard(props.messageData.user, props.messageData.channel_id)"
 					>{{ props.messageData.user.displayName }}</a
 				>
 			</template>

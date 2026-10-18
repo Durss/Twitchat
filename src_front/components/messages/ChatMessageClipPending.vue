@@ -13,7 +13,7 @@
 				<TTButton
 					small
 					:loading="clipHighlightLoading"
-					@click.stop="clipHighlight()"
+					@click="clipHighlight()"
 					icon="highlight"
 					>{{ t("global.moderation_action.clip_created_highlightBt") }}</TTButton
 				>

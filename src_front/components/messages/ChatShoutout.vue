@@ -15,14 +15,14 @@
 				<template #CHANNEL>
 					<a
 						class="userlink"
-						@click.stop="openUserCard(channel, messageData.channel_id)"
+						@click="openUserCard(channel, messageData.channel_id)"
 						>{{ channel.displayName }}</a
 					>
 				</template>
 				<template #USER>
 					<a
 						class="userlink"
-						@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+						@click="openUserCard(messageData.user, messageData.channel_id)"
 						>{{ messageData.user.displayName }}</a
 					>
 				</template>
@@ -35,7 +35,7 @@
 				<template #MODERATOR>
 					<a
 						class="userlink"
-						@click.stop="openUserCard(messageData.moderator, messageData.channel_id)"
+						@click="openUserCard(messageData.moderator, messageData.channel_id)"
 						>{{ messageData.moderator.displayName }}</a
 					>
 				</template>
@@ -45,7 +45,7 @@
 				<template #USER>
 					<a
 						class="userlink"
-						@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+						@click="openUserCard(messageData.user, messageData.channel_id)"
 						>{{ messageData.user.displayName }}</a
 					>
 				</template>
@@ -65,7 +65,7 @@
 				</div>
 
 				<Button
-					@click.stop="shoutout()"
+					@click="shoutout()"
 					v-if="messageData.received"
 					small
 					icon="shoutout"

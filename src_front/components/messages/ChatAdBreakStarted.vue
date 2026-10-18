@@ -7,7 +7,7 @@
 				<a
 					v-if="messageData.startedBy"
 					class="userlink"
-					@click.stop="openUserCard(messageData.startedBy!, messageData.channel_id)"
+					@click="openUserCard(messageData.startedBy!, messageData.channel_id)"
 					>{{ messageData.startedBy!.displayName }}</a
 				>
 				<strong v-else>???</strong>

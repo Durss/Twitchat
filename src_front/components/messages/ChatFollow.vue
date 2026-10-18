@@ -22,7 +22,7 @@
 			<template #USER>
 				<a
 					class="userlink"
-					@click.stop="
+					@click="
 						openUserCard(messageData.user, messageData.channel_id, messageData.platform)
 					"
 					>{{ messageData.user.displayName }}</a

@@ -14,7 +14,7 @@
 				<template #USER>
 					<a
 						class="userlink"
-						@click.stop="openUserCard(messageData.creator!, messageData.channel_id)"
+						@click="openUserCard(messageData.creator!, messageData.channel_id)"
 						>{{ messageData.creator.displayName }}</a
 					>
 				</template>

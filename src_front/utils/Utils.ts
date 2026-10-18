@@ -30,6 +30,23 @@ export default class Utils {
 	}
 
 	/**
+	 * Checks if given event occured on a button-ish element.
+	 */
+	public static isInteractiveElement(e: MouseEvent): boolean {
+		for (const node of e.composedPath()) {
+			if (node === e.currentTarget) break;
+			if (
+				node instanceof Element &&
+				node.matches(
+					"a, button, input, select, textarea, label, [role=button], [contenteditable=true], .toggleblock",
+				)
+			)
+				return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Generates a random UUID
 	 */
 	public static getUUID(): string {

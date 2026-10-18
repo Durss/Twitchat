@@ -9,7 +9,7 @@
 				<a
 					:href="'https://twitch.tv/' + messageData.message.user.login"
 					target="_blank"
-					@click.stop.prevent="
+					@click.prevent="
 						openUserCard(messageData.message.user, messageData.message.channel_id)
 					"
 					class="login"

@@ -13,7 +13,7 @@
 					<template v-for="(user, index) in updatedParticipants" :key="user.id">
 						<a
 							class="userlink"
-							@click.stop="openUserCard(user, messageData.channel_id)"
+							@click="openUserCard(user, messageData.channel_id)"
 							>{{ user.displayName }}</a
 						>
 						<span v-if="index < updatedParticipants.length - 1">, </span>
@@ -32,7 +32,7 @@
 				<template #HOST>
 					<a
 						class="userlink"
-						@click.stop="openUserCard(messageData.host, messageData.channel_id)"
+						@click="openUserCard(messageData.host, messageData.channel_id)"
 						>{{ messageData.host.displayName }}</a
 					>
 				</template>
@@ -49,7 +49,7 @@
 					<template v-for="(user, index) in otherParticipants" :key="user.id">
 						<a
 							class="userlink"
-							@click.stop="openUserCard(user, messageData.channel_id)"
+							@click="openUserCard(user, messageData.channel_id)"
 							>{{ user.displayName }}</a
 						>
 						<span v-if="index < otherParticipants.length - 1">, </span>

@@ -36,7 +36,7 @@
 					:light="action.theme == 'light'"
 					:primary="action.theme == 'primary'"
 					:secondary="action.theme == 'secondary'"
-					@click.stop="onClickButton(action)"
+					@click="onClickButton(action)"
 					>{{ action.label }}</Button
 				>
 			</template>
@@ -51,7 +51,7 @@
 
 		<ClearButton
 			class="closeBt"
-			@click.stop="deleteMessage()"
+			@click="deleteMessage()"
 			small
 			v-if="messageData.canClose !== false"
 		/>

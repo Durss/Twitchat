@@ -32,7 +32,7 @@
 				icon="online"
 				primary
 				small
-				@click.stop="reconnectChan()"
+				@click="reconnectChan()"
 				>{{ t("global.reconnect") }}</TTButton
 			>
 		</template>

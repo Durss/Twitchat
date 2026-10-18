@@ -17,7 +17,7 @@
 						class="userlink"
 						:href="getProfilePage(messageData.user)"
 						target="_blank"
-						@click.stop.prevent="
+						@click.prevent="
 							openUserCard(
 								messageData.user,
 								messageData.channel_id,
@@ -43,7 +43,7 @@
 					>
 						<a
 							class="userlink"
-							@click.stop="
+							@click="
 								openUserCard(u, messageData.channel_id, messageData.platform)
 							"
 							>{{ u.displayName }}</a

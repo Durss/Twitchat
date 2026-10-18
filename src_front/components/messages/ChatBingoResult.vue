@@ -10,7 +10,7 @@
 				<a
 					class="userlink"
 					v-if="messageData.bingoData.winners![0]"
-					@click.stop="
+					@click="
 						openUserCard(messageData.bingoData.winners![0], messageData.channel_id)
 					"
 					>{{ messageData.bingoData.winners![0].displayName }}</a

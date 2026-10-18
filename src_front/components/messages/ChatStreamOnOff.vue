@@ -14,7 +14,7 @@
 						class="userlink"
 						:href="'https://twitch.tv/' + messageData.info.user.login"
 						target="_blank"
-						@click.stop.prevent="
+						@click.prevent="
 							openUserCard(messageData.info.user, messageData.channel_id)
 						"
 						>{{ messageData.info.user.displayName }}</a
@@ -34,7 +34,7 @@
 
 				<Button
 					v-if="!isMe && isOnline"
-					@click.stop="shoutout()"
+					@click="shoutout()"
 					icon="shoutout"
 					:loading="shoutoutLoading"
 					small

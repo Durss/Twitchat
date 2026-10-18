@@ -67,7 +67,7 @@
 					:disableConversation="true"
 					@mouseover="onMouseOver($event, index)"
 					@mouseout="onMouseOut()"
-					@click="deleteMessage(m, index)"
+					@click="onClickMessage($event, m, index)"
 					@contextmenu.prevent="deleteMessage(m, index, true)"
 				/>
 			</template>
@@ -89,6 +89,7 @@ import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { useConfirm } from "@/composables/useConfirm";
 import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
 import {
 	computed,
 	nextTick,
@@ -312,6 +313,18 @@ function onPublicApiEvent(
 
 /**
  * Called when clicking a message
+ * Ignores clicks on its links/buttons so opening a user card doesn't delete it
+ */
+function onClickMessage(
+	e: MouseEvent,
+	m: TwitchatDataTypes.GreetableMessages | TwitchatDataTypes.MessageCustomData,
+	index: number,
+): void {
+	if (Utils.isInteractiveElement(e)) return;
+	deleteMessage(m, index);
+}
+
+/**
  * Either removes a streak of messages or one single message
  */
 function deleteMessage(

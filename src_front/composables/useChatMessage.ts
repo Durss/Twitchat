@@ -229,6 +229,7 @@ export function useChatMessage(
 		const effectiveApplyStyles = options?.applyStyles ?? applyStyles;
 
 		clickHandler = (e: MouseEvent) => {
+			if (Utils.isInteractiveElement(e)) return;
 			if (e.ctrlKey || e.metaKey) {
 				effectiveCopyJSON();
 				e.stopPropagation();

@@ -1,42 +1,47 @@
 <template>
-	<div class="chatfollowbotevents chatMessage highlight">
-		<div class="head" @click.stop="expand = !expand">
+	<div class="chatfollowbotevents chatMessage highlight" ref="rootEl">
+		<button class="head" @click="expand = !expand">
 			<Icon name="shield" class="icon" theme="light" />
 			<Icon name="follow" class="icon" theme="light" />
 			<span class="label">{{
-				$t("chat.followbot.title", { COUNT: messageData?.users.length })
+				t("chat.followbot.title", { COUNT: props.messageData.users.length })
 			}}</span>
-		</div>
+		</button>
 		<div v-if="expand" class="userList">
-			<div
+			<button
 				class="user"
-				v-for="(u, index) in messageData?.users"
+				v-for="(u, index) in props.messageData.users"
 				:key="u.id"
-				@click.stop="openUserCard(u, messageData.channel_id)"
+				@click="openUserCard(u, props.messageData.channel_id)"
 			>
 				<span class="login">{{ u.displayName }}</span>
-				<span v-if="index < messageData?.users.length - 1">, </span>
-			</div>
+				<span v-if="index < props.messageData.users.length - 1">, </span>
+			</button>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractChatMessage from "./AbstractChatMessage";
+import { ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {},
-	emits: ["onRead"],
-})
-class ChatFollowbotEvents extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageFollowbotData;
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageFollowbotData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
+}>();
 
-	public expand: boolean = false;
-}
-export default toNative(ChatFollowbotEvents);
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
+
+const { t } = useI18n();
+const rootEl = useTemplateRef("rootEl");
+const { openUserCard } = useChatMessage(props, emit, rootEl);
+
+const expand = ref(false);
 </script>
 
 <style scoped lang="less">
@@ -57,6 +62,7 @@ export default toNative(ChatFollowbotEvents);
 		align-items: center;
 		justify-content: flex-start;
 		width: 100%;
+		text-align: left;
 		.label {
 			flex-grow: 1;
 		}

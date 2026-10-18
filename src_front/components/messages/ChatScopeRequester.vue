@@ -22,10 +22,10 @@
 				light
 				alert
 				icon="lock_fit"
-				@click.stop="requestScopes()"
+				@click="requestScopes()"
 				>{{ $t("chat.scope_request.grantBt") }}</Button
 			>
-			<Button class="filterBt" small light alert icon="filters" @click.stop="openFilters()">{{
+			<Button class="filterBt" small light alert icon="filters" @click="openFilters()">{{
 				$t("chat.scope_request.openFiltersBt")
 			}}</Button>
 		</div>

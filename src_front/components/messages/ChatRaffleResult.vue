@@ -10,7 +10,7 @@
 			<template #USER v-if="user">
 				<a
 					class="userlink"
-					@click.stop="openUserCard(user!, messageData.winner.user?.channel_id)"
+					@click="openUserCard(user!, messageData.winner.user?.channel_id)"
 					>{{ user!.displayName }}</a
 				>
 			</template>

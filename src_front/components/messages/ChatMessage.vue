@@ -79,7 +79,7 @@
 					v-tooltip="t('chat.message.automod_acceptBt_aria')"
 					icon="checkmark"
 					light
-					@click.stop="modMessage(true)"
+					@click="modMessage(true)"
 					:loading="automodInProgress"
 				/>
 
@@ -89,7 +89,7 @@
 					light
 					alert
 					icon="cross"
-					@click.stop="modMessage(false)"
+					@click="modMessage(false)"
 					:loading="automodInProgress"
 				/>
 			</div>
@@ -132,22 +132,23 @@
 				v-tooltip="t('chat.bluesky.platform_bluesky')"
 			/>
 
-			<Icon
+			<button
 				v-if="
 					!disableConversation &&
 					isConversation &&
 					$store.params.features.conversationsEnabled.value &&
 					!lightMode
 				"
-				class="icon convBt"
-				name="conversation"
-				@click.stop="emit('showConversation', messageData)"
-			/>
+				@click="emit('showConversation', messageData)"
+				class="convBt"
+			>
+				<Icon name="conversation" />
+			</button>
 
 			<TTButton
 				class="noAutospoilBt"
 				v-if="messageData.type == 'message' && messageData.autospoiled === true"
-				@click.stop="stopAutoSpoil()"
+				@click="stopAutoSpoil()"
 				alert
 				small
 				icon="show"
@@ -193,7 +194,7 @@
 			<a
 				:href="getProfilePage(messageData.user)"
 				target="_blank"
-				@click.stop.prevent="
+				@click.prevent="
 					openUserCard(messageData.user, messageData.channel_id, messageData.platform)
 				"
 				@mouseenter="hoverNickName($event)"
@@ -213,7 +214,7 @@
 					target="_blank"
 					class="login"
 					:style="recipientLoginStyle"
-					@click.stop.prevent="
+					@click.prevent="
 						openUserCard(recipient!, messageData.channel_id, messageData.platform)
 					"
 					>{{ recipient.displayName }}</a
@@ -281,9 +282,11 @@
 
 			<br v-if="clipInfo" />
 			<div v-if="clipInfo" class="clip">
-				<img :src="clipInfo.thumbnail_url" alt="thumbnail" @click.stop="openClip()" />
+				<button class="image" @click="openClip()">
+					<img :src="clipInfo.thumbnail_url" alt="thumbnail" />
+				</button>
 				<div class="infos">
-					<div class="title" @click.stop="openClip()">{{ clipInfo.title }}</div>
+					<button class="title" @click="openClip()">{{ clipInfo.title }}</button>
 					<div class="subtitle">
 						{{ t("chat.message.clip_created_by") }} {{ clipInfo.creator_name }}
 					</div>
@@ -302,7 +305,7 @@
 						icon="highlight"
 						v-tooltip="t('chat.message.highlightBt_tt')"
 						:loading="clipHighlightLoading"
-						@click.stop="clipHighlight()"
+						@click="clipHighlight()"
 						>{{ t("chat.message.highlightBt_aria") }}</TTButton
 					>
 					<Icon
@@ -328,12 +331,13 @@
 			</div>
 		</template>
 
-		<span
+		<button
 			class="blockedMessage"
 			v-if="messageData.user.is_blocked === true && !messageData.user.stop_block_censor"
-			@click.stop="messageData.user.stop_block_censor = true"
-			>{{ t("chat.message.blocked_user") }}</span
+			@click="messageData.user.stop_block_censor = true"
 		>
+			{{ t("chat.message.blocked_user") }}
+		</button>
 
 		<div class="ctas" v-if="isAd">
 			<TTButton @click="disableAd()" alert icon="cross">{{
@@ -1213,13 +1217,13 @@ function updateBadges(): void {
 		&:not(:last-child) {
 			margin-right: 0.25em;
 		}
+	}
 
-		&.convBt {
-			cursor: pointer;
-			margin-bottom: -0.4em;
-			:deep(svg) {
-				height: 1em;
-			}
+	.convBt {
+		cursor: pointer;
+		margin-bottom: -0.4em;
+		:deep(svg) {
+			height: 1em;
 		}
 	}
 	.mod {
@@ -1344,12 +1348,15 @@ function updateBadges(): void {
 		position: relative;
 		flex-wrap: wrap;
 
-		img {
+		.image {
 			cursor: pointer;
-			object-fit: cover;
 			width: max(50%, 190px);
-			min-width: 190px;
 			flex-basis: 190px;
+			min-width: 190px;
+			img {
+				object-fit: cover;
+				width: 100%;
+			}
 		}
 
 		.infos {

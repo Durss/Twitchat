@@ -13,15 +13,15 @@
 				<template #USER>
 					<a
 						class="userlink"
-						@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+						@click="openUserCard(messageData.user, messageData.channel_id)"
 						>{{ messageData.user.displayName }}</a
 					>
 				</template>
 				<template #COUNT>
-					<strong @click.stop="showCount = !showCount" v-if="showCount">{{
-						messageData.viewers
-					}}</strong>
-					<mark class="censored" @click.stop="showCount = !showCount" v-else>???</mark>
+					<button @click="showCount = !showCount">
+						<strong v-if="showCount">{{ messageData.viewers }}</strong>
+						<mark class="censored" v-else>???</mark>
+					</button>
 				</template>
 			</i18n-t>
 
@@ -59,7 +59,7 @@
 
 				<div class="ctas">
 					<TTButton
-						@click.stop="shoutout()"
+						@click="shoutout()"
 						small
 						icon="shoutout"
 						:loading="shoutoutLoading"
@@ -68,7 +68,7 @@
 						>{{ t("chat.soBt") }}</TTButton
 					>
 					<TTButton
-						@click.stop="raiseRestrictions()"
+						@click="raiseRestrictions()"
 						small
 						icon="timer"
 						:loading="shoutoutLoading"
@@ -82,7 +82,7 @@
 
 			<div class="ctas" v-else>
 				<TTButton
-					@click.stop="shoutout()"
+					@click="shoutout()"
 					small
 					icon="shoutout"
 					:loading="shoutoutLoading"
@@ -91,7 +91,7 @@
 					>{{ t("chat.soBt") }}</TTButton
 				>
 				<TTButton
-					@click.stop="raiseRestrictions()"
+					@click="raiseRestrictions()"
 					small
 					icon="timer"
 					:loading="shoutoutLoading"

@@ -8,7 +8,7 @@
 					<a
 						class="userlink"
 						v-if="messageData.moderator"
-						@click.stop="openUserCard(messageData.moderator!, messageData.channel_id)"
+						@click="openUserCard(messageData.moderator!, messageData.channel_id)"
 						>{{ messageData.moderator!.displayName }}</a
 					>
 				</template>

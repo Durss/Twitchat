@@ -1928,14 +1928,6 @@ function toggleMarkRead(m: TwitchatDataTypes.ChatMessageTypes, event?: MouseEven
 		return;
 	}
 
-	if (event) {
-		let target = event.target as HTMLElement;
-		do {
-			if (target.tagName.toLowerCase() == "a") return;
-			target = target.parentElement as HTMLElement;
-		} while (target != document.body);
-	}
-
 	//Do not mark as read if there's a text selection
 	if (window.getSelection()?.type === "Range") return;
 

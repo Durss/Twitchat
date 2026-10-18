@@ -7,7 +7,7 @@
 			<TTButton
 				primary
 				light
-				@click.stop="openParamPage(TwitchatDataTypes.ParameterPages.TRIGGERS)"
+				@click="openParamPage(TwitchatDataTypes.ParameterPages.TRIGGERS)"
 				>{{ t("tips.tryBt") }}</TTButton
 			>
 		</div>
@@ -20,7 +20,7 @@
 			<TTButton
 				primary
 				light
-				@click.stop="
+				@click="
 					openParamPage(
 						TwitchatDataTypes.ParameterPages.OVERLAYS,
 						TwitchatDataTypes.ParamDeepSections.STREAMDECK,
@@ -34,7 +34,7 @@
 			<Icon name="raid" alt="raid" class="icon" theme="light" />
 			<h1>{{ t("tips.obs_stop.title") }}</h1>
 			<div>{{ t("tips.obs_stop.info_1") }}</div>
-			<TTButton primary light @click.stop="openParamItem('features.stopStreamOnRaid')">{{
+			<TTButton primary light @click="openParamItem('features.stopStreamOnRaid')">{{
 				t("tips.tryBt")
 			}}</TTButton>
 		</div>
@@ -43,7 +43,7 @@
 			<Icon name="bingo" alt="bingo" class="icon" theme="light" />
 			<h1>{{ t("tips.bingo.title") }}</h1>
 			<div>{{ t("tips.bingo.info_1") }}</div>
-			<TTButton primary light @click.stop="openModal('bingo')">{{
+			<TTButton primary light @click="openModal('bingo')">{{
 				t("tips.tryBt")
 			}}</TTButton>
 		</div>
@@ -53,7 +53,7 @@
 			<h1>{{ t("tips.raffle.title") }}</h1>
 			<div>{{ t("tips.raffle.info_1") }}</div>
 			<div>{{ t("tips.raffle.info_2") }}</div>
-			<TTButton primary light @click.stop="openModal('raffle')">{{
+			<TTButton primary light @click="openModal('raffle')">{{
 				t("tips.tryBt")
 			}}</TTButton>
 		</div>
@@ -66,7 +66,7 @@
 			<TTButton
 				primary
 				light
-				@click.stop="
+				@click="
 					openParamPage(
 						TwitchatDataTypes.ParameterPages.CONNECTIONS,
 						TwitchatDataTypes.ParamDeepSections.OBS,
@@ -100,7 +100,7 @@
 			<TTButton
 				primary
 				light
-				@click.stop="
+				@click="
 					openParamPage(
 						TwitchatDataTypes.ParameterPages.CONNECTIONS,
 						TwitchatDataTypes.ParamDeepSections.SPOTIFY,
@@ -118,7 +118,7 @@
 			<TTButton
 				primary
 				light
-				@click.stop="openParamPage(TwitchatDataTypes.ParameterPages.OVERLAYS)"
+				@click="openParamPage(TwitchatDataTypes.ParameterPages.OVERLAYS)"
 				>{{ t("tips.tryBt") }}</TTButton
 			>
 		</div>
@@ -130,7 +130,7 @@
 				<template #CMD1><mark class="cmd">/timerStart</mark></template>
 				<template #CMD2><mark class="cmd">/countdown</mark></template>
 			</i18n-t>
-			<TTButton primary light icon="countdown" @click.stop="openModal('timer')">{{
+			<TTButton primary light icon="countdown" @click="openModal('timer')">{{
 				t("tips.tryBt")
 			}}</TTButton>
 		</div>
@@ -155,7 +155,7 @@
 			<TTButton
 				primary
 				light
-				@click.stop="
+				@click="
 					openParamPage(
 						TwitchatDataTypes.ParameterPages.OVERLAYS,
 						TwitchatDataTypes.ParamDeepSections.HIGHLIGHT,
@@ -174,7 +174,7 @@
 			<TTButton
 				primary
 				light
-				@click.stop="
+				@click="
 					openParamPage(
 						TwitchatDataTypes.ParameterPages.OVERLAYS,
 						TwitchatDataTypes.ParamDeepSections.QUIZ,
@@ -193,7 +193,7 @@
 			<TTButton
 				primary
 				light
-				@click.stop="
+				@click="
 					openParamPage(
 						TwitchatDataTypes.ParameterPages.CONNECTIONS,
 						TwitchatDataTypes.ParamDeepSections.BLUESKY,

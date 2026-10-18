@@ -19,7 +19,7 @@
 					<template #USER>
 						<a
 							class="userlink"
-							@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+							@click="openUserCard(messageData.user, messageData.channel_id)"
 							>{{ messageData.user.displayName }}</a
 						>
 					</template>
@@ -52,7 +52,7 @@
 						>
 							<a
 								class="userlink"
-								@click.stop="openUserCard(u, messageData.channel_id)"
+								@click="openUserCard(u, messageData.channel_id)"
 								>{{ u.displayName }}</a
 							>
 							<span v-if="index == giftRecipients.length - 2"
@@ -91,14 +91,14 @@
 					<template #USER>
 						<a
 							class="userlink"
-							@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+							@click="openUserCard(messageData.user, messageData.channel_id)"
 							>{{ messageData.user.displayName }}</a
 						>
 					</template>
 					<template #GIFTER v-if="messageData.gift_upgradeSender">
 						<a
 							class="userlink"
-							@click.stop="
+							@click="
 								openUserCard(messageData.gift_upgradeSender, messageData.channel_id)
 							"
 							>{{ messageData.gift_upgradeSender.displayName }}</a
@@ -126,7 +126,7 @@
 					<template #USER>
 						<a
 							class="userlink"
-							@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+							@click="openUserCard(messageData.user, messageData.channel_id)"
 							>{{ messageData.user.displayName }}</a
 						>
 					</template>
@@ -149,7 +149,7 @@
 					<template #USER>
 						<a
 							class="userlink"
-							@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+							@click="openUserCard(messageData.user, messageData.channel_id)"
 							>{{ messageData.user.displayName }}</a
 						>
 					</template>

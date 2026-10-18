@@ -9,7 +9,7 @@
 				</template>
 			</i18n-t>
 			<ChatMessage class="quote" :messageData="props.messageData.message" lightMode />
-			<ToggleBlock class="answers" title="view replies" small :open="false" @click.stop>
+			<ToggleBlock class="answers" title="view replies" small :open="false">
 				<div
 					v-for="answer in props.messageData.message.answers"
 					:key="answer.id"

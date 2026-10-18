@@ -12,7 +12,7 @@
 						class="userlink"
 						:href="'https://twitch.tv/' + messageData.user.login"
 						target="_blank"
-						@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id)"
+						@click.prevent="openUserCard(messageData.user, messageData.channel_id)"
 						>{{ messageData.user.displayName }}</a
 					>
 				</template>
@@ -21,7 +21,7 @@
 						class="userlink"
 						:href="'https://twitch.tv/' + messageData.moderator.login"
 						target="_blank"
-						@click.stop.prevent="
+						@click.prevent="
 							openUserCard(messageData.moderator, messageData.channel_id)
 						"
 						>{{ messageData.moderator.displayName }}</a
