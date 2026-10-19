@@ -419,6 +419,19 @@ export default class AbstractController {
 	}
 
 	/**
+	 * Get all users sharing data with given own
+	 * @param ownerUid user ID owning the data file
+	 */
+	protected getDataSharingGroup(ownerUid: string): string[] {
+		const res: string[] = [ownerUid];
+		const dict = AbstractController._dataSharing;
+		for (const receiver in dict) {
+			if (dict[receiver] === ownerUid) res.push(receiver);
+		}
+		return res;
+	}
+
+	/**
 	 * Gifts premium to a user.
 	 * @param uid
 	 * @returns

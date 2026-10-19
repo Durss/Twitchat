@@ -97,6 +97,8 @@ interface HeatScreenData {
 export default class UserController extends AbstractController {
 	/**
 	 * LRU cache for user data versions (prevents unbounded growth)
+	 * Keyed by the data file owner, not the caller, so accounts sharing
+	 * the same data are checked against each other's saves.
 	 */
 	private _lastUserDataVersion = new LRUCache<string, number>({
 		max: 10000,
@@ -553,8 +555,8 @@ export default class UserController extends AbstractController {
 
 		//Test data format
 		try {
-			// Initialize local data version for this user
-			if (!this._lastUserDataVersion.has(userInfo.user_id)) {
+			// Initialize local data version for this data file
+			if (!this._lastUserDataVersion.has(uid)) {
 				let version = 0;
 				try {
 					const refJson = await Utils.readFileAsync(userFilePath, "utf-8");
@@ -562,16 +564,16 @@ export default class UserController extends AbstractController {
 				} catch {
 					/* file doesn't exist or parse error */
 				}
-				this._lastUserDataVersion.set(userInfo.user_id, version || 0);
+				this._lastUserDataVersion.set(uid, version || 0);
 				Logger.info(
 					"[DATA] Init local cache:",
 					userInfo.login,
 					data.saveVersion,
-					this._lastUserDataVersion.get(userInfo.user_id)?.toString() ?? "???",
+					this._lastUserDataVersion.get(uid)?.toString() ?? "???",
 				);
 			}
 
-			const cachedVersion = this._lastUserDataVersion.get(userInfo.user_id) ?? 0;
+			const cachedVersion = this._lastUserDataVersion.get(uid) ?? 0;
 
 			// If forcing data upload, make its version above the minimum expected one
 			if (forcedUpload && cachedVersion != undefined) {
@@ -587,6 +589,10 @@ export default class UserController extends AbstractController {
 
 			// Data outdated?
 			if (data.saveVersion <= cachedVersion) {
+				// Count connexions of every account writing to this data file
+				const connexions = super
+					.getDataSharingGroup(uid)
+					.reduce((total, v) => total + SSEController.countUserConnexions(v), 0);
 				Logger.warn(
 					"[DATA]",
 					userInfo.login +
@@ -595,10 +601,10 @@ export default class UserController extends AbstractController {
 						" but expected > " +
 						cachedVersion +
 						". Has " +
-						SSEController.countUserConnexions(userInfo.user_id) +
+						connexions +
 						" active connexions",
 				);
-				if (SSEController.countUserConnexions(userInfo.user_id) > 1) {
+				if (connexions > 1) {
 					// Stop saving if there are more than 1 active connections until I figure out why
 					// someone got warned with only 1 active connection
 					response.header("Content-Type", "application/json");
@@ -618,7 +624,7 @@ export default class UserController extends AbstractController {
 				}
 			}
 
-			this._lastUserDataVersion.set(userInfo.user_id, data.saveVersion);
+			this._lastUserDataVersion.set(uid, data.saveVersion);
 
 			// Serialize before validation
 			const rawData = JSON.stringify(data);
@@ -655,7 +661,7 @@ export default class UserController extends AbstractController {
 			response.send(
 				JSON.stringify({
 					success: true,
-					version: this._lastUserDataVersion.get(userInfo.user_id),
+					version: this._lastUserDataVersion.get(uid),
 				}),
 			);
 
@@ -842,6 +848,8 @@ export default class UserController extends AbstractController {
 		const uid = params.uid;
 		super.disableUserDataSharing(uid, user.user_id);
 		super.disableUserDataSharing(user.user_id, uid);
+		this._lastUserDataVersion.delete(uid);
+		this._lastUserDataVersion.delete(user.user_id);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
