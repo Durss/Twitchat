@@ -786,6 +786,18 @@ const UserDataSchema = {
 									maxItems: 100,
 									items: { type: "string", maxLength: 40 },
 								},
+								editParams: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										updateName: { type: "boolean" },
+										name: { type: "string", maxLength: 100 },
+										updateMin: { type: "boolean" },
+										min: { type: "string", maxLength: 100 },
+										updateMax: { type: "boolean" },
+										max: { type: "string", maxLength: 100 },
+									},
+								},
 								queryParams: {
 									type: "array",
 									minItems: 0,

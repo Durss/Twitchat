@@ -2651,6 +2651,11 @@ export interface ICountersActions {
 		userId?: string,
 	): number;
 	/**
+	 * Clamps given counter value within the min/max limits.
+	 * @param
+	 */
+	clampToLimits(id: string): number;
+	/**
 	 * Deletes a per-user counter entry
 	 * @param id
 	 * @param user

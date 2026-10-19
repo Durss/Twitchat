@@ -415,6 +415,7 @@ export default class DataStore extends DataStoreCommon {
 			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"]];
 		}
 		delete data["YOUTUBE_AUTH_TOKEN"]; //Probably some old beta data added by mistake that remains on few people
+		delete data["bluesky_diag"]; //TODO remove in a few months (added 19/10/2026) (this is data only beta users got)
 		data[this.DATA_VERSION] = v;
 		return data;
 	}

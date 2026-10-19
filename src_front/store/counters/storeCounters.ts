@@ -330,6 +330,63 @@ export const storeCounters = defineStore("counters", {
 			return counterValue;
 		},
 
+		clampToLimits(id: string): number {
+			const c = this.counterList.find((v) => v.id == id);
+			if (!c) return 0;
+			const clamp = (value: number): number => {
+				if (c.max !== false && value > c.max) return c.max;
+				if (c.min !== false && value < c.min) return c.min;
+				return value;
+			};
+
+			let clampCount = 0;
+			if (c.perUser) {
+				//Update entries without executing triggers, same as when
+				//editing lots of users at once via increment()
+				for (const uid in c.users) {
+					const entry = c.users[uid]!;
+					const value = clamp(entry.value);
+					if (value != entry.value) {
+						entry.value = value;
+						clampCount++;
+					}
+				}
+			} else {
+				const value = clamp(c.value);
+				if (value != c.value) {
+					//Signed difference so "added"/"removed" triggers match the
+					//direction the value moved to
+					const added = value - c.value;
+					const maxed = value === c.max;
+					const mined = !maxed && value === c.min;
+					c.value = value;
+					clampCount = 1;
+
+					const message: TwitchatDataTypes.MessageCounterUpdateData = {
+						date: Date.now(),
+						type: TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE,
+						counter: c,
+						id: Utils.getUUID(),
+						platform: "twitchat",
+						value,
+						added,
+						added_abs: Math.abs(added),
+						looped: false,
+						maxed,
+						mined,
+						channel_id: StoreProxy.auth.twitch.user.id,
+					};
+					void StoreProxy.chat.addMessage(message);
+				}
+			}
+
+			if (clampCount > 0) {
+				this.saveCounters();
+				this.broadcastCounterValue(c.id);
+			}
+			return clampCount;
+		},
+
 		deleteCounterEntry(
 			id: string,
 			user?: TwitchatDataTypes.TwitchatUser,

@@ -5060,6 +5060,139 @@ export default class TriggerActionHandler {
 					} catch (error) {
 						console.error(error);
 					}
+				} else //Handle counter params edition trigger action
+				if (step.type == "count" && step.action == "EDIT") {
+					const params = step.editParams;
+					let newName = "";
+					let newMin: number | null = null;
+					let newMax: number | null = null;
+					const logError = (value: string) => {
+						logStep.messages.push({ date: Date.now(), value: "❌ " + value });
+						log.error = true;
+						logStep.error = true;
+					};
+					//Parse placeholders and arithmetic operation of a min/max value
+					const parseLimit = async (
+						src: string,
+						label: string,
+					): Promise<number | null> => {
+						const text = await this.parsePlaceholders({
+							dynamicPlaceholders,
+							actionPlaceholders,
+							trigger,
+							message,
+							src,
+							subEvent,
+						});
+						const value = evalMath(text.trim());
+						if (value === null) {
+							logError(
+								"Invalid " + label + ' value: "' + src + '" => "' + text + '"',
+							);
+						}
+						return value;
+					};
+
+					if (params?.updateName) {
+						newName = await this.parsePlaceholders({
+							dynamicPlaceholders,
+							actionPlaceholders,
+							trigger,
+							message,
+							src: params.name,
+							subEvent,
+							keepHTML: false,
+						});
+						//Same limit as the counter form
+						newName = newName.trim().substring(0, 50);
+						if (!newName) logError("New counter name is empty");
+					}
+					if (params?.updateMin) newMin = await parseLimit(params.min, "min");
+					if (params?.updateMax) newMax = await parseLimit(params.max, "max");
+
+					for (const c of StoreProxy.counters.counterList) {
+						if (step.counters.indexOf(c.id) == -1) continue;
+						if (c.enabled == false && !isPremium) {
+							logError(
+								'Not premium and counter "' +
+									c.name +
+									'" is disabled. Counter not updated.',
+							);
+							continue;
+						}
+
+						const data: TwitchatDataTypes.CounterData = { ...c };
+						const changes: string[] = [];
+						let limitsUpdated = false;
+						if (newName && newName != c.name) {
+							data.name = newName;
+							changes.push('name to "' + newName + '"');
+						}
+						if (newMin !== null) {
+							if (c.min === false) {
+								logStep.messages.push({
+									date: Date.now(),
+									value:
+										'Counter "' +
+										c.name +
+										'" has no min value, min not updated',
+								});
+							} else {
+								data.min = newMin;
+								limitsUpdated = true;
+								changes.push("min to " + newMin);
+							}
+						}
+						if (newMax !== null) {
+							if (c.max === false) {
+								logStep.messages.push({
+									date: Date.now(),
+									value:
+										'Counter "' +
+										c.name +
+										'" has no max value, max not updated',
+								});
+							} else {
+								data.max = newMax;
+								limitsUpdated = true;
+								changes.push("max to " + newMax);
+							}
+						}
+						if (data.min !== false && data.max !== false && data.min > data.max) {
+							logError(
+								'Counter "' +
+									c.name +
+									'" min value (' +
+									data.min +
+									") would be greater than its max value (" +
+									data.max +
+									"). Counter not updated.",
+							);
+							continue;
+						}
+						if (changes.length == 0) continue;
+
+						StoreProxy.counters.updateCounter(data);
+						logStep.messages.push({
+							date: Date.now(),
+							value: 'Update counter "' + c.name + '": ' + changes.join(", "),
+						});
+
+						//Make sure current value(s) fit the new limits
+						if (limitsUpdated) {
+							const prevValue = data.value;
+							const clampCount = StoreProxy.counters.clampToLimits(data.id);
+							if (clampCount > 0) {
+								logStep.messages.push({
+									date: Date.now(),
+									value: data.perUser
+										? clampCount +
+											" user entries clamped to new limits (triggers not executed)"
+										: "Value clamped from " + prevValue + " to " + data.value,
+								});
+							}
+						}
+					}
 				} else //Handle counter update trigger action
 				if (step.type == "count") {
 					let text = await this.parsePlaceholders({
@@ -5089,6 +5222,9 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					}
 					if (!step.action) step.action = "ADD";
+					//"EDIT" action is handled on its own branch above
+					const valueAction =
+						step.action as TriggerActionDataTypes.TriggerActionCountDataAction;
 
 					const ids = step.counters;
 					let action: NonNullable<
@@ -5158,7 +5294,7 @@ export default class TriggerActionHandler {
 											if (value != null && !isNaN(value)) {
 												StoreProxy.counters.increment(
 													c.id,
-													step.action,
+													valueAction,
 													value,
 													user,
 												);
@@ -5242,7 +5378,7 @@ export default class TriggerActionHandler {
 										for (const uid in c.users) {
 											StoreProxy.counters.increment(
 												c.id,
-												step.action,
+												valueAction,
 												value,
 												undefined,
 												uid,
@@ -5301,7 +5437,7 @@ export default class TriggerActionHandler {
 											if (value != null && !isNaN(value)) {
 												StoreProxy.counters.increment(
 													c.id,
-													step.action,
+													valueAction,
 													value,
 													undefined,
 													user.id,
@@ -5339,7 +5475,7 @@ export default class TriggerActionHandler {
 										if (value != null && !isNaN(value)) {
 											const newValue = StoreProxy.counters.increment(
 												c.id,
-												step.action,
+												valueAction,
 												value,
 												user,
 											);
