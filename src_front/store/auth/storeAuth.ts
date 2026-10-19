@@ -66,6 +66,7 @@ export const storeAuth = defineStore("auth", {
 	state: (): IAuthState => ({
 		authenticated: false,
 		dataSharingUserList: [],
+		dataOwner: "",
 		newScopesToRequest: [],
 		twitchat: null,
 		twitch: {} as IAuthState["twitch"],
@@ -283,6 +284,7 @@ export const storeAuth = defineStore("auth", {
 
 				try {
 					window.setInitMessage("migrating local parameter data");
+					DataStore.setDataOwner(this.dataOwner);
 					await DataStore.emergencyBackupStorage();
 					await DataStore.migrateLocalStorage();
 
@@ -465,6 +467,7 @@ export const storeAuth = defineStore("auth", {
 			this.premiumType = res.json.data.premiumType;
 			this.lifetimePremiumPercent = res.json.data.lifetimePercent || 0;
 			this.dataSharingUserList = res.json.data.dataSharing || [];
+			this.dataOwner = res.json.data.dataOwner || uid;
 			this.featureFlags = res.json.data.features || [];
 			StoreProxy.discord.discordLinked = res.json.data.discordLinked === true;
 			StoreProxy.api.connected = res.json.data.has_api_key === true;

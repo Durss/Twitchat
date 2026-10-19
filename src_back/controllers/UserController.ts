@@ -388,6 +388,7 @@ export default class UserController extends AbstractController {
 
 		const data: {
 			dataSharing: string[];
+			dataOwner: string;
 			donorLevel: number;
 			isAdmin?: true;
 			premiumType: PremiumStates;
@@ -401,6 +402,7 @@ export default class UserController extends AbstractController {
 			lifetimePercent,
 			premiumType,
 			dataSharing: super.getDataSharingList(uid),
+			dataOwner: super.getSharedUID(uid),
 			has_api_key,
 		};
 		if (Config.credentials.admin_ids.includes(uid)) {

@@ -105,16 +105,20 @@ class MemoryStorage {
 /**
  * Opens twitchat on the given device (its local storage) the same way storeAuth does.
  * Any timer of a previous launch is dropped, as if its page had been closed.
+ * @param dataOwner account whose data the logged in user is using
  */
-async function launch(device: MemoryStorage) {
+async function launch(device: MemoryStorage, dataOwner: string = "111") {
 	vi.clearAllTimers();
 	vi.resetModules();
 	vi.stubGlobal("localStorage", device);
 	vi.stubGlobal("sessionStorage", new MemoryStorage());
 	const { default: DataStore } = await import("./DataStore");
 	DataStore.init();
+	DataStore.setDataOwner(dataOwner);
 	await DataStore.migrateLocalStorage();
-	await DataStore.loadRemoteData();
+	if (DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
+		await DataStore.loadRemoteData();
+	}
 	return DataStore;
 }
 
@@ -367,6 +371,69 @@ describe("DataStore flush before maintenance", () => {
 		await vi.advanceTimersByTimeAsync(10);
 		expect(flush.done).toBe(true);
 		expect(server.file!.theme).toBe("initial");
+	});
+});
+
+describe("DataStore data owner", () => {
+	it("drops local data of another account instead of merging them", async () => {
+		let store = await launch(deviceA, "111");
+		await flushUploads();
+		void store.set("onlyA", "A");
+		void store.set(store.OBS_PASS, "A_SECRET", false);
+		void store.set(store.TWITCH_AUTH_TOKEN, "TOKEN", false);
+		await flushUploads();
+
+		//Same browser, now logged in with account B
+		server.file = { v: 70, saveVersion: 5, saveId: "B", theme: "B" };
+		store = await launch(deviceA, "222");
+		expect(store.get("onlyA")).toBeNull();
+		expect(store.get(store.OBS_PASS)).toBeNull();
+		expect(store.get(store.TWITCH_AUTH_TOKEN)).toBe("TOKEN");
+		expect(store.get("theme")).toBe("B");
+		expect(store.get(store.DATA_OWNER)).toBe("222");
+		await flushUploads();
+		expect(server.file!.onlyA).toBeUndefined();
+	});
+
+	it("keeps local data when the data owner didn't change", async () => {
+		//ex: switching between accounts sharing the same data
+		let store = await launch(deviceA, "111");
+		await flushUploads();
+		void store.set(store.OBS_PASS, "A_SECRET", false);
+
+		store = await launch(deviceA, "111");
+		expect(store.get(store.OBS_PASS)).toBe("A_SECRET");
+	});
+
+	it("keeps local data if they're not synced with the server", async () => {
+		let store = await launch(deviceA, "111");
+		await flushUploads();
+		void store.set(store.SYNC_DATA_TO_SERVER, false, false);
+		void store.set("onlyA", "A", false);
+
+		store = await launch(deviceA, "222");
+		expect(store.get("onlyA")).toBe("A");
+	});
+
+	it("keeps local data if their owner is unknown", async () => {
+		//Data stored before data owners were tracked
+		let store = await launch(deviceA, "111");
+		await flushUploads();
+		void store.set(store.OBS_PASS, "A_SECRET", false);
+		deviceA.removeItem("twitchat_" + store.DATA_OWNER);
+
+		store = await launch(deviceA, "222");
+		expect(store.get(store.OBS_PASS)).toBe("A_SECRET");
+		expect(store.get(store.DATA_OWNER)).toBe("222");
+	});
+
+	it("never sends the data owner to the server", async () => {
+		const store = await launch(deviceA, "111");
+		await flushUploads();
+		void store.set("theme", "A");
+		await flushUploads();
+		expect(server.file!.theme).toBe("A");
+		expect(server.file![store.DATA_OWNER]).toBeUndefined();
 	});
 });
 

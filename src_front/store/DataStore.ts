@@ -238,6 +238,17 @@ export default class DataStore extends DataStoreCommon {
 	}
 
 	/**
+	 * This clears local data if they do not belong to current user.
+	 * @param ownerId ID of the account current data belongs to
+	 */
+	public static setDataOwner(ownerId: string): void {
+		if (this.get(this.SYNC_DATA_TO_SERVER) === "false") return;
+		const prevOwnerId = this.get(this.DATA_OWNER);
+		if (prevOwnerId && prevOwnerId !== ownerId) this.clear(true);
+		void this.set(this.DATA_OWNER, ownerId, false);
+	}
+
+	/**
 	 * Emergency backup
 	 */
 	public static async emergencyBackupStorage(force: boolean = false): Promise<void> {

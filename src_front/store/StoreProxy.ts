@@ -441,6 +441,11 @@ export type IAuthState = {
 	 */
 	dataSharingUserList: string[];
 	/**
+	 * ID of current data owner
+	 * Our own ID unless another account shares their data with us.
+	 */
+	dataOwner: string;
+	/**
 	 * Contains the scope to request.
 	 * Use anytime the user tries to click a feature that's missing
 	 * a scope. The missing scope(s) is set here and the scope grant

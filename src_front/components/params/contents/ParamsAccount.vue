@@ -264,6 +264,7 @@ async function onScopesUpdate(list: string[]): Promise<void> {
 
 async function startParamsShareFlow(): Promise<void> {
 	connecting.value = true;
+	await DataStore.flush();
 	const { json } = await ApiHelper.call("auth/CSRFToken", "GET", { withRef: true });
 	CSRFToken.value = json.token;
 	document.location.href = TwitchUtils.getOAuthURL(CSRFToken.value, scopes.value);

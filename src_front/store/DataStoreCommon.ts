@@ -12,6 +12,7 @@ export default class DataStoreCommon {
 	public static SAVE_VERSION: string = "saveVersion";
 	public static SAVE_ID: string = "saveId";
 	public static SYNC_STATE: string = "syncState";
+	public static DATA_OWNER: string = "dataOwner";
 	public static UPDATE_INDEX: string = "updateIndex";
 	public static GREET_AUTO_DELETE_AFTER: string = "greetAutoDeleteAfter";
 	public static GREET_AUTO_SCROLL_DOWN: string = "greetScrollDownAuto";
@@ -154,6 +155,7 @@ export default class DataStoreCommon {
 		this.GREET_HISTORY,
 		this.SYNC_DATA_TO_SERVER,
 		this.SYNC_STATE,
+		this.DATA_OWNER,
 		this.CHAT_COL_CTA,
 		this.PARAMS_SECTIONS_CTA,
 		this.REDIRECT,
