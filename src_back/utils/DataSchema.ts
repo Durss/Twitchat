@@ -2686,7 +2686,7 @@ const UserDataSchema = {
 		autoconnectChans: {
 			type: "array",
 			minItems: 0,
-			maxItems: 6,
+			maxItems: 100,
 			items: {
 				type: "object",
 				additionalProperties: false,

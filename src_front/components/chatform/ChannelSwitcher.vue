@@ -166,6 +166,7 @@ const emit = defineEmits<{
 	change: [value: string];
 }>();
 
+const MAX_PINNED_CHANS = 100;
 const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeStream = useStoreStream();
@@ -189,6 +190,7 @@ const pinnedUsers = ref<{ [key: string]: TwitchatDataTypes.TwitchatUser }>({});
  * Picked channel is checked by connectToExtraChan()
  */
 const canConnectChans = computed<boolean>(() => {
+	if (channels.value.length >= MAX_PINNED_CHANS) return false;
 	return EventSub.instance.canConnectToChannel();
 });
 
