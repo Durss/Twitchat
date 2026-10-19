@@ -1164,7 +1164,8 @@ export default class BingoGridController extends AbstractController {
 		channelId: string,
 		gridId?: string,
 	): Promise<IStreamerGridsCacheData | void> {
-		const userFilePath = Config.USER_DATA_PATH + channelId + ".json";
+		// Channel may be using another account's data
+		const userFilePath = Config.USER_DATA_PATH + super.getSharedUID(channelId) + ".json";
 		const cacheKey = this.getChannelGridCacheKey(channelId, gridId);
 
 		try {

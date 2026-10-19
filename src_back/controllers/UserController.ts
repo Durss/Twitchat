@@ -223,7 +223,8 @@ export default class UserController extends AbstractController {
 			return this.setHeatAreasCache(uid, []);
 		}
 
-		const userFilePath = path.join(Config.USER_DATA_PATH, `${uid}.json`);
+		// Channel may be using another account's data
+		const userFilePath = path.join(Config.USER_DATA_PATH, `${super.getSharedUID(uid)}.json`);
 		let areas: HeatExtensionArea[] = [];
 		try {
 			const raw = await Utils.readFileAsync(userFilePath, { encoding: "utf8" });
@@ -274,18 +275,24 @@ export default class UserController extends AbstractController {
 	}
 
 	/**
-	 * Invalidate the active heat screen areas cache for the calling user.
+	 * Invalidate the active heat screen areas cache for the calling user
+	 * and every account sharing the same data.
 	 */
 	private async deleteHeatAreasCache(request: FastifyRequest, response: FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if (userInfo == false) return;
 
-		this._heatAreasCache.delete(userInfo.user_id);
+		const group = super.getDataSharingGroup(super.getSharedUID(userInfo.user_id));
+		await Promise.all(
+			group.map(async (uid) => {
+				this._heatAreasCache.delete(uid);
 
-		// Rebuild cache before notifying everyone
-		await this.getCachedHeatScreenAreas(userInfo.user_id);
+				// Rebuild cache before notifying everyone
+				await this.getCachedHeatScreenAreas(uid);
 
-		await this.extensionController.notifyStateUpdate(userInfo.user_id);
+				await this.extensionController.notifyStateUpdate(uid);
+			}),
+		);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
@@ -652,8 +659,9 @@ export default class UserController extends AbstractController {
 			const cleanData = JSON.stringify(data);
 			await Utils.writeFileAtomic(userFilePath, cleanData);
 
+			// Discord servers are linked to the caller's account, not to the data owner
 			if (data.discordParams) {
-				this.discordController.updateParams(uid, data.discordParams);
+				this.discordController.updateParams(userInfo.user_id, data.discordParams);
 			}
 
 			response.header("Content-Type", "application/json");
