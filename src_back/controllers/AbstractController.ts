@@ -367,11 +367,11 @@ export default class AbstractController {
 
 	/**
 	 * Disables data sharing between 2 users.
-	 * The receiver keeps a copy of the data they were sharing.
 	 * @param uid1 receiver user ID
 	 * @param uid2 sharer user ID
+	 * @param copyData if true, the receiver keeps a copy of the data they were sharing
 	 */
-	protected disableUserDataSharing(uid1: string, uid2: string): void {
+	protected disableUserDataSharing(uid1: string, uid2: string, copyData: boolean = true): void {
 		const ref = AbstractController._dataSharing[uid1];
 		if (ref !== uid2) return;
 
@@ -383,16 +383,18 @@ export default class AbstractController {
 		);
 
 		//Copy ref data to removed user
-		const refFilePath = Config.USER_DATA_PATH + ref + ".json";
-		const targetFilePath = Config.USER_DATA_PATH + uid1 + ".json";
-		const tmpFilePath = targetFilePath + ".tmp";
-		try {
-			fs.copyFileSync(refFilePath, tmpFilePath);
-			fs.renameSync(tmpFilePath, targetFilePath);
-		} catch (error) {
-			fs.rmSync(tmpFilePath, { force: true });
-			Logger.error("Failed copying shared data of user " + ref + " to user " + uid1);
-			console.log(error);
+		if (copyData) {
+			const refFilePath = Config.USER_DATA_PATH + ref + ".json";
+			const targetFilePath = Config.USER_DATA_PATH + uid1 + ".json";
+			const tmpFilePath = targetFilePath + ".tmp";
+			try {
+				fs.copyFileSync(refFilePath, tmpFilePath);
+				fs.renameSync(tmpFilePath, targetFilePath);
+			} catch (error) {
+				fs.rmSync(tmpFilePath, { force: true });
+				Logger.error("Failed copying shared data of user " + ref + " to user " + uid1);
+				console.log(error);
+			}
 		}
 
 		Logger.info("Disable data sharing between users " + uid1 + " and " + uid2);

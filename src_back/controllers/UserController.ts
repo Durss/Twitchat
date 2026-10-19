@@ -481,7 +481,27 @@ export default class UserController extends AbstractController {
 		}
 
 		try {
-			const data = await Utils.readFileAsync(userFilePath, { encoding: "utf8" });
+			let data: string;
+			try {
+				data = await Utils.readFileAsync(userFilePath, { encoding: "utf8" });
+			} catch (error) {
+				// Check if we're using data another user shared with us but deleted.
+				const isStaleShareLink =
+					!backup &&
+					uid === callerDataUid &&
+					uid !== userInfo.user_id &&
+					(error as NodeJS.ErrnoException).code === "ENOENT";
+				if (!isStaleShareLink) throw error;
+
+				Logger.warn(
+					"[DATA] Data shared by user " + uid + " not found, unlinking " + userInfo.login,
+				);
+				// Sharer deleted their data, drop the link and restore our own previous data
+				super.disableUserDataSharing(userInfo.user_id, uid, false);
+				this._lastUserDataVersion.delete(userInfo.user_id);
+				const ownFilePath = path.join(Config.USER_DATA_PATH, `${userInfo.user_id}.json`);
+				data = await Utils.readFileAsync(ownFilePath, { encoding: "utf8" });
+			}
 			response.header("Content-Type", "application/json");
 			response.status(200);
 			response.send(JSON.stringify({ success: true, data: JSON.parse(data) }));
@@ -790,6 +810,18 @@ export default class UserController extends AbstractController {
 	private async deleteUserData(request: FastifyRequest, response: FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if (userInfo == false) return;
+		const uid = userInfo.user_id;
+
+		// Stop using another account's data, their data are left untouched
+		const owner = super.getSharedUID(uid);
+		if (owner !== uid) super.disableUserDataSharing(uid, owner, false);
+
+		// Accounts using this user's data keep a copy of them
+		const receivers = super.getDataSharingGroup(uid).filter((v) => v !== uid);
+		for (const receiver of receivers) {
+			super.disableUserDataSharing(receiver, uid);
+			this._lastUserDataVersion.delete(receiver);
+		}
 
 		// Delete user's data
 		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id + ".json";
