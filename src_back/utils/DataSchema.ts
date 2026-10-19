@@ -2018,7 +2018,7 @@ const UserDataSchema = {
 						type: "array",
 						minItems: 0,
 						maxItems: 10000,
-						items: { type: "string", maxLength: 30 },
+						items: { type: "string", maxLength: 100 },
 					},
 					liveLockCount: { type: "integer", minimum: 0, maximum: 10 },
 					order: { type: "integer", minimum: 0, maximum: 1000 },

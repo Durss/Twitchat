@@ -760,7 +760,9 @@ function rebuildChannelIdsHashmap(): void {
 	//Pre-build user block list as a Set for O(1) lookup in shouldShowMessage
 	const blockList = props.config.userBlockList;
 	userBlockSet =
-		blockList && blockList.length > 0 ? new Set(blockList.map((v) => v.toLowerCase())) : null;
+		blockList && blockList.length > 0
+			? new Set(blockList.map((v) => v.trim().replace(/^@/, "").toLowerCase()))
+			: null;
 
 	fullListRefresh();
 }
@@ -880,7 +882,8 @@ function computeShouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolea
 			if (
 				userBlockSet &&
 				m.user.displayNameOriginal.length > 0 &&
-				userBlockSet.has(m.user.login.toLowerCase())
+				(userBlockSet.has(m.user.login.toLowerCase()) ||
+					userBlockSet.has(m.user.displayNameOriginal.toLowerCase()))
 			) {
 				return false;
 			}
