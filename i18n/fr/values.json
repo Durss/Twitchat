@@ -10,7 +10,6 @@
 
 		"form": {
 			"name": "Nom",
-			"name_conflict": "Une valeur du même nom existe déjà",
 			"value": "Valeur",
 			"more": "Plus d'options",
 			"value_user": "Chaque viewer possède sa propre valeur",

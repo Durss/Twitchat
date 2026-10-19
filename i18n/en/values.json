@@ -10,7 +10,6 @@
 
 		"form": {
 			"name": "Name",
-			"name_conflict": "A value with the same name already exists",
 			"value": "Value",
 			"more": "More options",
 			"value_user": "Every user has their own value",
