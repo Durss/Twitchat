@@ -39,6 +39,7 @@ export default class DataStore extends DataStoreCommon {
 	private static savePromiseResolver: Function[] = [];
 	private static isSaving: boolean = false;
 	private static pendingSave: boolean = false;
+	private static pedingDataShareStorageKey: string = "pendingDataShareToken";
 
 	/********************
 	 * GETTER / SETTERS *
@@ -246,6 +247,34 @@ export default class DataStore extends DataStoreCommon {
 		const prevOwnerId = this.get(this.DATA_OWNER);
 		if (prevOwnerId && prevOwnerId !== ownerId) this.clear(true);
 		void this.set(this.DATA_OWNER, ownerId, false);
+	}
+
+	/**
+	 * Remembers the CSRF token of a data sharing flow started from this tab.
+	 * Kept in sessionStorage as it survives the Twitch OAuth redirect.
+	 * @param token CSRF token sent as OAuth state
+	 */
+	public static setPendingDataShareToken(token: string): void {
+		try {
+			sessionStorage.setItem(this.pedingDataShareStorageKey, token);
+		} catch (_error) {
+			//Storage unavailable, the flow won't be accepted back
+		}
+	}
+
+	/**
+	 * Tells if given token belongs to a data sharing flow started from this tab.
+	 * A token can only be checked once.
+	 * @param token CSRF token received as OAuth state
+	 */
+	public static consumePendingDataShareToken(token: string | null): boolean {
+		try {
+			const pendingToken = sessionStorage.getItem(this.pedingDataShareStorageKey);
+			sessionStorage.removeItem(this.pedingDataShareStorageKey);
+			return !!token && pendingToken === token;
+		} catch (_error) {
+			return false;
+		}
 	}
 
 	/**

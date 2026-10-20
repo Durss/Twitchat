@@ -106,12 +106,17 @@ class MemoryStorage {
  * Opens twitchat on the given device (its local storage) the same way storeAuth does.
  * Any timer of a previous launch is dropped, as if its page had been closed.
  * @param dataOwner account whose data the logged in user is using
+ * @param tab session storage of the browser tab, to reload twitchat in the same tab
  */
-async function launch(device: MemoryStorage, dataOwner: string = "111") {
+async function launch(
+	device: MemoryStorage,
+	dataOwner: string = "111",
+	tab: MemoryStorage = new MemoryStorage(),
+) {
 	vi.clearAllTimers();
 	vi.resetModules();
 	vi.stubGlobal("localStorage", device);
-	vi.stubGlobal("sessionStorage", new MemoryStorage());
+	vi.stubGlobal("sessionStorage", tab);
 	const { default: DataStore } = await import("./DataStore");
 	DataStore.init();
 	DataStore.setDataOwner(dataOwner);
@@ -434,6 +439,48 @@ describe("DataStore data owner", () => {
 		await flushUploads();
 		expect(server.file!.theme).toBe("A");
 		expect(server.file![store.DATA_OWNER]).toBeUndefined();
+	});
+});
+
+describe("DataStore data sharing flow", () => {
+	it("accepts the token back after logging in with the other account", async () => {
+		const tab = new MemoryStorage();
+		let store = await launch(deviceA, "111", tab);
+		await flushUploads();
+		store.setPendingDataShareToken("TOKEN");
+
+		//Back from Twitch on the same tab, logged in with the other account
+		store = await launch(deviceA, "222", tab);
+		expect(store.consumePendingDataShareToken("TOKEN")).toBe(true);
+	});
+
+	it("rejects a token coming back to another browser", async () => {
+		//Someone sends their own share link to someone else
+		const store = await launch(deviceA, "111");
+		store.setPendingDataShareToken("TOKEN");
+
+		const victim = await launch(deviceB, "222");
+		expect(victim.consumePendingDataShareToken("TOKEN")).toBe(false);
+	});
+
+	it("rejects a token that isn't the one of the flow started", async () => {
+		const store = await launch(deviceA);
+		store.setPendingDataShareToken("TOKEN");
+		expect(store.consumePendingDataShareToken("OTHER_TOKEN")).toBe(false);
+	});
+
+	it("rejects a missing token", async () => {
+		const store = await launch(deviceA);
+		expect(store.consumePendingDataShareToken(null)).toBe(false);
+		store.setPendingDataShareToken("TOKEN");
+		expect(store.consumePendingDataShareToken(null)).toBe(false);
+	});
+
+	it("accepts a token only once", async () => {
+		const store = await launch(deviceA);
+		store.setPendingDataShareToken("TOKEN");
+		expect(store.consumePendingDataShareToken("TOKEN")).toBe(true);
+		expect(store.consumePendingDataShareToken("TOKEN")).toBe(false);
 	});
 });
 

@@ -267,6 +267,7 @@ async function startParamsShareFlow(): Promise<void> {
 	await DataStore.flush();
 	const { json } = await ApiHelper.call("auth/CSRFToken", "GET", { withRef: true });
 	CSRFToken.value = json.token;
+	DataStore.setPendingDataShareToken(json.token);
 	document.location.href = TwitchUtils.getOAuthURL(CSRFToken.value, scopes.value);
 	window.setTimeout(() => {
 		connecting.value = false;
