@@ -66,7 +66,6 @@ export default toNative(ChatCustomPowerUp);
 	}
 
 	.holder {
-		gap: 1em;
 		width: 100%;
 		display: flex;
 		flex-direction: row;

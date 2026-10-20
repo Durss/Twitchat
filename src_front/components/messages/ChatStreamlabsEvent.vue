@@ -6,7 +6,7 @@
 		<Icon name="streamlabs" alt="streamlabs" class="icon" />
 
 		<div class="messageHolder">
-			<i18n-t scope="global" tag="span" :keypath="labelKey">
+			<i18n-t scope="global" tag="span" :keypath="labelKey" class="messageWithTime">
 				<template #USER>
 					<strong>{{ messageData.userName }}</strong>
 				</template>
@@ -30,7 +30,7 @@
 				</template>
 			</i18n-t>
 			<div
-				class="quote"
+				class="quote messageWithTime"
 				v-if="
 					(messageData.eventType == 'donation' ||
 						messageData.eventType == 'merch' ||

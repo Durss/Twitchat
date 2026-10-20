@@ -37,7 +37,7 @@
 			</template>
 
 			<a
-				class="footer"
+				class="footer messageWithTime"
 				href="https://dashboard.twitch.tv/settings/moderation/blocked-terms"
 				target="_blank"
 				>{{ $t("chat.hate_raid.footer") }} <Icon name="newtab"

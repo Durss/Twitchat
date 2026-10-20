@@ -18,7 +18,12 @@
 		</i18n-t>
 
 		<template v-else>
-			<i18n-t scope="global" class="label" tag="span" keypath="chat.connect.off">
+			<i18n-t
+				scope="global"
+				class="label messageWithTime"
+				tag="span"
+				keypath="chat.connect.off"
+			>
 				<template #PLATFORM
 					><strong>{{ props.messageData.platform }}</strong></template
 				>
@@ -27,14 +32,9 @@
 				>
 			</i18n-t>
 
-			<TTButton
-				v-if="showReconnectBt"
-				icon="online"
-				primary
-				small
-				@click="reconnectChan()"
-				>{{ t("global.reconnect") }}</TTButton
-			>
+			<TTButton v-if="showReconnectBt" icon="online" primary small @click="reconnectChan()">{{
+				t("global.reconnect")
+			}}</TTButton>
 		</template>
 	</div>
 </template>
@@ -133,4 +133,3 @@ async function reconnectChan(): Promise<void> {
 	}
 }
 </style>
-

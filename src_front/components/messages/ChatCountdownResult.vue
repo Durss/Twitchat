@@ -2,6 +2,7 @@
 	<div class="chatcountdownresult chatMessage highlight">
 		<Icon name="countdown" alt="icon" class="icon" />
 		<i18n-t
+			class="messageWithTime"
 			scope="global"
 			tag="div"
 			v-if="messageData.aborted === true"
@@ -16,6 +17,7 @@
 		</i18n-t>
 
 		<i18n-t
+			class="messageWithTime"
 			scope="global"
 			tag="div"
 			v-else-if="messageData.endedAt_str"
@@ -26,7 +28,13 @@
 			>
 		</i18n-t>
 
-		<i18n-t scope="global" tag="div" v-else keypath="chat.countdown.start">
+		<i18n-t
+			class="messageWithTime"
+			scope="global"
+			tag="div"
+			v-else
+			keypath="chat.countdown.start"
+		>
 			<template #DURATION
 				><strong>{{ messageData.duration_str }}</strong></template
 			>

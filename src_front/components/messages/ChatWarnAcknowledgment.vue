@@ -5,7 +5,12 @@
 	>
 		<Icon name="alert" alt="alert" class="icon" />
 
-		<i18n-t tag="div" scope="global" keypath="chat.warn_acknowledge.title">
+		<i18n-t
+			tag="div"
+			scope="global"
+			keypath="chat.warn_acknowledge.title"
+			class="messageWithTime"
+		>
 			<template #USER>
 				<a
 					class="userlink"

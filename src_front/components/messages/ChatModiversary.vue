@@ -6,7 +6,12 @@
 	>
 		<Icon name="modiversary" alt="modiversary" class="icon" />
 
-		<i18n-t scope="global" tag="div" keypath="chat.user_modiversary.label">
+		<i18n-t
+			scope="global"
+			tag="div"
+			keypath="chat.user_modiversary.label"
+			class="messageWithTime"
+		>
 			<template #USER>
 				<a
 					class="userlink"

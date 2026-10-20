@@ -5,14 +5,12 @@
 	>
 		<Icon name="bingo" alt="icon" class="icon" />
 
-		<i18n-t scope="global" tag="div" keypath="chat.bingo.title">
+		<i18n-t scope="global" tag="div" keypath="chat.bingo.title" class="messageWithTime">
 			<template #WINNER>
 				<a
 					class="userlink"
 					v-if="messageData.bingoData.winners![0]"
-					@click="
-						openUserCard(messageData.bingoData.winners![0], messageData.channel_id)
-					"
+					@click="openUserCard(messageData.bingoData.winners![0], messageData.channel_id)"
 					>{{ messageData.bingoData.winners![0].displayName }}</a
 				>
 			</template>

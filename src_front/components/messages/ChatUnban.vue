@@ -6,6 +6,7 @@
 		<Icon name="unban" alt="notice" class="icon" />
 
 		<i18n-t
+			class="messageWithTime"
 			scope="global"
 			tag="span"
 			:keypath="

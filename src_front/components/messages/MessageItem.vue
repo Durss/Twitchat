@@ -30,7 +30,7 @@
 
 		<component
 			v-if="componentRef"
-			:class="{ message: true, addBottomPadding }"
+			class="message"
 			:is="componentRef"
 			:messageData="messageData"
 			:data-msg-time="showTime ? true : null"
@@ -172,16 +172,6 @@ const showTime = computed(
 		props.disableDate !== true,
 );
 
-const addBottomPadding = computed(() => {
-	if (
-		props.messageData.type === "private_mod_message" &&
-		(props.messageData.answer || props.messageData.action == "question")
-	) {
-		return true;
-	}
-	return false;
-});
-
 // Utility type to extract keys where value is literally true
 type KeysWithTrueValue<T> = keyof {
 	[K in keyof T as T[K] extends true ? K : never]: T[K];
@@ -320,7 +310,12 @@ const componentRef = computed<VueComponent | null>(() => {
 		position: relative;
 
 		&[data-msg-time]:not(.highlight)::after,
-		&[data-msg-time]:deep(.messageWithTime)::after {
+		&[data-msg-time]:deep(
+				.messageWithTime:not(
+					:has(~ .messageWithTime, ~ * .messageWithTime),
+					[data-msg-time] :has(~ .messageWithTime, ~ * .messageWithTime) *
+				)
+			)::after {
 			content: "00:00";
 			display: inline;
 			visibility: hidden;
@@ -330,14 +325,8 @@ const componentRef = computed<VueComponent | null>(() => {
 			pointer-events: none;
 		}
 
-		&[data-msg-time] {
-			&.highlight {
-				padding-bottom: 0.75em;
-			}
-
-			&.addBottomPadding {
-				padding-bottom: 1.5em;
-			}
+		&[data-msg-time].highlight:not(:has(.messageWithTime)) {
+			padding-bottom: 1.5em;
 		}
 	}
 
@@ -348,7 +337,7 @@ const componentRef = computed<VueComponent | null>(() => {
 		pointer-events: none;
 	}
 
-	&:has(.highlight) {
+	&:has(.highlight:not(:has(.messageWithTime))) {
 		.time {
 			bottom: 0.25em;
 		}

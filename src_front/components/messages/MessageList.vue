@@ -2525,7 +2525,8 @@ function showSelectionError(): void {
 			border-bottom: 2px solid var(--splitter-color);
 			box-shadow: 0px 0 5px 0px rgba(0, 0, 0, 0.5);
 			position: absolute;
-			bottom: 0;
+			// bottom: calc(100% + 0.25em);
+			bottom: -0.25em;
 			left: 0;
 			pointer-events: none;
 			z-index: 1;

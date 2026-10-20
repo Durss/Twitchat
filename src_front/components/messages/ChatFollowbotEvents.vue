@@ -1,6 +1,6 @@
 <template>
 	<div class="chatfollowbotevents chatMessage highlight" ref="rootEl">
-		<button class="head" @click="expand = !expand">
+		<button class="head messageWithTime" @click="expand = !expand">
 			<Icon name="shield" class="icon" theme="light" />
 			<Icon name="follow" class="icon" theme="light" />
 			<span class="label">{{

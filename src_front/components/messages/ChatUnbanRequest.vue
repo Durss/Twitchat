@@ -22,8 +22,10 @@
 			</i18n-t>
 
 			<template v-if="messageData.message">
-				<div class="quote" @click.stop="censor = false">{{ messageData.message }}</div>
-				<div class="warning" v-if="messageData.isFlagByAutomod">
+				<div class="quote messageWithTime" @click.stop="censor = false">
+					{{ messageData.message }}
+				</div>
+				<div class="warning messageWithTime" v-if="messageData.isFlagByAutomod">
 					<Icon name="alert" />{{ $t("chat.unban_request.automod") }}
 				</div>
 			</template>

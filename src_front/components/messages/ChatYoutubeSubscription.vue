@@ -12,6 +12,7 @@
 
 		<div class="holder">
 			<i18n-t
+				class="messageWithTime"
 				scope="global"
 				tag="p"
 				:keypath="
@@ -42,7 +43,7 @@
 				</template>
 			</i18n-t>
 
-			<div class="quote">
+			<div class="quote messageWithTime">
 				<ChatMessageChunksParser
 					:chunks="messageData.message_chunks"
 					:channel="messageData.channel_id"

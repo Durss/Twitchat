@@ -21,19 +21,17 @@
 						class="userlink"
 						:href="'https://twitch.tv/' + messageData.moderator.login"
 						target="_blank"
-						@click.prevent="
-							openUserCard(messageData.moderator, messageData.channel_id)
-						"
+						@click.prevent="openUserCard(messageData.moderator, messageData.channel_id)"
 						>{{ messageData.moderator.displayName }}</a
 					>
 				</template>
 			</i18n-t>
 
-			<div class="prompt quote" v-if="messageData.customReason">
+			<div class="prompt quote messageWithTime" v-if="messageData.customReason">
 				{{ messageData.customReason }}
 			</div>
 
-			<ul class="prompt quote" v-if="messageData.rules?.length > 0">
+			<ul class="prompt quote messageWithTime" v-if="messageData.rules?.length > 0">
 				<li v-for="rule in messageData.rules">{{ rule }}</li>
 			</ul>
 		</div>

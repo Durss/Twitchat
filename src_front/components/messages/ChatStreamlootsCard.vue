@@ -7,7 +7,12 @@
 		<Icon name="streamloots" alt="streamloots" class="icon" />
 
 		<div class="messageHolder">
-			<i18n-t scope="global" tag="span" keypath="chat.streamloots.card">
+			<i18n-t
+				scope="global"
+				tag="span"
+				keypath="chat.streamloots.card"
+				class="messageWithTime"
+			>
 				<template #USER>
 					<strong>{{ messageData.userName }}</strong>
 				</template>
@@ -22,7 +27,11 @@
 				</template>
 			</i18n-t>
 
-			<div class="quote" v-for="(input, index) in messageData.inputs" :key="index">
+			<div
+				class="quote messageWithTime"
+				v-for="(input, index) in messageData.inputs"
+				:key="index"
+			>
 				<div class="label">{{ input.label }}</div>
 				<ChatMessageChunksParser :chunks="input.value_chunks" />
 			</div>
@@ -62,4 +71,3 @@ const { onContextMenu } = useChatMessage(props, emit, rootEl);
 	}
 }
 </style>
-

@@ -6,7 +6,13 @@
 		<Icon name="bits" alt="bits" class="icon" />
 
 		<div class="holder">
-			<i18n-t scope="global" tag="span" keypath="chat.bits" :plural="totalBits">
+			<i18n-t
+				scope="global"
+				tag="span"
+				keypath="chat.bits"
+				:plural="totalBits"
+				class="messageWithTime"
+			>
 				<template #USER>
 					<a
 						class="userlink"
@@ -19,7 +25,7 @@
 				</template>
 			</i18n-t>
 
-			<div class="quote" v-if="messages.length > 0">
+			<div class="quote messageWithTime" v-if="messages.length > 0">
 				<span
 					v-tooltip="messages.length > 1 ? mess.bits + ' bits' : null"
 					v-for="mess in messages"

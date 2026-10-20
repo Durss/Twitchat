@@ -26,7 +26,7 @@
 				{{ messageData.user.displayName }}</a
 			>
 
-			<div class="quote" v-if="messageData.message_chunks">
+			<div class="quote messageWithTime" v-if="messageData.message_chunks">
 				<ChatMessageChunksParser
 					:chunks="messageData.message_chunks"
 					:channel="messageData.channel_id"

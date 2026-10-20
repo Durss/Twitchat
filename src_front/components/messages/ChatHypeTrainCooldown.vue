@@ -2,7 +2,7 @@
 	<div class="chathypetraincooldown chatMessage highlight">
 		<Icon name="train" alt="train" class="icon" />
 
-		<span>{{ $t("chat.train_cooldown") }}</span>
+		<span class="messageWithTime">{{ $t("chat.train_cooldown") }}</span>
 	</div>
 </template>
 

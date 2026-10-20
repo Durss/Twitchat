@@ -5,6 +5,7 @@
 
 		<div class="messageHolder" v-if="messageData.info.user">
 			<i18n-t
+				class="messageWithTime"
 				scope="global"
 				tag="span"
 				:keypath="isOnline ? 'chat.stream.online' : 'chat.stream.offline'"
@@ -14,9 +15,7 @@
 						class="userlink"
 						:href="'https://twitch.tv/' + messageData.info.user.login"
 						target="_blank"
-						@click.prevent="
-							openUserCard(messageData.info.user, messageData.channel_id)
-						"
+						@click.prevent="openUserCard(messageData.info.user, messageData.channel_id)"
 						>{{ messageData.info.user.displayName }}</a
 					>
 				</template>
@@ -25,7 +24,7 @@
 			<div v-if="isOnline && messageData.info" class="streamInfo">
 				<div class="infos">
 					<div class="title quote">
-						<span>{{ messageData.info.title }}</span>
+						<span class="messageWithTime">{{ messageData.info.title }}</span>
 						<p v-if="messageData.info.category" class="category">
 							{{ messageData.info.category }}
 						</p>

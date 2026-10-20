@@ -5,7 +5,7 @@
 	>
 		<Icon name="twitch_charity" alt="twitch charity" class="icon charityIcon" />
 
-		<div class="messageHolder">
+		<div class="messageHolder messageWithTime">
 			<i18n-t scope="global" tag="span" keypath="chat.twitch_charity.donation">
 				<template #USER>
 					<strong>{{ messageData.user.displayName }}</strong>

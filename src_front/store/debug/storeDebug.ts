@@ -146,6 +146,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+					if (Math.random() > 0.5) message = "";
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m: TwitchatDataTypes.MessageSubscriptionData = {
 						id: Utils.getUUID(),

@@ -6,7 +6,7 @@
 		<Icon name="sub" alt="sub" class="icon" />
 		<Icon name="tiktok" alt="tiktok" class="icon" />
 
-		<i18n-t scope="global" keypath="chat.tiktok_sub.new" tag="span">
+		<i18n-t scope="global" keypath="chat.tiktok_sub.new" tag="span" class="messageWithTime">
 			<template #USER>
 				<a
 					class="userlink"

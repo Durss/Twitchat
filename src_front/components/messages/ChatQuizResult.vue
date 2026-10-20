@@ -7,7 +7,7 @@
 					<strong>{{ messageData.quizResult.quizName }}</strong>
 				</template>
 			</i18n-t>
-			<span class="info">
+			<span class="info messageWithTime">
 				<Icon name="user" />
 				<strong>x{{ rankedUsers.length }}</strong>
 				<Icon name="leaderboard" />
@@ -266,6 +266,11 @@ watch(userSearch, () => {
 	.leadeboard {
 		width: 100%;
 		z-index: 0;
+		&.closed {
+			width: fit-content;
+			transition: width 0.5s;
+			transition-behavior: allow-discrete;
+		}
 	}
 	.searchField {
 		width: 100%;

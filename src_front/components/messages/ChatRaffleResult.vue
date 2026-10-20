@@ -3,6 +3,7 @@
 		<Icon name="ticket" alt="icon" class="icon" />
 
 		<i18n-t
+			class="messageWithTime"
 			scope="global"
 			tag="div"
 			:keypath="messageData.winner.tip ? 'chat.raffle.title_tip' : 'chat.raffle.title'"

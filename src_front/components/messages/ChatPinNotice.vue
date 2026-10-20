@@ -14,7 +14,11 @@
 				</template>
 			</i18n-t>
 
-			<ChatMessage class="quote" :messageData="messageData.chatMessage" lightMode />
+			<ChatMessage
+				class="quote messageWithTime"
+				:messageData="messageData.chatMessage"
+				lightMode
+			/>
 		</div>
 	</div>
 </template>

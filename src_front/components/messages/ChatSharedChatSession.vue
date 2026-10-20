@@ -4,6 +4,7 @@
 
 		<div class="messageHolder">
 			<i18n-t
+				class="messageWithTime"
 				scope="global"
 				tag="span"
 				v-if="messageData.event == 'join' || messageData.event == 'leave'"
@@ -11,17 +12,16 @@
 			>
 				<template #USERS>
 					<template v-for="(user, index) in updatedParticipants" :key="user.id">
-						<a
-							class="userlink"
-							@click="openUserCard(user, messageData.channel_id)"
-							>{{ user.displayName }}</a
-						>
+						<a class="userlink" @click="openUserCard(user, messageData.channel_id)">{{
+							user.displayName
+						}}</a>
 						<span v-if="index < updatedParticipants.length - 1">, </span>
 					</template>
 				</template>
 			</i18n-t>
 
 			<i18n-t
+				class="messageWithTime"
 				scope="global"
 				tag="span"
 				v-else
@@ -41,17 +41,15 @@
 			<i18n-t
 				scope="global"
 				tag="span"
-				class="participants"
+				class="participants messageWithTime"
 				v-if="otherParticipants.length > 0"
 				keypath="chat.shared_chat.participants"
 			>
 				<template #USERS>
 					<template v-for="(user, index) in otherParticipants" :key="user.id">
-						<a
-							class="userlink"
-							@click="openUserCard(user, messageData.channel_id)"
-							>{{ user.displayName }}</a
-						>
+						<a class="userlink" @click="openUserCard(user, messageData.channel_id)">{{
+							user.displayName
+						}}</a>
 						<span v-if="index < otherParticipants.length - 1">, </span>
 					</template>
 				</template>
@@ -129,4 +127,3 @@ const otherParticipants = computed(() => {
 	}
 }
 </style>
-

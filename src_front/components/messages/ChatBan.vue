@@ -8,7 +8,7 @@
 		<Icon name="ban" class="icon" v-else theme="light" />
 
 		<div class="content">
-			<div class="textContent">
+			<div class="textContent" :class="{ messageWithTime: !showUnbanBt }">
 				<i18n-t
 					scope="global"
 					class="label"
@@ -86,7 +86,9 @@
 						<strong>{{ props.messageData.platform }}</strong>
 					</template>
 				</i18n-t>
-				<div class="quote reason" v-if="props.messageData.reason">{{ props.messageData.reason }}</div>
+				<div class="quote reason" v-if="props.messageData.reason">
+					{{ props.messageData.reason }}
+				</div>
 			</div>
 			<TTButton
 				light
