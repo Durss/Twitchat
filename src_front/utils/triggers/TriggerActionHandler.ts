@@ -1284,7 +1284,9 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
 				const eventType: {
-					[key in TwitchatDataTypes.MessageStreamlabsData["eventType"]]: TriggerTypesValue;
+					[
+						key in TwitchatDataTypes.MessageStreamlabsData["eventType"]
+					]: TriggerTypesValue;
 				} = {
 					donation: TriggerTypes.STREAMLABS_DONATION,
 					merch: TriggerTypes.STREAMLABS_MERCH,
@@ -1304,7 +1306,9 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
 				const eventType: {
-					[key in TwitchatDataTypes.MessageStreamelementsData["eventType"]]: TriggerTypesValue;
+					[
+						key in TwitchatDataTypes.MessageStreamelementsData["eventType"]
+					]: TriggerTypesValue;
 				} = {
 					donation: TriggerTypes.STREAMELEMENTS_DONATION,
 				} as const;
@@ -1691,7 +1695,9 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE: {
 				const eventType: {
-					[key in TwitchatDataTypes.MessageStreamlootsPurchaseData["eventType"]]: TriggerTypesValue;
+					[
+						key in TwitchatDataTypes.MessageStreamlootsPurchaseData["eventType"]
+					]: TriggerTypesValue;
 				} = {
 					purchase: TriggerTypes.STREAMLOOTS_PURCHASE,
 					gift: TriggerTypes.STREAMLOOTS_GIFT,
@@ -2516,11 +2522,9 @@ export default class TriggerActionHandler {
 									DURATION: remaining_s,
 								});
 								if (
-									!(await MessengerProxy.instance.sendMessage(
-										text,
-										[message.platform],
-										message.channel_id,
-									))
+									!(await MessengerProxy.instance.sendMessage(text, [
+										message.platform,
+									]))
 								) {
 									log.entries.push({
 										date: Date.now(),
@@ -2571,11 +2575,9 @@ export default class TriggerActionHandler {
 								DURATION: remaining_s,
 							});
 							if (
-								!(await MessengerProxy.instance.sendMessage(
-									text,
-									[message.platform],
-									message.channel_id,
-								))
+								!(await MessengerProxy.instance.sendMessage(text, [
+									message.platform,
+								]))
 							) {
 								log.entries.push({
 									date: Date.now(),
