@@ -100,7 +100,6 @@
 
 				<input
 					v-else-if="!paramData.noInput"
-					ref="input"
 					:tabindex="tabindex"
 					type="number"
 					v-model.number="paramData.value"
@@ -153,17 +152,19 @@
 					/>
 
 					<Icon class="loader" name="loader" v-if="loading" />
-					<textarea
-						ref="input"
+					<TextInputWithHighlights
+						ref="textInput"
 						v-else-if="useTextarea && !paramData.noInput"
+						multiline
 						:class="{ autoGrow: autoGrow, multiline: autoMultiline }"
 						:tabindex="tabindex"
 						v-model="textValue"
+						:placeholders="paramData.placeholderList"
 						:rows="autoGrow ? 1 : 3"
 						:id="'text' + key"
 						:name="paramData.fieldName"
 						:placeholder="placeholder"
-						v-autofocus="autofocusLocal"
+						:autofocus="autofocusLocal"
 						:maxlength="paramData.maxLength ? paramData.maxLength : 524288"
 						:disabled="
 							premiumLocked || disabled !== false || paramData.disabled === true
@@ -172,10 +173,33 @@
 						@focus="emit('focus')"
 						@blur="emit('blur')"
 						@input="onInput"
-					></textarea>
+					/>
+
+					<TextInputWithHighlights
+						ref="textInput"
+						v-else-if="paramData.type == 'string' && !paramData.noInput"
+						:tabindex="tabindex"
+						v-model="textValue"
+						:placeholders="paramData.placeholderList"
+						:autofocus="autofocusLocal"
+						:name="paramData.fieldName"
+						:id="'text' + key"
+						:placeholder="placeholder"
+						:maxlength="paramData.maxLength ? paramData.maxLength : 524288"
+						:disabled="
+							premiumLocked || disabled !== false || paramData.disabled === true
+						"
+						:readonly="readonly"
+						autocomplete="new-password"
+						@focus="emit('focus')"
+						@blur="
+							clampValue();
+							emit('blur');
+						"
+						@input="onInput"
+					/>
 
 					<input
-						ref="input"
 						v-else-if="!paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
@@ -273,7 +297,6 @@
 					:style="{ backgroundColor: paramData.value as string }"
 				>
 					<input
-						ref="input"
 						v-if="!paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
@@ -715,6 +738,7 @@ import ToggleButton from "../ToggleButton.vue";
 import PlaceholderSelector from "./PlaceholderSelector.vue";
 import Config from "@/utils/Config";
 import PlaceholderField from "../PlaceholderField.vue";
+import TextInputWithHighlights from "../TextInputWithHighlights.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { usePlaceDropdown } from "@/composables/usePlaceDropDown";
@@ -782,7 +806,7 @@ const { getAsset } = asset();
 
 const { isEmptySlot } = useEmptySlot();
 const rootElRef = useTemplateRef("rootEl");
-const inputRef = useTemplateRef("input");
+const textInputRef = useTemplateRef("textInput");
 const vueSelectRef = useTemplateRef<VueSelectInstance>("vueSelect");
 const paramChildrenRef = useTemplateRef<ComponentPublicInstance[]>("paramChild");
 
@@ -1027,7 +1051,7 @@ function clickItem(event: MouseEvent): void {
  * <input> → <textarea> promotion) the native undo stack and caret are kept.
  */
 function autoResize(): void {
-	const el = inputRef.value;
+	const el = textInputRef.value?.field;
 	if (!autoGrow.value || !(el instanceof HTMLTextAreaElement)) return;
 
 	const value = ((props.paramData.value as string) ?? "").toString();
@@ -1561,16 +1585,17 @@ onMounted(() => {
 	// Auto-grow fields become manually resizable once they've expanded to
 	// multi-line. Watch for a height that we didn't set ourselves (i.e. the user
 	// dragged the resize handle) and, from then on, stop auto-fitting the height.
-	if (autoGrow.value && inputRef.value instanceof HTMLTextAreaElement) {
+	const textField = textInputRef.value?.field;
+	if (autoGrow.value && textField instanceof HTMLTextAreaElement) {
 		resizeObserver = new ResizeObserver(() => {
-			const el = inputRef.value;
+			const el = textInputRef.value?.field;
 			if (!(el instanceof HTMLTextAreaElement)) return;
 			if (!autoMultiline.value || userResizedMultiline || autoGrowHeight < 0) return;
 			if (Math.abs(el.offsetHeight - autoGrowHeight) > 1) {
 				userResizedMultiline = true;
 			}
 		});
-		resizeObserver.observe(inputRef.value);
+		resizeObserver.observe(textField);
 	}
 
 	if (props.chatPreview !== false) {
@@ -1765,7 +1790,8 @@ watch(
 	&.withMaxLength.maxLength {
 		.content {
 			.text {
-				input {
+				input,
+				.textinputwithhighlights :deep(input) {
 					padding-right: 3em;
 				}
 			}
@@ -1861,7 +1887,8 @@ watch(
 					}
 
 					&.privateField {
-						input {
+						input,
+						.textinputwithhighlights :deep(input) {
 							padding-left: 1.75em;
 						}
 						.privateIcon {
@@ -1982,6 +2009,16 @@ watch(
 			width: 100%;
 		}
 
+		//String fields are rendered by <TextInputWithHighlights>, out of this
+		//component's scope. Its layout already makes them fill the width.
+		.textinputwithhighlights {
+			:deep(input),
+			:deep(textarea) {
+				transition: background-color 0.25s;
+				text-overflow: ellipsis;
+			}
+		}
+
 		img.paramIcon {
 			height: 1em;
 			margin-right: 0.5em;
@@ -2015,7 +2052,8 @@ watch(
 			}
 		}
 
-		textarea {
+		textarea,
+		.textinputwithhighlights :deep(textarea) {
 			resize: vertical;
 
 			// Auto-mode field: height is driven by autoResize() so we disable the
@@ -2103,6 +2141,7 @@ watch(
 			height: calc(100% - 4px);
 		}
 		input,
+		.textinputwithhighlights :deep(input),
 		.button {
 			padding-right: 1.5em;
 		}

@@ -924,6 +924,25 @@
 			/>
 		</div>
 
+		<Splitter>Text input with highlights</Splitter>
+
+		<div class="card-item section highlightInputs" :class="{ debugMirror }">
+			<Checkbox v-model="debugMirror">show mirror (alignment check)</Checkbox>
+			<Checkbox v-model="highlightEnabled">placeholders given</Checkbox>
+			<TextInputWithHighlights
+				v-model="highlightText"
+				:placeholders="highlightEnabled ? highlightPlaceholders : noPlaceholders"
+				placeholder="value..."
+			/>
+			<TextInputWithHighlights
+				v-model="highlightTextLong"
+				:placeholders="highlightEnabled ? highlightPlaceholders : noPlaceholders"
+				placeholder="value..."
+				rows="5"
+				multiline
+			/>
+		</div>
+
 		<Splitter>Permissions</Splitter>
 
 		<div class="card-item section center">
@@ -946,6 +965,8 @@
 			<ParamItem :paramData="param_text" error />
 			<ParamItem :paramData="param_textLong" />
 			<ParamItem :paramData="param_textLong" error />
+			<ParamItem :paramData="param_textPlaceholders" />
+			<ParamItem :paramData="param_textShortPlaceholders" />
 			<ParamItem :paramData="param_number" />
 			<ParamItem :paramData="param_list" />
 			<ParamItem :paramData="param_list" error />
@@ -996,6 +1017,7 @@ import Utils from "@/utils/Utils";
 import PermissionsForm from "@/components/PermissionsForm.vue";
 import CurrencyPatternInput from "@/components/CurrencyPatternInput.vue";
 import AppLangSelector from "@/components/AppLangSelector.vue";
+import TextInputWithHighlights from "@/components/TextInputWithHighlights.vue";
 import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 
 const type = ref<"button" | "link">("button");
@@ -1009,6 +1031,31 @@ const progresses = ref<number[]>([]);
 const iconList = ref<string[]>([]);
 const permissions = ref(Utils.getDefaultPermissions(false, false, true, false, true, true));
 const messageChunks = ref<TwitchatDataTypes.ParseMessageChunk[]>([]);
+const debugMirror = ref(false);
+const highlightEnabled = ref(true);
+const noPlaceholders: TwitchatDataTypes.PlaceholderEntry[] = [];
+const highlightPlaceholders: TwitchatDataTypes.PlaceholderEntry[] = [
+	{ tag: "USER", descKey: "", example: "Durss" },
+	{ tag: "MESSAGE", descKey: "", example: "Hello there" },
+	{ tag: "LIVE", descKey: "", example: "true" },
+];
+const highlightText = ref(
+	"Hello {USER}, you said {MESSAGE.truncate(20)} - {{USER}} is escaped and {NOPE} is unknown, plus enough text to make the field scroll horizontally {USER}",
+);
+const highlightTextLong = ref(
+	[
+		"{USER} just followed!",
+		"",
+		'{LIVE.bool("{USER} is live", "{USER} is offline")}',
+		"AVeryLongWordWithoutAnySpaceThatMustBreakTheSameWayInTheMirrorThanInTheField{MESSAGE}",
+		"\tTabbed {MESSAGE.uppercase}",
+		"{{USER}} is escaped, {NOPE} is unknown",
+		"Some more lines to make it scroll",
+		"{USER}",
+		"{MESSAGE}",
+		"{LIVE}",
+	].join("\n"),
+);
 
 const param_bool = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
@@ -1039,6 +1086,20 @@ const param_textLong = ref<TwitchatDataTypes.ParameterData<string>>({
 	longText: true,
 	label: "Text",
 	placeholder: "value...",
+});
+const param_textPlaceholders = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "Hello {USER}, you said {MESSAGE.truncate(20)}",
+	label: "Text with placeholders",
+	placeholderList: highlightPlaceholders,
+});
+const param_textShortPlaceholders = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "Single line {USER} {LIVE}",
+	longText: false,
+	maxLength: 40,
+	label: "Single line with placeholders",
+	placeholderList: highlightPlaceholders,
 });
 const param_number = ref<TwitchatDataTypes.ParameterData<number>>({
 	type: "number",
@@ -1247,6 +1308,20 @@ function renderFrame(): void {
 			width: 600px;
 		}
 	}
+	.highlightInputs {
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
+		align-items: center;
+		& > * {
+			width: 600px;
+		}
+		&.debugMirror :deep(.mirror) {
+			color: #ff0000;
+			z-index: 1;
+		}
+	}
+
 	.center {
 		align-items: center;
 		justify-content: center;
