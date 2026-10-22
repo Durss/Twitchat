@@ -36,6 +36,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _refreshingTokenTO: number = -1;
 	private _watchdogTO: number = -1;
 	private _reconnecting: boolean = false;
+	private _lastPong: { date: number; latency: number } | null = null;
 	private _connectedChans: { [key: string]: boolean } = reactive({});
 	private _pendingChans: { [key: string]: boolean } = {};
 	private _channelList: string[] = [];
@@ -197,6 +198,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				options: { debug: false, skipUpdatingEmotesets: true },
 				connection: { reconnect: true, maxReconnectInterval: 2000 },
 				channels: this._channelList.concat(),
+				//Only keep errors (ping timeouts, auto reconnects, ...) to diagnose disconnections
+				logger: {
+					info: () => {},
+					warn: () => {},
+					error: (message: string) => {
+						console.log("[IRC] " + message);
+						Logger.instance.log("irc", { info: "TMI error: " + message });
+					},
+				},
 			};
 			options.identity = {
 				username: StoreProxy.auth.twitch.user.login,
@@ -684,6 +694,30 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on("disconnected", this.disconnected.bind(this));
 		this._client.on("messagedeleted", this.onDeleteMessage.bind(this));
 		this._client.on("raw_message", this.raw_message.bind(this));
+		this._client.on("pong", (latency: number) => {
+			this._lastPong = { date: Date.now(), latency };
+			//TMI cuts the connection if PONG takes more than ~10s, log slow ones
+			if (latency >= 2) {
+				Logger.instance.log("irc", { info: "Slow PONG received after " + latency + "s" });
+			}
+		});
+		//Log socket close codes to diagnose disconnections
+		this._client.on("connecting", () => {
+			const ws = (this._client as unknown as { ws: WebSocket | null }).ws;
+			ws?.addEventListener("close", (event) => {
+				Logger.instance.log("irc", {
+					info: "Socket closed with code " + event.code,
+					data: {
+						reason: event.reason,
+						wasClean: event.wasClean,
+						lastPong: this._lastPong && {
+							latency: this._lastPong.latency,
+							msAgo: Date.now() - this._lastPong.date,
+						},
+					},
+				});
+			});
+		});
 
 		// Workaround a potential TMI issue not detecting if socket died when computer/page
 		// is asleep.
@@ -772,10 +806,19 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const state = this._client.readyState();
 
 		if (state === "OPEN") {
+			// TMI only remembers one ping timer, and its own ping loop uses the same one.
+			// If we ping while TMI's ping is still waiting for an answer, we replace its
+			// timer. That old timer is then never stopped and kills the connection even
+			// though it works fine. Any PONG means the connection is alive, so stop TMI's
+			// timer before pinging, and stop ours as soon as a PONG arrives.
+			const tmiInternals = this._client as unknown as { pingTimeout?: number };
+			clearTimeout(tmiInternals.pingTimeout);
 			// Forces TMI to ping. If no pong is received TMI will cut the connection
 			void this._client.ping().catch(() => {
 				/* ignore */
 			});
+			const pingTimeout = tmiInternals.pingTimeout;
+			this._client.once("pong", () => clearTimeout(pingTimeout));
 			return;
 		}
 
@@ -1737,6 +1780,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				// const [channelName] = (parsed as {params:string[]}).params;
 				// const channelId = this.getChannelID(channelName);
 				// TwitchUtils.loadEmoteSets(channelId, ((parsed as tmi.UserNoticeState).tags["emote-sets"] ?? "").split(","));
+				break;
+			}
+
+			case "RECONNECT": {
+				Logger.instance.log("irc", { info: "Received RECONNECT request from Twitch" });
 				break;
 			}
 
