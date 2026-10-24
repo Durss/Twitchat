@@ -1,0 +1,11 @@
+{
+	"streamfog": {
+		"header": "{LINK} est un remplacement à la SnapCamera.\nConnectez-le à Twitchat pour activer des filtres depuis les triggers",
+		"instructions": "Dans Streamfog, aller dans \"Integrations\" => \"Streamdeck\" => Récupérez la valeur \"Remote Key\" et collez-la ci-dessous",
+		"param_userId": "Clé",
+		"install": "Installer Streamfog",
+		"error_messages": {
+			"INVALID_ID": "La clé Streamfog est invalide"
+		}
+	}
+}

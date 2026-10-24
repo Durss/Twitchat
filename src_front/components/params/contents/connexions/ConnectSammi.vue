@@ -1,149 +1,115 @@
 <template>
-	<div class="connectsammi parameterContent">
-		<Icon name="sammi" alt="sammi icon" class="icon" />
-
-		<div class="head">
+	<ConnectionForm
+		icon="sammi"
+		:connected="sSammi.connected"
+		:connecting="connecting"
+		:error="error"
+		:showSuccess="showSuccess"
+		errorMessage="sammi.connect_error"
+		:canConnect="canConnect"
+		:connectedInfo="connectedInfo"
+		:enabled="sSammi.connectionEnabled"
+		@connect="doConnect"
+		@disconnect="doDisconnect"
+		@update:enabled="onToggleEnabled"
+		@update:error="error = $event"
+	>
+		<template #header>
 			<i18n-t scope="global" tag="span" keypath="sammi.header">
 				<template #LINK>
-					<a href="https://sammi.solutions" target="_blank"><Icon name="newtab" />SAMMI</a>
+					<a href="https://sammi.solutions" target="_blank"
+						><Icon name="newtab" />SAMMI</a
+					>
 				</template>
 			</i18n-t>
-			<div class="card-item secondary infos" v-if="!$store.sammi.connected">
+		</template>
+
+		<template #info>
+			<div class="card-item secondary infos">
 				<span>
 					<Icon name="info" />
-					<span>{{$t("sammi.instructions")}}</span>
+					<span>{{ t("sammi.instructions") }}</span>
 				</span>
-				<TTButton class="installBt"
+				<TTButton
+					class="installBt"
 					href="https://sammi.solutions"
 					type="link"
 					icon="newtab"
 					target="_blank"
-					light secondary>{{ $t("sammi.install") }}</TTButton>
+					light
+					secondary
+					>{{ t("sammi.install") }}</TTButton
+				>
 			</div>
-		</div>
+		</template>
 
-		<div class="content">
-			<TTButton type="submit"
-				v-if="!$store.sammi.connected"
-				@click="connect()"
-				:loading="connecting"
-				:disabled="!canConnect">{{ $t('global.connect') }}</TTButton>
-
-			<ToggleBlock v-if="!$store.sammi.connected" :title="$t('global.advanced_params')" small :open="false">
-				<form class="card-item" @submit.prevent="connect()">
-					<ParamItem noBackground :paramData="param_ip" v-model="$store.sammi.ip" autofocus/>
-					<ParamItem noBackground :paramData="param_port" v-model="$store.sammi.port"/>
-					<ParamItem noBackground :paramData="param_pass" v-model="$store.sammi.password"/>
-
-					<div class="ctas">
-						<TTButton type="reset" alert
-							@click="disconnect()"
-							:loading="connecting"
-							:disabled="!canConnect">{{ $t('global.clear') }}</TTButton>
-						<TTButton type="submit"
-							:loading="connecting"
-							:disabled="!canConnect">{{ $t('global.connect') }}</TTButton>
-					</div>
-				</form>
-			</ToggleBlock>
-			<div class="card-item alert error" v-if="error" @click="error=false">{{$t("sammi.connect_error")}}</div>
-
-			<template v-if="$store.sammi.connected">
-				<div class="card-item primary" v-if="showSuccess">{{ $t("connexions.triggerSocket.success") }}</div>
-
-				<div class="card-item infos">
-					<div><strong>{{ $t(param_ip.labelKey!) }}</strong>: {{$store.sammi.ip}}</div>
-					<div><strong>{{ $t(param_port.labelKey!) }}</strong>: {{$store.sammi.port}}</div>
-				</div>
-
-				<TTButton class="connectBt" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
-			</template>
-		</div>
-
-	</div>
+		<template #fields>
+			<ParamItem noBackground :paramData="param_ip" v-model="sSammi.ip" />
+			<ParamItem noBackground :paramData="param_port" v-model="sSammi.port" />
+			<ParamItem noBackground :paramData="param_pass" v-model="sSammi.password" />
+		</template>
+	</ConnectionForm>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
-import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
+<script setup lang="ts">
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import ParamItem from "../../ParamItem.vue";
+import TTButton from "@/components/TTButton.vue";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
+import { useConnectionForm } from "@/composables/useConnectionForm";
+import ConnectionForm from "./ConnectionForm.vue";
+import { ref } from "vue";
 
-@Component({
-	components:{
-		TTButton,
-		ParamItem,
-		ToggleBlock,
-	},
-	emits:[],
-})
-class ConnectSammi extends Vue {
+const { t } = useI18n();
+const sSammi = useStoreSammi();
+const { connecting, error, showSuccess, doConnect, doDisconnect } = useConnectionForm(
+	() => sSammi.connect(),
+	() => sSammi.disconnect(),
+);
 
-	public error = false;
-	public showSuccess = false;
-	public connecting = false;
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "string",
+	labelKey: "sammi.ip",
+	maxLength: 100,
+});
+const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
+	value: 0,
+	type: "number",
+	labelKey: "sammi.port",
+	min: 0,
+	max: 65535,
+});
+const param_pass = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "string",
+	labelKey: "sammi.pass",
+	maxLength: 100,
+	isPrivate: true,
+});
 
-	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"sammi.ip", maxLength:100};
-	public param_port:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", labelKey:"sammi.port", min:0, max:65535};
-	public param_pass:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"sammi.pass", maxLength:100, isPrivate:true};
+const canConnect = computed(() => sSammi.ip.length >= 7);
 
-	public get canConnect():boolean {
-		return this.param_ip.value.length >= 7;// && this.param_port.value > 0;
-	}
+const connectedInfo = computed(() => [
+	{ label: t(param_ip.value.labelKey!), value: sSammi.ip },
+	{ label: t(param_port.value.labelKey!), value: sSammi.port },
+]);
 
-	public beforeMount():void {
-		this.param_ip.value = this.$store.sammi.ip;
-	}
-
-	public async connect():Promise<void> {
-		this.error = false;
-		this.connecting = true;
-		const res = await this.$store.sammi.connect();
-		this.error = !res;
-		this.connecting = false;
-	}
-
-	public disconnect():void {
-		this.$store.sammi.disconnect();
-	}
+function onToggleEnabled(v: boolean): void {
+	sSammi.connectionEnabled = v;
+	sSammi.saveConfigs();
 }
-export default toNative(ConnectSammi);
 </script>
 
 <style scoped lang="less">
-.connectsammi{
-	.content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1em;
-
-		form {
-			display: flex;
-			flex-direction: column;
-			gap:.5em;
-		}
-		.ctas {
-			gap: 1em;
-			display: flex;
-			flex-direction: row;
-			justify-content: center;
-		}
-
-		.error {
-			cursor: pointer;
-			white-space: pre-line;
-			text-align: center;
-		}
-	}
-
+.connectionForm {
 	.infos {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 	}
-
 }
 </style>

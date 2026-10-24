@@ -15,8 +15,8 @@
 		"credits_sites": "Check out some of my other works and socials:",
 		"sentry": "Special thanks to {LINK} for providing a free business licence to Twitchat.",
 		"dad": {
-			"title":"To my dad, a warrior...",
-			"content":[
+			"title": "To my dad, a warrior...",
+			"content": [
 				"TW: cancer, death",
 				"This space was intended to contain a piece of HTML code created with my father to share something with him and keep a souvenir of him.",
 				"But fate had other plans, taking him away faster than expected.",
@@ -41,7 +41,7 @@
 				"If my father was a warrior, my mother is an immense warrior to whom we owe so much for having had 18 more years with our father.",
 				" ",
 				"Goodbye, my dear Pap's... 💖"
-				]
+			]
 		}
 	}
 }

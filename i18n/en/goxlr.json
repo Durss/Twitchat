@@ -1,28 +1,28 @@
 {
-	"goxlr":{
-		"header":"Control your GoXLR from Twitchat.\nRequires {LINK}.",
-		"header_link":"GoXLR-Utility",
-		"donate":"🎁 Please consider {LINK} for their massive open-source work on GoXLR-Utility",
-		"donate_link":"donating to FrostyCoolSlug",
-		"connecting":"connecting to GoXLR-Utility...",
-		"connect_failed":"Unable to connect to GoXLR-Utility",
-		"no_device":"There is no GoXLR device detected by GoXLR-Utility",
-		"triggersBt":"Create triggers",
-		"param_chat_col":"Chat column",
-		"scroll_info":"Scroll chat with encoders",
-		"scroll_select_encoder":"Select an FX preset then the encoder you want to scroll this chat column with",
-		"readMark_info":"Move read marker with encoders",
-		"readMark_select_encoder":"Select an FX preset then the encoder you want to move this column's read marker with",
-		"pitch_warning":"⚠️ Pitch encoder has limits that makes it not very suitable for this usage. Scrolling might be glitchy or not work depending on some settings.",
-		"goxlrmini_alert":"Chat control from encoders is not possible on GoXLR mini has it's lacking necessary inputs",
-		"infos":[
+	"goxlr": {
+		"header": "Control your GoXLR from Twitchat.\nRequires {LINK}.",
+		"header_link": "GoXLR-Utility",
+		"donate": "🎁 Please consider {LINK} for their massive open-source work on GoXLR-Utility",
+		"donate_link": "donating to FrostyCoolSlug",
+		"connecting": "connecting to GoXLR-Utility...",
+		"connect_failed": "Unable to connect to GoXLR-Utility",
+		"no_device": "There is no GoXLR device detected by GoXLR-Utility",
+		"triggersBt": "Create triggers",
+		"param_chat_col": "Chat column",
+		"scroll_info": "Scroll chat with encoders",
+		"scroll_select_encoder": "Select an FX preset then the encoder you want to scroll this chat column with",
+		"readMark_info": "Move read marker with encoders",
+		"readMark_select_encoder": "Select an FX preset then the encoder you want to move this column's read marker with",
+		"pitch_warning": "⚠️ Pitch encoder has limits that makes it not very suitable for this usage. Scrolling might be glitchy or not work depending on some settings.",
+		"goxlrmini_alert": "Chat control from encoders is not possible on GoXLR mini has it's lacking necessary inputs",
+		"infos": [
 			"Once your GoXLR is connected you'll be able to allow your viewers to enable an FX preset or play Samples from a channel point rewards, a chat command, a subscription, bits, ... or show an OBS source when mute or bleep button is pressed or when a fader is muted.",
 			"You will also be able to scroll any chat column or move the read mark from the encoders."
 		],
-		"connect_form":{
-			"title":"Credentials",
-			"ip_security":"Due to web browsers security, if you set an IP other than \"127.0.0.1\" or \"localhost\" the connection must be secured. If you want to connect to a remote desktop you must use an https tunnel (like Ngrok). Come ask for help on {LINK} if you don't know how to do that. If your GoXLR is on this computer, set 127.0.0.1 as IP.",
-			"ip_security_link":"Discord"
+		"connect_form": {
+			"title": "Credentials",
+			"ip_security": "Due to web browsers security, if you set an IP other than \"127.0.0.1\" or \"localhost\" the connection must be secured.\n If you want to connect to a remote desktop you must use an https tunnel (like Ngrok).\nCome ask for help on {LINK} if you don't know how to do that.\n\nIf your GoXLR is on this computer, set 127.0.0.1 as IP.",
+			"ip_security_link": "Discord"
 		}
 	}
 }

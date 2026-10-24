@@ -1,13 +1,15 @@
 <template>
-<div class="cssHead">{{ $t("overlay.css_colors") }}</div>
-<pre>#holder {
-  <span class="comment">/* Pink */</span>
-  --color1: #387aff;
-  <span class="comment">/* Pink faded */</span>
-  --color1-fade: #387aff33;
+	<div class="cssHead">{{ $t("overlay.css_colors") }}</div>
+	<pre>#holder {
+  <span class="comment">/* Text color */</span>
+  color: #000000;
   <span class="comment">/* Blue */</span>
-  --color2: #f50e9b;
+  --color1: #387aff;
   <span class="comment">/* Blue faded */</span>
+  --color1-fade: #387aff33;
+  <span class="comment">/* Pink */</span>
+  --color2: #f50e9b;
+  <span class="comment">/* Pink faded */</span>
   --color2-fade: #f50e9b33;
   <span class="comment">/* Timer color */</span>
   --colorProgress: #387aff;
@@ -19,3 +21,4 @@
   background-color: #ffffff;
 }</pre>
 </template>
+<script setup lang="ts"></script>
