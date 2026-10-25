@@ -11,10 +11,10 @@
 				<span class="username" :style="userStyles" v-if="messageData.user?.name">{{
 					messageData.user.name
 				}}</span>
-				<span class="message" v-if="messageData.message_chunks"
+				<span class="message messageWithTime" v-if="messageData.message_chunks"
 					><ChatMessageChunksParser :chunks="messageData.message_chunks"
 				/></span>
-				<span class="message" v-else-if="messageData.message">{{
+				<span class="message messageWithTime" v-else-if="messageData.message">{{
 					messageData.message
 				}}</span>
 			</div>
@@ -42,10 +42,12 @@
 			</template>
 
 			<div class="quote" v-if="messageData.quote">
-				<span class="message" v-if="messageData.quote_chunks"
+				<span class="message messageWithTime" v-if="messageData.quote_chunks"
 					><ChatMessageChunksParser :chunks="messageData.quote_chunks"
 				/></span>
-				<span class="message" v-else-if="messageData.quote">{{ messageData.message }}</span>
+				<span class="message messageWithTime" v-else-if="messageData.quote">{{
+					messageData.message
+				}}</span>
 			</div>
 		</div>
 

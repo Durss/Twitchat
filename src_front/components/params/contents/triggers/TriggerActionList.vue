@@ -370,7 +370,7 @@ const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
 const param_enableForRemoteChans = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
 	value: true,
-	icon: "disable",
+	icon: "sharedChat",
 	labelKey: "triggers.enableForRemoteChans",
 });
 const param_name = ref<TwitchatDataTypes.ParameterData<string>>({

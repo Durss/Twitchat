@@ -1,0 +1,56 @@
+{
+	"chat_commands": {
+		"header": "Create simple chat commands or schedule messages posted regularly on your chat.\n\nFor more advanced needs, use {LINK_TRIGGER}.",
+		"header_link_trigger": "@:values.header_link_trigger",
+		"addBt": "Create new command",
+		"untitled": "New command",
+		"nonpremium_limit": "You created the maximum number of {MAX} commands. Become premium to create up to {MAX_PREMIUM} commands.",
+		"premium_limit": "You created the maximum number of {MAX_PREMIUM} commands.",
+		"restore_not_found": "This command cannot be restored anymore.",
+		"restore_limit": "Cannot restore this command, you reached the maximum number of {MAX} commands.",
+		"restore_conflict": "Cannot restore this command, another one already uses \"{CMD}\".",
+		"delete_confirm": {
+			"title": "Delete command?",
+			"desc": "This cannot be undone."
+		},
+		"manage": {
+			"title": "Manage commands from chat",
+			"enabled": "Allow managing commands from chat",
+			"allowed_users": "Users allowed to manage commands",
+			"usage_title": "Usage:",
+			"usage_message": "message to send",
+			"usage_list": "lists the commands the viewer can use"
+		},
+		"form": {
+			"message": "Answer",
+			"command": "@:triggers.actions.chat.param_cmd",
+			"automatic": "Send automatically",
+			"aliases": "@:triggers.actions.chat.param_cmd_alias",
+			"allowed_users": "@:triggers.actions.chat.allowed_users",
+			"interval": "Automatically send every (minutes)",
+			"min_messages": "Automatically send if at least {VALUE} chat message was received|Automatically send if at least {VALUE} chat messages were received",
+			"conflict": "\"{CMD}\" is already used by another command",
+			"updated_by": "Last edited from chat by {USER} on {DATE}"
+		},
+		"chat": {
+			"usage": "{'@'}{USER} usage: {CMD} add !name message / {CMD} edit !name message / {CMD} remove !name / {CMD} list",
+			"forbidden_slash": "{'@'}{USER} messages can't start with a /command, except /me and /announce",
+			"too_long": "{'@'}{USER} message is too long ({MAX} characters max)",
+			"conflict": "{'@'}{USER} command {CMD} already exists",
+			"limit": "{'@'}{USER} maximum number of {MAX} commands reached",
+			"added": "{'@'}{USER} command {CMD} added",
+			"edited": "{'@'}{USER} command {CMD} updated",
+			"removed": "{'@'}{USER} command {CMD} removed",
+			"not_found": "{'@'}{USER} command {CMD} not found",
+			"list_prefix": "Commands:",
+			"list_empty": "{'@'}{USER} no command available"
+		},
+		"feed": {
+			"added": "{USER} added command {CMD}",
+			"edited": "{USER} edited command {CMD}",
+			"removed": "{USER} removed command {CMD}",
+			"undoBt": "Undo",
+			"restored": "Restored"
+		}
+	}
+}

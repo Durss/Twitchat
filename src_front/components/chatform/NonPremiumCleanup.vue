@@ -92,6 +92,49 @@
 				</ToggleBlock>
 
 				<ToggleBlock
+					:icons="['chatCommand']"
+					:title="t('params.categories.chatcommands')"
+					:alert="!chatCommandsOK"
+					:open="!chatCommandsOK"
+					v-if="storeChatCommands.entryList.length > 0"
+				>
+					<template #right_actions>
+						<Icon :name="chatCommandsOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{ storeChatCommands.entryList.filter((v) => v.enabled).length }}/{{
+								config.MAX_CHAT_COMMANDS
+							}}</strong
+						>
+					</template>
+					<div class="itemList">
+						<div
+							class="rowItem"
+							v-for="item in storeChatCommands.entryList"
+							@click="toggleChatCommand(item)"
+						>
+							<span class="label">
+								<Icon
+									v-if="!item.command.enabled && !item.schedule.enabled"
+									name="question"
+								/>
+								<Icon v-if="item.command.enabled" name="chatCommand" />
+								<Icon v-if="item.schedule.enabled" name="timer" />{{
+									item.title ||
+									(item.command.enabled && item.command.name) ||
+									item.message
+								}}</span
+							>
+							<div class="toggle">
+								<ToggleButton
+									v-model="item.enabled"
+									@change="toggleChatCommand()"
+								/>
+							</div>
+						</div>
+					</div>
+				</ToggleBlock>
+
+				<ToggleBlock
 					:icons="['polygon']"
 					:title="t('params.categories.clickableareas')"
 					:alert="!heatOK"
@@ -484,6 +527,7 @@
 
 <script setup lang="ts">
 import { useConfirm } from "@/composables/useConfirm";
+import { storeChatCommands as useStoreChatCommands } from "@/store/chat_commands/storeChatCommands";
 import { storeAnimatedText as useStoreAnimatedText } from "@/store/animated_text/storeAnimatedText";
 import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
 import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
@@ -537,6 +581,7 @@ const storeTimer = useStoreTimer();
 const storeAnimatedText = useStoreAnimatedText();
 const storeCustomTrain = useStoreCustomTrain();
 const storeQuiz = useStoreQuiz();
+const storeChatCommands = useStoreChatCommands();
 
 const dimmer = useTemplateRef<HTMLElement>("dimmer");
 const holder = useTemplateRef<HTMLElement>("holder");
@@ -615,6 +660,9 @@ const customTrainOK = computed<boolean>(() => {
 const quizOK = computed<boolean>(() => {
 	return storeQuiz.quizList.filter((v) => v.enabled).length <= config.MAX_QUIZ;
 });
+const chatCommandsOK = computed<boolean>(() => {
+	return storeChatCommands.entryList.filter((v) => v.enabled).length <= config.MAX_CHAT_COMMANDS;
+});
 const allOK = computed<boolean>(() => {
 	return (
 		triggersOK.value &&
@@ -630,7 +678,8 @@ const allOK = computed<boolean>(() => {
 		timersOK.value &&
 		animatedTextsOK.value &&
 		customTrainOK.value &&
-		quizOK.value
+		quizOK.value &&
+		chatCommandsOK.value
 	);
 });
 
@@ -840,6 +889,11 @@ function toggleValue(item?: TwitchatDataTypes.ValueData): void {
 	storeValues.saveValues();
 }
 
+function toggleChatCommand(item?: TwitchatDataTypes.ChatCommandData): void {
+	if (item) item.enabled = !item.enabled;
+	storeChatCommands.saveData();
+}
+
 function toggleHeat(item?: HeatScreen): void {
 	if (item) item.enabled = !item.enabled;
 	storeHeat.saveScreens();
@@ -972,11 +1026,9 @@ function onToggleTrigger(): void {
 				padding: 0;
 				margin-left: 0.5em;
 				.icon {
-					height: 1.5em;
-					width: 1.5em;
-					padding: 0.25em;
+					height: 0.9em;
+					max-width: 1em;
 					object-fit: fill;
-					margin-right: 0.5em;
 				}
 
 				.username {

@@ -103,6 +103,7 @@
 <script setup lang="ts">
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import TTButton from "@/components/TTButton.vue";
+import { storeChatCommands as useStoreChatCommands } from "@/store/chat_commands/storeChatCommands";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import { type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -119,6 +120,7 @@ const props = defineProps<{
 }>();
 
 const storeTriggers = useStoreTriggers();
+const storeChatCommands = useStoreChatCommands();
 
 const slashCmdAlert = ref(false);
 const cmdNameConflict = ref(false);
@@ -194,7 +196,7 @@ function onUpdateCommand(): void {
 		.replace(/\s+/g, "");
 
 	//Make sure no other chat command has the same name
-	const triggers = storeTriggers.triggerList;
+	const triggers = storeTriggers.triggerList.concat(storeChatCommands.generatedTriggers);
 	let aliases: string[] = [];
 	if (props.triggerData.chatCommandAliases) {
 		for (let i = 0; i < props.triggerData.chatCommandAliases.length; i++) {
@@ -222,7 +224,7 @@ function onUpdateCommand(): void {
 			//Create an array with main command and aliases concatenated
 			let cmdList = trigger.chatCommandAliases?.concat() ?? [];
 			if (trigger.chatCommand) cmdList.push(trigger.chatCommand!);
-			cmdList.map((v) => v.toLowerCase());
+			cmdList = cmdList.map((v) => v.toLowerCase());
 
 			//Check if trigger contains the main command of the current trigger
 			if (cmdList.findIndex((v) => v === mainCmd) > -1) {

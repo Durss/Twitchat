@@ -16,6 +16,7 @@ import DOMPurify from "isomorphic-dompurify";
 import { ref } from "vue";
 import { PREFIX_SPACER, SUFFIX_SPACER } from "@/store/stream/storeStream";
 import ApiHelper from "../ApiHelper";
+import { toast } from "../toast/toast";
 
 /**
  * Created : 19/01/2021
@@ -2087,6 +2088,15 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
 			return true;
+		} else if (res.status == 403) {
+			const sendingUser =
+				sendAsBot && StoreProxy.twitchBot.connected
+					? StoreProxy.twitchBot.userInfos?.login
+					: StoreProxy.auth.twitch.user.login;
+			toast(StoreProxy.i18n.t("error.announce_send_fail", { ACCOUNT: sendingUser }), {
+				type: "error",
+			});
+			return false;
 		} else if (res.status == 429) {
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
@@ -3348,13 +3358,49 @@ export default class TwitchUtils {
 			});
 			if (res.status == 200 || res.status == 204) {
 				message = message.substring(maxLength);
+				const resJson = (await res.json()) as {
+					data: {
+						message_id: string;
+						is_sent: boolean;
+						drop_reason?: {
+							code:
+								| "followers_only_mode"
+								| "emote_only_mode"
+								| "slow_mode"
+								| "msg_duplicate"
+								| "subs_only_mode"
+								| "automod_held"
+								| AutocompletableString;
+							message: string;
+						};
+					}[];
+				};
+				let data = resJson.data?.[0];
+				let errorCode = data?.drop_reason?.code;
+				console.log("Sent?", data);
+				if (data && !data.is_sent && errorCode !== "automod_held") {
+					if (!StoreProxy.i18n.te("error.message_send_fail_restrictions." + errorCode)) {
+						errorCode = "unknown";
+					}
+					const sendingUser =
+						sendAsBot && StoreProxy.twitchBot.connected
+							? StoreProxy.twitchBot.userInfos?.login
+							: StoreProxy.auth.twitch.user.login;
+					toast(
+						StoreProxy.i18n.t("error.message_send_fail", {
+							REASON: StoreProxy.i18n.t(
+								"error.message_send_fail_restrictions." + errorCode,
+								{ ACCOUNT: sendingUser },
+							),
+						}),
+						{ type: "error" },
+					);
+				} else;
 				if (pin) {
 					void this.getPinnedMessage(channelID);
 				}
 				continue;
-			}
-
-			if (res.status == 429) {
+			} else if (res.status == 429) {
 				await this.onRateLimit(res.headers);
 				return this.sendMessage(channelID, message, replyTo, sendAsBot);
 			}

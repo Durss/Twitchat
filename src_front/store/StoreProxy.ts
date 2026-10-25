@@ -184,6 +184,11 @@ export default class StoreProxy {
 		IMeldStudioGetters,
 		IMeldStudioActions
 	>;
+	public static chatCommands: StoreInstance<
+		IChatCommandsState,
+		IChatCommandsGetters,
+		IChatCommandsActions
+	>;
 	public static i18n: Composer<{}, {}, {}, string, never, string>;
 	public static router: Router;
 	public static asset: (path: string) => string;
@@ -4813,4 +4818,75 @@ export interface IMeldStudioActions {
 	 * Saves current data to server
 	 */
 	saveConfigs(): void;
+}
+
+export interface IChatCommandsState {
+	/**
+	 * Chat commands/scheduled list
+	 */
+	entryList: TwitchatDataTypes.ChatCommandData[];
+	/**
+	 * latest 20 deleted entries so we can restore them
+	 */
+	trash: TwitchatDataTypes.ChatCommandData[];
+	/**
+	 * Global chat command params
+	 */
+	params: TwitchatDataTypes.ChatCommandsParams;
+	/**
+	 * Triggers generated from the entries
+	 */
+	generatedTriggers: TriggerData[];
+}
+
+export interface IChatCommandsGetters {}
+
+export interface IChatCommandsActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData(): void;
+	/**
+	 * Creates a new entry with default values (not added to the list)
+	 */
+	createEntry(): TwitchatDataTypes.ChatCommandData;
+	/**
+	 * Adds an entry
+	 * Returns false if limit is reached
+	 * @param entry
+	 */
+	addEntry(entry: TwitchatDataTypes.ChatCommandData): boolean;
+	/**
+	 * Deletes an entry
+	 * @param id
+	 * @param keepForUndo keeps the entry so it can be restored later
+	 */
+	deleteEntry(id: string, keepForUndo?: boolean): void;
+	/**
+	 * Restores an entry previously deleted
+	 * Returns false if restoration failed
+	 * @param id
+	 */
+	restoreEntry(id: string): boolean;
+	/**
+	 * Returns the first command conflicting with the given commands, if any
+	 * @param commands command and aliases to check
+	 * @param ignoreEntryId entry to ignore from the check
+	 * @param ignoreManageCommands ignore chat management commands from the check
+	 */
+	getConflict(
+		commands: string[],
+		ignoreEntryId?: string,
+		ignoreManageCommands?: boolean,
+	): string | null;
+	/**
+	 * Handles chat commands management from chat
+	 * @param message
+	 * @param cmd
+	 */
+	handleChatCommand(message: TwitchatDataTypes.TranslatableMessage, cmd: string): Promise<void>;
+	/**
+	 * Saves data and refreshes generated triggers
+	 */
+	saveData(): void;
 }

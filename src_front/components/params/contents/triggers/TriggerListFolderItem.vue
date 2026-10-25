@@ -38,6 +38,7 @@
 				"
 				:titleDefault="'folder'"
 				:disabled="!folder.enabled || props.parentDisabled === true"
+				:autoOpenOnDragover="true"
 				@dragstart="startDrag(folder, $event)"
 				@drop="onDrop($event, folder)"
 				@dragenter="onDragEnter($event, folder)"

@@ -3037,6 +3037,9 @@ export const storeChat = defineStore("chat", {
 
 					//Handle quiz answers
 					void sQuiz.handleChatAnswer(typedMessage);
+
+					//Handle simple chat commands management
+					void StoreProxy.chatCommands.handleChatCommand(typedMessage, cmd);
 				}
 
 				if (logTimings) console.log("3", message.id, Date.now() - s);

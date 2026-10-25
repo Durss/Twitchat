@@ -70,6 +70,7 @@ import { vTooltip } from "./directives/tooltip";
 import { storeAnimatedText } from "./store/animated_text/storeAnimatedText";
 import { storeAPI } from "./store/api/storeAPI";
 import { storeBluesky } from "./store/bluesky/storeBluesky";
+import { storeChatCommands } from "./store/chat_commands/storeChatCommands";
 import { storeChatPoll } from "./store/chat_poll/storeChatPoll";
 import { storeCommon } from "./store/common/storeCommon";
 import { storeCustomTrain } from "./store/customtrain/storeCustomTrain";
@@ -314,6 +315,7 @@ function buildApp() {
 	StoreProxy.default.api = storeAPI();
 	StoreProxy.default.bluesky = storeBluesky();
 	StoreProxy.default.meldStudio = storeMeldStudio();
+	StoreProxy.default.chatCommands = storeChatCommands();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach((k) => {

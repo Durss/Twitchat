@@ -176,6 +176,7 @@ export namespace TwitchatDataTypes {
 		PREMIUM: "premium",
 		TIMERS: "timers",
 		EXPORTER: "exporter",
+		CHAT_COMMANDS: "chatCommands",
 	} as const;
 	export type ParameterPagesStringType = (typeof ParameterPages)[keyof typeof ParameterPages];
 
@@ -1781,6 +1782,96 @@ export namespace TwitchatDataTypes {
 		 * Date in milliseconds a snooze will be unlocked
 		 */
 		nextSnooze_at: number;
+	}
+
+	/**
+	 * Simple chat command and/or scheduled message.
+	 * Converted to hidden CHAT_COMMAND/SCHEDULE triggers at runtime
+	 */
+	export interface ChatCommandData {
+		id: string;
+		/**
+		 * Is the entry enabled
+		 */
+		enabled: boolean;
+		/**
+		 * User defined title. Falls back to command name or message if empty
+		 */
+		title?: string;
+		/**
+		 * Message sent on chat
+		 */
+		message: string;
+		/**
+		 * Chat command params
+		 */
+		command: {
+			/**
+			 * Is the chat command enabled
+			 */
+			enabled: boolean;
+			/**
+			 * Command name (ex: "!socials")
+			 */
+			name: string;
+			/**
+			 * Command aliases
+			 */
+			aliases: string[];
+			/**
+			 * Who's allowed to use the command
+			 */
+			permissions: PermissionsData;
+			/**
+			 * Cooldowns in seconds
+			 */
+			cooldown: {
+				global: number;
+				user: number;
+				alert: boolean;
+			};
+			/**
+			 * Should the command be usable from other channels (premium only)
+			 */
+			remoteChans: boolean;
+		};
+		/**
+		 * Schedule params
+		 */
+		schedule: {
+			/**
+			 * Is the schedule enabled
+			 */
+			enabled: boolean;
+			/**
+			 * Interval in seconds
+			 */
+			repeatDuration: number;
+			/**
+			 * Minimum chat messages between two posts
+			 */
+			repeatMinMessages: number;
+		};
+		created_at: number;
+		updated_at: number;
+		/**
+		 * Login of the last user who edited the entry from chat
+		 */
+		updatedBy?: string;
+	}
+
+	/**
+	 * Simple chat commands global params
+	 */
+	export interface ChatCommandsParams {
+		/**
+		 * Allow managing commands from chat
+		 */
+		manageEnabled: boolean;
+		/**
+		 * Who's allowed to manage commands from chat
+		 */
+		managePermissions: PermissionsData;
 	}
 
 	/**
@@ -5181,6 +5272,7 @@ export namespace TwitchatDataTypes {
 		LOW_TRUST_TREATMENT: "low_trust_treatment",
 		YOUTUBE_JEWELS_GIFT: "youtube_jewels_gift",
 		SHARED_CHAT_SESSION: "shared_chat_session",
+		CHAT_COMMAND_UPDATE: "chat_command_update",
 		CUSTOM_TRAIN_SUMMARY: "custom_train_summary",
 		STREAMLOOTS_PURCHASE: "streamloots_purchase",
 		STREAMLOOTS_REACTION: "streamloots_reaction",
@@ -5314,6 +5406,7 @@ export namespace TwitchatDataTypes {
 		goxlr_sound_input: false,
 		youtube_jewels_gift: true,
 		shared_chat_session: true,
+		chat_command_update: true,
 		private_mod_message: true,
 		raffle_pick_winner: false,
 		low_trust_treatment: true,
@@ -5472,6 +5565,7 @@ export namespace TwitchatDataTypes {
 		| MessageAdBreakApproachingData
 		| MessageAdBreakCompleteData
 		| MessageCustomData
+		| MessageChatCommandUpdateData
 		| MessageQnaStartData
 		| MessageQnaStopData
 		| MessageQnaDeleteData
@@ -9124,6 +9218,38 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a user warning acknowledgement data
 	 */
+	/**
+	 * Represents a simple chat command added, edited or removed
+	 * from chat by a moderator
+	 */
+	export interface MessageChatCommandUpdateData extends AbstractTwitchatMessage {
+		type: "chat_command_update";
+		/**
+		 * User who made the change
+		 */
+		user: TwitchatUser;
+		/**
+		 * Change made to the command
+		 */
+		action: "add" | "edit" | "remove";
+		/**
+		 * Command name
+		 */
+		command: string;
+		/**
+		 * Command's message (removed message for "remove" action)
+		 */
+		message: string;
+		/**
+		 * ID of the chat command entry
+		 */
+		entryId: string;
+		/**
+		 * true if the removed command has been restored
+		 */
+		restored?: boolean;
+	}
+
 	export interface MessageWarnAcknowledgementData extends AbstractTwitchatMessage {
 		type: "warn_acknowledge";
 		/**

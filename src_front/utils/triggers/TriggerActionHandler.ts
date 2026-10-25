@@ -109,6 +109,8 @@ export default class TriggerActionHandler {
 	} = {};
 	private liveChannelCache: { [key: string]: TwitchatDataTypes.StreamInfo } | null = null;
 	private triggerType2Triggers: { [key: string]: TriggerData[] } = {};
+	private userTriggers: TriggerData[] = [];
+	private extraTriggers: TriggerData[] = [];
 	private HASHMAP_KEY_SPLITTER: string = TRIGGER_EVENT_KEY_SPLITTER;
 
 	constructor() {}
@@ -129,7 +131,17 @@ export default class TriggerActionHandler {
 	 ******************/
 	public populate(triggers: TriggerData[]): void {
 		this.cleanupTriggers(triggers);
-		this.buildHashmap(triggers);
+		this.userTriggers = triggers;
+		this.buildHashmap(this.userTriggers.concat(this.extraTriggers));
+	}
+
+	/**
+	 * Populates triggers that are not managed by the triggers store
+	 * (ex: simple chat commands)
+	 */
+	public populateExtra(triggers: TriggerData[]): void {
+		this.extraTriggers = triggers;
+		this.buildHashmap(this.userTriggers.concat(this.extraTriggers));
 	}
 
 	/**
@@ -2091,7 +2103,8 @@ export default class TriggerActionHandler {
 	private initialize(): void {
 		registerOptionalPlaceholderModifiers();
 		void this.checkLiveFollowings(false);
-		this.buildHashmap(StoreProxy.triggers.triggerList);
+		this.userTriggers = StoreProxy.triggers.triggerList;
+		this.buildHashmap(this.userTriggers.concat(this.extraTriggers));
 	}
 
 	/**
@@ -8795,6 +8808,20 @@ export default class TriggerActionHandler {
 						 */
 					} else if (pointer === "__command__") {
 						value = subEvent || "-none-";
+						cleanSubevent = false;
+
+						/**
+						 * If the placeholder requests for the command's target.
+						 * First word after the command, falls back to the message's author
+						 */
+					} else if (pointer === "__target__") {
+						if (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							let text = (message.message || "").trim();
+							if (subEvent_reg) text = text.replace(subEvent_reg, "").trim();
+							value =
+								text.split(/\s+/)[0]!.replace(/^@/, "") ||
+								message.user.displayNameOriginal;
+						}
 						cleanSubevent = false;
 
 						/**

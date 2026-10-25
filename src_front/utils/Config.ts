@@ -193,6 +193,14 @@ export default class Config {
 	 */
 	public MAX_TRIGGER_ACTIONS = 100;
 	/**
+	 * Maxium number of simple chat commands that can be created without being premium
+	 */
+	public MAX_CHAT_COMMANDS = 20;
+	/**
+	 * Maxium number of simple chat commands that can be created when premium
+	 */
+	public MAX_CHAT_COMMANDS_PREMIUM = 500;
+	/**
 	 * Maxium number of triggers that can be created without being premium
 	 */
 	public MAX_COUNTERS = 20;

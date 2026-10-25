@@ -1130,6 +1130,7 @@
 			"obs_scene_name": "Name of the new OBS scene",
 			"obs_scene_name_previous": "Name of the previous OBS scene",
 			"command": "Command name",
+			"target": "First word after the command (without {'@'}), or the user's name if none",
 			"ulule_campaign_url": "Campaign URL",
 			"ulule_campaign_name": "Campaign name",
 			"ulule_campaign_name_example": "My awesome project",

@@ -123,6 +123,7 @@ export default class DataStoreCommon {
 	public static KOFI_CONFIGS: string = "kofiConfigs";
 	public static TWITCH_BOT: string = "twitchBot";
 	public static TIMERS_CONFIGS: string = "timersConfigs";
+	public static CHAT_COMMANDS_CONFIGS: string = "chatCommandsConfigs";
 	public static ANIMATED_TEXT_CONFIGS: string = "animatedTextConfigs";
 	public static CUSTOM_TRAIN_CONFIGS: string = "customTrainConfigs";
 	public static CENSOR_VIEWER_COUNT: string = "censorViewerCount";

@@ -37,6 +37,53 @@ const UserDataSchema = {
 				users: { type: "string", maxLength: 1000000 }, //Keep it a little, remove it once most of the users have migrated their data
 			},
 		},
+		chatCommand: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				id: { type: "string", maxLength: 50 },
+				enabled: { type: "boolean" },
+				title: { type: "string", maxLength: 100 },
+				message: { type: "string", maxLength: 500 },
+				command: {
+					type: "object",
+					additionalProperties: false,
+					properties: {
+						enabled: { type: "boolean" },
+						name: { type: "string", maxLength: 100 },
+						aliases: {
+							type: "array",
+							minItems: 0,
+							maxItems: 10,
+							items: { type: "string", maxLength: 50 },
+						},
+						permissions: { $ref: "defs.json#/definitions/permissions" },
+						cooldown: {
+							type: "object",
+							additionalProperties: false,
+							properties: {
+								global: { type: "number", minimum: 0, maximum: 43200 },
+								user: { type: "number", minimum: 0, maximum: 43200 },
+								alert: { type: "boolean" },
+							},
+						},
+						remoteChans: { type: "boolean" },
+					},
+				},
+				schedule: {
+					type: "object",
+					additionalProperties: false,
+					properties: {
+						enabled: { type: "boolean" },
+						repeatDuration: { type: "number", minimum: 0, maximum: 31536000 },
+						repeatMinMessages: { type: "number", minimum: 0, maximum: 1000000 },
+					},
+				},
+				created_at: { type: "number" },
+				updated_at: { type: "number" },
+				updatedBy: { type: "string", maxLength: 100 },
+			},
+		},
 		conditionGroup: {
 			type: "object",
 			additionalProperties: false,
@@ -3012,6 +3059,33 @@ const UserDataSchema = {
 			additionalProperties: false,
 			properties: {
 				defaultModel: { type: "string", maxLength: 100 },
+			},
+		},
+
+		chatCommandsConfigs: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				entryList: {
+					type: "array",
+					minItems: 0,
+					maxItems: 500,
+					items: { $ref: "defs.json#/definitions/chatCommand" },
+				},
+				trash: {
+					type: "array",
+					minItems: 0,
+					maxItems: 20,
+					items: { $ref: "defs.json#/definitions/chatCommand" },
+				},
+				params: {
+					type: "object",
+					additionalProperties: false,
+					properties: {
+						manageEnabled: { type: "boolean" },
+						managePermissions: { $ref: "defs.json#/definitions/permissions" },
+					},
+				},
 			},
 		},
 

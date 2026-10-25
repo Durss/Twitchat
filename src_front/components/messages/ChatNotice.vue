@@ -2,8 +2,8 @@
 	<div :class="classes" ref="rootEl">
 		<Icon :name="icon" :theme="theme" />
 		<div class="holder">
-			<span class="message" v-html="message"></span>
-			<div class="temporary" v-if="isTemporaryState">
+			<span class="message messageWithTime" v-html="message"></span>
+			<div class="temporary messageWithTime" v-if="isTemporaryState">
 				<Icon name="timer" />{{
 					t("chat.notice_temporary", { DURATION: Math.ceil(tempDuration / 60_000) })
 				}}

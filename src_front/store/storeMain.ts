@@ -105,7 +105,10 @@ export const storeMain = defineStore("main", {
 					Config.instance.MAX_ANIMATED_TEXT ||
 				StoreProxy.customTrain.customTrainList.filter((v) => v.enabled).length >
 					Config.instance.MAX_CUSTOM_TRAIN ||
-				StoreProxy.quiz.quizList.filter((v) => v.enabled).length > Config.instance.MAX_QUIZ
+				StoreProxy.quiz.quizList.filter((v) => v.enabled).length >
+					Config.instance.MAX_QUIZ ||
+				StoreProxy.chatCommands.entryList.filter((v) => v.enabled).length >
+					Config.instance.MAX_CHAT_COMMANDS
 			);
 		},
 	} satisfies StoreGetters<IMainGetters, IMainState>,
@@ -865,6 +868,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.streamSocket.populateData();
 			StoreProxy.animatedText.populateData();
 			void StoreProxy.mixitup.populateData();
+			StoreProxy.chatCommands.populateData();
 			StoreProxy.endingCredits.populateData();
 			StoreProxy.donationGoals.populateData();
 			StoreProxy.streamelements.populateData();

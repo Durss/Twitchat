@@ -100,12 +100,7 @@
 
 <script setup lang="ts">
 import DataStore from "@/store/DataStore";
-import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import OBSWebsocket from "@/utils/OBSWebsocket";
-import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import TTSUtils from "@/utils/TTSUtils";
-import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
 import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -206,39 +201,10 @@ function eraseData(): void {
 		.confirm(t("account.erase_confirm_title"), t("account.erase_confirm_description"))
 		.then(() => {
 			DataStore.clear(true);
-			StoreProxy.obs.$reset();
-			StoreProxy.qna.$reset();
-			StoreProxy.tts.$reset();
-			StoreProxy.poll.$reset();
-			StoreProxy.chat.$reset();
-			StoreProxy.heat.$reset();
-			StoreProxy.kofi.$reset();
-			StoreProxy.quiz.$reset();
-			StoreProxy.voice.$reset();
-			StoreProxy.music.$reset();
-			StoreProxy.lumia.$reset();
-			StoreProxy.users.$reset();
-			StoreProxy.raffle.$reset();
-			StoreProxy.labels.$reset();
-			StoreProxy.stream.$reset();
-			StoreProxy.params.$reset();
-			StoreProxy.values.$reset();
-			StoreProxy.tipeee.$reset();
-			StoreProxy.discord.$reset();
-			StoreProxy.automod.$reset();
-			StoreProxy.triggers.$reset();
-			StoreProxy.counters.$reset();
-			StoreProxy.bingoGrid.$reset();
-			StoreProxy.emergency.$reset();
-			StoreProxy.streamlabs.$reset();
-			StoreProxy.prediction.$reset();
-			StoreProxy.donationGoals.$reset();
-			StoreProxy.streamelements.$reset();
-			OBSWebsocket.instance.disconnect();
-			VoicemodWebSocket.instance.disconnect();
-			TTSUtils.instance.enabled = false;
-			TriggerActionHandler.instance.populate([]);
 			DataStore.set(DataStore.SYNC_DATA_TO_SERVER, false);
+			//Restart from a clean state so that no store, connection or timer
+			//keeps running with the erased data
+			document.location.reload();
 		})
 		.catch((error) => {
 			//ignore

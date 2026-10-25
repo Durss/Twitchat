@@ -2934,6 +2934,14 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 			example: "!so",
 		},
+		{
+			tag: "TARGET",
+			descKey: "triggers.placeholders.target",
+			pointer: "__target__",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss",
+		},
 	];
 
 	map[TriggerTypes.PIN_MESSAGE] = [

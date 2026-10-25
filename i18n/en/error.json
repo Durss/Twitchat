@@ -45,6 +45,17 @@
 			"token_refresh": "[SPOTIFY] token refresh failed"
 		},
 		"message_send": "Woops... something went wrong when sending the message :(",
+		"announce_send_fail": "Announce couldn't be sent.\nAccount \"{ACCOUNT}\" must be a moderator.",
+		"message_send_fail": "Message couldn't be sent.\n{REASON}",
+		"message_send_fail_restrictions": {
+			"followers_only_mode": "Account \"{ACCOUNT}\" must be a follower or moderator",
+			"emote_only_mode": "Account \"{ACCOUNT}\" must be a moderator",
+			"slow_mode": "Account \"{ACCOUNT}\" must be a moderator",
+			"msg_duplicate": "Account \"{ACCOUNT}\" must be a moderator",
+			"subs_only_mode": "Account \"{ACCOUNT}\" must be a subscriber or moderator",
+			"automod_held": "Account \"{ACCOUNT}\" must be a moderator",
+			"unknown": "Account \"{ACCOUNT}\" may be missing permissions"
+		},
 		"prediction_outcome": "An error occurred while chosing prediction's outcome",
 		"prediction_delete": "An error occurred while deleting the prediction",
 		"prediction_error": "Unable to create prediction: {MESSAGE}",

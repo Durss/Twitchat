@@ -45,6 +45,17 @@
 			"token_refresh": "[SPOTIFY] Mise à jour du token échouée"
 		},
 		"message_send": "Une erreur est survenue lors de l'envoi du message :(",
+		"announce_send_fail": "L'annonce n'a pu être envoyée.\nLe compte \"{ACCOUNT}\" doit être modérateurice.",
+		"message_send_fail": "Le message n'a pas pu être envoyé.\n{REASON}",
+		"message_send_fail_restrictions": {
+			"followers_only_mode": "Le compte \"{ACCOUNT}\" doit être follower ou modérateurice",
+			"emote_only_mode": "Le compte \"{ACCOUNT}\" doit être modérateurice",
+			"slow_mode": "Le compte \"{ACCOUNT}\" doit être modérateurice",
+			"msg_duplicate": "Le compte \"{ACCOUNT}\" doit être modérateurice",
+			"subs_only_mode": "Le compte \"{ACCOUNT}\" doit être abonné·e ou modérateurice",
+			"automod_held": "Le compte \"{ACCOUNT}\" doit être modérateurice",
+			"unkown": "Le compte \"{ACCOUNT}\" manque probablement de permissions"
+		},
 		"prediction_outcome": "Une erreur est survenue lors de la sélection de l'entrée gagnante",
 		"prediction_delete": "Une erreur est survenue lors de la suppression de la prédiction",
 		"prediction_error": "Unable to create prediction: {MESSAGE}",

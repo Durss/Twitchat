@@ -49,6 +49,10 @@ export default class SchedulerHelper {
 				this.scheduleTrigger(t);
 			}
 		}
+		//Schedule simple chat commands timers
+		for (const t of StoreProxy.chatCommands.generatedTriggers) {
+			if (t.type == TriggerTypes.SCHEDULE) this.scheduleTrigger(t);
+		}
 	}
 
 	/**
@@ -71,6 +75,19 @@ export default class SchedulerHelper {
 			if (element.trigger.id == trigger.id) {
 				this._pendingSchedules.splice(i, 1);
 				i--;
+			}
+		}
+	}
+
+	/**
+	 * Replaces the trigger instance of a pending schedule without
+	 * resetting its next execution date or its messages count
+	 * @param trigger
+	 */
+	public replaceScheduledTrigger(trigger: TriggerData): void {
+		for (const element of this._pendingSchedules) {
+			if (element.trigger.id == trigger.id) {
+				element.trigger = trigger;
 			}
 		}
 	}

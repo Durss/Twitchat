@@ -1078,7 +1078,8 @@ function computeShouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolea
 		case TwitchatDataTypes.TwitchatMessageType.CONNECT:
 		case TwitchatDataTypes.TwitchatMessageType.DISCONNECT:
 		case TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY:
-		case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
+		case TwitchatDataTypes.TwitchatMessageType.NOTICE:
+		case TwitchatDataTypes.TwitchatMessageType.CHAT_COMMAND_UPDATE: {
 			return props.config.filters.notice === true;
 		}
 

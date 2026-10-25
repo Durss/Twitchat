@@ -245,6 +245,10 @@
 				<ParamsAbout v-if="content == ParameterPages.ABOUT" ref="currentContent" />
 				<ParamsOverlays v-if="content == ParameterPages.OVERLAYS" ref="currentContent" />
 				<ParamsTriggers v-if="content == ParameterPages.TRIGGERS" ref="currentContent" />
+				<ParamsChatCommands
+					v-if="content == ParameterPages.CHAT_COMMANDS"
+					ref="currentContent"
+				/>
 				<ParamsVoiceBot v-if="content == ParameterPages.VOICE" ref="currentContent" />
 				<ParamsAutomod v-if="content == ParameterPages.AUTOMOD" ref="currentContent" />
 				<ParamsCounters v-if="content == ParameterPages.COUNTERS" ref="currentContent" />
@@ -285,6 +289,7 @@ import DataStore from "@/store/DataStore";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
 import { gsap } from "gsap/gsap-core";
 import {
 	computed,
@@ -308,6 +313,7 @@ import ParamsAbout from "./contents/ParamsAbout.vue";
 import ParamsAccount from "./contents/ParamsAccount.vue";
 import ParamsAlert from "./contents/ParamsAlert.vue";
 import ParamsAutomod from "./contents/ParamsAutomod.vue";
+import ParamsChatCommands from "./contents/ParamsChatCommands.vue";
 import ParamsConnections from "./contents/ParamsConnections.vue";
 import ParamsCounters from "./contents/ParamsCounters.vue";
 import ParamsDonate from "./contents/ParamsDonate.vue";
@@ -414,6 +420,13 @@ const menuEntries: MenuEntry[] = [
 		page: TwitchatDataTypes.ParameterPages.TRIGGERS,
 		labelKey: "params.categories.triggers",
 		newflag: { date: 0, id: "paramsparams_triggers_3" },
+	},
+	{
+		pinned: true,
+		icon: "chatCommand",
+		page: TwitchatDataTypes.ParameterPages.CHAT_COMMANDS,
+		labelKey: "params.categories.chatcommands",
+		newflag: { date: Config.instance.NEW_FLAGS_DATE_V17, id: "params_chatcommands" },
 	},
 	{
 		pinned: false,

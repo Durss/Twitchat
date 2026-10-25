@@ -130,6 +130,7 @@
 			"discord": "Discord",
 			"premium": "Premium",
 			"timers": "Minuteurs",
+			"chatcommands": "Commandes de chat",
 			"exporter": "Export params"
 		},
 		"botMessages": {
