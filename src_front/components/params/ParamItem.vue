@@ -8,7 +8,7 @@
 		@focusin="onChatPreviewFocusIn()"
 		@click="clickItem($event)"
 	>
-		<div class="content">
+		<div class="content" :inert="premiumLocked">
 			<Icon :theme="paramData.iconTheme" :name="icon" v-if="icon" class="paramIcon" />
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="paramIcon" />
 
@@ -644,6 +644,7 @@
 		<PlaceholderSelector
 			class="placeholders"
 			v-if="!placeholdersAsPopout && hasPlaceholders"
+			:inert="premiumLocked"
 			:modelValue="placeholderModelValue"
 			:placeholders="paramData.placeholderList!"
 			:secondary="secondary"
@@ -678,6 +679,7 @@
 			:alert="alert || errorLocal"
 			noBackground
 			noPremiumLock
+			:inert="premiumLocked"
 			v-model="c.value as string | number | boolean | string[] | null | undefined"
 			:autoFade="autoFade"
 			:childLevel="childLevel + 1"
@@ -685,7 +687,7 @@
 		/>
 
 		<transition @enter="onShowItem" @leave="onHideItem">
-			<div class="child" ref="paramChild_slot" v-if="showChildren">
+			<div class="child" ref="paramChild_slot" v-if="showChildren" :inert="premiumLocked">
 				<slot></slot>
 				<slot name="child"></slot>
 			</div>
