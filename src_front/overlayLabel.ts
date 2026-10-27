@@ -178,8 +178,8 @@ function getUUID(): string {
  */
 function requestInitialInfo(): void {
 	if (parameters) return; //Already initialized, no need to ask again
-	broadcast("GET_LABEL_OVERLAY_PLACEHOLDERS");
-	broadcast("GET_LABEL_OVERLAY_CONFIGS", { id: urlParams.get("twitchat_overlay_id")! });
+	void broadcast("GET_LABEL_OVERLAY_PLACEHOLDERS");
+	void broadcast("GET_LABEL_OVERLAY_CONFIGS", { id: urlParams.get("twitchat_overlay_id")! });
 }
 
 /**
