@@ -1,0 +1,127 @@
+<template>
+	<div class="searchform">
+		<div class="search">
+			<Icon name="loader" class="searchIcon" v-if="searchDebouncing" />
+			<Icon name="search" class="searchIcon" v-else />
+			<input
+				type="text"
+				:placeholder="props.placeholder ?? t('global.search_placeholder')"
+				v-model="search"
+				v-autofocus="props.autoFocus"
+				@keydown.enter="emit('submit', search)"
+				@keydown.esc="(e) => onKeyUp(e)"
+			/>
+			<Icon name="cross" class="clearSearch" v-if="search" @click="search = ''" />
+		</div>
+		<slot v-if="hasSearch || searchDebouncing" />
+	</div>
+</template>
+<script setup lang="ts">
+import Icon from "@/components/Icon.vue";
+import { ref, watch, onBeforeUnmount } from "vue";
+import { useI18n } from "vue-i18n";
+
+const emit = defineEmits<{
+	(e: "change", value: string): void;
+	(e: "update:modelValue", value: string): void;
+	(e: "submit", value: string): void;
+}>();
+
+const { t } = useI18n();
+
+const props = withDefaults(
+	defineProps<{
+		modelValue?: string;
+		debounceDelay?: number;
+		autoFocus?: boolean;
+		placeholder?: string;
+	}>(),
+	{
+		autoFocus: true,
+	},
+);
+
+const search = ref("");
+const debouncedSearch = ref("");
+const searchDebouncing = ref(false);
+const hasSearch = ref(false);
+let debounceTimeout = -1;
+
+function onKeyUp(e: KeyboardEvent) {
+	if (e.key === "Escape" && search.value) {
+		search.value = "";
+		e.preventDefault();
+		e.stopPropagation();
+	}
+}
+
+watch(
+	() => props.modelValue,
+	(newVal) => {
+		if (newVal !== search.value) {
+			search.value = newVal || "";
+		}
+	},
+	{ immediate: true },
+);
+
+watch(search, () => {
+	clearTimeout(debounceTimeout);
+	if (search.value.trim().length === 0) {
+		searchDebouncing.value = false;
+		debouncedSearch.value = "";
+		hasSearch.value = false;
+		emit("update:modelValue", "");
+		emit("change", "");
+		return;
+	}
+	const delay = props.debounceDelay ?? 300;
+	searchDebouncing.value = delay > 0;
+	debounceTimeout = window.setTimeout(() => {
+		searchDebouncing.value = false;
+		debouncedSearch.value = search.value;
+		hasSearch.value = true;
+		emit("update:modelValue", search.value);
+		emit("change", search.value);
+	}, delay);
+});
+
+onBeforeUnmount(() => {
+	clearTimeout(debounceTimeout);
+});
+</script>
+<style scoped lang="less">
+.searchform {
+	display: flex;
+	flex-direction: column;
+	color: var(--color-text);
+
+	.search {
+		display: flex;
+		align-items: center;
+		position: relative;
+		.searchIcon {
+			position: absolute;
+			left: 0.5em;
+			height: 1em;
+			opacity: 0.5;
+		}
+		input {
+			width: 100%;
+			padding: 0.25em;
+			padding-left: 2em;
+			padding-right: 2em;
+		}
+		.clearSearch {
+			position: absolute;
+			right: 0.5em;
+			height: 1em;
+			cursor: pointer;
+			opacity: 0.5;
+			&:hover {
+				opacity: 1;
+			}
+		}
+	}
+}
+</style>

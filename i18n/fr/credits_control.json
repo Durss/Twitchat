@@ -1,10 +1,10 @@
 {
 	"credits_control": {
 		"force_startBt": "Relancer",
-		"pauseBt":"Pause",
-		"stopBt":"Stop",
-		"nextBt":"Suivant",
-		"prevBt":"Précédent",
-		"speed":"Vitesse"
+		"pauseBt": "Pause",
+		"stopBt": "Stop",
+		"nextBt": "Suivant",
+		"prevBt": "Précédent",
+		"speed": "Vitesse"
 	}
 }

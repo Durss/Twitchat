@@ -1,32 +1,34 @@
 <template>
 	<div class="overlayparamscounter overlayParamsSection">
-		
-		<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD" target="_blank" class="youtubeTutorialBt">
+		<a
+			href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD"
+			target="_blank"
+			class="youtubeTutorialBt"
+		>
 			<Icon name="youtube" theme="light" />
-			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+			<span>{{ t("overlay.youtube_demo_tt") }}</span>
 			<Icon name="newtab" theme="light" />
 		</a>
-		
-		<template v-if="counters.length == 0">
-			<div class="header">{{ $t("overlay.counters.head_empty") }}</div>
-			<Button class="center" icon="add" @click="createCounter()">{{ $t('overlay.counters.createBt') }}</Button>
+
+		<template v-if="storeCounters.counterList.length == 0">
+			<div class="header">{{ t("overlay.counters.head_empty") }}</div>
+			<TTButton class="center" icon="add" @click="createCounter()">{{
+				t("overlay.counters.createBt")
+			}}</TTButton>
 			<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
-			<OverlayCounter class="padding counterExample" embed :staticCounterData="progressExample" />
+			<OverlayCounter
+				class="padding counterExample"
+				embed
+				:staticCounterData="progressExample"
+			/>
 		</template>
 
 		<template v-else>
-			<div class="header">{{ $t("overlay.counters.head") }}</div>
+			<div class="header">{{ t("overlay.counters.head") }}</div>
 
-			<div class="counterList">
-				<div class="card-item counter" v-for="c in counters" :key="c.id">
-					<div class="title">{{ c.name }}</div>
-					<OverlayInstaller type="counter" :id="c.id" :sourceSuffix="c.name" :queryParams="{cid:c.id}" :sourceTransform="getOverlayTransform(c)" />
-				</div>
-			</div>
-
-			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
-				<div class="cssHead">{{ $t("overlay.counters.css") }}</div>
-				<div class="cssCategory">{{$t('overlay.counters.css_example.simple')}}</div>
+			<ToggleBlock class="shrink" small :title="t('overlay.css_customization')" :open="false">
+				<div class="cssHead">{{ t("overlay.counters.css") }}</div>
+				<div class="cssCategory">{{ t("overlay.counters.css_example.simple") }}</div>
 				<ul class="cssStructure">
 					<li>#holder { ... }</li>
 					<li class="sublist">
@@ -41,8 +43,8 @@
 						</ul>
 					</li>
 				</ul>
-				
-				<div class="cssCategory">{{$t('overlay.counters.css_example.progress')}}</div>
+
+				<div class="cssCategory">{{ t("overlay.counters.css_example.progress") }}</div>
 				<ul class="cssStructure">
 					<li>#holder { ... }</li>
 					<li class="sublist">
@@ -64,8 +66,8 @@
 						</ul>
 					</li>
 				</ul>
-				
-				<div class="cssCategory">{{$t('overlay.counters.css_example.leaderboard')}}</div>
+
+				<div class="cssCategory">{{ t("overlay.counters.css_example.leaderboard") }}</div>
 				<ul class="cssStructure">
 					<li>#holder { ... }</li>
 					<li class="sublist">
@@ -82,88 +84,103 @@
 					</li>
 				</ul>
 			</ToggleBlock>
-		</template>
 
+			<div class="counterList">
+				<div class="card-item counter" v-for="c in storeCounters.counterList" :key="c.id">
+					<div class="title">{{ c.name }}</div>
+					<OverlayInstaller
+						type="counter"
+						:id="c.id"
+						:sourceSuffix="c.name"
+						:queryParams="{ cid: c.id }"
+						:sourceTransform="getOverlayTransform(c)"
+					/>
+					<div class="placement">
+						<div>{{ t("overlay.counters.alignment") }}</div>
+						<PlacementSelector
+							horizontalOnly
+							v-model="c.overlayAlignment!"
+							@change="
+								storeCounters.saveCounters();
+								storeCounters.broadcastCounterValue(c.id);
+							"
+						/>
+					</div>
+				</div>
+			</div>
+		</template>
 	</div>
 </template>
 
-<script lang="ts">
-import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import TTButton from '../../../TTButton.vue';
-import ToggleBlock from '../../../ToggleBlock.vue';
-import OverlayInstaller from './OverlayInstaller.vue';
-import type { SourceTransform } from '@/utils/OBSWebsocket';
+<script setup lang="ts">
+import Icon from "@/components/Icon.vue";
+import OverlayCounter from "@/components/overlays/OverlayCounter.vue";
+import PlacementSelector from "@/components/PlacementSelector.vue";
+import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { SourceTransform } from "@/utils/OBSWebsocket";
+import Utils from "@/utils/Utils";
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+import ToggleBlock from "../../../ToggleBlock.vue";
+import TTButton from "../../../TTButton.vue";
+import OverlayInstaller from "./OverlayInstaller.vue";
 
-@Component({
-	components:{
-		Button: TTButton,
-		ToggleBlock,
-		OverlayCounter,
-		OverlayInstaller,
-	},
-	emits:[]
-})
-class OverlayParamsCounter extends Vue {
-	
-	public counterExample:TwitchatDataTypes.CounterData = {
-		id:Utils.getUUID(),
-		placeholderKey:"",
-		loop:false,
-		perUser:false,
-		value:50,
-		name:"My awesome counter",
-		min:false,
-		max:false,
-	}
-	
-	public progressExample:TwitchatDataTypes.CounterData = {
-		id:Utils.getUUID(),
-		placeholderKey:"",
-		loop:false,
-		perUser:false,
-		value:50,
-		name:"My awesome counter",
-		min:0,
-		max:75,
-	}
-	
-	public get counters():TwitchatDataTypes.CounterData[] {
-		return this.$store.counters.counterList;
-	}
+const { t } = useI18n();
+const storeCounters = useStoreCounters();
+const storeParams = useStoreParams();
 
-	public getOverlayTransform(counter:TwitchatDataTypes.CounterData):Partial<SourceTransform> {
-		if(counter.perUser == true) {
-			return  {width: 600};
-		}else{
-			return  {width: 600, height:200};
-		}
-	}
+const counterExample = ref<TwitchatDataTypes.CounterData>({
+	id: Utils.getUUID(),
+	placeholderKey: "",
+	loop: false,
+	perUser: false,
+	value: 50,
+	name: "My awesome counter",
+	min: false,
+	max: false,
+});
 
-	public createCounter():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
-	}
+const progressExample = ref<TwitchatDataTypes.CounterData>({
+	id: Utils.getUUID(),
+	placeholderKey: "",
+	loop: false,
+	perUser: false,
+	value: 50,
+	name: "My awesome counter",
+	min: 0,
+	max: 75,
+});
 
+storeCounters.counterList.forEach((c) => {
+	if (!c.overlayAlignment) c.overlayAlignment = "l";
+});
+
+function getOverlayTransform(counter: TwitchatDataTypes.CounterData): Partial<SourceTransform> {
+	if (counter.perUser == true) {
+		return { width: 600 };
+	} else {
+		return { width: 600, height: 200 };
+	}
 }
-export default toNative(OverlayParamsCounter);
+
+function createCounter(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
+}
 </script>
 
 <style scoped lang="less">
-.overlayparamscounter{
+.overlayparamscounter {
 	.counterList {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
-		max-height: 400px;
-		overflow-y: auto;
 		.counter {
 			flex-shrink: 0;
-			gap: 1em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: row;
-			justify-content: space-between;
 			align-items: center;
 			flex-wrap: wrap;
 			.title {
@@ -171,10 +188,18 @@ export default toNative(OverlayParamsCounter);
 				flex-basis: 200px;
 			}
 
+			.placement {
+				margin: auto;
+				gap: 1em;
+				display: inline-flex;
+				flex-direction: row;
+				justify-content: space-around;
+				align-items: center;
+			}
 		}
 	}
 	.counterExample {
-		font-size: .75em;
+		font-size: 0.75em;
 		align-self: center;
 		color: var(--color-dark);
 		&.padding {
@@ -184,5 +209,4 @@ export default toNative(OverlayParamsCounter);
 		}
 	}
 }
-
 </style>

@@ -1,116 +1,197 @@
 <template>
-	<div :class="classes"
-	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-
-		<Icon name="timeout" class="icon" v-if="messageData.duration_s" />
+	<div
+		:class="classes"
+		@contextmenu="onContextMenu($event, props.messageData, rootEl!)"
+		ref="rootEl"
+	>
+		<Icon name="timeout" class="icon" v-if="props.messageData.duration_s" />
 		<Icon name="ban" class="icon" v-else theme="light" />
 
 		<div class="content">
-			<div class="textContent">
-				<i18n-t scope="global" class="label" v-if="messageData.duration_s" tag="span" :keypath="messageData.moderator? 'global.moderation_action.timeout_by': 'global.moderation_action.timeout'">
+			<div class="textContent" :class="{ messageWithTime: !showUnbanBt }">
+				<i18n-t
+					scope="global"
+					class="label"
+					v-if="props.messageData.duration_s"
+					tag="span"
+					:keypath="
+						props.messageData.moderator
+							? 'global.moderation_action.timeout_by'
+							: 'global.moderation_action.timeout'
+					"
+				>
 					<template #USER>
-						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
+						<a
+							class="userlink"
+							@click="
+								openUserCard(props.messageData.user, props.messageData.channel_id)
+							"
+							>{{ props.messageData.user.displayName }}</a
+						>
 					</template>
 					<template #MODERATOR>
-						<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
+						<a
+							class="userlink"
+							v-if="props.messageData.moderator"
+							@click="
+								openUserCard(
+									props.messageData.moderator!,
+									props.messageData.channel_id,
+								)
+							"
+							>{{ props.messageData.moderator.displayName }}</a
+						>
 					</template>
 					<template #DURATION>
 						<strong>{{ formattedBanDuration }}</strong>
 					</template>
 					<template #PLATFORM>
-						<strong>{{ messageData.platform }}</strong>
+						<strong>{{ props.messageData.platform }}</strong>
 					</template>
 				</i18n-t>
-				<i18n-t scope="global" class="label" v-else tag="span" :keypath="messageData.moderator? 'global.moderation_action.banned_by': 'global.moderation_action.banned'">
+				<i18n-t
+					scope="global"
+					class="label"
+					v-else
+					tag="span"
+					:keypath="
+						props.messageData.moderator
+							? 'global.moderation_action.banned_by'
+							: 'global.moderation_action.banned'
+					"
+				>
 					<template #USER>
-						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
+						<a
+							class="userlink"
+							@click="
+								openUserCard(props.messageData.user, props.messageData.channel_id)
+							"
+							>{{ props.messageData.user.displayName }}</a
+						>
 					</template>
 					<template #MODERATOR>
-						<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
+						<a
+							class="userlink"
+							v-if="props.messageData.moderator"
+							@click="
+								openUserCard(
+									props.messageData.moderator!,
+									props.messageData.channel_id,
+								)
+							"
+							>{{ props.messageData.moderator.displayName }}</a
+						>
 					</template>
 					<template #PLATFORM>
-						<strong>{{ messageData.platform }}</strong>
+						<strong>{{ props.messageData.platform }}</strong>
 					</template>
 				</i18n-t>
-				<div class="quote reason" v-if="messageData.reason">{{ messageData.reason }}</div>
+				<div class="quote reason" v-if="props.messageData.reason">
+					{{ props.messageData.reason }}
+				</div>
 			</div>
-			<Button light alert small icon="unban" :loading="unbanning" v-if="showUnbanBt" @click.stop="unbanUser()">{{ $t("global.moderation_action.unbanBt") }}</Button>
+			<TTButton
+				light
+				alert
+				small
+				icon="unban"
+				:loading="unbanning"
+				v-if="showUnbanBt"
+				@click="unbanUser()"
+				>{{ t("global.moderation_action.unbanBt") }}</TTButton
+			>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
-import TTButton from '../TTButton.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
+import { storeAccessibility as useStoreAccessibility } from "@/store/accessibility/storeAccessibility";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import TTButton from "../TTButton.vue";
 
-@Component({
-	components:{
-		Button: TTButton,
-	},
-	emits:["onRead"]
-})
-class ChatBan extends AbstractChatMessage {
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageBanData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
+}>();
 
-	@Prop
-	declare messageData:TwitchatDataTypes.MessageBanData;
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
 
-	public unbanning:boolean = false;
-	public showUnbanBt:boolean = true;
+const { t } = useI18n();
+const storeAccessibility = useStoreAccessibility();
 
-	public get formattedBanDuration():string{
-		return Utils.formatDuration(this.messageData.duration_s!*1000);
-	}
+const rootEl = useTemplateRef("rootEl");
+const { onContextMenu, openUserCard, canModerateUser } = useChatMessage(props, emit, rootEl);
 
-	public get classes():string[] {
-		let res:string[] = ["chatban","chatMessage","highlight"];
-		if(this.messageData.duration_s) res.push("error");
-		else
-		res.push("alert");
-		return res;
-	}
+const unbanning = ref(false);
+const showUnbanBt = ref(true);
 
-	public mounted():void {
-		let aria = "";
-		if(this.messageData.duration_s) {
-			if(this.messageData.moderator) {
-				aria = this.$t("global.moderation_action.timeout_by", {MODERATOR:this.messageData.moderator.displayName, USER:this.messageData.user.displayName, DURATION:this.messageData.duration_s});
-			}else{
-				aria = this.$t("global.moderation_action.timeout", {USER:this.messageData.user.displayName, DURATION:this.messageData.duration_s});
-			}
-		}else{
-			if(this.messageData.moderator) {
-				aria = this.$t("global.moderation_action.banned_by", {MODERATOR:this.messageData.moderator.displayName, USER:this.messageData.user.displayName});
-			}else{
-				aria = this.$t("global.moderation_action.banned", {USER:this.messageData.user.displayName});
-			}
+const formattedBanDuration = computed((): string => {
+	return Utils.formatDuration(props.messageData.duration_s! * 1000);
+});
+
+const classes = computed((): string[] => {
+	let res: string[] = ["chatban", "chatMessage", "highlight"];
+	if (props.messageData.duration_s) res.push("error");
+	else res.push("alert");
+	return res;
+});
+
+onMounted(() => {
+	let aria = "";
+	if (props.messageData.duration_s) {
+		if (props.messageData.moderator) {
+			aria = t("global.moderation_action.timeout_by", {
+				MODERATOR: props.messageData.moderator.displayName,
+				USER: props.messageData.user.displayName,
+				DURATION: props.messageData.duration_s,
+			});
+		} else {
+			aria = t("global.moderation_action.timeout", {
+				USER: props.messageData.user.displayName,
+				DURATION: props.messageData.duration_s,
+			});
 		}
-		this.$store.accessibility.setAriaPolite(aria);
-
-		this.showUnbanBt = this.messageData.user.channelInfo[this.messageData.channel_id]!.is_banned
-						&& this.messageData.platform != "youtube"
-						&& super.canModerateUser(this.messageData.user, this.messageData.channel_id);
+	} else {
+		if (props.messageData.moderator) {
+			aria = t("global.moderation_action.banned_by", {
+				MODERATOR: props.messageData.moderator.displayName,
+				USER: props.messageData.user.displayName,
+			});
+		} else {
+			aria = t("global.moderation_action.banned", {
+				USER: props.messageData.user.displayName,
+			});
+		}
 	}
+	storeAccessibility.setAriaPolite(aria);
 
-	public async unbanUser():Promise<void> {
-		this.unbanning = true;
-		await TwitchUtils.unbanUser(this.messageData.user, this.messageData.channel_id);
-		await Utils.promisedTimeout(250);
-		this.unbanning = false;
-		this.showUnbanBt = false;
-	}
+	showUnbanBt.value =
+		props.messageData.user.channelInfo[props.messageData.channel_id]!.is_banned &&
+		props.messageData.platform != "youtube" &&
+		canModerateUser(props.messageData.user, props.messageData.channel_id);
+});
+
+async function unbanUser(): Promise<void> {
+	unbanning.value = true;
+	await TwitchUtils.unbanUser(props.messageData.user, props.messageData.channel_id);
+	await Utils.promisedTimeout(250);
+	unbanning.value = false;
+	showUnbanBt.value = false;
 }
-export default toNative(ChatBan);
 </script>
 
 <style scoped lang="less">
-.chatban{
+.chatban {
 	.content {
-		row-gap: .5em;
+		row-gap: 0.5em;
 		column-gap: 1em;
 		display: flex;
 		flex-direction: row;

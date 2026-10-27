@@ -1,0 +1,11 @@
+{
+	"streamloots": {
+		"header": "Connect {LINK} to receive cards redemptions, packs purchases and gifts, reactions and emotes",
+		"instructions": "On your Streamloots dashboard, open \"Alerts & Widgets\", copy your alerts URL and paste it below",
+		"param_url": "Alerts URL",
+		"error_messages": {
+			"INVALID_URL": "Invalid URL.\nIt should look like https://widgets.streamloots.com/alerts/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+			"CONNECT_FAILED": "Connection to Streamloots failed.\nMake sure the alerts URL is valid."
+		}
+	}
+}

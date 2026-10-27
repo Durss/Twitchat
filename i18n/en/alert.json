@@ -1,16 +1,16 @@
 {
 	"alert": {
-		"header":"Let your mods alert you if something's urgent",
-		"command_title":"Chat command",
-		"actions":"Actions",
-		"actions_triggers":"Do more actions with the {LINK}",
-		"actions_triggers_link":"Triggers system",
-		"command":"Command",
-		"option_popin":"Show message on popin",
-		"option_shake":"Shake interface",
-		"option_blink":"Blink interface",
-		"option_sound":"Play wizz sound",
-		"option_vibrate":"Vibrate phone (mobile only)",
-		"testBt":"Test"
+		"header": "Let your mods alert you if something's urgent",
+		"command_title": "Chat command",
+		"actions": "Actions",
+		"actions_triggers": "Do more actions with the {LINK}",
+		"actions_triggers_link": "Triggers system",
+		"command": "Command",
+		"option_popin": "Show message on popin",
+		"option_shake": "Shake interface",
+		"option_blink": "Blink interface",
+		"option_sound": "Play wizz sound",
+		"option_vibrate": "Vibrate phone (mobile only)",
+		"testBt": "Test"
 	}
 }
