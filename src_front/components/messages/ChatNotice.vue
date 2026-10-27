@@ -37,7 +37,7 @@ const rootEl = useTemplateRef("rootEl");
 useChatMessage(props, emit, rootEl);
 
 const icon = ref<string>("info");
-const theme = ref<string>("secondary");
+const theme = ref<InstanceType<typeof Icon>["$props"]["theme"]>("secondary");
 const tempDuration = ref(0);
 const isTemporaryState = ref(false);
 
@@ -103,40 +103,40 @@ onMounted(() => {
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_ON:
 			icon.value = "sub";
-			theme.value = "light";
+			theme.value = "";
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_OFF:
 			icon.value = "sub";
-			theme.value = "light";
+			theme.value = "";
 			isTemporaryState.value = pendingRestrictions?.subOnly === true;
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_ON:
 			icon.value = "follow";
-			theme.value = "light";
+			theme.value = "";
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_OFF:
 			icon.value = "follow";
-			theme.value = "light";
+			theme.value = "";
 			isTemporaryState.value =
 				typeof pendingRestrictions?.followOnly === "number" &&
 				pendingRestrictions?.followOnly > 0;
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_ON:
 			icon.value = "emote";
-			theme.value = "light";
+			theme.value = "";
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_OFF:
 			icon.value = "emote";
-			theme.value = "light";
+			theme.value = "";
 			isTemporaryState.value = pendingRestrictions?.emotesOnly === true;
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_ON:
 			icon.value = "slow";
-			theme.value = "light";
+			theme.value = "";
 			break;
 		case TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_OFF:
 			icon.value = "slow";
-			theme.value = "light";
+			theme.value = "";
 			break;
 	}
 	storeAccessibility.setAriaPolite(message.value);
