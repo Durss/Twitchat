@@ -74,12 +74,13 @@ export default class MiddlewareController extends AbstractController {
 			},
 			errorResponseBuilder: (
 				_request: FastifyRequest,
-				_context: errorResponseBuilderContext,
+				context: errorResponseBuilderContext,
 			) => {
 				return {
+					statusCode: 429,
 					code: 429,
 					error: "Too Many Requests",
-					errorCode: "RATE_LIMIT",
+					errorCode: context.ban ? "RATE_LIMIT_BAN" : "RATE_LIMIT",
 				};
 			},
 		});
@@ -306,8 +307,8 @@ export default class MiddlewareController extends AbstractController {
 	/**
 	 * Get user IP from request.
 	 *
-	 * Fastify is configured with `trustProxy: 1` in bootstrap.ts so request.ip
-	 * already resolves X-Forwarded-For from the closest trusted proxy. Reading
+	 * Fastify is configured with `trustProxy: TRUSTED_PROXIES` in bootstrap.ts so
+	 * request.ip already resolves X-Forwarded-For through the trusted proxies. Reading
 	 * the raw `x-*-ip` headers ourselves would let any client spoof their IP
 	 * (and thus bypass rate-limit bans / forge IPs in 404 logs).
 	 */
