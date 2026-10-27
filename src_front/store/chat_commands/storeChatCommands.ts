@@ -27,7 +27,7 @@ let listCooldownEnd = 0;
 
 const getDefaultParams = (): TwitchatDataTypes.ChatCommandsParams => {
 	return {
-		manageEnabled: false,
+		manageEnabled: true,
 		managePermissions: Utils.getDefaultPermissions(true, true, false, false, false, false),
 	};
 };
