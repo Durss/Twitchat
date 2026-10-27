@@ -1573,7 +1573,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//before the setTimeout completes
 		window.setTimeout(async () => {
 			const channel_id = this.getChannelID(channel);
-			const user = this.getUserStateFromLogin(username, channel_id).user;
+			const user = StoreProxy.users.getUserFrom(
+				"twitch",
+				channel_id,
+				userstate["target-user-id"],
+				username,
+			);
 			const isTO = !isNaN(duration as number);
 			const chanInfo = user.channelInfo[channel_id]!;
 			if (

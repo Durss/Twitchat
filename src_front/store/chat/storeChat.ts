@@ -21,7 +21,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
-import { reactive, watch } from "vue";
+import { reactive } from "vue";
 import Database from "../Database";
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from "../StoreProxy";
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
@@ -3159,16 +3159,12 @@ export const storeChat = defineStore("chat", {
 					if ("user" in message && message.user) {
 						const u = message.user as TwitchatDataTypes.TwitchatUser;
 						if (u.temporary === true) {
-							watch(
-								() => u.temporary,
-								() => {
-									void Database.instance.updateMessage(message).catch((error) => {
-										console.error("Database updateMessage() error");
-										console.log(error);
-									});
-								},
-								{ once: true },
-							);
+							void StoreProxy.users.waitUserLoaded(u).then(() => {
+								void Database.instance.updateMessage(message).catch((error) => {
+									console.error("Database updateMessage() error");
+									console.log(error);
+								});
+							});
 						}
 					}
 				}

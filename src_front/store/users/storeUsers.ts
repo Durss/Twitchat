@@ -12,7 +12,7 @@ import EventSub from "@/utils/twitch/EventSub";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { acceptHMRUpdate, defineStore } from "pinia";
-import { reactive } from "vue";
+import { isReactive, reactive, watch } from "vue";
 import DataStore from "../DataStore";
 import type { IUsersActions, IUsersGetters, IUsersState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -558,6 +558,9 @@ export const storeUsers = defineStore("users", {
 							if (batchType == "id") twitchUserBatchIdTimeout = to;
 							else twitchUserBatchLoginTimeout = to;
 						}
+					} else if (!userExisted) {
+						//Nothing to load this new user from, don't leave it temporary forever
+						user.temporary = false;
 					}
 				}
 			} else if (user.temporary) {
@@ -606,6 +609,21 @@ export const storeUsers = defineStore("users", {
 			// const e = Date.now();
 			// console.log("Duration 2 :", user.login, user.id, e-s);
 			return user;
+		},
+
+		waitUserLoaded(
+			user: TwitchatDataTypes.TwitchatUser,
+		): Promise<TwitchatDataTypes.TwitchatUser> {
+			if (user.temporary !== true) return Promise.resolve(user);
+			//Watch the reactive version in case a raw object is given
+			const reactiveUser = isReactive(user) ? user : reactive(user);
+			return new Promise((resolve) => {
+				watch(
+					() => reactiveUser.temporary,
+					() => resolve(user),
+					{ once: true },
+				);
+			});
 		},
 
 		getUserColorFromLogin(
@@ -744,10 +762,6 @@ export const storeUsers = defineStore("users", {
 				return;
 			}
 
-			if (channelId == StoreProxy.auth.twitch.user.id) {
-				void StoreProxy.labels.clearUserLabelValue(bannedUser.id);
-			}
-
 			const banEndDate = Date.now() + (duration_s || 0) * 1000;
 			//User already perma banned, stop there
 			if (bannedUser.channelInfo[channelId]!.is_banned && !duration_s) return;
@@ -761,6 +775,15 @@ export const storeUsers = defineStore("users", {
 				return;
 
 			bannedUser.channelInfo[channelId]!.is_banned = true;
+
+			// Make sure user is actually fully initialized
+			await StoreProxy.users.waitUserLoaded(bannedUser);
+			uid = bannedUser.id;
+
+			if (channelId == StoreProxy.auth.twitch.user.id) {
+				void StoreProxy.labels.clearUserLabelValue(bannedUser.id);
+			}
+
 			if (
 				bannedUser.channelInfo[channelId]!.is_moderator === true &&
 				StoreProxy.params.features.autoRemod.value == true

@@ -2244,6 +2244,14 @@ export interface IUsersActions {
 		loadExtras?: boolean,
 	): TwitchatDataTypes.TwitchatUser;
 	/**
+	 * Waits for a temporary user returned by getUserFrom() to be fully loaded.
+	 * Resolves immediately if the user isn't temporary.
+	 * Also resolves if loading failed, check the "errored" flag.
+	 *
+	 * @param user
+	 */
+	waitUserLoaded(user: TwitchatDataTypes.TwitchatUser): Promise<TwitchatDataTypes.TwitchatUser>;
+	/**
 	 * Get given user's color
 	 * @param login
 	 */
