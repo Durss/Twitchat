@@ -93,9 +93,9 @@
 		"three": "^0.158.0",
 		"tmi.js": "github:Durss/tmi.js",
 		"typescript": "^6.0.3",
-		"vite": "npm:@voidzero-dev/vite-plus-core@1.1.0",
+		"vite": "npm:@voidzero-dev/vite-plus-core@1.4.0",
 		"vite-plugin-package-version": "^1.1.0",
-		"vite-plus": "1.1.0",
+		"vite-plus": "1.4.0",
 		"vue": "^3.5.40",
 		"vue-country-flag-next": "^2.3.2",
 		"vue-draggable-plus": "^0.6.1",
@@ -111,7 +111,7 @@
 	},
 	"overrides": {
 		"google-auth-library": "$google-auth-library",
-		"vite": "npm:@voidzero-dev/vite-plus-core@1.1.0"
+		"vite": "$vite"
 	},
 	"packageManager": "npm@11.12.0"
 }
