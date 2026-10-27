@@ -15,7 +15,7 @@
 					</a>
 
 					<img
-						v-if="!isOwnRaid && remoteChan && !remoteChan.temporary"
+						v-if="!isOwnRaid && remoteChan && !remoteChan.errored"
 						:src="remoteChan.avatarPath"
 						alt="avatar"
 						class="avatar mini"
@@ -31,7 +31,7 @@
 					>
 						<icon name="show" />
 						<span v-if="!censorCount">{{ raidInfo.viewerCount }}</span>
-						<span v-else class="censored">{{ raidInfo.viewerCount }}</span>
+						<span v-else class="censored">xx</span>
 					</mark>
 					<mark v-if="roomSettings?.subOnly == true"
 						><icon name="sub" />{{ t("raid.sub_only") }}</mark
@@ -154,9 +154,9 @@
 				</div>
 			</ToggleBlock>
 
-			<div class="card-item infos" v-if="isOwnRaid">
-				{{ t("raid.cant_force", { TIMER: timeLeft }) }}
-			</div>
+			<TTButton icon="newtab" light primary @click="openTwitchChat">{{
+				t("raid.force_raid")
+			}}</TTButton>
 		</div>
 	</div>
 </template>
@@ -298,6 +298,7 @@ onMounted(async () => {
 	const raid = storeStream.currentRaid;
 	if (raid) {
 		loading.value = true;
+		await storeUsers.waitUserLoaded(raid.user);
 		user.value = raid.user;
 		roomSettings.value = await TwitchUtils.getRoomSettings(user.value.id);
 		const liveInfos = await TwitchUtils.getCurrentStreamInfo([user.value.id]);
@@ -306,10 +307,8 @@ onMounted(async () => {
 		raidingLatestRaid.value = latestRaid && latestRaid.uid === raid.user.id;
 		isOwnRaid.value = storeAuth.twitch.user.id == raid.channel_id;
 		if (!isOwnRaid.value) {
-			remoteChan.value = await storeUsers.getUserFrom(
-				"twitch",
-				storeAuth.twitch.user.id,
-				raid.channel_id,
+			remoteChan.value = await storeUsers.waitUserLoaded(
+				storeUsers.getUserFrom("twitch", storeAuth.twitch.user.id, raid.channel_id),
 			);
 		}
 		loading.value = false;
@@ -351,6 +350,17 @@ onMounted(async () => {
 	bannedOnline.value = bannedOnlineList;
 	timedoutOnline.value = timedoutOnlineList;
 });
+
+function openTwitchChat(): void {
+	let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
+		width=350,height=${screen.availHeight},left=0,top=0`;
+	const url = "https://www.twitch.tv/popout/" + storeAuth.twitch.user.login + "/chat";
+	try {
+		window.open(url, "chatPage", params);
+	} catch (error) {
+		//Ignore it
+	}
+}
 
 onBeforeUnmount(() => {
 	clearInterval(timerInterval);
