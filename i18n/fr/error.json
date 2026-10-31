@@ -54,7 +54,7 @@
 			"msg_duplicate": "Le compte \"{ACCOUNT}\" doit être modérateurice",
 			"subs_only_mode": "Le compte \"{ACCOUNT}\" doit être abonné·e ou modérateurice",
 			"automod_held": "Le compte \"{ACCOUNT}\" doit être modérateurice",
-			"unkown": "Le compte \"{ACCOUNT}\" manque probablement de permissions"
+			"unknown": "Le compte \"{ACCOUNT}\" manque probablement de permissions"
 		},
 		"prediction_outcome": "Une erreur est survenue lors de la sélection de l'entrée gagnante",
 		"prediction_delete": "Une erreur est survenue lors de la suppression de la prédiction",
