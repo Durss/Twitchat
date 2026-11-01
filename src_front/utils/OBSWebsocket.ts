@@ -1173,6 +1173,19 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
+	 * Get the playback state of given media source
+	 * Returns null if OBS isn't connected.
+	 * Throws if the source doesn't exist.
+	 *
+	 * @param sourceName
+	 */
+	public async getMediaState(sourceName: string): Promise<OBSMediaPlaybackStates | null> {
+		if (!this.connected.value) return null;
+		const res = await this.obs.call("GetMediaInputStatus", { inputName: sourceName });
+		return res.mediaState as OBSMediaPlaybackStates;
+	}
+
+	/**
 	 * Get a screenshot of a source.
 	 * Takes a screenshot of the current scene if no sourceName is defined
 	 *
@@ -1898,3 +1911,13 @@ export type OBSMediaAction =
 	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART"
 	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT"
 	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS";
+
+export type OBSMediaPlaybackStates =
+	| "OBS_MEDIA_STATE_NONE"
+	| "OBS_MEDIA_STATE_PLAYING"
+	| "OBS_MEDIA_STATE_OPENING"
+	| "OBS_MEDIA_STATE_BUFFERING"
+	| "OBS_MEDIA_STATE_PAUSED"
+	| "OBS_MEDIA_STATE_STOPPED"
+	| "OBS_MEDIA_STATE_ENDED"
+	| "OBS_MEDIA_STATE_ERROR";
