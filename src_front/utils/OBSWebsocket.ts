@@ -957,7 +957,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			//of sources and nested scenes. If the resource has already been queried, send back cached data
 			if (
 				this.sceneSourceCache[cacheKey] &&
-				Date.now() > this.sceneSourceCache[cacheKey].ts + 60000
+				Date.now() < this.sceneSourceCache[cacheKey].ts + 60_000
 			) {
 				return this.sceneSourceCache[cacheKey].value;
 			}
