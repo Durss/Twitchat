@@ -238,7 +238,11 @@ async function showText(): Promise<void> {
 	let hasImages = false;
 	// Wait for potential included images to complete loading
 	await new Promise<void>((allImagesLoaded) => {
-		const images = Array.from(textEl.value!.querySelectorAll("img"));
+		if (!params.value || !textEl.value) {
+			allImagesLoaded();
+			return;
+		}
+		const images = Array.from(textEl.value.querySelectorAll("img"));
 		hasImages = images.length > 0;
 		if (hasImages) {
 			const imagePromises = images.map((img) => {
@@ -257,7 +261,11 @@ async function showText(): Promise<void> {
 		}
 	});
 	return new Promise<void>((resolve) => {
-		split = new SplitType(textEl.value!, {
+		if (!params.value || !textEl.value) {
+			resolve();
+			return;
+		}
+		split = new SplitType(textEl.value, {
 			split: ["words", "chars"],
 			charClass: "char",
 			wordClass: "word",
@@ -266,19 +274,19 @@ async function showText(): Promise<void> {
 			resolve();
 			return;
 		}
-		const ads = 2 - params.value!.animDurationScale;
-		const amp = params.value!.animStrength;
-		const sizeRatio = (params.value!.textSize - 10) / 70;
+		const ads = 2 - params.value.animDurationScale;
+		const amp = params.value.animStrength;
+		const sizeRatio = (params.value.textSize - 10) / 70;
 		// const chars = split.chars || [];
 		const chars =
-			(Array.from(textEl.value!.querySelectorAll("*")).filter(
+			(Array.from(textEl.value.querySelectorAll("*")).filter(
 				(el) => el.children.length === 0,
 			) as HTMLElement[]) || [];
 		ready.value = true;
 
 		if (raf > -1) cancelAnimationFrame(raf);
 
-		switch (params.value!.animStyle) {
+		switch (params.value.animStyle) {
 			case "wave": {
 				gsap.fromTo(
 					chars,
@@ -709,15 +717,19 @@ async function hideText(): Promise<void> {
 	await nextTick();
 
 	const promise = new Promise<void>((resolve) => {
+		if (!params.value || !textEl.value) {
+			resolve();
+			return;
+		}
 		if (!split) {
-			split = new SplitType(textEl.value!, {
+			split = new SplitType(textEl.value, {
 				split: ["words", "chars"],
 				charClass: "char",
 				wordClass: "word",
 			});
 		}
 		const chars =
-			(Array.from(textEl.value!.querySelectorAll("*")).filter(
+			(Array.from(textEl.value.querySelectorAll("*")).filter(
 				(el) => el.children.length === 0,
 			) as HTMLElement[]) || [];
 
@@ -725,13 +737,13 @@ async function hideText(): Promise<void> {
 			resolve();
 			return;
 		}
-		const ads = 2 - params.value!.animDurationScale;
-		const amp = params.value!.animStrength;
+		const ads = 2 - params.value.animDurationScale;
+		const amp = params.value.animStrength;
 		ready.value = true;
 
 		if (raf > -1) cancelAnimationFrame(raf);
 
-		switch (params.value!.animStyle) {
+		switch (params.value.animStyle) {
 			case "wave": {
 				gsap.to(chars, {
 					scale: 0,
@@ -966,10 +978,12 @@ async function hideText(): Promise<void> {
 	});
 	promise.then(() => {
 		if (currentEntry) {
-			split!.chars = [];
-			split!.words = [];
-			split!.lines = [];
-			split = null;
+			if (split) {
+				split.chars = [];
+				split.words = [];
+				split.lines = [];
+				split = null;
+			}
 			text.value = "";
 		}
 	});
