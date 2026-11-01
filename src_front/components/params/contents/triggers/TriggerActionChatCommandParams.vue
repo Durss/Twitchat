@@ -103,10 +103,14 @@
 <script setup lang="ts">
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import TTButton from "@/components/TTButton.vue";
-import { storeChatCommands as useStoreChatCommands } from "@/store/chat_commands/storeChatCommands";
+import {
+	normalizeCommandName,
+	storeChatCommands as useStoreChatCommands,
+} from "@/store/chat_commands/storeChatCommands";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import { type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { formatChatCommand } from "@/utils/ChatCommandUtils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import Utils from "@/utils/Utils";
 import { onBeforeMount, ref } from "vue";
@@ -191,20 +195,18 @@ function onUpdateCommand(): void {
 	cmdAliasConflict.value = false;
 	slashCmdAlert.value = param_cmd.value.value.trim().charAt(0) == "/";
 
-	props.triggerData.chatCommand = param_cmd.value.value = param_cmd.value.value
-		.trim()
-		.replace(/\s+/g, "");
+	props.triggerData.chatCommand = param_cmd.value.value = formatChatCommand(
+		param_cmd.value.value,
+	);
 
 	//Make sure no other chat command has the same name
 	const triggers = storeTriggers.triggerList.concat(storeChatCommands.generatedTriggers);
 	let aliases: string[] = [];
 	if (props.triggerData.chatCommandAliases) {
 		for (let i = 0; i < props.triggerData.chatCommandAliases.length; i++) {
-			props.triggerData.chatCommandAliases[i] = props.triggerData.chatCommandAliases[
-				i
-			]!.trim()
-				.replace(/\s+/g, "")
-				.toLowerCase();
+			props.triggerData.chatCommandAliases[i] = normalizeCommandName(
+				props.triggerData.chatCommandAliases[i]!,
+			);
 		}
 		aliases = props.triggerData.chatCommandAliases.concat().filter((v) => v.length > 0);
 	}

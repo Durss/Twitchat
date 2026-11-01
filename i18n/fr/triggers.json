@@ -191,7 +191,6 @@
 			"param_cmd_params_error_regex_too_long": "Expression régulière trop longue",
 			"param_cmd_params_error_no_tag": "Définissez au moins un placeholder via un groupe nommé.\nExemple: {EXAMPLE}",
 			"param_cmd_params_error_no_tag_example": "(?<NOM>.+)",
-			"format_error": "La commande doit commencer par un \" / \"",
 			"grant_discord_rights": "Accorder les droits à vos membres Discord"
 		},
 		"actions": {

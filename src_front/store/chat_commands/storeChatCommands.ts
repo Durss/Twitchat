@@ -3,6 +3,7 @@ import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import { TriggerScheduleTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TriggerTypes } from "@/types/TriggerTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { formatChatCommand } from "@/utils/ChatCommandUtils";
 import Config from "@/utils/Config";
 import SchedulerHelper from "@/utils/SchedulerHelper";
 import { toast } from "@/utils/toast/toast";
@@ -339,9 +340,7 @@ export function getCommandTriggerId(entryId: string): string {
  * @param maxLength 100 for commands, 50 for aliases
  */
 export function normalizeCommandName(name: string, maxLength: number = 100): string {
-	let res = name.trim().replace(/\s+/g, "").toLowerCase();
-	if (/^[\p{L}\p{N}]/u.test(res)) res = "!" + res;
-	return res.substring(0, maxLength);
+	return formatChatCommand(name.toLowerCase(), maxLength);
 }
 
 /**
