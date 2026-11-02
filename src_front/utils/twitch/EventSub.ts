@@ -2457,7 +2457,10 @@ export default class EventSub {
 					channel_id: event.broadcaster_user_id,
 					type: TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					user,
-					noticeId: TwitchatDataTypes.TwitchatNoticeType.VIP,
+					noticeId:
+						event.action == "vip"
+							? TwitchatDataTypes.TwitchatNoticeType.VIP
+							: TwitchatDataTypes.TwitchatNoticeType.UNVIP,
 					message: StoreProxy.i18n.t(
 						event.action == "vip" ? "chat.vip.add" : "chat.vip.remove",
 						{ USER: user.displayName, MODERATOR: moderator.displayName },
@@ -2504,7 +2507,10 @@ export default class EventSub {
 					channel_id: event.broadcaster_user_id,
 					type: TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					user,
-					noticeId: TwitchatDataTypes.TwitchatNoticeType.VIP,
+					noticeId:
+						event.action == "mod"
+							? TwitchatDataTypes.TwitchatNoticeType.MOD
+							: TwitchatDataTypes.TwitchatNoticeType.UNMOD,
 					message: StoreProxy.i18n.t(
 						event.action == "mod" ? "chat.mod.add" : "chat.mod.remove",
 						{ USER: user.displayName, MODERATOR: moderator.displayName },
