@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"strict": true,
+		"moduleResolution": "bundler",
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"sourceMap": true,
+		"types": [],
+		"outDir": "../static/eld",
+		"paths": {
+			"eld-model": ["../node_modules/eld/index.d.ts"]
+		},
+		"lib": ["es2017", "dom", "dom.iterable", "scripthost"]
+	},
+	"include": ["./**/*.ts"],
+	"exclude": ["node_modules"]
+}

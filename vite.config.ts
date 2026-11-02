@@ -354,16 +354,24 @@ export default defineConfig({
 		},
 	},
 
-	pack: {
-		entry: ["src_lande/lande_worker.ts"],
-		format: ["iife"],
+	pack: [
+		{ entry: ["src_lande/lande_worker.ts"] },
+		//One worker per ELD model, all built from the same source
+		...["extrasmall", "small", "medium", "large"].map((model) => ({
+			entry: { [`eld_worker_${model}`]: "src_eld/eld_worker.ts" },
+			alias: { "eld-model": `eld/${model}` },
+		})),
+	].map((config) => ({
+		format: ["iife" as const],
+		minify: true,
 		outDir: "./static",
 		clean: false,
 		deps: { onlyBundle: false },
 		outputOptions: {
 			entryFileNames: "[name].js",
 		},
-	},
+		...config,
+	})),
 
 	customLogger: (() => {
 		const logger = createLogger();

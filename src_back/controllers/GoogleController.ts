@@ -125,6 +125,7 @@ export default class GoogleController extends AbstractController {
 		"pa",
 		"qu",
 		"ro",
+		"rn",
 		"ru",
 		"sm",
 		"sa",

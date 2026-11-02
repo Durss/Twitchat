@@ -312,7 +312,7 @@ export default class DataStore extends DataStoreCommon {
 	 */
 	static override async migrateData(data: any): Promise<any> {
 		let v = parseFloat(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 71;
+		const latestVersion = 72;
 
 		if (v < 44) {
 			const res: { [key: string]: unknown } = {};
@@ -444,6 +444,10 @@ export default class DataStore extends DataStoreCommon {
 		}
 		if (v == 70) {
 			//Dropped migration
+			v = 71;
+		}
+		if (v == 71) {
+			this.migrateTranslateLangCodes(data);
 			v = latestVersion;
 		}
 
@@ -1303,6 +1307,20 @@ export default class DataStore extends DataStoreCommon {
 			delete data["p:autoTranslateFirst"];
 			delete data["p:autoTranslateFirstLang"];
 			delete data["p:autoTranslateFirstSpoken"];
+		}
+	}
+
+	/**
+	 * Fixes language codes that were wrong on TranslatableLanguagesMap.
+	 * "tk" is Turkmen, "nn" was refused by the server, and "ku" is Kurmanji
+	 * whereas detectors find Sorani.
+	 * @param data
+	 */
+	private static migrateTranslateLangCodes(data: any): void {
+		const fixes: { [key: string]: string } = { tk: "tr", nn: "no", ku: "ckb" };
+		for (const key of ["p:autoTranslateLang", "p:autoTranslateSpoken"]) {
+			if (!Array.isArray(data[key])) continue;
+			data[key] = data[key].map((lang: string) => fixes[lang] ?? lang);
 		}
 	}
 
