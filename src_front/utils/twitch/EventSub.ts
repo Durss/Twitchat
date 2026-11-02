@@ -833,19 +833,6 @@ export default class EventSub {
 				break;
 			}
 
-			case TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_ADD: {
-				this.modAddEvent(topic, payload.event as TwitchEventSubDataTypes.ModeratorAddEvent);
-				break;
-			}
-
-			case TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_REMOVE: {
-				this.modRemoveEvent(
-					topic,
-					payload.event as TwitchEventSubDataTypes.ModeratorRemoveEvent,
-				);
-				break;
-			}
-
 			case TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM: {
 				this.rewardRedeem(
 					topic,
@@ -1655,104 +1642,6 @@ export default class EventSub {
 			event.user_id,
 			moderator,
 		);
-	}
-
-	/**
-	 * Called when adding a modetator
-	 */
-	private modAddEvent(
-		topic: TwitchEventSubDataTypes.SubscriptionStringTypes,
-		event: TwitchEventSubDataTypes.ModeratorAddEvent,
-	): void {
-		const modedUser = StoreProxy.users.getUserFrom(
-			"twitch",
-			event.broadcaster_user_id,
-			event.user_id,
-			event.user_login,
-			event.user_name,
-			undefined,
-			undefined,
-			false,
-			undefined,
-			false,
-		);
-		const moderator = StoreProxy.users.getUserFrom(
-			"twitch",
-			event.broadcaster_user_id,
-			event.broadcaster_user_id,
-			event.broadcaster_user_login,
-			event.broadcaster_user_name,
-			undefined,
-			undefined,
-			false,
-			undefined,
-			false,
-		);
-		const m: TwitchatDataTypes.MessageModerationAction = {
-			id: Utils.getUUID(),
-			date: Date.now(),
-			platform: "twitch",
-			channel_id: event.broadcaster_user_id,
-			type: TwitchatDataTypes.TwitchatMessageType.NOTICE,
-			noticeId: TwitchatDataTypes.TwitchatNoticeType.MOD,
-			user: modedUser,
-			message: StoreProxy.i18n.t("global.moderation_action.modded_by", {
-				USER: modedUser.displayName,
-				MODERATOR: moderator.displayName,
-			}),
-		};
-		StoreProxy.users.flagMod("twitch", event.broadcaster_user_id, modedUser.id);
-		void StoreProxy.chat.addMessage(m);
-	}
-
-	/**
-	 * Called when a moderator is removed
-	 * @param topic
-	 * @param event
-	 */
-	private modRemoveEvent(
-		topic: TwitchEventSubDataTypes.SubscriptionStringTypes,
-		event: TwitchEventSubDataTypes.ModeratorRemoveEvent,
-	): void {
-		const modedUser = StoreProxy.users.getUserFrom(
-			"twitch",
-			event.broadcaster_user_id,
-			event.user_id,
-			event.user_login,
-			event.user_name,
-			undefined,
-			undefined,
-			false,
-			undefined,
-			false,
-		);
-		const moderator = StoreProxy.users.getUserFrom(
-			"twitch",
-			event.broadcaster_user_id,
-			event.broadcaster_user_id,
-			event.broadcaster_user_login,
-			event.broadcaster_user_name,
-			undefined,
-			undefined,
-			false,
-			undefined,
-			false,
-		);
-		const m: TwitchatDataTypes.MessageModerationAction = {
-			id: Utils.getUUID(),
-			date: Date.now(),
-			platform: "twitch",
-			channel_id: event.broadcaster_user_id,
-			type: TwitchatDataTypes.TwitchatMessageType.NOTICE,
-			noticeId: TwitchatDataTypes.TwitchatNoticeType.MOD,
-			user: modedUser,
-			message: StoreProxy.i18n.t("global.moderation_action.unmodded_by", {
-				USER: modedUser.displayName,
-				MODERATOR: moderator.displayName,
-			}),
-		};
-		StoreProxy.users.flagUnmod("twitch", event.broadcaster_user_id, modedUser.id);
-		void StoreProxy.chat.addMessage(m);
 	}
 
 	/**
