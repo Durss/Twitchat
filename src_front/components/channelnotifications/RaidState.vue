@@ -354,7 +354,7 @@ onMounted(async () => {
 function openTwitchChat(): void {
 	let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
 		width=350,height=${screen.availHeight},left=0,top=0`;
-	const url = "https://www.twitch.tv/popout/" + storeAuth.twitch.user.login + "/chat";
+	const url = "https://www.twitch.tv/popout/" + raidInfo.value.channel_login + "/chat";
 	try {
 		window.open(url, "chatPage", params);
 	} catch (error) {

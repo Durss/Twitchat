@@ -2664,6 +2664,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface RaidInfo {
 		channel_id: string;
+		channel_login: string;
 		user: TwitchatUser;
 		viewerCount: number;
 		startedAt: number;

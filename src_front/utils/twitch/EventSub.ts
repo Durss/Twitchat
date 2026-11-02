@@ -2329,12 +2329,12 @@ export default class EventSub {
 		const isBroadcasterToken = user.id == moderator.id;
 		switch (event.action) {
 			case "raid": {
-				const raidedUSer = StoreProxy.users.getUserFrom(
+				const raidedUser = StoreProxy.users.getUserFrom(
 					"twitch",
 					event.broadcaster_user_id,
 					event.raid.user_id,
 					event.raid.user_login,
-					event.raid.user_login,
+					event.raid.user_name,
 					undefined,
 					undefined,
 					false,
@@ -2343,25 +2343,15 @@ export default class EventSub {
 				);
 
 				//Load user's avatar if not already available
-				if (!raidedUSer.avatarPath) {
-					const res = (await TwitchUtils.getUserInfo([raidedUSer.id]))[0]!;
-					raidedUSer.avatarPath = res.profile_image_url;
+				if (!raidedUser.avatarPath) {
+					const [twitchUser] = await TwitchUtils.getUserInfo([raidedUser.id]);
+					if (twitchUser) raidedUser.avatarPath = twitchUser.profile_image_url;
 				}
 
 				const m: TwitchatDataTypes.RaidInfo = {
 					channel_id: event.broadcaster_user_id,
-					user: StoreProxy.users.getUserFrom(
-						"twitch",
-						event.broadcaster_user_id,
-						event.raid.user_id,
-						event.raid.user_login,
-						event.raid.user_login,
-						undefined,
-						undefined,
-						false,
-						undefined,
-						false,
-					),
+					channel_login: event.broadcaster_user_login,
+					user: raidedUser,
 					viewerCount: event.raid.viewer_count,
 					startedAt: Date.now(),
 					timerDuration_s: 90,
