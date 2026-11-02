@@ -32,8 +32,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private static _instance: TwitchMessengerClient;
 	private _client!: tmi.Client;
 	private _connectTimeout: number = -1;
-	private _refreshingToken: boolean = false;
-	private _refreshingTokenTO: number = -1;
 	private _watchdogTO: number = -1;
 	private _reconnecting: boolean = false;
 	private _authFailureNotified: boolean = false;
@@ -41,7 +39,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _connectedChans: { [key: string]: boolean } = reactive({});
 	private _pendingChans: { [key: string]: boolean } = {};
 	private _channelList: string[] = [];
-	private _connectedChannelCount: number = 0;
 	private _channelLoginToId: { [key: string]: string } = {};
 
 	/********************
@@ -244,13 +241,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	public async refreshToken(): Promise<void> {
 		if (!this._client) return;
 		Logger.instance.log("irc", { info: "Refreshing token" });
-		// avoid showing reconnect message on chat when refreshing token
-		this._refreshingToken = true;
-		this._connectedChannelCount = 0;
-		clearTimeout(this._refreshingTokenTO);
-		this._refreshingTokenTO = window.setTimeout(() => {
-			this._refreshingToken = false;
-		}, 30000);
 		await this.reconnect();
 	}
 
@@ -1105,13 +1095,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			this._authFailureNotified = false;
 		}
 
-		if (this._refreshingToken && self) {
-			//Don't show join info during a reconnect
-			this._refreshingToken = ++this._connectedChannelCount < this._channelList.length;
-			if (!this._refreshingToken) clearTimeout(this._refreshingTokenTO);
-			return;
-		}
-
 		const channel_id = this.getChannelID(channelName);
 		const userState = this.getUserStateFromLogin(username, channel_id);
 
@@ -1410,8 +1393,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private disconnected(reason: string): void {
 		const channel_id = StoreProxy.auth.twitch.user.id;
 
-		//Don't show disconnect info if its a reconnect
-		if (this._refreshingToken) return;
 		//Avoid spamming "disconnected from chat" messages
 		if (!this._connectedChans[channel_id]) return;
 
