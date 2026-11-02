@@ -1532,6 +1532,7 @@ async function startFakeRaid(): Promise<void> {
 	const user = StoreProxy.users.getUserFrom("twitch", me.id, undefined, "frontpopulaire");
 	const m: TwitchatDataTypes.RaidInfo = {
 		channel_id: me.id,
+		channel_login: me.login,
 		user,
 		viewerCount: 42,
 		startedAt: Date.now(),
