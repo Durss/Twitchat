@@ -43,7 +43,6 @@
 					<div class="extHeader">
 						<span class="statusDot" :class="{ on: extension.enabled }"></span>
 						<span class="extName">{{ extension.data.name }}</span>
-						<span class="extVersion">v{{ extension.data.version }}</span>
 						<a
 							class="extLink"
 							:href="
@@ -54,6 +53,7 @@
 							"
 							target="_blank"
 						>
+							<span class="extVersion">v{{ extension.data.version }}</span>
 							<Icon name="newtab" />
 						</a>
 					</div>
@@ -341,23 +341,25 @@ interface ExtensionItem {
 					white-space: nowrap;
 				}
 
-				.extVersion {
-					font-size: 0.75em;
-					opacity: 0.5;
-					font-style: italic;
-					flex-shrink: 0;
-				}
-
 				.extLink {
 					color: var(--color-light);
 					opacity: 0.5;
 					flex-shrink: 0;
 					transition: opacity 0.2s;
+					gap: 0.25em;
+					display: flex;
+					align-items: center;
 					.icon {
 						height: 0.85em;
 					}
 					&:hover {
 						opacity: 1;
+					}
+					.extVersion {
+						font-size: 0.75em;
+						opacity: 0.5;
+						font-style: italic;
+						flex-shrink: 0;
 					}
 				}
 			}
