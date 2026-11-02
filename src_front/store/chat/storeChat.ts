@@ -1449,7 +1449,7 @@ export const storeChat = defineStore("chat", {
 							.map((v) => v.value)
 							.join("")
 							.trim() || "";
-					if (text.length >= 4 && spokenLanguages.length > 0) {
+					if (text.length >= 10 && spokenLanguages.length > 0) {
 						//Check language of the message from the worker
 						LandeWorker.instance.lande(text, (langs) => {
 							const iso3 = langs[0]![0] as keyof typeof TranslatableLanguagesMap;
