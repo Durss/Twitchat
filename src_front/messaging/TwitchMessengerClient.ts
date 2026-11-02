@@ -36,6 +36,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _refreshingTokenTO: number = -1;
 	private _watchdogTO: number = -1;
 	private _reconnecting: boolean = false;
+	private _authFailureNotified: boolean = false;
 	private _lastPong: { date: number; latency: number } | null = null;
 	private _connectedChans: { [key: string]: boolean } = reactive({});
 	private _pendingChans: { [key: string]: boolean } = {};
@@ -1101,6 +1102,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	): void {
 		if (self && !isFakeJoin) {
 			delete this._pendingChans[this.getChannelID(channelName)];
+			this._authFailureNotified = false;
 		}
 
 		if (this._refreshingToken && self) {
@@ -1717,9 +1719,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						"invalid nick",
 					].some((v) => msgid!.toLowerCase().indexOf(v) > -1);
 					if (authFailure) {
-						message = StoreProxy.i18n.t("error.irc_reconect");
 						this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
-						noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
+						//Login can fail many times in a row, only tell it once until we're back
+						if (!this._authFailureNotified) {
+							this._authFailureNotified = true;
+							message = StoreProxy.i18n.t("error.irc_reconect");
+							//These aren't bound to a channel, show it on ours
+							channel = StoreProxy.auth.twitch.user.login;
+							noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
+						}
 					}
 				}
 				if (message) {
@@ -1727,23 +1735,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					if (channel) {
 						this.notice(noticeId, channel, message);
 					} else {
-						if (
-							((parsed.raw as string) || "").toLowerCase() ==
-							"login authentication failed"
-						) {
-							const chanName = channel || StoreProxy.auth.twitch.user.login;
-							this.notice(
-								"error",
-								chanName,
-								StoreProxy.i18n.t("error.irc_auth_failure", { CHANNEL: chanName }),
-							);
-							this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
-						} else {
-							Sentry.captureMessage(
-								"Received a notice with missing channel ID: " + parsed.raw,
-								"warning",
-							);
-						}
+						Sentry.captureMessage(
+							"Received a notice with missing channel ID: " + parsed.raw,
+							"warning",
+						);
 					}
 				}
 				break;
