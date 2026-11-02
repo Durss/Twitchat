@@ -137,18 +137,6 @@ export default class MessengerProxy {
 			(e: MessengerClientEvent) => this.onMessage(e),
 		);
 		TwitchMessengerClient.instance.addEventListener(
-			MessengerClientEvent.RAID,
-			(e: MessengerClientEvent) => this.onMessage(e),
-		);
-		TwitchMessengerClient.instance.addEventListener(
-			MessengerClientEvent.DISCONNECT,
-			(e: MessengerClientEvent) => this.onMessage(e),
-		);
-		TwitchMessengerClient.instance.addEventListener(
-			MessengerClientEvent.CLEAR_CHAT,
-			(e: MessengerClientEvent) => this.onMessage(e),
-		);
-		TwitchMessengerClient.instance.addEventListener(
 			MessengerClientEvent.REWARD,
 			(e: MessengerClientEvent) => this.onMessage(e),
 		);
