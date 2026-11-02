@@ -1172,6 +1172,7 @@ function updateBadges(): void {
 	&.deleted {
 		opacity: 0.35;
 		transition: opacity 0.2s;
+		filter: saturate(0);
 		&:not(.censor) {
 			.message,
 			&.messageChild.deleted {
@@ -1180,6 +1181,7 @@ function updateBadges(): void {
 		}
 		&:hover {
 			opacity: 1;
+			filter: saturate(1);
 			.message,
 			&.messageChild.deleted {
 				text-decoration: none;
@@ -1188,10 +1190,12 @@ function updateBadges(): void {
 	}
 
 	&.fade:not(.deleted) {
-		opacity: 0.35;
+		opacity: 0.6;
 		transition: opacity 0.2s;
+		filter: saturate(0);
 		&:hover {
 			opacity: 1;
+			filter: contrast(1);
 		}
 	}
 
@@ -1210,7 +1214,6 @@ function updateBadges(): void {
 	}
 
 	.icon {
-		// opacity: 0.75;
 		height: 1em;
 		vertical-align: middle;
 
@@ -1221,7 +1224,7 @@ function updateBadges(): void {
 
 	.convBt {
 		cursor: pointer;
-		margin-bottom: -0.4em;
+		margin-right: 0.25em;
 		:deep(svg) {
 			height: 1em;
 		}
