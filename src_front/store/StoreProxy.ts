@@ -2261,7 +2261,7 @@ export interface IUsersActions {
 	 */
 	initBlockedUsers(): Promise<void>;
 	/**
-	 * Flag a user as moderator
+	 * Flag a user as moderator and removes their VIP role
 	 * @param platform
 	 * @param channelId
 	 * @param uid

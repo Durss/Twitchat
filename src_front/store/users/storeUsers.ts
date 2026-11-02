@@ -63,6 +63,13 @@ function getUserById(
 }
 
 /**
+ * Gets if given channel is our own Twitch channel.
+ */
+function isMyTwitchChannel(platform: TwitchatDataTypes.ChatPlatform, channelId: string): boolean {
+	return platform == "twitch" && channelId == StoreProxy.auth.twitch.user?.id;
+}
+
+/**
  * Gets if a user can safely be dropped from the cache.
  * Users holding a state that wouldn't be rebuilt identically when creating
  * them back are kept.
@@ -654,10 +661,13 @@ export const storeUsers = defineStore("users", {
 		},
 
 		flagMod(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
+			//Twitch doesn't allow a user to be both a moderator and a VIP
+			this.flagUnvip(platform, channelId, uid);
 			if (platform == "twitch" && uid == StoreProxy.auth.twitch.user.id) {
 				StoreProxy.auth.setModeratorState(channelId, true);
 				return;
 			}
+			if (isMyTwitchChannel(platform, channelId)) this.myMods.twitch[uid] = true;
 			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
 			if (chanInfo) chanInfo.is_moderator = true;
 		},
@@ -667,16 +677,19 @@ export const storeUsers = defineStore("users", {
 				StoreProxy.auth.setModeratorState(channelId, false);
 				return;
 			}
+			if (isMyTwitchChannel(platform, channelId)) this.myMods.twitch[uid] = false;
 			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
 			if (chanInfo) chanInfo.is_moderator = false;
 		},
 
 		flagVip(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
+			if (isMyTwitchChannel(platform, channelId)) this.myVIPs.twitch[uid] = true;
 			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
 			if (chanInfo) chanInfo.is_vip = true;
 		},
 
 		flagUnvip(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
+			if (isMyTwitchChannel(platform, channelId)) this.myVIPs.twitch[uid] = false;
 			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
 			if (chanInfo) chanInfo.is_vip = false;
 		},

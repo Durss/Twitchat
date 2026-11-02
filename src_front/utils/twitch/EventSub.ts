@@ -2315,7 +2315,7 @@ export default class EventSub {
 				if (event.action == "vip") {
 					user = StoreProxy.users.getUserFrom(
 						"twitch",
-						event.vip.user_id,
+						event.broadcaster_user_id,
 						event.vip.user_id,
 						event.vip.user_login,
 						undefined,
@@ -2325,10 +2325,11 @@ export default class EventSub {
 						undefined,
 						false,
 					);
+					StoreProxy.users.flagVip("twitch", event.broadcaster_user_id, user.id);
 				} else {
 					user = StoreProxy.users.getUserFrom(
 						"twitch",
-						event.unvip.user_id,
+						event.broadcaster_user_id,
 						event.unvip.user_id,
 						event.unvip.user_login,
 						undefined,
@@ -2338,6 +2339,7 @@ export default class EventSub {
 						undefined,
 						false,
 					);
+					StoreProxy.users.flagUnvip("twitch", event.broadcaster_user_id, user.id);
 				}
 				const m: TwitchatDataTypes.MessageModerationAction = {
 					id: Utils.getUUID(),
@@ -2365,7 +2367,7 @@ export default class EventSub {
 				if (event.action == "mod") {
 					user = StoreProxy.users.getUserFrom(
 						"twitch",
-						event.mod.user_id,
+						event.broadcaster_user_id,
 						event.mod.user_id,
 						event.mod.user_login,
 						undefined,
@@ -2375,10 +2377,11 @@ export default class EventSub {
 						undefined,
 						false,
 					);
+					StoreProxy.users.flagMod("twitch", event.broadcaster_user_id, user.id);
 				} else {
 					user = StoreProxy.users.getUserFrom(
 						"twitch",
-						event.unmod.user_id,
+						event.broadcaster_user_id,
 						event.unmod.user_id,
 						event.unmod.user_login,
 						undefined,
@@ -2388,6 +2391,7 @@ export default class EventSub {
 						undefined,
 						false,
 					);
+					StoreProxy.users.flagUnmod("twitch", event.broadcaster_user_id, user.id);
 				}
 				const m: TwitchatDataTypes.MessageModerationAction = {
 					id: Utils.getUUID(),

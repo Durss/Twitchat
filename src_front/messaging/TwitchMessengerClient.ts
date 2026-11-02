@@ -763,7 +763,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private getUserFromTags(tags: AnyUserstate, channelId: string): TwitchatDataTypes.TwitchatUser {
 		const login = tags.login ?? tags.username ?? tags["display-name"];
 		const isMod = tags.badges?.moderator != undefined || tags.mod === true;
-		const isVip = tags.badges?.vip != undefined;
+		const isVip = tags.badges?.vip != undefined || tags.vip === true;
 		const isSub = tags.badges?.subscriber != undefined || tags.subscriber === true;
 		const isSubGifter = tags.badges && tags.badges["sub-gifter"] != undefined;
 		const isBroadcaster = tags.badges?.broadcaster != undefined;
@@ -785,14 +785,24 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		delete user.temporary; //Avoids useless server call
 
 		if (tags.color) user.color = tags.color;
-		if (isMod) {
-			if (user.id == StoreProxy.auth.twitch.user.id) {
-				StoreProxy.auth.setModeratorState(channelId, true);
-			} else {
-				channelInfo.is_moderator = true;
-			}
+
+		//Chat messages are the only source telling for sure what roles a user has on this
+		//channel. Other events miss the "vip" tag or aren't bound to a channel, and messages
+		//from a shared chat session may give the roles on the source channel.
+		const isChatMessage = tags["message-type"] == "chat" || tags["message-type"] == "action";
+		const isOtherChannel = tags["source-room-id"] && tags["source-room-id"] != tags["room-id"];
+		const canRemoveRoles = isChatMessage && !isOtherChannel;
+
+		if (isMod && !channelInfo.is_moderator) {
+			StoreProxy.users.flagMod("twitch", channelId, user.id);
+		} else if (!isMod && channelInfo.is_moderator && canRemoveRoles && user.id != channelId) {
+			StoreProxy.users.flagUnmod("twitch", channelId, user.id);
 		}
-		if (isVip) channelInfo.is_vip = true;
+		if (isVip && !channelInfo.is_vip) {
+			StoreProxy.users.flagVip("twitch", channelId, user.id);
+		} else if (!isVip && channelInfo.is_vip && canRemoveRoles) {
+			StoreProxy.users.flagUnvip("twitch", channelId, user.id);
+		}
 		if (isSub) channelInfo.is_subscriber = true;
 		if (isSubGifter) channelInfo.is_gifter = true;
 		if (isBroadcaster) channelInfo.is_broadcaster = true;
