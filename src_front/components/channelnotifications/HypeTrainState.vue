@@ -204,52 +204,6 @@ onMounted(() => {
 		conductor_bits.value = trainData.value.conductor_bits;
 	}
 
-	watch(
-		() => trainData.value,
-		() => {
-			dataChange();
-
-			if (!trainData.value) return;
-
-			try {
-				if (
-					conductor_subs.value &&
-					trainData.value.conductor_subs &&
-					JSON.stringify(conductor_subs.value) ==
-						JSON.stringify(trainData.value.conductor_subs)
-				)
-					return;
-
-				if (conductor_subs.value) {
-					gsap.killTweensOf(conductor_subs_holder.value as HTMLDivElement);
-					gsap.to(conductor_subs_holder.value as HTMLDivElement, {
-						duration: 0.25,
-						scale: 0,
-						ease: "sine.in",
-						onComplete: () => {
-							conductor_subs.value = trainData.value?.conductor_subs ?? null;
-							if (!conductor_subs.value) return;
-							nextTick().then(() => {
-								gsap.to(conductor_subs_holder.value as HTMLDivElement, {
-									duration: 0.25,
-									scale: 1,
-									ease: "sine.out",
-								});
-							});
-						},
-					});
-				} else if (trainData.value.conductor_subs) {
-					conductor_subs.value = trainData.value.conductor_subs;
-				} else {
-					conductor_subs.value = null;
-				}
-			} catch (error) {
-				console.log(error);
-			}
-		},
-		{ deep: true },
-	);
-
 	renderFrame();
 	dataChange();
 });
@@ -290,6 +244,52 @@ function renderFrame(): void {
 	timerDuration.value = trainData.value.state == "APPROACHING" ? remaining : 5 * 60 * 1000;
 	timerPercent.value = 1 - remaining / timerDuration.value;
 }
+
+watch(
+	() => trainData.value,
+	() => {
+		dataChange();
+
+		if (!trainData.value) return;
+
+		try {
+			if (
+				conductor_subs.value &&
+				trainData.value.conductor_subs &&
+				JSON.stringify(conductor_subs.value) ==
+					JSON.stringify(trainData.value.conductor_subs)
+			)
+				return;
+
+			if (conductor_subs.value) {
+				gsap.killTweensOf(conductor_subs_holder.value as HTMLDivElement);
+				gsap.to(conductor_subs_holder.value as HTMLDivElement, {
+					duration: 0.25,
+					scale: 0,
+					ease: "sine.in",
+					onComplete: () => {
+						conductor_subs.value = trainData.value?.conductor_subs ?? null;
+						if (!conductor_subs.value) return;
+						nextTick().then(() => {
+							gsap.to(conductor_subs_holder.value as HTMLDivElement, {
+								duration: 0.25,
+								scale: 1,
+								ease: "sine.out",
+							});
+						});
+					},
+				});
+			} else if (trainData.value.conductor_subs) {
+				conductor_subs.value = trainData.value.conductor_subs;
+			} else {
+				conductor_subs.value = null;
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	},
+	{ deep: true },
+);
 </script>
 
 <style scoped lang="less">
@@ -391,6 +391,9 @@ function renderFrame(): void {
 
 	&.golden_kappa {
 		@c: #f2b027;
+		.head {
+			background-color: @c;
+		}
 		h1,
 		.icon {
 			color: black;
@@ -403,6 +406,9 @@ function renderFrame(): void {
 
 	&.treasure {
 		@c: #f29d27;
+		.head {
+			background-color: @c;
+		}
 		h1,
 		.icon {
 			color: black;
