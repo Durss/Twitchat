@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" ref="rootEl">
-		<Icon class="icon" :name="props.messageData.type == 'connect' ? 'checkmark' : 'cross'" />
+		<Icon class="icon" :name="props.messageData.type == 'connect' ? 'checkmark' : 'offline'" />
 
 		<i18n-t
 			scope="global"
@@ -20,7 +20,8 @@
 		<template v-else>
 			<i18n-t
 				scope="global"
-				class="label messageWithTime"
+				class="label"
+				:class="{ messageWithTime: !showReconnectBt }"
 				tag="span"
 				keypath="chat.connect.off"
 			>
@@ -50,6 +51,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, onMounted, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import TTButton from "../TTButton.vue";
+import Icon from "../Icon.vue";
 
 const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageConnectData | TwitchatDataTypes.MessageDisconnectData;
@@ -125,7 +127,6 @@ async function reconnectChan(): Promise<void> {
 <style scoped lang="less">
 .chatconnect {
 	font-style: italic;
-	gap: 0.5em;
 
 	.label {
 		flex-basis: 100px;

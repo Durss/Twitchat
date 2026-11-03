@@ -239,7 +239,10 @@
 					/>
 				</span>
 				<span class="deleted" v-if="parentDeletedText">{{ parentDeletedText }}</span>
-				<MessageTranslation class="textTranslation" :messageData="messageData" />
+				<MessageTranslation
+					class="textTranslation messageWithTime"
+					:messageData="messageData"
+				/>
 			</span>
 
 			<template v-for="child in childMessages" :key="child.message.id">
