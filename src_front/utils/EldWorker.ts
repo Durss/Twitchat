@@ -2,7 +2,7 @@ import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 
 export type EldModel = "extrasmall" | "small" | "medium" | "large";
 
-type Language = (typeof TranslatableLanguagesMap)[keyof typeof TranslatableLanguagesMap];
+export type Language = (typeof TranslatableLanguagesMap)[keyof typeof TranslatableLanguagesMap];
 
 //ELD returns iso1 codes. Its "ku" is Kurdish in arabic script, which is Sorani
 const ISO1_TO_LANGUAGE: { [iso1: string]: Language } = {
@@ -64,6 +64,16 @@ export default class EldWorker {
 		this._worker.postMessage({ text, id });
 	}
 
+	/**
+	 * Frees the worker from memory and drops pending detections.
+	 * It's started back on next detection.
+	 */
+	public stop(): void {
+		this._worker?.terminate();
+		this._worker = null;
+		this._idToCallback = {};
+	}
+
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
@@ -86,11 +96,5 @@ export default class EldWorker {
 			this.stop();
 		};
 		return worker;
-	}
-
-	private stop(): void {
-		this._worker?.terminate();
-		this._worker = null;
-		this._idToCallback = {};
 	}
 }

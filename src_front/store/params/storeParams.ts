@@ -122,6 +122,20 @@ export const storeParams = defineStore("params", {
 				parent: 229,
 				icon: "voice",
 			},
+			autoTranslateModel: {
+				type: "list",
+				value: "lande",
+				multiple: false,
+				listValues: [
+					{ value: "lande", labelKey: "params.autoTranslate_models.lande" },
+					{ value: "eld_xs", labelKey: "params.autoTranslate_models.eld_xs" },
+					{ value: "eld_m", labelKey: "params.autoTranslate_models.eld_m" },
+				],
+				labelKey: "params.autoTranslate_model",
+				id: 239,
+				parent: 229,
+				icon: "params",
+			},
 			manyRepliesAlert: {
 				type: "boolean",
 				value: true,

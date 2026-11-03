@@ -101,6 +101,12 @@
 		"autoTranslate_first": "Translate only 1st message on your channel",
 		"autoTranslate_lang": "Language to translate to",
 		"autoTranslate_spoken": "Languages you're able to read\n(these messages won't be translated)",
+		"autoTranslate_model": "Language detection engine\n(🎯accuracy - 💾RAM - 🚀speed)",
+		"autoTranslate_models": {
+			"lande": "Lande (🎯78% - 💾9MB - 🚀slow)",
+			"eld_xs": "Eld XS (🎯93% - 💾20MB - 🚀fast)",
+			"eld_m": "Eld M (🎯95% - 💾33MB - 🚀fast)"
+		},
 		"categories": {
 			"main": "Parameters",
 			"ad": "Parameters",

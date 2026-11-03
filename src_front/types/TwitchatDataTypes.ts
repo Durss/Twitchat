@@ -507,6 +507,7 @@ export namespace TwitchatDataTypes {
 					| "autoTranslateFirst"
 					| "autoTranslateLang"
 					| "autoTranslateSpoken"
+					| "autoTranslateModel"
 					| "manyRepliesAlert"
 					| "manyRepliesAlertThreshold"
 					| "mergeConsecutive"

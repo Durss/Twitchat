@@ -1,4 +1,3 @@
-import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import EventBus from "@/events/EventBus";
 import GlobalEvent from "@/events/GlobalEvent";
 import SSEEvent from "@/events/SSEEvent";
@@ -8,7 +7,7 @@ import { type TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import ChatCypherPlugin from "@/utils/ChatCypherPlugin";
 import Config from "@/utils/Config";
-import LandeWorker from "@/utils/LandeWorker";
+import LanguageDetector from "@/utils/LanguageDetector";
 import Logger from "@/utils/Logger";
 import PublicAPI from "@/utils/PublicAPI";
 import SSEHelper from "@/utils/SSEHelper";
@@ -1451,16 +1450,7 @@ export const storeChat = defineStore("chat", {
 							.trim() || "";
 					if (text.length >= 10 && spokenLanguages.length > 0) {
 						//Check language of the message from the worker
-						LandeWorker.instance.lande(text, (langs) => {
-							const iso3 = langs[0]![0] as keyof typeof TranslatableLanguagesMap;
-							//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
-							//Also force english if first returned lang is Affrikaan and second is english.
-							//It detects most english messages as Afrikaan.
-							const lang =
-								langs[0]![1] < 0.6 ||
-								(langs[0]![0] == "afr" && langs[1]![0] == "eng")
-									? TranslatableLanguagesMap["eng"]
-									: TranslatableLanguagesMap[iso3];
+						LanguageDetector.instance.detect(text, (lang) => {
 							if (lang && !spokenLanguages.includes(lang.iso1)) {
 								const langTarget = (
 									sParams.features.autoTranslateLang.value as string[]

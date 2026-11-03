@@ -10,7 +10,7 @@ import domtoimage from "dom-to-image-more";
 import { h, reactive, type RendererElement, type RendererNode, type VNode } from "vue";
 import ApiHelper from "./ApiHelper";
 import Config from "./Config";
-import LandeWorker from "./LandeWorker";
+import LanguageDetector from "./LanguageDetector";
 import TriggerUtils from "./TriggerUtils";
 import Utils from "./Utils";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
@@ -932,19 +932,11 @@ export default class ContextMenuHelper {
 					.join("")
 					.trim() || "";
 			if (text.length >= 4) {
-				LandeWorker.instance.lande(text, (langs) => {
-					const iso3 = langs[0]![0] as keyof typeof TranslatableLanguagesMap;
-					//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
-					//Also force english if first returned lang is Affrikaan and second is english.
-					//It detects most inglish messages as Afrikaan.
-					const lang =
-						langs[0]![1] < 0.6 || (langs[0]![0] == "afr" && langs[1]![0] == "eng")
-							? TranslatableLanguagesMap["eng"]
-							: TranslatableLanguagesMap[iso3];
+				LanguageDetector.instance.detect(text, (lang) => {
 					const langTarget = (
 						StoreProxy.params.features.autoTranslateLang.value as string[]
 					)[0];
-					if (lang.iso1 != langTarget && lang && !spokenLanguages.includes(lang.iso1)) {
+					if (lang && lang.iso1 != langTarget && !spokenLanguages.includes(lang.iso1)) {
 						options.push({
 							label: t("chat.context_menu.translate"),
 							icon: this.getIcon("icons/translate.svg"),
