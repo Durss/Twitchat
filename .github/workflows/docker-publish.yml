@@ -4,6 +4,7 @@ on:
     push:
         branches: [main, beta]
         tags: ["v*"]
+    pull_request: {}
     workflow_dispatch: {}
 
 env:
@@ -11,7 +12,39 @@ env:
     IMAGE_NAME: ${{ github.repository }} # Durss/Twitchat -> ghcr.io/durss/twitchat (lowercased by metadata-action)
 
 jobs:
+    test:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: npm
+
+            # tmi.js and vue-select are pinned to git+ssh:// URLs in the lockfile and
+            # there's no SSH key on the runner: force HTTPS for these public repos.
+            # --add is required, a second plain `git config` would overwrite the first rewrite.
+            - name: Rewrite GitHub SSH URLs to HTTPS
+              run: |
+                  git config --global --add url."https://github.com/".insteadOf "ssh://git@github.com/"
+                  git config --global --add url."https://github.com/".insteadOf "git@github.com:"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run tests
+              run: npm test
+
     build-and-push:
+        needs: test
+        # PRs only get tested, never published
+        if: github.event_name != 'pull_request'
         runs-on: ubuntu-latest
         permissions:
             contents: read

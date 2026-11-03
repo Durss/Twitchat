@@ -184,6 +184,11 @@ export default class StoreProxy {
 		IMeldStudioGetters,
 		IMeldStudioActions
 	>;
+	public static chatCommands: StoreInstance<
+		IChatCommandsState,
+		IChatCommandsGetters,
+		IChatCommandsActions
+	>;
 	public static i18n: Composer<{}, {}, {}, string, never, string>;
 	public static router: Router;
 	public static asset: (path: string) => string;
@@ -266,6 +271,10 @@ export interface IMainState {
 	 * "true" if user choose to continue offline
 	 */
 	offlineMode: boolean;
+	/**
+	 * If set, server is in maintenance mode
+	 */
+	maintenance: TwitchatDataTypes.MaintenanceData | null;
 	/**
 	 * Triggers susspended from execution due to super high frequency
 	 * and loop
@@ -401,6 +410,15 @@ export interface IMainActions {
 	showOutdatedDataVersionAlert(): void;
 	hideOutdatedDataVersionAlert(offlineMode: boolean): void;
 	/**
+	 * Called when server maintenance state changes
+	 * @param data
+	 */
+	setMaintenanceState(data: TwitchatDataTypes.MaintenanceData): void;
+	/**
+	 * Saves any pending data and redirects to the maintenance page.
+	 */
+	leaveForMaintenance(): Promise<void>;
+	/**
 	 * Called when a trigger's exec stack is suspended
 	 * @param callstack
 	 */
@@ -427,6 +445,11 @@ export type IAuthState = {
 	 * Get a list of users we're sharing data with
 	 */
 	dataSharingUserList: string[];
+	/**
+	 * ID of current data owner
+	 * Our own ID unless another account shares their data with us.
+	 */
+	dataOwner: string;
 	/**
 	 * Contains the scope to request.
 	 * Use anytime the user tries to click a feature that's missing
@@ -539,6 +562,22 @@ export interface IAuthActions {
 	 * @param scopes
 	 */
 	twitch_updateAuthScopes(code: string): Promise<boolean>;
+	/**
+	 * Check if we're a moderator on given channel
+	 * @param channelId
+	 */
+	isModerator(channelId: string): boolean;
+	/**
+	 * Update our moderation state on given channel
+	 * @param channelId
+	 * @param isMod
+	 */
+	setModeratorState(channelId: string, isMod: boolean): void;
+	/**
+	 * Defines which channels we're a moderator on
+	 * @param list
+	 */
+	setModeratedChannels(list: TwitchDataTypes.ModeratedUser[]): void;
 }
 
 export interface IAutomodState {
@@ -1795,9 +1834,11 @@ export interface IStreamActions {
 	): Promise<TwitchatDataTypes.AbstractTwitchatMessage["channelSource"] | undefined>;
 	/**
 	 * Connects to an extra channel
+	 * Returns false if there's not enough room left on EventSub's
+	 * socket for this channel's subscriptions
 	 * @param login
 	 */
-	connectToExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<void>;
+	connectToExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<boolean>;
 	/**
 	 * Disconnects from an extra channel
 	 * @param login
@@ -2203,6 +2244,14 @@ export interface IUsersActions {
 		loadExtras?: boolean,
 	): TwitchatDataTypes.TwitchatUser;
 	/**
+	 * Waits for a temporary user returned by getUserFrom() to be fully loaded.
+	 * Resolves immediately if the user isn't temporary.
+	 * Also resolves if loading failed, check the "errored" flag.
+	 *
+	 * @param user
+	 */
+	waitUserLoaded(user: TwitchatDataTypes.TwitchatUser): Promise<TwitchatDataTypes.TwitchatUser>;
+	/**
 	 * Get given user's color
 	 * @param login
 	 */
@@ -2212,7 +2261,7 @@ export interface IUsersActions {
 	 */
 	initBlockedUsers(): Promise<void>;
 	/**
-	 * Flag a user as moderator
+	 * Flag a user as moderator and removes their VIP role
 	 * @param platform
 	 * @param channelId
 	 * @param uid
@@ -2546,6 +2595,21 @@ export interface IAdminActions {
 	 * Removes gifted premium membership from given user
 	 */
 	ungiftPremium(login: string): Promise<void>;
+	/**
+	 * Get current server maintenance state
+	 */
+	getMaintenance(): Promise<TwitchatDataTypes.MaintenanceData | null>;
+	/**
+	 * Update server maintenance state
+	 * @param state
+	 * @param lockInMinutes delay before clients leave the app (state "announced" only)
+	 * @param message optional message per language shown to users
+	 */
+	setMaintenance(
+		state: TwitchatDataTypes.MaintenanceData["state"],
+		lockInMinutes?: number,
+		message?: TwitchatDataTypes.MaintenanceData["message"],
+	): Promise<TwitchatDataTypes.MaintenanceData | null>;
 }
 
 export interface ICountersState {
@@ -2604,6 +2668,11 @@ export interface ICountersActions {
 		user?: TwitchatDataTypes.TwitchatUser,
 		userId?: string,
 	): number;
+	/**
+	 * Clamps given counter value within the min/max limits.
+	 * @param
+	 */
+	clampToLimits(id: string): number;
 	/**
 	 * Deletes a per-user counter entry
 	 * @param id
@@ -4622,6 +4691,7 @@ export interface IAPIActions {
 export interface IBlueskyState {
 	connected: boolean;
 	connectionError: string | null;
+	authPending: boolean;
 	autoLive: boolean;
 	dmsAlerts: boolean;
 	mentionsAlerts: boolean;
@@ -4756,4 +4826,75 @@ export interface IMeldStudioActions {
 	 * Saves current data to server
 	 */
 	saveConfigs(): void;
+}
+
+export interface IChatCommandsState {
+	/**
+	 * Chat commands/scheduled list
+	 */
+	entryList: TwitchatDataTypes.ChatCommandData[];
+	/**
+	 * latest 20 deleted entries so we can restore them
+	 */
+	trash: TwitchatDataTypes.ChatCommandData[];
+	/**
+	 * Global chat command params
+	 */
+	params: TwitchatDataTypes.ChatCommandsParams;
+	/**
+	 * Triggers generated from the entries
+	 */
+	generatedTriggers: TriggerData[];
+}
+
+export interface IChatCommandsGetters {}
+
+export interface IChatCommandsActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData(): void;
+	/**
+	 * Creates a new entry with default values (not added to the list)
+	 */
+	createEntry(): TwitchatDataTypes.ChatCommandData;
+	/**
+	 * Adds an entry
+	 * Returns false if limit is reached
+	 * @param entry
+	 */
+	addEntry(entry: TwitchatDataTypes.ChatCommandData): boolean;
+	/**
+	 * Deletes an entry
+	 * @param id
+	 * @param keepForUndo keeps the entry so it can be restored later
+	 */
+	deleteEntry(id: string, keepForUndo?: boolean): void;
+	/**
+	 * Restores an entry previously deleted
+	 * Returns false if restoration failed
+	 * @param id
+	 */
+	restoreEntry(id: string): boolean;
+	/**
+	 * Returns the first command conflicting with the given commands, if any
+	 * @param commands command and aliases to check
+	 * @param ignoreEntryId entry to ignore from the check
+	 * @param ignoreManageCommands ignore chat management commands from the check
+	 */
+	getConflict(
+		commands: string[],
+		ignoreEntryId?: string,
+		ignoreManageCommands?: boolean,
+	): string | null;
+	/**
+	 * Handles chat commands management from chat
+	 * @param message
+	 * @param cmd
+	 */
+	handleChatCommand(message: TwitchatDataTypes.TranslatableMessage, cmd: string): Promise<void>;
+	/**
+	 * Saves data and refreshes generated triggers
+	 */
+	saveData(): void;
 }

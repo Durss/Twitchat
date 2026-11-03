@@ -17,6 +17,10 @@ services:
             # so prod and beta can run on the same host without colliding.
             - "${HOST_PORT:-3018}:3018"
         restart: unless-stopped
+        ulimits:
+            nofile:
+                soft: 524288
+                hard: 524288
         volumes:
             - ./data:/opt/twitchat/data
             # Keeps previous builds' hashed assets across deploys (see docker-entrypoint.sh)

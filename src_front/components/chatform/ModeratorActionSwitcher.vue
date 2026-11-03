@@ -4,10 +4,11 @@
 			:icon="modeToIcon[mode]"
 			class="button"
 			@click.stop="open"
+			@click.right.prevent="cycleOptions"
 		></ButtonNotification>
 
 		<div class="popin blured-background-window" ref="popin" v-if="expand">
-			<template v-if="broadcastermode">
+			<template v-if="availableModes.includes('dm_mods')">
 				<div v-if="showDetails == 2" class="card-item infos">
 					{{ t("chat.form.mode_private_mods_only_details", { USER: broadcasterName }) }}
 				</div>
@@ -40,6 +41,7 @@
 				</div>
 
 				<TTButton
+					v-if="availableModes.includes('dm')"
 					class="addChanBt"
 					:icon="modeToIcon.dm"
 					@click="setMode('dm')"
@@ -57,6 +59,7 @@
 				transparent medium>{{ t("chat.form.mode_private_mods", {USER:broadcasterName}) }}</TTButton> -->
 
 				<TTButton
+					v-if="availableModes.includes('question')"
 					class="addChanBt"
 					:icon="modeToIcon.question"
 					@click="setMode('question')"
@@ -69,6 +72,7 @@
 			</template>
 
 			<TTButton
+				v-if="availableModes.includes('message')"
 				class="addChanBt"
 				:icon="modeToIcon.message"
 				@click="setMode('message')"
@@ -105,10 +109,11 @@ const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeChat = useStoreChat();
 const storeStream = useStoreStream();
-const popin = useTemplateRef<HTMLDivElement>("popin");
+const popin = useTemplateRef("popin");
 
-const expand = ref<boolean>(false);
-const showDetails = ref<number>(-1);
+const expand = ref(false);
+const activeMode = ref<IChatState["messageMode"]>("message");
+const showDetails = ref(-1);
 const modeToIcon: { [key in IChatState["messageMode"]]: string } = {
 	dm: "broadcaster",
 	dm_mods: "mod",
@@ -118,11 +123,17 @@ const modeToIcon: { [key in IChatState["messageMode"]]: string } = {
 
 let clickHandler!: (e: MouseEvent) => void;
 
-const broadcastermode = computed<boolean>(() => {
+const broadcastermode = computed(() => {
 	return storeStream.currentChatChannel.id == storeAuth.twitch.user.id;
 });
-const broadcasterName = computed<string>(() => {
+const broadcasterName = computed(() => {
 	return storeStream.currentChatChannel.name;
+});
+const availableModes = computed<IChatState["messageMode"][]>(() => {
+	if (broadcastermode.value) {
+		return ["dm_mods", "message"];
+	}
+	return ["dm", "question", "message"];
 });
 
 onBeforeMount(() => {
@@ -179,6 +190,7 @@ function close(): void {
  * Called when changing mode
  */
 function setMode(mode: IChatState["messageMode"]): void {
+	activeMode.value = mode;
 	emit("update:mode", mode);
 	close();
 }
@@ -198,6 +210,12 @@ function onClickDOM(e: MouseEvent): void {
 	if (target === document.body) {
 		close();
 	}
+}
+
+function cycleOptions(): void {
+	const currentIndex = availableModes.value.indexOf(activeMode.value);
+	const newMode = availableModes.value[(currentIndex + 1) % availableModes.value.length];
+	if (newMode) setMode(newMode);
 }
 </script>
 

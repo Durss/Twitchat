@@ -100,6 +100,9 @@ export default class ApiHelper {
 					// StoreProxy.common.alert( StoreProxy.i18n.t("error.rate_limit") );
 				}
 			}
+		} else if (status == 503 && json?.errorCode == "MAINTENANCE") {
+			//Server is locked for maintenance, no need to retry.
+			void StoreProxy.main?.leaveForMaintenance();
 		} else if (
 			retryOnFail &&
 			status != 200 &&
@@ -351,6 +354,30 @@ type ApiEndpoints = {
 			};
 		};
 	};
+	"admin/maintenance": {
+		GET: {
+			parameters: void;
+			response: {
+				success: boolean;
+				data: TwitchatDataTypes.MaintenanceData;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+		POST: {
+			parameters: {
+				state: TwitchatDataTypes.MaintenanceData["state"];
+				lockInMinutes?: number;
+				message?: TwitchatDataTypes.MaintenanceData["message"];
+			};
+			response: {
+				success: boolean;
+				data: TwitchatDataTypes.MaintenanceData;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
 	"admin/premium": {
 		POST: {
 			parameters: {
@@ -491,6 +518,7 @@ type ApiEndpoints = {
 					discordLinked: boolean;
 					patreonLinked: string;
 					dataSharing: string[];
+					dataOwner?: string;
 					has_api_key: boolean;
 					features?: IAuthState["featureFlags"];
 				};

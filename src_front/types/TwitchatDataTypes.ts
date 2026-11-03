@@ -176,6 +176,7 @@ export namespace TwitchatDataTypes {
 		PREMIUM: "premium",
 		TIMERS: "timers",
 		EXPORTER: "exporter",
+		CHAT_COMMANDS: "chatCommands",
 	} as const;
 	export type ParameterPagesStringType = (typeof ParameterPages)[keyof typeof ParameterPages];
 
@@ -493,90 +494,94 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface IParameterCategory {
 		features: {
-			[key in
-				| "spoilersEnabled"
-				| "alertMode"
-				| "firstMessage"
-				| "saveHistory"
-				| "antiHateRaid"
-				| "antiHateRaidDeleteMessage"
-				| "antiHateRaidEmergency"
-				| "autoTranslate"
-				| "autoTranslateFirst"
-				| "autoTranslateLang"
-				| "autoTranslateSpoken"
-				| "manyRepliesAlert"
-				| "manyRepliesAlertThreshold"
-				| "mergeConsecutive"
-				| "mergeConsecutive_maxSize"
-				| "mergeConsecutive_maxSizeTotal"
-				| "mergeConsecutive_minDuration"
-				| "groupIdenticalMessage"
-				| "markAsRead"
-				| "conversationsEnabled"
-				| "userHistoryEnabled"
-				| "lockAutoScroll"
-				| "liveMessages"
-				| "liveAlerts"
-				| "autoRemod"
-				| "showModTools"
-				| "raffleHighlightUser"
-				| "raffleHighlightUserDuration"
-				| "offlineEmoteOnly"
-				| "stopStreamOnRaid"
-				| "showUserPronouns"
-				| "chatShoutout"]: ParameterData<string | number | boolean | string[]>;
+			[
+				key in
+					| "spoilersEnabled"
+					| "alertMode"
+					| "firstMessage"
+					| "saveHistory"
+					| "antiHateRaid"
+					| "antiHateRaidDeleteMessage"
+					| "antiHateRaidEmergency"
+					| "autoTranslate"
+					| "autoTranslateFirst"
+					| "autoTranslateLang"
+					| "autoTranslateSpoken"
+					| "manyRepliesAlert"
+					| "manyRepliesAlertThreshold"
+					| "mergeConsecutive"
+					| "mergeConsecutive_maxSize"
+					| "mergeConsecutive_maxSizeTotal"
+					| "mergeConsecutive_minDuration"
+					| "groupIdenticalMessage"
+					| "markAsRead"
+					| "conversationsEnabled"
+					| "userHistoryEnabled"
+					| "lockAutoScroll"
+					| "liveMessages"
+					| "liveAlerts"
+					| "autoRemod"
+					| "showModTools"
+					| "raffleHighlightUser"
+					| "raffleHighlightUserDuration"
+					| "offlineEmoteOnly"
+					| "stopStreamOnRaid"
+					| "showUserPronouns"
+					| "chatShoutout"
+			]: ParameterData<string | number | boolean | string[]>;
 		};
 		appearance: {
-			[key in
-				| "splitViewVertical"
-				| "censorDeletedMessages"
-				| "multiChatAvatar"
-				| "multiChatColor"
-				| "sharedChatHide"
-				| "hideAnswersTo"
-				| "highlightusernames"
-				| "highlightMods"
-				| "highlightMods_color"
-				| "highlightVips"
-				| "highlightVips_color"
-				| "highlightSubs"
-				| "highlightSubs_color"
-				| "highlightPartners"
-				| "highlightPartners_color"
-				| "highlightMentions"
-				| "highlightMentions_color"
-				| "highlightMentions_custom"
-				| "raidHighlightUser"
-				| "raidHighlightUser_color"
-				| "raidHighlightUserDuration"
-				| "raidHighlightUserTrack"
-				| "highlight1stEver"
-				| "highlight1stEver_color"
-				| "highlight1stToday"
-				| "highlight1stToday_color"
-				| "highlightNonFollowers"
-				| "helloBadge"
-				| "firstUserBadge"
-				| "recentAccountUserBadge"
-				| "translateNames"
-				| "showRewardsInfos"
-				| "showViewersCount"
-				| "showRaidViewersCount"
-				| "showRaidStreamInfo"
-				| "alternateMessageBackground"
-				| "showEmotes"
-				| "bttvEmotes"
-				| "ffzEmotes"
-				| "sevenTVEmotes"
-				| "showBadges"
-				| "minimalistBadges"
-				| "fadeAnswers"
-				| "displayTime"
-				| "displayTimeRelative"
-				| "dyslexicFont"
-				| "adhdFont"
-				| "defaultSize"]: ParameterData<string | number | boolean | string[]>;
+			[
+				key in
+					| "splitViewVertical"
+					| "censorDeletedMessages"
+					| "multiChatAvatar"
+					| "multiChatColor"
+					| "sharedChatHide"
+					| "hideAnswersTo"
+					| "highlightusernames"
+					| "highlightMods"
+					| "highlightMods_color"
+					| "highlightVips"
+					| "highlightVips_color"
+					| "highlightSubs"
+					| "highlightSubs_color"
+					| "highlightPartners"
+					| "highlightPartners_color"
+					| "highlightMentions"
+					| "highlightMentions_color"
+					| "highlightMentions_custom"
+					| "raidHighlightUser"
+					| "raidHighlightUser_color"
+					| "raidHighlightUserDuration"
+					| "raidHighlightUserTrack"
+					| "highlight1stEver"
+					| "highlight1stEver_color"
+					| "highlight1stToday"
+					| "highlight1stToday_color"
+					| "highlightNonFollowers"
+					| "helloBadge"
+					| "firstUserBadge"
+					| "recentAccountUserBadge"
+					| "translateNames"
+					| "showRewardsInfos"
+					| "showViewersCount"
+					| "showRaidViewersCount"
+					| "showRaidStreamInfo"
+					| "alternateMessageBackground"
+					| "showEmotes"
+					| "bttvEmotes"
+					| "ffzEmotes"
+					| "sevenTVEmotes"
+					| "showBadges"
+					| "minimalistBadges"
+					| "fadeAnswers"
+					| "displayTime"
+					| "displayTimeRelative"
+					| "dyslexicFont"
+					| "adhdFont"
+					| "defaultSize"
+			]: ParameterData<string | number | boolean | string[]>;
 		};
 	}
 	export type ParameterCategory = keyof IParameterCategory;
@@ -1780,6 +1785,96 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Simple chat command and/or scheduled message.
+	 * Converted to hidden CHAT_COMMAND/SCHEDULE triggers at runtime
+	 */
+	export interface ChatCommandData {
+		id: string;
+		/**
+		 * Is the entry enabled
+		 */
+		enabled: boolean;
+		/**
+		 * User defined title. Falls back to command name or message if empty
+		 */
+		title?: string;
+		/**
+		 * Message sent on chat
+		 */
+		message: string;
+		/**
+		 * Chat command params
+		 */
+		command: {
+			/**
+			 * Is the chat command enabled
+			 */
+			enabled: boolean;
+			/**
+			 * Command name (ex: "!socials")
+			 */
+			name: string;
+			/**
+			 * Command aliases
+			 */
+			aliases: string[];
+			/**
+			 * Who's allowed to use the command
+			 */
+			permissions: PermissionsData;
+			/**
+			 * Cooldowns in seconds
+			 */
+			cooldown: {
+				global: number;
+				user: number;
+				alert: boolean;
+			};
+			/**
+			 * Should the command be usable from other channels (premium only)
+			 */
+			remoteChans: boolean;
+		};
+		/**
+		 * Schedule params
+		 */
+		schedule: {
+			/**
+			 * Is the schedule enabled
+			 */
+			enabled: boolean;
+			/**
+			 * Interval in seconds
+			 */
+			repeatDuration: number;
+			/**
+			 * Minimum chat messages between two posts
+			 */
+			repeatMinMessages: number;
+		};
+		created_at: number;
+		updated_at: number;
+		/**
+		 * Login of the last user who edited the entry from chat
+		 */
+		updatedBy?: string;
+	}
+
+	/**
+	 * Simple chat commands global params
+	 */
+	export interface ChatCommandsParams {
+		/**
+		 * Allow managing commands from chat
+		 */
+		manageEnabled: boolean;
+		/**
+		 * Who's allowed to manage commands from chat
+		 */
+		managePermissions: PermissionsData;
+	}
+
+	/**
 	 * Contains info about a timer/countdown
 	 */
 	export interface TimerData {
@@ -2569,6 +2664,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface RaidInfo {
 		channel_id: string;
+		channel_login: string;
 		user: TwitchatUser;
 		viewerCount: number;
 		startedAt: number;
@@ -2846,6 +2942,32 @@ export namespace TwitchatDataTypes {
 		text: { [key: string]: string };
 		dateEnd?: number;
 		versionMax?: string;
+	}
+
+	/**
+	 * Represents server's maintenance state
+	 */
+	export interface MaintenanceData {
+		/**
+		 * off: no maintenance
+		 * announced: banner with countdown until "lockAt", then clients leave the app
+		 * locked: server refuses API calls, users should be redirected to maintenance
+		 */
+		state: "off" | "announced" | "locked";
+		/**
+		 * Server timestamp at which clients must me redirected to maintenance page
+		 */
+		lockAt: number;
+		/**
+		 * Remaining ms before "lockAt" when server sent the data.
+		 * Use this instead of "lockAt" in case client's clock is off
+		 */
+		lockIn: number;
+		/**
+		 * Optional message per language to display to users
+		 * ex: {en:"...", fr:"..."}
+		 */
+		message: { [lang: string]: string };
 	}
 
 	/**
@@ -5151,6 +5273,7 @@ export namespace TwitchatDataTypes {
 		LOW_TRUST_TREATMENT: "low_trust_treatment",
 		YOUTUBE_JEWELS_GIFT: "youtube_jewels_gift",
 		SHARED_CHAT_SESSION: "shared_chat_session",
+		CHAT_COMMAND_UPDATE: "chat_command_update",
 		CUSTOM_TRAIN_SUMMARY: "custom_train_summary",
 		STREAMLOOTS_PURCHASE: "streamloots_purchase",
 		STREAMLOOTS_REACTION: "streamloots_reaction",
@@ -5284,6 +5407,7 @@ export namespace TwitchatDataTypes {
 		goxlr_sound_input: false,
 		youtube_jewels_gift: true,
 		shared_chat_session: true,
+		chat_command_update: true,
 		private_mod_message: true,
 		raffle_pick_winner: false,
 		low_trust_treatment: true,
@@ -5442,6 +5566,7 @@ export namespace TwitchatDataTypes {
 		| MessageAdBreakApproachingData
 		| MessageAdBreakCompleteData
 		| MessageCustomData
+		| MessageChatCommandUpdateData
 		| MessageQnaStartData
 		| MessageQnaStopData
 		| MessageQnaDeleteData
@@ -9094,6 +9219,38 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a user warning acknowledgement data
 	 */
+	/**
+	 * Represents a simple chat command added, edited or removed
+	 * from chat by a moderator
+	 */
+	export interface MessageChatCommandUpdateData extends AbstractTwitchatMessage {
+		type: "chat_command_update";
+		/**
+		 * User who made the change
+		 */
+		user: TwitchatUser;
+		/**
+		 * Change made to the command
+		 */
+		action: "add" | "edit" | "remove";
+		/**
+		 * Command name
+		 */
+		command: string;
+		/**
+		 * Command's message (removed message for "remove" action)
+		 */
+		message: string;
+		/**
+		 * ID of the chat command entry
+		 */
+		entryId: string;
+		/**
+		 * true if the removed command has been restored
+		 */
+		restored?: boolean;
+	}
+
 	export interface MessageWarnAcknowledgementData extends AbstractTwitchatMessage {
 		type: "warn_acknowledge";
 		/**

@@ -7,14 +7,14 @@
 					<strong>{{ messageData.quizResult.quizName }}</strong>
 				</template>
 			</i18n-t>
-			<span class="info">
+			<span class="info messageWithTime">
 				<Icon name="user" />
 				<strong>x{{ rankedUsers.length }}</strong>
 				<Icon name="leaderboard" />
 				<strong v-if="rankedUsers[0]?.isAnonymous">{{
 					rankedUsers[0]?.name || $t("global.loading")
 				}}</strong>
-				<a href="#" @click.stop="openWinner()" v-else
+				<a href="#" @click="openWinner()" v-else
 					><strong>{{
 						messageData.quizResult.winner.displayName || $t("global.loading")
 					}}</strong></a
@@ -26,7 +26,6 @@
 				:icons="['leaderboard']"
 				:open="false"
 				:title="$t('chat.quiz_result.leaderboard_bt')"
-				@click.stop
 				@update:open="onExpandLeaderboard()"
 			>
 				<SearchForm v-model="userSearch" :debounceDelay="0" @submit="nextSearchResult()" />
@@ -267,6 +266,11 @@ watch(userSearch, () => {
 	.leadeboard {
 		width: 100%;
 		z-index: 0;
+		&.closed {
+			width: fit-content;
+			transition: width 0.5s;
+			transition-behavior: allow-discrete;
+		}
 	}
 	.searchField {
 		width: 100%;

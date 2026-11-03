@@ -11,13 +11,18 @@
 		<!-- <img :src="messageData.user.avatarPath" class="avatar" alt="avatar" v-if="messageData.user.avatarPath" referrerpolicy="no-referrer"> -->
 
 		<div class="holder">
-			<i18n-t scope="global" tag="p" keypath="chat.youtube_subgift.title">
+			<i18n-t
+				scope="global"
+				tag="p"
+				keypath="chat.youtube_subgift.title"
+				class="messageWithTime"
+			>
 				<template #USER>
 					<a
 						class="userlink"
 						:href="getProfilePage(messageData.user)"
 						target="_blank"
-						@click.stop.prevent="
+						@click.prevent="
 							openUserCard(
 								messageData.user,
 								messageData.channel_id,
@@ -43,9 +48,7 @@
 					>
 						<a
 							class="userlink"
-							@click.stop="
-								openUserCard(u, messageData.channel_id, messageData.platform)
-							"
+							@click="openUserCard(u, messageData.channel_id, messageData.platform)"
 							>{{ u.displayName }}</a
 						>
 						<span v-if="index == messageData.gift_recipients.length - 2"

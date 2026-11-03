@@ -13,6 +13,14 @@
 			<TTButton @click="clearList()" icon="trash" alert>{{ $t("global.clear") }}</TTButton>
 		</div>
 
+		<SearchForm
+			class="search"
+			v-if="logs.length > 0"
+			v-model="search"
+			:debounceDelay="0"
+			:autoFocus="false"
+		/>
+
 		<div class="content empty" v-if="logs.length == 0 && !reloading">
 			{{ $t("triggers.logs.empty") }}
 		</div>
@@ -21,8 +29,12 @@
 			<Icon class="loader" name="loader" />
 		</div>
 
+		<div class="content empty" v-else-if="filteredLogs.length == 0">
+			{{ $t("global.no_result") }}
+		</div>
+
 		<div class="content entries" v-else-if="!reloading">
-			<div v-for="item in logs" :key="item.id" :class="getTriggerClasses(item)">
+			<div v-for="item in filteredLogs" :key="item.id" :class="getTriggerClasses(item)">
 				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
 					<div class="infos">
 						<img
@@ -114,11 +126,13 @@ import Logger, { type LogTrigger, type LogTriggerStep } from "@/utils/Logger";
 import TriggerUtils from "@/utils/TriggerUtils";
 import Utils from "@/utils/Utils";
 import { ref, computed, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 import { useSidePanel } from "@/composables/useSidePanel";
 import { asset } from "@/composables/useAsset";
 import ClearButton from "../ClearButton.vue";
 import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
+import SearchForm from "../params/contents/SearchForm.vue";
 
 const emit = defineEmits<{
 	close: [];
@@ -127,12 +141,27 @@ const emit = defineEmits<{
 const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
 const { close } = useSidePanel(rootEl, emit);
 const { getAsset } = asset();
+const { t } = useI18n();
 
 const reloading = ref<boolean>(false);
+const search = ref("");
 const idToExpandState = ref<{ [key: string]: boolean }>({});
 
 const logs = computed<LogTrigger[]>(() => {
 	return Logger.instance.getLogs("triggers").concat().reverse();
+});
+
+/**
+ * Logs whose trigger name or event type matches the search
+ */
+const filteredLogs = computed<LogTrigger[]>(() => {
+	const query = search.value.trim();
+	if (!query) return logs.value;
+	return logs.value.filter((log) => {
+		const info = getTriggerInfo(log.trigger);
+		const eventLabel = info.event?.labelKey ? t(info.event.labelKey) : "";
+		return Utils.search(info.label, query) || Utils.search(eventLabel, query);
+	});
 });
 
 function getTriggerClasses(log: LogTrigger): string[] {
@@ -194,6 +223,14 @@ function clearList(): void {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
+	}
+
+	.search {
+		width: 100%;
+		max-width: 600px;
+		margin: 1em auto 0 auto;
+		padding: 0 1em;
+		flex-shrink: 0;
 	}
 
 	.entries {

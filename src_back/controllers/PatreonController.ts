@@ -80,6 +80,10 @@ export default class PatreonController extends AbstractController {
 			"/api/patreon/isApiDown",
 			async (request, response) => await this.getApiDown(request, response),
 		);
+		this.server.get(
+			"/api/patreon/links",
+			async (request, response) => await this.getLinks(request, response),
+		);
 		this.server.post(
 			"/api/patreon/webhook",
 			{ config: { rawBody: true } },
@@ -400,6 +404,7 @@ export default class PatreonController extends AbstractController {
 							);
 							//User just became premium, drop any cached state
 							super.clearPremiumCache(uid);
+							void this.notifyUpdateToDonorsService();
 						}
 					}
 
@@ -595,6 +600,81 @@ export default class PatreonController extends AbstractController {
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(JSON.stringify({ success: true, data: { isDown: this.patreonApiDown } }));
+	}
+
+	/**
+	 * Gets all the Twitch user ID => Patreon member ID links.
+	 * Called by remote donor service
+	 * @param request
+	 * @param response
+	 */
+	public async getLinks(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const secret = Config.credentials.donors_remote_api_secret;
+		if (!secret || !Utils.safeStringEquals(request.headers.authorization, secret)) {
+			response.header("Content-Type", "application/json");
+			response.status(401);
+			response.send(
+				JSON.stringify({
+					success: false,
+					errorCode: "UNAUTHORIZED",
+					message: "You're not allowed to call this endpoint",
+				}),
+			);
+			return;
+		}
+
+		let links: Record<string, string> = {};
+		try {
+			// do NOT use readCachedJsonFile here we want a failure if read fails
+			links = JSON.parse(await Utils.readFileAsync(Config.twitch2Patreon, "utf-8"));
+		} catch (error) {
+			//No file yet simply means nobody linked their account
+			if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+				Logger.error("[PATREON] Unable to load Patreon links file");
+				console.log(error);
+				response.header("Content-Type", "application/json");
+				response.status(500);
+				response.send(
+					JSON.stringify({
+						success: false,
+						errorCode: "LINKS_LOAD_FAILED",
+						message: "Unable to load Patreon links",
+					}),
+				);
+				return;
+			}
+		}
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true, data: { links } }));
+	}
+
+	/**
+	 * Tells the remote donor service a Twitch account has just been linked to
+	 * a Patreon member.
+	 */
+	private async notifyUpdateToDonorsService(): Promise<void> {
+		if (!Config.credentials.donors_endpoint_url) return;
+		try {
+			const result = await fetch(
+				Config.credentials.donors_endpoint_url + "api/patreon/linked",
+				{
+					method: "POST",
+					headers: { Authorization: Config.credentials.donors_remote_api_secret },
+				},
+			);
+			if (result.status != 200) {
+				Logger.warn(
+					"[PATREON] Notifying donor service of a new link failed (HTTP " +
+						result.status +
+						")",
+				);
+			}
+		} catch (error) {
+			Logger.warn("[PATREON] Notifying donor service of a new link failed");
+			console.log(error);
+		}
 	}
 
 	/**

@@ -1263,9 +1263,7 @@ watch(
 					void openPanel();
 				});
 			}
-			while (user.value.temporary === true) {
-				await Utils.promisedTimeout(250);
-			}
+			await storeUsers.waitUserLoaded(user.value);
 			if (platform.value == "twitch" && !user.value.channelInfo[chanId]) {
 				storeUsers.getUserFrom(
 					"twitch",

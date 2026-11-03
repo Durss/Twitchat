@@ -1179,7 +1179,7 @@ function deleteData(): void {
 	deletingData.value = true;
 	confirm(
 		"Delete your data?",
-		"You will be logged out and all your Twitchat parameters will be erased from Twitchat server and from your browser storage.<br><br><strong>Cette action est irréversible</strong>!",
+		"You will be logged out and all your Twitchat parameters will be erased from Twitchat server and from your browser storage.<br><br>If you share your parameters with other accounts, they will keep a copy of them.<br><br><strong>This cannot be undone</strong>!",
 	)
 		.then(() => {
 			ApiHelper.call("user/data", "DELETE").then(() => {

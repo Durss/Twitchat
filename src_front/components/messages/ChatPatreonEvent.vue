@@ -6,7 +6,12 @@
 		<Icon name="patreon" alt="patreon" class="icon" />
 
 		<div class="messageHolder">
-			<i18n-t scope="global" tag="span" keypath="chat.patreon.new_member">
+			<i18n-t
+				scope="global"
+				tag="span"
+				keypath="chat.patreon.new_member"
+				class="messageWithTime"
+			>
 				<template #USER>
 					<a :href="messageData.user.url" target="_blank"
 						><strong

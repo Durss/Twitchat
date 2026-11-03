@@ -14,7 +14,7 @@
 		</div>
 
 		<TTButton
-			@click.stop="resume()"
+			@click="resume()"
 			v-if="messageData.triggerStack.resume"
 			small
 			light
@@ -23,7 +23,7 @@
 			>{{ $t("chat.suspended_trigger_stack.resumeBt") }}</TTButton
 		>
 
-		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
+		<ClearButton class="closeBt" @click="deleteMessage()" small />
 	</div>
 </template>
 

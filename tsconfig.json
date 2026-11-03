@@ -11,8 +11,7 @@
 		"noUncheckedIndexedAccess": true,
 		"types": ["@types/dom-screen-wake-lock", "vue3-marquee"],
 		"paths": {
-			"@/*": ["./src_front/*"],
-			"vitest": ["./node_modules/@voidzero-dev/vite-plus-test"]
+			"@/*": ["./src_front/*"]
 		},
 		"lib": ["esnext", "dom", "dom.iterable"]
 	},

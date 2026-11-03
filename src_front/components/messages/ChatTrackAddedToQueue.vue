@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes" @contextmenu="onContextMenu($event, messageData, $el)">
 		<Icon name="music" alt="notice" class="icon" />
-		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
+		<ClearButton class="closeBt" @click="deleteMessage()" small />
 
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" :keypath="labelKey">
@@ -11,7 +11,7 @@
 							class="userlink"
 							:href="'https://twitch.tv/' + messageData.user.login"
 							target="_blank"
-							@click.stop.prevent="
+							@click.prevent="
 								openUserCard(messageData.user!, messageData.channel_id)
 							"
 							>{{ messageData.user.displayName }}</a
@@ -59,7 +59,7 @@
 					small
 					icon="delete"
 					v-if="messageData.skipped !== true && !messageData.playlistTarget"
-					@click.stop="removeTrack()"
+					@click="removeTrack()"
 					alert
 					v-tooltip="$t('chat.added_to_queue.skip_track')"
 				/>
@@ -68,7 +68,7 @@
 					small
 					icon="ban"
 					v-if="canBanFromSR && !isBanned"
-					@click.stop="banFromSR()"
+					@click="banFromSR()"
 					secondary
 					v-tooltip="$t('chat.added_to_queue.ban_user')"
 				/>
@@ -77,7 +77,7 @@
 					small
 					icon="unban"
 					v-if="canBanFromSR && isBanned"
-					@click.stop="unBanFromSR()"
+					@click="unBanFromSR()"
 					alert
 					v-tooltip="$t('chat.added_to_queue.unban_user')"
 				/>

@@ -7,7 +7,7 @@
 		"updatesBt": "Dernières mises à jour",
 		"erase_dataBt": "Effacer les paramètres locaux",
 		"erase_confirm_title": "Effacer vos paramètres ?",
-		"erase_confirm_description": "Cela effacera uniquement les paramètres de ce navigateur.<br>Les triggers, les commandes vocales, les paramètres automod, les paramètres du mode urgence, etc... seront réinitialisés.",
+		"erase_confirm_description": "Cela effacera uniquement les paramètres de ce navigateur.<br>Les triggers, les commandes vocales, les paramètres automod, les paramètres du mode urgence, etc... seront réinitialisés.<br><br>Twitchat redémarrera ensuite.",
 		"authorization": "Autorisations",
 		"language": "Langue de l'interface",
 		"invoices": {

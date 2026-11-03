@@ -1,11 +1,10 @@
-import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import VuePlugin from "@vitejs/plugin-vue";
 import * as fs from "fs";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import * as path from "path";
 import { fileURLToPath, URL } from "url";
-import { createLogger, defineConfig } from "vite-plus";
+import { createLogger, defineConfig, type ViteDevServer } from "vite-plus";
 import loadVersion from "vite-plugin-package-version";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -152,19 +151,13 @@ export default defineConfig({
 		VuePlugin(),
 		loadVersionPlugin(),
 		overlaySizeBudgetPlugin(),
-		VueI18nPlugin({
-			/* options */
-			// locale messages resource pre-compile option
-			include: resolve(dirname(fileURLToPath(import.meta.url)), "./i18n/**"),
-			runtimeOnly: false,
-		}),
 		{
 			/**
 			 * Middleware that properly redirect any /overlay/ requests to the
 			 * overlay/index.html page like production server does
 			 */
 			name: "custom-html-middleware",
-			configureServer(server) {
+			configureServer(server: ViteDevServer) {
 				server.middlewares.use((req, res, next) => {
 					const url = req.url as string;
 					if (url.startsWith("/overlay/label")) {
@@ -200,6 +193,16 @@ export default defineConfig({
 						if (fs.existsSync(publicHtmlPath)) {
 							res.setHeader("Content-Type", "text/html");
 							res.end(fs.readFileSync(publicHtmlPath));
+							return;
+						}
+					} else if (/^\/maintenance(\/|\?|$)/i.test(url)) {
+						const maintenanceHtmlPath = path.resolve(
+							__dirname,
+							"static/maintenance.html",
+						);
+						if (fs.existsSync(maintenanceHtmlPath)) {
+							res.setHeader("Content-Type", "text/html");
+							res.end(fs.readFileSync(maintenanceHtmlPath));
 							return;
 						}
 					}
@@ -257,6 +260,11 @@ export default defineConfig({
 				},
 			},
 		},
+	},
+
+	define: {
+		// We only use vue-i18n's Composition API (`legacy: false`), so let the bundler drop the legacy API (~6 KB)
+		__VUE_I18N_LEGACY_API__: false,
 	},
 
 	resolve: {
@@ -346,16 +354,24 @@ export default defineConfig({
 		},
 	},
 
-	pack: {
-		entry: ["src_lande/lande_worker.ts"],
-		format: ["iife"],
+	pack: [
+		{ entry: ["src_lande/lande_worker.ts"] },
+		//One worker per ELD model, all built from the same source
+		...["extrasmall", "small", "medium", "large"].map((model) => ({
+			entry: { [`eld_worker_${model}`]: "src_eld/eld_worker.ts" },
+			alias: { "eld-model": `eld/${model}` },
+		})),
+	].map((config) => ({
+		format: ["iife" as const],
+		minify: true,
 		outDir: "./static",
 		clean: false,
 		deps: { onlyBundle: false },
 		outputOptions: {
 			entryFileNames: "[name].js",
 		},
-	},
+		...config,
+	})),
 
 	customLogger: (() => {
 		const logger = createLogger();
@@ -382,4 +398,3 @@ export default defineConfig({
 		return logger;
 	})(),
 });
-

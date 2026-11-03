@@ -44,8 +44,10 @@ export default class LandeWorker {
 		this._worker = new Worker("/lande_worker.js");
 		this._worker.onmessage = (event) => {
 			const message = event.data;
-			if (!this._idToCallback[message.id]) return;
-			this._idToCallback[message.id]!(message.result as [Language, number][]);
+			const callback = this._idToCallback[message.id];
+			if (!callback) return;
+			delete this._idToCallback[message.id];
+			callback(message.result as [Language, number][]);
 		};
 	}
 }

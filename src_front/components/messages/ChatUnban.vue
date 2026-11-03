@@ -6,6 +6,7 @@
 		<Icon name="unban" alt="notice" class="icon" />
 
 		<i18n-t
+			class="messageWithTime"
 			scope="global"
 			tag="span"
 			:keypath="
@@ -17,7 +18,7 @@
 			<template #USER>
 				<a
 					class="userlink"
-					@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+					@click="openUserCard(messageData.user, messageData.channel_id)"
 					>{{ messageData.user.displayName }}</a
 				>
 			</template>
@@ -25,7 +26,7 @@
 				<a
 					class="userlink"
 					v-if="messageData.moderator"
-					@click.stop="openUserCard(messageData.moderator!, messageData.channel_id)"
+					@click="openUserCard(messageData.moderator!, messageData.channel_id)"
 					>{{ messageData.moderator.displayName }}</a
 				>
 			</template>

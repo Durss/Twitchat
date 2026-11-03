@@ -155,6 +155,7 @@ const props = withDefaults(
 		editableTitle?: boolean;
 		titleMaxLength?: number;
 		customColor?: string;
+		autoOpenOnDragover?: boolean;
 	}>(),
 	{
 		icons: () => [],
@@ -358,12 +359,14 @@ function checkTitleOverflow(): void {
 }
 
 function onDragEnter(): void {
+	if (props.autoOpenOnDragover === false) return;
 	dragCount++;
 	clearTimeout(dragTimeout);
-	dragTimeout = window.setTimeout(() => toggle(true), 750);
+	dragTimeout = window.setTimeout(() => toggle(true), 300);
 }
 
 function onDragLeave(): void {
+	if (props.autoOpenOnDragover === false) return;
 	if (--dragCount < 1) {
 		clearTimeout(dragTimeout);
 	}
@@ -418,6 +421,14 @@ watch(
 	() => props.title,
 	(newVal) => {
 		if (newVal !== undefined) localTitle.value = newVal;
+	},
+);
+
+watch(
+	() => props.titleDefault,
+	(newVal, oldVal) => {
+		// Keep displaying the default title if it changes while no custom title is set
+		if (localTitle.value === oldVal) localTitle.value = newVal || "";
 	},
 );
 
@@ -508,7 +519,7 @@ onUnmounted(() => {
 	.headerIcon {
 		flex-shrink: 0;
 		height: 1em;
-		width: 1.5em;
+		max-width: 1.5em;
 		object-fit: fill;
 	}
 

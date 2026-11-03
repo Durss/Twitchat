@@ -32,20 +32,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private static _instance: TwitchMessengerClient;
 	private _client!: tmi.Client;
 	private _connectTimeout: number = -1;
-	private _refreshingToken: boolean = false;
-	private _refreshingTokenTO: number = -1;
 	private _watchdogTO: number = -1;
 	private _reconnecting: boolean = false;
+	private _authFailureNotified: boolean = false;
+	private _lastPong: { date: number; latency: number } | null = null;
 	private _connectedChans: { [key: string]: boolean } = reactive({});
 	private _pendingChans: { [key: string]: boolean } = {};
 	private _channelList: string[] = [];
-	private _connectedChannelCount: number = 0;
-	private _channelIdToLogin: { [key: string]: string } = {};
 	private _channelLoginToId: { [key: string]: string } = {};
-
-	constructor() {
-		super();
-	}
 
 	/********************
 	 * GETTER / SETTERS *
@@ -66,14 +60,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @param anonymous
 	 */
 	public connectToChannel(channel: string): void {
-		//Already connected to IRC, just add the channel
-		// if(this._client) {
-		// 	Logger.instance.log("irc", {info:"Connect to channel "+channel});
-		// 	this._client.join(channel);
-		// 	this.reconnect();
-		// 	return;
-		// }
-
 		if (this._channelList.indexOf(channel) === -1) {
 			this._channelList.push(channel);
 		}
@@ -105,31 +91,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				if (this._pendingChans[channel.id] === true) return;
 				this._pendingChans[channel.id] = true;
 
-				this._channelIdToLogin[channel.id] = channel.login;
 				this._channelLoginToId[channel.login] = channel.id;
 
-				//Check if we're a mod on this channel by testing if the get chatters endpoint
-				//returns something or not (no dedicated API for this ATM)
-				void TwitchUtils.getChatters(channel.id).then((result) => {
-					const amIModThere = result !== false;
-					if (amIModThere) {
-						//Go through getUserFrom() that will init the channelInfo property for later use
-						const me = StoreProxy.users.getUserFrom(
-							"twitch",
-							channel.id,
-							meObj.id,
-							meObj.login,
-							meObj.displayNameOriginal,
-							undefined,
-							undefined,
-							false,
-							undefined,
-							false,
-						);
-						//Flag self as mod of that channel
-						me.channelInfo[channel.id]!.is_moderator = true;
-					}
-				});
 				const u = StoreProxy.users.getUserFrom(
 					"twitch",
 					channel.id,
@@ -213,26 +176,33 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 			});
 
-			//Not yet connected to IRC, create client and connect to specified
-			//channels with specified credentials
-			const options: tmi.Options = {
-				options: { debug: false, skipUpdatingEmotesets: true },
-				connection: { reconnect: true, maxReconnectInterval: 2000 },
-				channels: this._channelList.concat(),
-			};
-			options.identity = {
-				username: StoreProxy.auth.twitch.user.login,
-				password: () => "oauth:" + StoreProxy.auth.twitch.access_token,
-			};
-
+			//Not yet connected to IRC, create client with specified channels and credentials
 			if (!this._client) {
 				Logger.instance.log("irc", { info: "Create IRC client" });
-				this._client = new tmi.Client(options);
-				void this._client.connect();
+				this._client = new tmi.Client({
+					connection: { maxReconnectInterval: 2000 },
+					channels: this._channelList.concat(),
+					identity: {
+						username: StoreProxy.auth.twitch.user.login,
+						password: () => "oauth:" + StoreProxy.auth.twitch.access_token,
+					},
+					//Only keep errors (ping timeouts, auto reconnects, ...) to diagnose disconnections
+					logger: {
+						info: () => {},
+						warn: () => {},
+						error: (message: string) => {
+							console.log("[IRC] " + message);
+							Logger.instance.log("irc", { info: "TMI error: " + message });
+						},
+					},
+				});
 				void this.initialize();
-			} else if (this._client.readyState() !== "OPEN") {
-				await this.reconnect();
 			}
+
+			//Does nothing if already connected or connecting
+			this._client.connect().catch((error) => {
+				Logger.instance.log("irc", { info: "Connection failed", data: error });
+			});
 		}, 1000);
 	}
 
@@ -253,18 +223,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const index = this._channelList.findIndex((v) => v === channel);
 		if (index > -1) {
 			this._channelList.splice(index, 1);
-			void this._client.part("#" + channel);
+			this._client.part("#" + channel).catch((error) => {
+				Logger.instance.log("irc", {
+					info: "Failed leaving channel " + channel,
+					data: error,
+				});
+			});
 		}
 		const channelId = this._channelLoginToId[channel];
 		if (channelId) delete this._pendingChans[channelId];
-
-		// const params = this._client.getOptions();
-		// const index = this._channelList.findIndex(v=>v===channel);
-		// if(index > -1) {
-		// 	this._channelList.splice(index, 1);
-		// 	params.channels = this._channelList;
-		// 	await this.reconnect();
-		// }
 	}
 
 	/**
@@ -274,13 +241,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	public async refreshToken(): Promise<void> {
 		if (!this._client) return;
 		Logger.instance.log("irc", { info: "Refreshing token" });
-		// avoid showing reconnect message on chat when refreshing token
-		this._refreshingToken = true;
-		this._connectedChannelCount = 0;
-		clearTimeout(this._refreshingTokenTO);
-		this._refreshingTokenTO = window.setTimeout(() => {
-			this._refreshingToken = false;
-		}, 30000);
 		await this.reconnect();
 	}
 
@@ -289,12 +249,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	public disconnect(): void {
 		if (this._client) {
-			void this._client.disconnect();
+			this._client.disconnect().catch(() => {
+				/* ignore, TMI's logger already logged it */
+			});
 		}
 	}
 
 	/**
-	 * Disconnect from all channels and cut IRC connection
+	 * Sends a message to a channel or executes a chat command
 	 */
 	public async sendMessage(
 		channelId: string,
@@ -303,14 +265,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		noConfirmCommercial: boolean = false,
 		sendAsBot: boolean = true,
 	): Promise<boolean> {
-		//TMI.js doesn't send the message back to their sender if sending
-		//it just after receiving a message (same frame).
-		//If we didn't wait for a frame, the message would be sent properly
-		//to viewers, but wouldn't appear on this chat.
-		//To make sure this isn't a problem through the app we always wait
-		//a frame before sending the message
-		await Utils.promisedTimeout(0);
-
 		let pinMessage = false;
 		if (text.charAt(0) == "/") {
 			const chunks = text.split(/\s/gi).filter((v) => v != "");
@@ -670,8 +624,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 		}
 		if (replyTo) {
-			//@ts-ignore
-			// this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
 			await TwitchUtils.sendMessage(channelId, text, replyTo, sendAsBot);
 		} else {
 			if (pinMessage) {
@@ -679,7 +631,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					return false;
 				}
 			}
-			// this._client.say(this._channelIdToLogin[channelId], text);
 			await TwitchUtils.sendMessage(channelId, text, undefined, sendAsBot, pinMessage);
 		}
 		return true;
@@ -702,10 +653,30 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on("anongiftpaidupgrade", this.anongiftpaidupgrade.bind(this));
 		this._client.on("ban", this.onBanUser.bind(this));
 		this._client.on("timeout", this.onTimeoutUser.bind(this));
-		this._client.on("raided", this.raided.bind(this));
 		this._client.on("disconnected", this.disconnected.bind(this));
 		this._client.on("messagedeleted", this.onDeleteMessage.bind(this));
 		this._client.on("raw_message", this.raw_message.bind(this));
+		this._client.on("pong", (latency: number) => {
+			this._lastPong = { date: Date.now(), latency };
+			//TMI cuts the connection if PONG takes more than ~10s, log slow ones
+			if (latency >= 2) {
+				Logger.instance.log("irc", { info: "Slow PONG received after " + latency + "s" });
+			}
+		});
+		//Log socket close codes to diagnose disconnections
+		this._client.on("socketclose", (event) => {
+			Logger.instance.log("irc", {
+				info: "Socket closed with code " + event.code,
+				data: {
+					reason: event.reason,
+					wasClean: event.wasClean,
+					lastPong: this._lastPong && {
+						latency: this._lastPong.latency,
+						msAgo: Date.now() - this._lastPong.date,
+					},
+				},
+			});
+		});
 
 		// Workaround a potential TMI issue not detecting if socket died when computer/page
 		// is asleep.
@@ -743,40 +714,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	/**
 	 * Refresh IRC connection
-	 * Called after updating the token or the channels list
+	 * Called after updating the token or when the socket died
 	 */
 	private async reconnect(): Promise<void> {
 		if (this._reconnecting) return;
 		this._reconnecting = true;
 		Logger.instance.log("irc", { info: "Force IRC reconnect" });
 
-		if (!this._client) return;
-		const params = this._client.getOptions();
-		if (params.connection) params.connection.reconnect = true;
-		//Forces TMI to allow reconnect
-		(this._client as unknown as { reconnect: boolean }).reconnect = true;
-
 		try {
-			await Promise.race([this._client.disconnect(), Utils.promisedTimeout(2000)]);
-		} catch (_error) {
-			//Ignore error, that's most probably because client is actually already disconnected
-		}
-		// Force TMI internal socket close just in case
-		const tmiInternals = this._client as unknown as { ws: WebSocket | null };
-		if (tmiInternals.ws) {
-			tmiInternals.ws.onopen = null;
-			tmiInternals.ws.onmessage = null;
-			tmiInternals.ws.onerror = null;
-			tmiInternals.ws.onclose = null;
-			try {
-				tmiInternals.ws.close();
-			} catch (_error) {
-				/* ignore */
-			}
-			tmiInternals.ws = null;
-		}
-		try {
-			await this._client.connect();
+			await this._client.forceReconnect();
 		} catch (error) {
 			Logger.instance.log("irc", { info: "Reconnection failed", data: error });
 		} finally {
@@ -802,7 +748,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 
 		if (state === "CONNECTING") return;
-		if ((this._client as unknown as { reconnecting: boolean }).reconnecting === true) return;
 
 		Logger.instance.log("irc", {
 			info: 'Connection found "' + state + '" on wake up, reconnecting',
@@ -818,7 +763,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private getUserFromTags(tags: AnyUserstate, channelId: string): TwitchatDataTypes.TwitchatUser {
 		const login = tags.login ?? tags.username ?? tags["display-name"];
 		const isMod = tags.badges?.moderator != undefined || tags.mod === true;
-		const isVip = tags.badges?.vip != undefined;
+		const isVip = tags.badges?.vip != undefined || tags.vip === true;
 		const isSub = tags.badges?.subscriber != undefined || tags.subscriber === true;
 		const isSubGifter = tags.badges && tags.badges["sub-gifter"] != undefined;
 		const isBroadcaster = tags.badges?.broadcaster != undefined;
@@ -840,8 +785,24 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		delete user.temporary; //Avoids useless server call
 
 		if (tags.color) user.color = tags.color;
-		if (isMod) channelInfo.is_moderator = true;
-		if (isVip) channelInfo.is_vip = true;
+
+		//Chat messages are the only source telling for sure what roles a user has on this
+		//channel. Other events miss the "vip" tag or aren't bound to a channel, and messages
+		//from a shared chat session may give the roles on the source channel.
+		const isChatMessage = tags["message-type"] == "chat" || tags["message-type"] == "action";
+		const isOtherChannel = tags["source-room-id"] && tags["source-room-id"] != tags["room-id"];
+		const canRemoveRoles = isChatMessage && !isOtherChannel;
+
+		if (isMod && !channelInfo.is_moderator) {
+			StoreProxy.users.flagMod("twitch", channelId, user.id);
+		} else if (!isMod && channelInfo.is_moderator && canRemoveRoles && user.id != channelId) {
+			StoreProxy.users.flagUnmod("twitch", channelId, user.id);
+		}
+		if (isVip && !channelInfo.is_vip) {
+			StoreProxy.users.flagVip("twitch", channelId, user.id);
+		} else if (!isVip && channelInfo.is_vip && canRemoveRoles) {
+			StoreProxy.users.flagUnvip("twitch", channelId, user.id);
+		}
 		if (isSub) channelInfo.is_subscriber = true;
 		if (isSubGifter) channelInfo.is_gifter = true;
 		if (isBroadcaster) channelInfo.is_broadcaster = true;
@@ -1004,11 +965,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				message_size: 0,
 			};
 
-			data.message_chunks = TwitchUtils.parseMessageToChunks(
-				message,
-				tags["emotes-raw"],
-				tags.sentLocally == true,
-			);
+			data.message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
 			data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks);
 			data.message_size = TwitchUtils.computeMessageSize(data.message_chunks);
 			this.dispatchEvent(new MessengerClientEvent("WHISPER", data));
@@ -1039,11 +996,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if (!TwitchUtils.flagSharedChatMessage(data, tags["source-room-id"], tags["room-id"]))
 			return;
 
-		data.message_chunks = TwitchUtils.parseMessageToChunks(
-			message,
-			tags["emotes-raw"],
-			tags.sentLocally == true,
-		);
+		data.message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
 		data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks);
 		data.message_size = TwitchUtils.computeMessageSize(data.message_chunks);
 		data.is_short =
@@ -1149,13 +1102,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	): void {
 		if (self && !isFakeJoin) {
 			delete this._pendingChans[this.getChannelID(channelName)];
-		}
-
-		if (this._refreshingToken && self) {
-			//Don't show join info during a reconnect
-			this._refreshingToken = ++this._connectedChannelCount < this._channelList.length;
-			if (!this._refreshingToken) clearTimeout(this._refreshingTokenTO);
-			return;
+			this._authFailureNotified = false;
 		}
 
 		const channel_id = this.getChannelID(channelName);
@@ -1453,38 +1400,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 	}
 
-	private async raided(_channel: string, _username: string, _viewers: number): Promise<void> {
-		/*
-		const channel_id = this.getChannelID(channel);
-		const user = this.getUserFromLogin(username, channel_id).user;
-		let uid = user.id;
-		if(user.temporary) {
-			//Safe fallback in case user info are not loaded yet.
-			uid = (await TwitchUtils.getUserInfo(undefined, [username]))[0].id;
-		}
-		const streamInfo = await TwitchUtils.getChannelInfo([uid]);
-		const message:TwitchatDataTypes.MessageRaidData = {
-			platform:"twitch",
-			type:TwitchatDataTypes.TwitchatMessageType.RAID,
-			id:Utils.getUUID(),
-			channel_id,
-			date:Date.now(),
-			user,
-			viewers,
-			stream:{
-				title:streamInfo[0]?.title ?? "loading error :(",
-				category:streamInfo[0]?.game_name ?? "loading error :(",
-			}
-		};
-		this.dispatchEvent(new MessengerClientEvent("RAID", message));
-		//*/
-	}
-
 	private disconnected(reason: string): void {
 		const channel_id = StoreProxy.auth.twitch.user.id;
 
-		//Don't show disconnect info if its a reconnect
-		if (this._refreshingToken) return;
 		//Avoid spamming "disconnected from chat" messages
 		if (!this._connectedChans[channel_id]) return;
 
@@ -1546,7 +1464,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//before the setTimeout completes
 		window.setTimeout(async () => {
 			const channel_id = this.getChannelID(channel);
-			const user = this.getUserStateFromLogin(username, channel_id).user;
+			const user = StoreProxy.users.getUserFrom(
+				"twitch",
+				channel_id,
+				userstate["target-user-id"],
+				username,
+			);
 			const isTO = !isNaN(duration as number);
 			const chanInfo = user.channelInfo[channel_id]!;
 			if (
@@ -1615,7 +1538,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const message_chunks = TwitchUtils.parseMessageToChunks(
 						message,
 						tags["emotes-raw"],
-						tags.sentLocally == true,
 					);
 					const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
 					const message_size = TwitchUtils.computeMessageSize(message_chunks);
@@ -1681,7 +1603,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const message_chunks = TwitchUtils.parseMessageToChunks(
 						message,
 						tags["emotes-raw"],
-						tags.sentLocally == true || !tags["emotes-raw"],
+						!tags["emotes-raw"],
 					);
 					const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
 					const message_size = TwitchUtils.computeMessageSize(message_chunks);
@@ -1749,10 +1671,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				break;
 			}
 
-			case "USERSTATE": {
-				// const [channelName] = (parsed as {params:string[]}).params;
-				// const channelId = this.getChannelID(channelName);
-				// TwitchUtils.loadEmoteSets(channelId, ((parsed as tmi.UserNoticeState).tags["emote-sets"] ?? "").split(","));
+			case "RECONNECT": {
+				Logger.instance.log("irc", { info: "Received RECONNECT request from Twitch" });
 				break;
 			}
 
@@ -1790,9 +1710,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						"invalid nick",
 					].some((v) => msgid!.toLowerCase().indexOf(v) > -1);
 					if (authFailure) {
-						message = StoreProxy.i18n.t("error.irc_reconect");
 						this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
-						noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
+						//Login can fail many times in a row, only tell it once until we're back
+						if (!this._authFailureNotified) {
+							this._authFailureNotified = true;
+							message = StoreProxy.i18n.t("error.irc_reconect");
+							//These aren't bound to a channel, show it on ours
+							channel = StoreProxy.auth.twitch.user.login;
+							noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
+						}
 					}
 				}
 				if (message) {
@@ -1800,23 +1726,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					if (channel) {
 						this.notice(noticeId, channel, message);
 					} else {
-						if (
-							((parsed.raw as string) || "").toLowerCase() ==
-							"login authentication failed"
-						) {
-							const chanName = channel || StoreProxy.auth.twitch.user.login;
-							this.notice(
-								"error",
-								chanName,
-								StoreProxy.i18n.t("error.irc_auth_failure", { CHANNEL: chanName }),
-							);
-							this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
-						} else {
-							Sentry.captureMessage(
-								"Received a notice with missing channel ID: " + parsed.raw,
-								"warning",
-							);
-						}
+						Sentry.captureMessage(
+							"Received a notice with missing channel ID: " + parsed.raw,
+							"warning",
+						);
 					}
 				}
 				break;

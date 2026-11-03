@@ -20,6 +20,7 @@ import {
 	type IPlaceholderModifier,
 } from "./utils/PlaceholderModifiers";
 import { isLocalNetworkHost } from "./utils/utils/isLocalHost";
+import OverlayVersionChecker from "./utils/OverlayVersionChecker";
 
 const urlParams = new URLSearchParams(document.location.search);
 let connected = false;
@@ -177,8 +178,8 @@ function getUUID(): string {
  */
 function requestInitialInfo(): void {
 	if (parameters) return; //Already initialized, no need to ask again
-	broadcast("GET_LABEL_OVERLAY_PLACEHOLDERS");
-	broadcast("GET_LABEL_OVERLAY_CONFIGS", { id: urlParams.get("twitchat_overlay_id")! });
+	void broadcast("GET_LABEL_OVERLAY_PLACEHOLDERS");
+	void broadcast("GET_LABEL_OVERLAY_CONFIGS", { id: urlParams.get("twitchat_overlay_id")! });
 }
 
 /**
@@ -242,6 +243,9 @@ function onMessage(message: IEnvelope): void {
 		if (messageIdsDone[message.id] === true) return;
 		messageIdsDone[message.id] = true;
 	}
+
+	//Reload overlay if app runs a newer major version
+	if (message.type == "ON_TWITCHAT_READY") OverlayVersionChecker.check(message.data);
 
 	if (message.type == "ON_TWITCHAT_READY" || message.type == "ON_OBS_WEBSOCKET_CONNECTED") {
 		if (connected) return;

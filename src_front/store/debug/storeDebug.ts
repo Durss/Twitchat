@@ -10,7 +10,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import staticEmotes from "@/utils/twitch/staticEmoteList.json";
 import { LoremIpsum } from "lorem-ipsum";
 import { acceptHMRUpdate, defineStore } from "pinia";
-import { reactive, watch } from "vue";
+import { reactive } from "vue";
 import StickerList from "../../utils/youtube/sticker_list.json";
 import type { IDebugActions, IDebugGetters, IDebugState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -146,6 +146,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+					if (Math.random() > 0.5) message = "";
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m: TwitchatDataTypes.MessageSubscriptionData = {
 						id: Utils.getUUID(),
@@ -938,14 +939,7 @@ export const storeDebug = defineStore("debug", {
 
 				case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
 					const entries: TwitchatDataTypes.RaffleEntry[] = [];
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					for (let i = 0; i < 10; i++) {
 						entries.push({
 							id: Utils.getUUID(),
@@ -1452,14 +1446,7 @@ export const storeDebug = defineStore("debug", {
 
 				case TwitchatDataTypes.TwitchatMessageType.BAN:
 				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_BAN: {
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const m:
 						| TwitchatDataTypes.MessageBanData
 						| TwitchatDataTypes.MessageYoutubeBanData = {
@@ -1482,14 +1469,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.UNBAN: {
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const m: TwitchatDataTypes.MessageUnbanData = {
 						platform: "twitch",
 						type,
@@ -1504,14 +1484,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST: {
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const m: TwitchatDataTypes.MessageUnbanRequestData = {
 						platform: "twitch",
 						type,
@@ -1529,14 +1502,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.RAID_STARTED: {
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const m: TwitchatDataTypes.MessageRaidStartData = {
 						platform: "twitch",
 						type,
@@ -1550,14 +1516,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m: TwitchatDataTypes.MessageWatchStreakData = {
 						platform: "twitch",
@@ -1578,14 +1537,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const userMessage: TwitchatDataTypes.MessageChatData =
 						(await this.simulateMessage(
 							TwitchatDataTypes.TwitchatMessageType.MESSAGE,
@@ -2610,14 +2562,7 @@ export const storeDebug = defineStore("debug", {
 						false,
 					);
 					message.twitch_modiversary = Math.round(Math.random() * 10 + 1) * 12;
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const m: TwitchatDataTypes.MessageModiversaryData = {
 						platform: "twitch",
 						type,
@@ -2691,14 +2636,7 @@ export const storeDebug = defineStore("debug", {
 
 			switch (noticeType) {
 				case TwitchatDataTypes.TwitchatNoticeType.VIP: {
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const m: TwitchatDataTypes.MessageModerationAction = {
 						platform: "twitch",
 						type: TwitchatDataTypes.TwitchatMessageType.NOTICE,
@@ -2717,14 +2655,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatNoticeType.UNVIP: {
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const m: TwitchatDataTypes.MessageModerationAction = {
 						platform: "twitch",
 						type: TwitchatDataTypes.TwitchatMessageType.NOTICE,
@@ -2742,14 +2673,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatNoticeType.MOD: {
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const m: TwitchatDataTypes.MessageModerationAction = {
 						platform: "twitch",
 						type: TwitchatDataTypes.TwitchatMessageType.NOTICE,
@@ -2768,14 +2692,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatNoticeType.UNMOD: {
-					if (fakeUser.temporary) {
-						await new Promise((resolve) => {
-							watch(
-								() => fakeUser.temporary,
-								() => resolve(fakeUser),
-							);
-						});
-					}
+					await StoreProxy.users.waitUserLoaded(fakeUser);
 					const m: TwitchatDataTypes.MessageModerationAction = {
 						platform: "twitch",
 						type: TwitchatDataTypes.TwitchatMessageType.NOTICE,

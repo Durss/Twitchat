@@ -957,7 +957,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			//of sources and nested scenes. If the resource has already been queried, send back cached data
 			if (
 				this.sceneSourceCache[cacheKey] &&
-				Date.now() > this.sceneSourceCache[cacheKey].ts + 60000
+				Date.now() < this.sceneSourceCache[cacheKey].ts + 60_000
 			) {
 				return this.sceneSourceCache[cacheKey].value;
 			}
@@ -1170,6 +1170,19 @@ export default class OBSWebsocket extends EventDispatcher {
 			inputName: sourceName,
 			mediaAction: "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS",
 		});
+	}
+
+	/**
+	 * Get the playback state of given media source
+	 * Returns null if OBS isn't connected.
+	 * Throws if the source doesn't exist.
+	 *
+	 * @param sourceName
+	 */
+	public async getMediaState(sourceName: string): Promise<OBSMediaPlaybackStates | null> {
+		if (!this.connected.value) return null;
+		const res = await this.obs.call("GetMediaInputStatus", { inputName: sourceName });
+		return res.mediaState as OBSMediaPlaybackStates;
 	}
 
 	/**
@@ -1898,3 +1911,13 @@ export type OBSMediaAction =
 	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART"
 	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT"
 	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS";
+
+export type OBSMediaPlaybackStates =
+	| "OBS_MEDIA_STATE_NONE"
+	| "OBS_MEDIA_STATE_PLAYING"
+	| "OBS_MEDIA_STATE_OPENING"
+	| "OBS_MEDIA_STATE_BUFFERING"
+	| "OBS_MEDIA_STATE_PAUSED"
+	| "OBS_MEDIA_STATE_STOPPED"
+	| "OBS_MEDIA_STATE_ENDED"
+	| "OBS_MEDIA_STATE_ERROR";

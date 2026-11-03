@@ -25,7 +25,7 @@
 					class="submitBt"
 					icon="newtab"
 					type="submit"
-					:loading="loading"
+					:loading="storeBluesky.authPending"
 					:disabled="!canSubmit"
 					>{{ t("global.connect") }}</TTButton
 				>
@@ -91,7 +91,6 @@ import { useConnectionStates } from "@/composables/useConnectionStates.js";
 
 const { t } = useI18n();
 const error = ref(false);
-const loading = ref(false);
 const storeBluesky = useStoreBluesky();
 const param_handle = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
@@ -151,7 +150,6 @@ const canSubmit = computed(() => {
 
 async function authenticate() {
 	error.value = false;
-	loading.value = true;
 	const result = await storeBluesky.startOAuthProcess(
 		param_handle.value.value,
 		param_listDMs.value.value,
@@ -159,7 +157,6 @@ async function authenticate() {
 	if (!result) {
 		error.value = true;
 	}
-	loading.value = false;
 }
 </script>
 

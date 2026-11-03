@@ -1061,12 +1061,7 @@ const raffleEntryCount = computed((): number => {
 });
 
 const isModeratedChannel = computed((): boolean => {
-	const chanId = storeStream.currentChatChannel.id;
-	if (chanId == storeAuth.twitch.user.id) return true;
-	return (
-		chanId != storeAuth.twitch.user.id &&
-		storeAuth.twitchModeratedChannels.findIndex((v) => v.broadcaster_id == chanId) > -1
-	);
+	return storeAuth.isModerator(storeStream.currentChatChannel.id);
 });
 
 const pinnedMenuItems = computed(() => {
@@ -1735,8 +1730,12 @@ async function onSelectItem(item: string): Promise<void> {
 function onKeyDown(e: KeyboardEvent): void {
 	if (e.shiftKey) return; //Avoid blocking browser tab navigation
 	if (e.ctrlKey || e.metaKey) return; //Avoid blocking browser tab navigation
-	//Avoid leaving the input form
-	if (e.key == "Tab") e.preventDefault();
+	//Keep focus on the input only if Tab can autocomplete the current word (see onTab)
+	if (e.key == "Tab") {
+		const caretPos = inputRef.value?.selectionStart ?? message.value.length;
+		const word = message.value.substring(0, caretPos).split(/\s/).pop() ?? "";
+		if (word.length > 1) e.preventDefault();
+	}
 
 	if (!openAutoComplete.value) {
 		//Navigate through sent message history

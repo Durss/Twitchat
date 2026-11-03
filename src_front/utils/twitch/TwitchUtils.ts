@@ -16,6 +16,7 @@ import DOMPurify from "isomorphic-dompurify";
 import { ref } from "vue";
 import { PREFIX_SPACER, SUFFIX_SPACER } from "@/store/stream/storeStream";
 import ApiHelper from "../ApiHelper";
+import { toast } from "../toast/toast";
 
 /**
  * Created : 19/01/2021
@@ -32,6 +33,7 @@ export default class TwitchUtils {
 	private static emotesCacheHashmap: { [key: string]: TwitchatDataTypes.Emote } = {};
 	private static adblockAlertSent: boolean = false;
 	private static callHistory: { date: number; path: string; params: URLSearchParams }[] = [];
+	private static rateLimitReportedUntil: { [bucket: string]: number } = {};
 	private static uid: string = "";
 	private static scopes = ref<string[]>([]);
 	private static accessToken: string = "";
@@ -1105,32 +1107,35 @@ export default class TwitchUtils {
 
 	/**
 	 * Get a list of channels the user is a moderator on.
+	 * Returns false if loading failed due to missing scope or a failing query
 	 */
-	public static async getModeratedChannels(): Promise<TwitchDataTypes.ModeratedUser[]> {
-		if (!this.hasScopes([TwitchScopes.LIST_MODERATED_CHANS])) return [];
+	public static async getModeratedChannels(): Promise<TwitchDataTypes.ModeratedUser[] | false> {
+		if (!this.hasScopes([TwitchScopes.LIST_MODERATED_CHANS])) return false;
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/channels");
 		url.searchParams.append("user_id", this.uid);
 		url.searchParams.append("first", "100");
 
 		let list: TwitchDataTypes.ModeratedUser[] = [];
-		let cursor: string | null = null;
-		do {
+		let cursor: string | undefined = undefined;
+		while (true) {
 			if (cursor) url.searchParams.set("after", cursor);
 			const res = await this.callApi(url);
-			if (res.status == 200) {
-				const json: {
-					data: TwitchDataTypes.ModeratedUser[];
-					pagination?: { cursor?: string };
-				} = await res.json();
-				list = list.concat(json.data);
-				cursor = null;
-				if (json.pagination?.cursor) {
-					cursor = json.pagination.cursor;
-				}
-			} else if (res.status == 500) break;
-		} while (cursor != null);
-		return list;
+			if (res.status == 429) {
+				//Rate limit reached, try the same page again after it's reset to full
+				await this.onRateLimit(res.headers);
+				continue;
+			}
+			// don't return a partial list
+			if (res.status != 200) return false;
+			const json: {
+				data: TwitchDataTypes.ModeratedUser[];
+				pagination?: { cursor?: string };
+			} = await res.json();
+			list = list.concat(json.data);
+			cursor = json.pagination?.cursor;
+			if (!cursor) return list;
+		}
 	}
 
 	/**
@@ -2083,6 +2088,15 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
 			return true;
+		} else if (res.status == 403) {
+			const sendingUser =
+				sendAsBot && StoreProxy.twitchBot.connected
+					? StoreProxy.twitchBot.userInfos?.login
+					: StoreProxy.auth.twitch.user.login;
+			toast(StoreProxy.i18n.t("error.announce_send_fail", { ACCOUNT: sendingUser }), {
+				type: "error",
+			});
+			return false;
 		} else if (res.status == 429) {
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
@@ -3344,13 +3358,49 @@ export default class TwitchUtils {
 			});
 			if (res.status == 200 || res.status == 204) {
 				message = message.substring(maxLength);
+				const resJson = (await res.json()) as {
+					data: {
+						message_id: string;
+						is_sent: boolean;
+						drop_reason?: {
+							code:
+								| "followers_only_mode"
+								| "emote_only_mode"
+								| "slow_mode"
+								| "msg_duplicate"
+								| "subs_only_mode"
+								| "automod_held"
+								| AutocompletableString;
+							message: string;
+						};
+					}[];
+				};
+				let data = resJson.data?.[0];
+				let errorCode = data?.drop_reason?.code;
+				console.log("Sent?", data);
+				if (data && !data.is_sent && errorCode !== "automod_held") {
+					if (!StoreProxy.i18n.te("error.message_send_fail_restrictions." + errorCode)) {
+						errorCode = "unknown";
+					}
+					const sendingUser =
+						sendAsBot && StoreProxy.twitchBot.connected
+							? StoreProxy.twitchBot.userInfos?.login
+							: StoreProxy.auth.twitch.user.login;
+					toast(
+						StoreProxy.i18n.t("error.message_send_fail", {
+							REASON: StoreProxy.i18n.t(
+								"error.message_send_fail_restrictions." + errorCode,
+								{ ACCOUNT: sendingUser },
+							),
+						}),
+						{ type: "error" },
+					);
+				} else;
 				if (pin) {
 					void this.getPinnedMessage(channelID);
 				}
 				continue;
-			}
-
-			if (res.status == 429) {
+			} else if (res.status == 429) {
 				await this.onRateLimit(res.headers);
 				return this.sendMessage(channelID, message, replyTo, sendAsBot);
 			}
@@ -4353,19 +4403,25 @@ export default class TwitchUtils {
 	 * @param attemptCount
 	 */
 	private static async onRateLimit(headers: Headers): Promise<void> {
-		Sentry.captureException("[TWITCH] Twitch API quota exceeded", {
-			attachments: [
-				{
-					filename: "logs_history.json",
-					data: JSON.stringify({ uid: this.uid, history: this.callHistory }),
-				},
-			],
-		});
 		let resetDate =
 			(parseInt(headers.get("ratelimit-reset") || "0") ||
 				Math.round(Date.now() / 1000) + 1000) *
 				1000 +
 			1000;
+		// eventSub subscriptions and other endpoints have different buckets
+		const bucket = headers.get("ratelimit-limit") || "unknown";
+		// avoid spamming sentry
+		if (Date.now() >= (this.rateLimitReportedUntil[bucket] || 0)) {
+			this.rateLimitReportedUntil[bucket] = resetDate;
+			Sentry.captureException("[TWITCH] Twitch API quota exceeded", {
+				attachments: [
+					{
+						filename: "logs_history.json",
+						data: JSON.stringify({ uid: this.uid, history: this.callHistory }),
+					},
+				],
+			});
+		}
 		await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
 	}
 

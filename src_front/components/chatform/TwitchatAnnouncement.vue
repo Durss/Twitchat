@@ -13,6 +13,69 @@
 		</div>
 
 		<div class="content">
+			<div class="card-item maintenance">
+				<strong>{{ t("maintenance.admin_title") }}</strong>
+				<Icon class="loader" name="loader" v-if="!maintenanceLoaded" />
+				<template v-else>
+					<p
+						v-html="
+							t('maintenance.admin_state', {
+								STATE: (storeMain.maintenance?.state ?? 'off').toUpperCase(),
+							})
+						"
+					/>
+					<template v-if="storeMain.maintenance">
+						<p
+							v-html="
+								t('maintenance.admin_lockAt', {
+									TIME: formatDate(storeMain.maintenance.lockAt),
+								})
+							"
+						/>
+						<p
+							v-for="(text, lang) in storeMain.maintenance.message"
+							:key="lang"
+							class="message"
+						>
+							<strong>{{ String(lang).toUpperCase() }}</strong> {{ text }}
+						</p>
+					</template>
+				</template>
+				<ParamItem
+					:paramData="param_maintenanceDelay"
+					v-model="param_maintenanceDelay.value"
+				/>
+				<ParamItem
+					v-for="message in param_maintenanceMessage"
+					:key="message.storage"
+					:paramData="message"
+					v-model="message.value"
+				/>
+				<div class="ctas">
+					<TTButton
+						icon="countdown"
+						secondary
+						:loading="maintenanceUpdating"
+						@click="updateMaintenance('announced')"
+						>{{ t("maintenance.announce_bt") }}</TTButton
+					>
+					<TTButton
+						icon="lock"
+						alert
+						:loading="maintenanceUpdating"
+						@click="updateMaintenance('locked')"
+						>{{ t("maintenance.lock_bt") }}</TTButton
+					>
+					<TTButton
+						icon="unlock"
+						primary
+						:loading="maintenanceUpdating"
+						@click="updateMaintenance('off')"
+						>{{ t("maintenance.off_bt") }}</TTButton
+					>
+				</div>
+			</div>
+
 			<form class="form" @submit.prevent="submitForm()">
 				<ParamItem :paramData="param_dateStart" v-model="param_dateStart.value" />
 				<ParamItem :paramData="param_dateEnd" v-model="param_dateEnd.value" />
@@ -107,6 +170,8 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { ref, useTemplateRef, onBeforeMount } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeAdmin as useStoreAdmin } from "@/store/admin/storeAdmin";
+import { storeMain as useStoreMain } from "@/store/storeMain";
 import { useSidePanel } from "@/composables/useSidePanel";
 import { useConfirm } from "@/composables/useConfirm";
 import TTButton from "../TTButton.vue";
@@ -120,6 +185,8 @@ const emit = defineEmits<{ close: [] }>();
 
 const { t, locale, availableLocales } = useI18n();
 const storeAuth = useStoreAuth();
+const storeAdmin = useStoreAdmin();
+const storeMain = useStoreMain();
 const { confirm } = useConfirm();
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 const { close } = useSidePanel(rootEl, () => emit("close"));
@@ -178,6 +245,19 @@ const param_heatOnly = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	labelKey: "announcement.param_heatOnly",
 	icon: "heat",
 });
+const param_maintenanceDelay = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 30,
+	min: 0,
+	max: 7 * 24 * 60,
+	labelKey: "maintenance.param_lockIn",
+	icon: "timer",
+});
+const param_maintenanceMessage = ref<
+	TwitchatDataTypes.ParameterData<string, unknown, unknown, string>[]
+>([]);
+const maintenanceLoaded = ref<boolean>(false);
+const maintenanceUpdating = ref<boolean>(false);
 
 function getAnnouncementTitle(
 	a: TwitchatDataTypes.TwitchatAnnouncementData,
@@ -206,8 +286,18 @@ onBeforeMount(() => {
 			longText: true,
 			label: v.toUpperCase() + " " + t("announcement.param_text"),
 		});
+		param_maintenanceMessage.value.push({
+			type: "string",
+			value: "",
+			storage: v,
+			maxLength: 500,
+			longText: true,
+			label: v.toUpperCase() + " " + t("maintenance.param_message"),
+		});
 	});
 	param_versionMax.value.value = import.meta.env.PACKAGE_VERSION;
+
+	void loadMaintenance();
 
 	//Wait for emotes to be loaded to make sure they get parsed
 	TwitchUtils.getEmotes().then(() => {
@@ -315,6 +405,36 @@ function deleteAnnounce(id: string): void {
 function formatDate(timestamp: number): string {
 	return Utils.formatDate(new Date(timestamp));
 }
+
+async function loadMaintenance(): Promise<void> {
+	const data = await storeAdmin.getMaintenance();
+	if (!data) return;
+	storeMain.setMaintenanceState(data);
+	maintenanceLoaded.value = true;
+	param_maintenanceMessage.value.forEach((v) => (v.value = data.message[v.storage!] || ""));
+}
+
+function updateMaintenance(state: TwitchatDataTypes.MaintenanceData["state"]): void {
+	const confirmKey = {
+		announced: "announce_confirm",
+		locked: "lock_confirm",
+		off: "off_confirm",
+	}[state];
+	confirm(t(`maintenance.${confirmKey}.title`), t(`maintenance.${confirmKey}.description`))
+		.then(async () => {
+			maintenanceUpdating.value = true;
+			const message: TwitchatDataTypes.MaintenanceData["message"] = {};
+			param_maintenanceMessage.value.forEach((v) => (message[v.storage!] = v.value));
+			const data = await storeAdmin.setMaintenance(
+				state,
+				param_maintenanceDelay.value.value,
+				message,
+			);
+			if (data) storeMain.setMaintenanceState(data);
+			maintenanceUpdating.value = false;
+		})
+		.catch(() => {});
+}
 </script>
 
 <style scoped lang="less">
@@ -327,6 +447,25 @@ function formatDate(timestamp: number): string {
 
 	.splitter {
 		margin-top: 2em;
+	}
+
+	.maintenance {
+		gap: 0.5em;
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 2em;
+		flex-shrink: 0;
+		.message {
+			font-style: italic;
+			white-space: pre-line;
+		}
+		.ctas {
+			gap: 0.5em;
+			display: flex;
+			flex-wrap: wrap;
+			flex-direction: row;
+			justify-content: center;
+		}
 	}
 
 	.list {

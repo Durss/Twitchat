@@ -8,8 +8,11 @@
 	box-shadow: 0 0 5px 3px rgba(0, 0, 0, 0.4);
 	max-width: var(--vw);
 
-	&.admin {
-		background-color: var(--color-secondary-dark);
+	body.light &.admin {
+		background-color: color-mix(in srgb, var(--color-secondary), white 80%);
+	}
+	body.dark &.admin {
+		background-color: color-mix(in srgb, var(--color-secondary), black 80%);
 	}
 
 	&.embedMode {

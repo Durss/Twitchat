@@ -93,6 +93,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Database from "@/store/Database";
 import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { storeChatCommands as useStoreChatCommands } from "@/store/chat_commands/storeChatCommands";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
@@ -122,6 +123,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const storeTriggers = useStoreTriggers();
+const storeChatCommands = useStoreChatCommands();
 const storeAuth = useStoreAuth();
 const storeChat = useStoreChat();
 const storeTTS = useStoreTTS();
@@ -362,7 +364,7 @@ function onSearchChange(): void {
 			const hastoreDiscordCmd = storeDiscord.discordLinked && storeDiscord.chatCmdTarget;
 			const isBroadcaster = me.id === currentChanId;
 			const isAdmin = storeAuth.twitch.user.is_admin === true;
-			const isMod = me.channelInfo[currentChanId]?.is_moderator === true;
+			const isMod = storeAuth.isModerator(currentChanId);
 
 			//Search in global slash commands
 			for (let j = 0; j < cmds.length; j++) {
@@ -473,9 +475,11 @@ watch(
 onMounted(() => {
 	selectedIndex.value = 0;
 
-	triggerCommands = storeTriggers.triggerList.filter(
-		(v) => v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND,
-	);
+	triggerCommands = storeTriggers.triggerList
+		.concat(storeChatCommands.generatedTriggers)
+		.filter(
+			(v) => v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND,
+		);
 
 	document.addEventListener("keyup", onkeyUp, true);
 	document.addEventListener("keydown", onkeyDown, true);

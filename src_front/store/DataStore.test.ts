@@ -6,7 +6,7 @@
  * Run with: npm test
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 /**
  * Fake backend mimicking UserController's user data endpoints
@@ -105,16 +105,25 @@ class MemoryStorage {
 /**
  * Opens twitchat on the given device (its local storage) the same way storeAuth does.
  * Any timer of a previous launch is dropped, as if its page had been closed.
+ * @param dataOwner account whose data the logged in user is using
+ * @param tab session storage of the browser tab, to reload twitchat in the same tab
  */
-async function launch(device: MemoryStorage) {
+async function launch(
+	device: MemoryStorage,
+	dataOwner: string = "111",
+	tab: MemoryStorage = new MemoryStorage(),
+) {
 	vi.clearAllTimers();
 	vi.resetModules();
 	vi.stubGlobal("localStorage", device);
-	vi.stubGlobal("sessionStorage", new MemoryStorage());
+	vi.stubGlobal("sessionStorage", tab);
 	const { default: DataStore } = await import("./DataStore");
 	DataStore.init();
+	DataStore.setDataOwner(dataOwner);
 	await DataStore.migrateLocalStorage();
-	await DataStore.loadRemoteData();
+	if (DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
+		await DataStore.loadRemoteData();
+	}
 	return DataStore;
 }
 
@@ -324,6 +333,154 @@ describe("DataStore unsynced changes", () => {
 		await flushUploads();
 		expect(server.file![store.SYNC_STATE]).toBeUndefined();
 		expect(typeof server.file![store.SAVE_ID]).toBe("string");
+	});
+});
+
+describe("DataStore flush before maintenance", () => {
+	/**
+	 * Starts a flush and tells when it's done
+	 */
+	function startFlush(store: Awaited<ReturnType<typeof launch>>) {
+		const state = { done: false };
+		void store.flush().then(() => (state.done = true));
+		return state;
+	}
+
+	it("sends a pending save right away instead of waiting for the debounce", async () => {
+		const store = await launch(deviceA);
+		await flushUploads();
+		void store.set("theme", "A");
+
+		const flush = startFlush(store);
+		await vi.advanceTimersByTimeAsync(10);
+		expect(flush.done).toBe(true);
+		expect(server.file!.theme).toBe("A");
+	});
+
+	it("resolves right away when nothing is pending", async () => {
+		const store = await launch(deviceA);
+		await flushUploads();
+
+		const flush = startFlush(store);
+		await vi.advanceTimersByTimeAsync(0);
+		expect(flush.done).toBe(true);
+	});
+
+	it("doesn't hang when the server refuses the save", async () => {
+		const store = await launch(deviceA);
+		await flushUploads();
+		server.down = true;
+		void store.set("theme", "A");
+
+		const flush = startFlush(store);
+		await vi.advanceTimersByTimeAsync(10);
+		expect(flush.done).toBe(true);
+		expect(server.file!.theme).toBe("initial");
+	});
+});
+
+describe("DataStore data owner", () => {
+	it("drops local data of another account instead of merging them", async () => {
+		let store = await launch(deviceA, "111");
+		await flushUploads();
+		void store.set("onlyA", "A");
+		void store.set(store.OBS_PASS, "A_SECRET", false);
+		void store.set(store.TWITCH_AUTH_TOKEN, "TOKEN", false);
+		await flushUploads();
+
+		//Same browser, now logged in with account B
+		server.file = { v: 70, saveVersion: 5, saveId: "B", theme: "B" };
+		store = await launch(deviceA, "222");
+		expect(store.get("onlyA")).toBeNull();
+		expect(store.get(store.OBS_PASS)).toBeNull();
+		expect(store.get(store.TWITCH_AUTH_TOKEN)).toBe("TOKEN");
+		expect(store.get("theme")).toBe("B");
+		expect(store.get(store.DATA_OWNER)).toBe("222");
+		await flushUploads();
+		expect(server.file!.onlyA).toBeUndefined();
+	});
+
+	it("keeps local data when the data owner didn't change", async () => {
+		//ex: switching between accounts sharing the same data
+		let store = await launch(deviceA, "111");
+		await flushUploads();
+		void store.set(store.OBS_PASS, "A_SECRET", false);
+
+		store = await launch(deviceA, "111");
+		expect(store.get(store.OBS_PASS)).toBe("A_SECRET");
+	});
+
+	it("keeps local data if they're not synced with the server", async () => {
+		let store = await launch(deviceA, "111");
+		await flushUploads();
+		void store.set(store.SYNC_DATA_TO_SERVER, false, false);
+		void store.set("onlyA", "A", false);
+
+		store = await launch(deviceA, "222");
+		expect(store.get("onlyA")).toBe("A");
+	});
+
+	it("keeps local data if their owner is unknown", async () => {
+		//Data stored before data owners were tracked
+		let store = await launch(deviceA, "111");
+		await flushUploads();
+		void store.set(store.OBS_PASS, "A_SECRET", false);
+		deviceA.removeItem("twitchat_" + store.DATA_OWNER);
+
+		store = await launch(deviceA, "222");
+		expect(store.get(store.OBS_PASS)).toBe("A_SECRET");
+		expect(store.get(store.DATA_OWNER)).toBe("222");
+	});
+
+	it("never sends the data owner to the server", async () => {
+		const store = await launch(deviceA, "111");
+		await flushUploads();
+		void store.set("theme", "A");
+		await flushUploads();
+		expect(server.file!.theme).toBe("A");
+		expect(server.file![store.DATA_OWNER]).toBeUndefined();
+	});
+});
+
+describe("DataStore data sharing flow", () => {
+	it("accepts the token back after logging in with the other account", async () => {
+		const tab = new MemoryStorage();
+		let store = await launch(deviceA, "111", tab);
+		await flushUploads();
+		store.setPendingDataShareToken("TOKEN");
+
+		//Back from Twitch on the same tab, logged in with the other account
+		store = await launch(deviceA, "222", tab);
+		expect(store.consumePendingDataShareToken("TOKEN")).toBe(true);
+	});
+
+	it("rejects a token coming back to another browser", async () => {
+		//Someone sends their own share link to someone else
+		const store = await launch(deviceA, "111");
+		store.setPendingDataShareToken("TOKEN");
+
+		const victim = await launch(deviceB, "222");
+		expect(victim.consumePendingDataShareToken("TOKEN")).toBe(false);
+	});
+
+	it("rejects a token that isn't the one of the flow started", async () => {
+		const store = await launch(deviceA);
+		store.setPendingDataShareToken("TOKEN");
+		expect(store.consumePendingDataShareToken("OTHER_TOKEN")).toBe(false);
+	});
+
+	it("rejects a missing token", async () => {
+		const store = await launch(deviceA);
+		expect(store.consumePendingDataShareToken(null)).toBe(false);
+		store.setPendingDataShareToken("TOKEN");
+		expect(store.consumePendingDataShareToken(null)).toBe(false);
+	});
+
+	it("accepts a token only once", async () => {
+		const store = await launch(deviceA);
+		store.setPendingDataShareToken("TOKEN");
+		expect(store.consumePendingDataShareToken("TOKEN")).toBe(true);
+		expect(store.consumePendingDataShareToken("TOKEN")).toBe(false);
 	});
 });
 

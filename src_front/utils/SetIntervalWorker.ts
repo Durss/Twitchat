@@ -41,6 +41,7 @@ export default class SetIntervalWorker {
 	 * Stops an interval by id
 	 */
 	public delete(id: string): void {
+		delete this._idToCallback[id];
 		this._worker.postMessage({ command: "stopInterval", id });
 	}
 

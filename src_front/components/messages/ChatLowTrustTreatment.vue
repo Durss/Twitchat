@@ -4,6 +4,7 @@
 		<Icon v-else name="shield" alt="notice" />
 
 		<i18n-t
+			class="messageWithTime"
 			scope="global"
 			v-if="messageData.restricted"
 			keypath="global.moderation_action.user_restricted"
@@ -26,6 +27,7 @@
 		</i18n-t>
 
 		<i18n-t
+			class="messageWithTime"
 			scope="global"
 			v-else-if="messageData.monitored"
 			keypath="global.moderation_action.user_monitored"
@@ -47,7 +49,13 @@
 			</template>
 		</i18n-t>
 
-		<i18n-t scope="global" v-else keypath="global.moderation_action.user_unflagged" tag="p">
+		<i18n-t
+			class="messageWithTime"
+			scope="global"
+			v-else
+			keypath="global.moderation_action.user_unflagged"
+			tag="p"
+		>
 			<template #USER>
 				<a
 					class="userlink"

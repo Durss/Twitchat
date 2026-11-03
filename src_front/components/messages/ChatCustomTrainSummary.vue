@@ -5,7 +5,7 @@
 	>
 		<Icon name="train" alt="train" class="icon" />
 
-		<div class="messageHolder">
+		<div class="messageHolder messageWithTime">
 			<mark class="record" v-if="messageData.isRecord"
 				><Icon name="leaderboard" />{{ $t("chat.custom_train_summary.record") }}</mark
 			>

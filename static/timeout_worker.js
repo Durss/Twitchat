@@ -3,6 +3,7 @@ let timeoutIdsToCallback = {};
 // Function to start the timeout
 function startTimeout(timeout, id) {
 	const timeoutId = setTimeout(() => {
+		delete timeoutIdsToCallback[id];
 		postMessage({ type: "timeoutMessage", data: id });
 	}, timeout);
 

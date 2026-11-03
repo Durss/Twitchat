@@ -12,6 +12,8 @@ import { createApp } from "vue";
 import { storeCommon } from "./store/common/storeCommon";
 import { SlowMo } from "gsap/all";
 import Config from "./utils/Config";
+import OverlayVersionChecker from "./utils/OverlayVersionChecker";
+import PublicAPI from "./utils/PublicAPI";
 import Utils from "./utils/Utils";
 
 gsap.registerPlugin(ScrollToPlugin, CustomEase, CSSPlugin, SlowMo);
@@ -52,6 +54,11 @@ StoreProxy.default.asset = Utils.asset;
 // oxlint-disable-next-line typescript/unbound-method
 app.config.globalProperties.$asset = Utils.asset;
 app.config.globalProperties.$store = StoreProxy.default;
+
+//Reload overlay if app runs a newer major version
+PublicAPI.instance.addEventListener("ON_TWITCHAT_READY", (event) => {
+	OverlayVersionChecker.check(event.data);
+});
 
 void StoreProxy.default.common
 	.initialize(false)

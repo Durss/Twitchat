@@ -68,6 +68,7 @@
 			"extra_chan_tt": "Channel to write to: {USER}\n(right click for fast switch)",
 			"extra_chan_params_tt": "Parameters",
 			"extra_chan_info": "Triggers, emergency mode, automod,\netc... will execute only for your own channel",
+			"extra_chan_limit": "Cannot connect to {USER}, too many channels are connected.\nDisconnect from another one first.\nChannels you moderate weigh more than others.",
 			"youtube_not_connected": "Not connected to any YouTube live",
 			"youtube_missing_scope": "You haven't granted Twitchat permission to write on YouTube chat",
 			"twitch_missing_scope": "You haven't granted Twitchat permission to write on Twitch chat",

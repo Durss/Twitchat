@@ -30,7 +30,7 @@
 
 		<component
 			v-if="componentRef"
-			:class="{ message: true, addBottomPadding }"
+			class="message"
 			:is="componentRef"
 			:messageData="messageData"
 			:data-msg-time="showTime ? true : null"
@@ -70,6 +70,7 @@ import ChatBan from "./ChatBan.vue";
 import ChatBingoResult from "./ChatBingoResult.vue";
 import ChatBits from "./ChatBits.vue";
 import ChatCelebration from "./ChatCelebration.vue";
+import ChatChatCommandUpdate from "./ChatChatCommandUpdate.vue";
 import ChatChatPollResult from "./ChatChatPollResult.vue";
 import ChatClear from "./ChatClear.vue";
 import ChatCommunityBoost from "./ChatCommunityBoost.vue";
@@ -163,7 +164,7 @@ const emit = defineEmits<{
 }>();
 
 const storeParams = useStoreParams();
-const noTimeTypes: TwitchatDataTypes.TwitchatMessageStringType[] = ["history_splitter", "notice"];
+const noTimeTypes: TwitchatDataTypes.TwitchatMessageStringType[] = ["history_splitter"];
 
 const showTime = computed(
 	() =>
@@ -171,16 +172,6 @@ const showTime = computed(
 		storeParams.appearance.displayTime.value &&
 		props.disableDate !== true,
 );
-
-const addBottomPadding = computed(() => {
-	if (
-		props.messageData.type === "private_mod_message" &&
-		(props.messageData.answer || props.messageData.action == "question")
-	) {
-		return true;
-	}
-	return false;
-});
 
 // Utility type to extract keys where value is literally true
 type KeysWithTrueValue<T> = keyof {
@@ -273,6 +264,7 @@ const componentRef = computed<VueComponent | null>(() => {
 		custom_power_up: ChatCustomPowerUp,
 		user_modiversary: ChatModiversary,
 		youtube_jewels_gift: ChatYoutubeJewelsGift,
+		chat_command_update: ChatChatCommandUpdate,
 	};
 	if (!Object.hasOwn(map, props.messageData.type)) {
 		console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", props.messageData.type);
@@ -319,8 +311,13 @@ const componentRef = computed<VueComponent | null>(() => {
 		width: 100%;
 		position: relative;
 
-		&[data-msg-time]:not(.highlight)::after,
-		&[data-msg-time]:deep(.messageWithTime)::after {
+		&[data-msg-time]:not(.highlight):not(:has(.messageWithTime))::after,
+		&[data-msg-time]:deep(
+				.messageWithTime:not(
+					:has(~ .messageWithTime, ~ * .messageWithTime),
+					[data-msg-time] :has(~ .messageWithTime, ~ * .messageWithTime) *
+				)
+			)::after {
 			content: "00:00";
 			display: inline;
 			visibility: hidden;
@@ -330,14 +327,8 @@ const componentRef = computed<VueComponent | null>(() => {
 			pointer-events: none;
 		}
 
-		&[data-msg-time] {
-			&.highlight {
-				padding-bottom: 0.75em;
-			}
-
-			&.addBottomPadding {
-				padding-bottom: 1.5em;
-			}
+		&[data-msg-time].highlight:not(:has(.messageWithTime)) {
+			padding-bottom: 1.5em;
 		}
 	}
 
@@ -348,7 +339,7 @@ const componentRef = computed<VueComponent | null>(() => {
 		pointer-events: none;
 	}
 
-	&:has(.highlight) {
+	&:has(.highlight:not(:has(.messageWithTime))) {
 		.time {
 			bottom: 0.25em;
 		}

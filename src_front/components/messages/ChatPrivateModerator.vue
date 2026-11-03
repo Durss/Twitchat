@@ -10,7 +10,7 @@
 			<a
 				:href="getProfilePage(props.messageData.user)"
 				target="_blank"
-				@click.stop.prevent="
+				@click.prevent="
 					openUserCard(
 						props.messageData.user,
 						props.messageData.channel_id,
@@ -29,7 +29,7 @@
 				<a
 					:href="getProfilePage(toUser)"
 					target="_blank"
-					@click.stop.prevent="
+					@click.prevent="
 						openUserCard(
 							toUser,
 							props.messageData.channel_id,
@@ -80,7 +80,7 @@
 					v-if="fallbackParentUser"
 					:href="getProfilePage(fallbackParentUser)"
 					target="_blank"
-					@click.stop.prevent="
+					@click.prevent="
 						openUserCard(
 							fallbackParentUser,
 							props.messageData.channel_id,
@@ -113,7 +113,7 @@
 				small
 				primary
 				:loading="loading"
-				@click.stop.prevent="answerQuestion(true)"
+				@click.prevent="answerQuestion(true)"
 				>{{ t("global.yes") }}</TTButton
 			>
 			<TTButton
@@ -121,7 +121,7 @@
 				small
 				alert
 				:loading="loading"
-				@click.stop.prevent="answerQuestion(false)"
+				@click.prevent="answerQuestion(false)"
 				>{{ t("global.no") }}</TTButton
 			>
 		</div>

@@ -114,10 +114,11 @@ connect(ip, port pass).then(()=> {
 # Events you can receive
 
 Events fired by Twitchat that you can listen to.
-| Compatibility | |
-|---------------|-----|
-| OBS-websocket | ✅ |
-| HTTP API | ❌ |
+
+| Compatibility |     |
+| ------------- | --- |
+| OBS-websocket | ✅  |
+| HTTP API      | ❌  |
 
 - [ON_AD_BREAK_OVERLAY_CONFIGS](#on_ad_break_overlay_configs)
 - [ON_AD_BREAK_OVERLAY_DATA](#on_ad_break_overlay_data)
@@ -5335,6 +5336,22 @@ type ON_TRIGGER_LIST = {
 #### ON_TWITCHAT_READY
 
 Twitchat completed initialization and is ready.
+
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type ON_TWITCHAT_READY = {
+	/**
+	 * Twitchat version (ex: "17.0.0").
+	 * Overlays from older major versions reload themselves when this is a
+	 * higher major than theirs. Do not rename.
+	 */
+	appVersion: string;
+};
+```
+
+</details>
 
 #### ON_VOICE_CONTROL_STATE_CHANGE
 

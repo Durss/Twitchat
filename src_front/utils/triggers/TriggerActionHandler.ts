@@ -8,6 +8,7 @@ import { gsap } from "gsap/gsap-core";
 import { JSONPath } from "jsonpath-plus";
 import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
 import type { JsonObject, JsonValue } from "type-fest";
+import { reactive } from "vue";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import {
@@ -25,7 +26,11 @@ import ApiHelper from "../ApiHelper";
 import Config from "../Config";
 import type { LogTrigger, LogTriggerStep } from "../Logger";
 import Logger from "../Logger";
-import { default as OBSWebSocket, type SourceTransform } from "../OBSWebsocket";
+import {
+	default as OBSWebSocket,
+	type OBSMediaPlaybackStates,
+	type SourceTransform,
+} from "../OBSWebsocket";
 import { registerOptionalPlaceholderModifiers } from "../OptionalPlaceholderModifiers";
 import {
 	escapeHTML as escapeHTMLValue,
@@ -51,6 +56,7 @@ import YoutubeHelper from "../youtube/YoutubeHelper";
 import ChatCommandCaptureUtils from "./ChatCommandCaptureUtils";
 import { getTriggerEventKeys, TRIGGER_EVENT_KEY_SPLITTER } from "./TriggerEventKeys";
 import { TriggerTypes, type TriggerTypesValue } from "@/types/TriggerTypes";
+import type { AutocompletableString } from "@/typeUtils";
 
 /**
  * Condition operators reading nothing but the value they're given.
@@ -92,6 +98,40 @@ const OPERATORS_WITH_NUMERIC_EXPECTATION = new Set<TriggerActionDataTypes.Trigge
 export const CUSTOM_CONDITION_PLACEHOLDER = "@___CUSTOM_VALUE___@";
 
 /**
+ * Media states during which OBS may still notify the playback end
+ */
+const MEDIA_ACTIVE_STATES = new Set<OBSMediaPlaybackStates | AutocompletableString>([
+	"OBS_MEDIA_STATE_PLAYING",
+	"OBS_MEDIA_STATE_OPENING",
+	"OBS_MEDIA_STATE_BUFFERING",
+	"OBS_MEDIA_STATE_PAUSED",
+]);
+
+/**
+ * A trigger registered on a queue
+ */
+interface TriggerQueueItem {
+	promise: Promise<void>;
+	resolver: () => void;
+	/**
+	 * Trigger's display name
+	 */
+	name: string;
+	/**
+	 * Trigger's log date, helps finding it on the logs
+	 */
+	date: number;
+	/**
+	 * Description of the action being executed, if any
+	 */
+	action?: string;
+	/**
+	 * Date the current action started
+	 */
+	actionDate?: number;
+}
+
+/**
  * Created : 22/04/2022
  */
 export default class TriggerActionHandler {
@@ -104,11 +144,11 @@ export default class TriggerActionHandler {
 	private globalCooldowns: { [key: string]: number } = {};
 	private triggerSentMessages: { text: string; expires: number }[] = [];
 	private obsSourceNameToQueue: { [key: string]: Promise<void> } = {};
-	private triggerTypeToQueue: {
-		[key: string]: { promise: Promise<void>; resolver: () => void; name: string }[];
-	} = {};
+	private triggerTypeToQueue: { [key: string]: TriggerQueueItem[] } = {};
 	private liveChannelCache: { [key: string]: TwitchatDataTypes.StreamInfo } | null = null;
 	private triggerType2Triggers: { [key: string]: TriggerData[] } = {};
+	private userTriggers: TriggerData[] = [];
+	private extraTriggers: TriggerData[] = [];
 	private HASHMAP_KEY_SPLITTER: string = TRIGGER_EVENT_KEY_SPLITTER;
 
 	constructor() {}
@@ -129,7 +169,17 @@ export default class TriggerActionHandler {
 	 ******************/
 	public populate(triggers: TriggerData[]): void {
 		this.cleanupTriggers(triggers);
-		this.buildHashmap(triggers);
+		this.userTriggers = triggers;
+		this.buildHashmap(this.userTriggers.concat(this.extraTriggers));
+	}
+
+	/**
+	 * Populates triggers that are not managed by the triggers store
+	 * (ex: simple chat commands)
+	 */
+	public populateExtra(triggers: TriggerData[]): void {
+		this.extraTriggers = triggers;
+		this.buildHashmap(this.userTriggers.concat(this.extraTriggers));
 	}
 
 	/**
@@ -1284,7 +1334,9 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
 				const eventType: {
-					[key in TwitchatDataTypes.MessageStreamlabsData["eventType"]]: TriggerTypesValue;
+					[
+						key in TwitchatDataTypes.MessageStreamlabsData["eventType"]
+					]: TriggerTypesValue;
 				} = {
 					donation: TriggerTypes.STREAMLABS_DONATION,
 					merch: TriggerTypes.STREAMLABS_MERCH,
@@ -1304,7 +1356,9 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
 				const eventType: {
-					[key in TwitchatDataTypes.MessageStreamelementsData["eventType"]]: TriggerTypesValue;
+					[
+						key in TwitchatDataTypes.MessageStreamelementsData["eventType"]
+					]: TriggerTypesValue;
 				} = {
 					donation: TriggerTypes.STREAMELEMENTS_DONATION,
 				} as const;
@@ -1691,7 +1745,9 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMLOOTS_PURCHASE: {
 				const eventType: {
-					[key in TwitchatDataTypes.MessageStreamlootsPurchaseData["eventType"]]: TriggerTypesValue;
+					[
+						key in TwitchatDataTypes.MessageStreamlootsPurchaseData["eventType"]
+					]: TriggerTypesValue;
 				} = {
 					purchase: TriggerTypes.STREAMLOOTS_PURCHASE,
 					gift: TriggerTypes.STREAMLOOTS_GIFT,
@@ -2085,7 +2141,8 @@ export default class TriggerActionHandler {
 	private initialize(): void {
 		registerOptionalPlaceholderModifiers();
 		void this.checkLiveFollowings(false);
-		this.buildHashmap(StoreProxy.triggers.triggerList);
+		this.userTriggers = StoreProxy.triggers.triggerList;
+		this.buildHashmap(this.userTriggers.concat(this.extraTriggers));
 	}
 
 	/**
@@ -2315,7 +2372,6 @@ export default class TriggerActionHandler {
 		};
 
 		const sTriggers = StoreProxy.triggers;
-		const isPremium = StoreProxy.auth.isPremium;
 		//Check if trigger is within a disabled folder, stop there if so
 		if (sTriggers.triggerIdToFolderEnabled[trigger.id] === false) {
 			log.entries.push({
@@ -2355,9 +2411,27 @@ export default class TriggerActionHandler {
 		if (!noLogs.includes(trigger.type))
 			log = Logger.instance.log("triggers", log) as LogTrigger;
 
+		//Heat clicks can be restricted to non-anonymous users.
+		//Checked before joining the queue as leaving after joining it would block
+		//the next triggers of the queue forever.
+		if (
+			!testMode &&
+			message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK &&
+			message.anonymous &&
+			trigger.heatAllowAnon !== true
+		) {
+			log.entries.push({
+				date: Date.now(),
+				type: "message",
+				value: "❌ Anonymous clicks are not allowed",
+			});
+			log.skipped = true;
+			return false;
+		}
+
 		//Wait for potential previous trigger of the exact same type to finish their execution
 		const queueKey = trigger.queue; // || trigger.id;
-		let queue: (typeof this.triggerTypeToQueue)[string] = [];
+		let queueItem: TriggerQueueItem | undefined = undefined;
 
 		if (queueKey) {
 			const prioritySuffix = trigger.queuePriority
@@ -2370,39 +2444,100 @@ export default class TriggerActionHandler {
 			});
 
 			if (!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
-			queue = this.triggerTypeToQueue[queueKey];
+			const queue = this.triggerTypeToQueue[queueKey];
 			const eventBusy = queue.length > 0;
 
 			let resolver!: () => void;
 			const promise = new Promise<void>((resolve, _reject) => {
 				resolver = resolve;
 			});
-			queue.push({
+			queueItem = {
 				promise,
 				resolver,
 				name: TriggerUtils.getTriggerDisplayInfo(trigger).label,
-			});
+				date: log.date,
+			};
+			queue.push(queueItem);
 
 			if (eventBusy) {
-				const queueItem = queue[queue.length - 2];
-				if (queueItem) {
-					const prom = queueItem?.promise;
+				const prevItem = queue[queue.length - 2];
+				if (prevItem) {
 					log.entries.push({
 						date: Date.now(),
 						type: "message",
 						value:
 							"A trigger is already executing in this queue, wait for it to complete: " +
-							queueItem.name,
+							prevItem.name,
 					});
-					if (prom) await prom;
+					await this.waitForQueueItem(queueKey, prevItem, log);
 					log.entries.push({
 						date: Date.now(),
 						type: "message",
-						value: "Pending trigger complete, continue process: " + queueItem.name,
+						value: "Pending trigger complete, continue process: " + prevItem.name,
 					});
 				}
 			}
 		}
+
+		let executed = false;
+		try {
+			executed = await this.executeTriggerActions(
+				trigger,
+				message,
+				testMode,
+				log,
+				dynamicPlaceholders,
+				callStack,
+				queueItem,
+				subEvent,
+				ttsID,
+			);
+		} catch (error: any) {
+			console.error(error);
+			log.entries.push({
+				date: Date.now(),
+				type: "message",
+				value:
+					"❌ [EXCEPTION] trigger execution thrown an error: " +
+					(error?.message ?? error) +
+					" " +
+					(error?.stack ?? ""),
+			});
+			log.criticalError = true;
+		} finally {
+			if (queueKey && queueItem) this.releaseQueueItem(queueKey, queueItem, log);
+		}
+
+		if (executed) {
+			log.complete = true;
+			log.entries.push({
+				date: Date.now(),
+				type: "message",
+				value: "✔ Trigger execution complete",
+			});
+		}
+		return executed;
+	}
+
+	/**
+	 * Executes given trigger
+	 *
+	 * @param queueItem trigger's queue entry, updated with the action being executed
+	 * @returns true if the actions have been executed
+	 */
+	private async executeTriggerActions(
+		trigger: TriggerData,
+		message: TwitchatDataTypes.ChatMessageTypes,
+		testMode: boolean,
+		log: LogTrigger,
+		dynamicPlaceholders: { [key: string]: string | number },
+		callStack: TriggerActionDataTypes.TriggerCallStack,
+		queueItem?: TriggerQueueItem,
+		subEvent?: string,
+		ttsID?: string,
+	): Promise<boolean> {
+		const sTriggers = StoreProxy.triggers;
+		const isPremium = StoreProxy.auth.isPremium;
 
 		// console.log("PARSE STEPS", eventType, trigger, message);
 		let canExecute = true;
@@ -2430,14 +2565,6 @@ export default class TriggerActionHandler {
 					message.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_COMPANION_KEYS
 				) {
 					//Get the full user from those limited data.
-					//Heat clicks can be restricted to non-anonymous users.
-					if (
-						message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK &&
-						message.anonymous &&
-						trigger.heatAllowAnon !== true
-					) {
-						return false;
-					}
 					executingUser = StoreProxy.users.getUserFrom(
 						message.platform,
 						message.channel_id,
@@ -2506,11 +2633,9 @@ export default class TriggerActionHandler {
 									DURATION: remaining_s,
 								});
 								if (
-									!(await MessengerProxy.instance.sendMessage(
-										text,
-										[message.platform],
-										message.channel_id,
-									))
+									!(await MessengerProxy.instance.sendMessage(text, [
+										message.platform,
+									]))
 								) {
 									log.entries.push({
 										date: Date.now(),
@@ -2561,11 +2686,9 @@ export default class TriggerActionHandler {
 								DURATION: remaining_s,
 							});
 							if (
-								!(await MessengerProxy.instance.sendMessage(
-									text,
-									[message.platform],
-									message.channel_id,
-								))
+								!(await MessengerProxy.instance.sendMessage(text, [
+									message.platform,
+								]))
 							) {
 								log.entries.push({
 									date: Date.now(),
@@ -2713,10 +2836,6 @@ export default class TriggerActionHandler {
 			});
 			passesCondition = false;
 			log.error = true;
-			if (queue.length > 0) {
-				const item = queue.shift();
-				if (item) item.resolver();
-			}
 			return false;
 		}
 
@@ -2737,7 +2856,7 @@ export default class TriggerActionHandler {
 			});
 		}
 
-		for (const step of actions) {
+		for (const [actionIndex, step] of actions.entries()) {
 			const logStep: LogTriggerStep = {
 				id: Utils.getUUID(),
 				type: "step",
@@ -2747,6 +2866,12 @@ export default class TriggerActionHandler {
 				error: false,
 			};
 			log.entries.push(logStep);
+
+			//Let the triggers waiting for the queue know what's holding it
+			if (queueItem) {
+				queueItem.action = actionIndex + 1 + "/" + actions.length + ' "' + step.type + '"';
+				queueItem.actionDate = Date.now();
+			}
 
 			if (step.enabled === false) {
 				logStep.messages.push({ date: Date.now(), value: "❌ Action disabled. Skip it" });
@@ -3522,33 +3647,11 @@ export default class TriggerActionHandler {
 												sourceName +
 												'" to complete playing...',
 										});
-										await new Promise<void>((resolve, _reject) => {
-											const handler = (
-												e: TwitchatEvent<"ON_OBS_PLAYBACK_ENDED">,
-											) => {
-												if (e.data.inputName != sourceName) return;
-												logStep.messages.push({
-													date: Date.now(),
-													value:
-														'Media "' +
-														sourceName +
-														'" playing complete.',
-												});
-												OBSWebSocket.instance.removeEventListener(
-													"ON_OBS_PLAYBACK_ENDED",
-													handler,
-												);
-												resolve();
-											};
-											logStep.messages.push({
-												date: Date.now(),
-												value: "Handler created...",
-											});
-											OBSWebSocket.instance.addEventListener(
-												"ON_OBS_PLAYBACK_ENDED",
-												handler,
-											);
-										});
+										if (queueItem) {
+											queueItem.action +=
+												' (waiting for media "' + sourceName + '" to end)';
+										}
+										await this.waitForMediaEnd(sourceName, logStep);
 									}
 								} catch (error: any) {
 									console.error(error);
@@ -4565,7 +4668,7 @@ export default class TriggerActionHandler {
 								// console.log("Exect sub trigger", step.triggerKey);
 								logStep.messages.push({
 									date: Date.now(),
-									value: 'Call trigger "' + step.triggerId + '"',
+									value: `Call trigger "${TriggerUtils.getTriggerDisplayInfo(trigger).label}"`,
 								});
 								await this.executeTrigger(
 									trigger,
@@ -4588,8 +4691,7 @@ export default class TriggerActionHandler {
 						} else {
 							logStep.messages.push({
 								date: Date.now(),
-								value:
-									'❌ Call trigger: trigger "' + step.triggerId + '" not found',
+								value: `❌ Call trigger: trigger "${step.triggerId}" not found`,
 							});
 						}
 					} else {
@@ -5050,6 +5152,139 @@ export default class TriggerActionHandler {
 					} catch (error) {
 						console.error(error);
 					}
+				} else //Handle counter params edition trigger action
+				if (step.type == "count" && step.action == "EDIT") {
+					const params = step.editParams;
+					let newName = "";
+					let newMin: number | null = null;
+					let newMax: number | null = null;
+					const logError = (value: string) => {
+						logStep.messages.push({ date: Date.now(), value: "❌ " + value });
+						log.error = true;
+						logStep.error = true;
+					};
+					//Parse placeholders and arithmetic operation of a min/max value
+					const parseLimit = async (
+						src: string,
+						label: string,
+					): Promise<number | null> => {
+						const text = await this.parsePlaceholders({
+							dynamicPlaceholders,
+							actionPlaceholders,
+							trigger,
+							message,
+							src,
+							subEvent,
+						});
+						const value = evalMath(text.trim());
+						if (value === null) {
+							logError(
+								"Invalid " + label + ' value: "' + src + '" => "' + text + '"',
+							);
+						}
+						return value;
+					};
+
+					if (params?.updateName) {
+						newName = await this.parsePlaceholders({
+							dynamicPlaceholders,
+							actionPlaceholders,
+							trigger,
+							message,
+							src: params.name,
+							subEvent,
+							keepHTML: false,
+						});
+						//Same limit as the counter form
+						newName = newName.trim().substring(0, 50);
+						if (!newName) logError("New counter name is empty");
+					}
+					if (params?.updateMin) newMin = await parseLimit(params.min, "min");
+					if (params?.updateMax) newMax = await parseLimit(params.max, "max");
+
+					for (const c of StoreProxy.counters.counterList) {
+						if (step.counters.indexOf(c.id) == -1) continue;
+						if (c.enabled == false && !isPremium) {
+							logError(
+								'Not premium and counter "' +
+									c.name +
+									'" is disabled. Counter not updated.',
+							);
+							continue;
+						}
+
+						const data: TwitchatDataTypes.CounterData = { ...c };
+						const changes: string[] = [];
+						let limitsUpdated = false;
+						if (newName && newName != c.name) {
+							data.name = newName;
+							changes.push('name to "' + newName + '"');
+						}
+						if (newMin !== null) {
+							if (c.min === false) {
+								logStep.messages.push({
+									date: Date.now(),
+									value:
+										'Counter "' +
+										c.name +
+										'" has no min value, min not updated',
+								});
+							} else {
+								data.min = newMin;
+								limitsUpdated = true;
+								changes.push("min to " + newMin);
+							}
+						}
+						if (newMax !== null) {
+							if (c.max === false) {
+								logStep.messages.push({
+									date: Date.now(),
+									value:
+										'Counter "' +
+										c.name +
+										'" has no max value, max not updated',
+								});
+							} else {
+								data.max = newMax;
+								limitsUpdated = true;
+								changes.push("max to " + newMax);
+							}
+						}
+						if (data.min !== false && data.max !== false && data.min > data.max) {
+							logError(
+								'Counter "' +
+									c.name +
+									'" min value (' +
+									data.min +
+									") would be greater than its max value (" +
+									data.max +
+									"). Counter not updated.",
+							);
+							continue;
+						}
+						if (changes.length == 0) continue;
+
+						StoreProxy.counters.updateCounter(data);
+						logStep.messages.push({
+							date: Date.now(),
+							value: 'Update counter "' + c.name + '": ' + changes.join(", "),
+						});
+
+						//Make sure current value(s) fit the new limits
+						if (limitsUpdated) {
+							const prevValue = data.value;
+							const clampCount = StoreProxy.counters.clampToLimits(data.id);
+							if (clampCount > 0) {
+								logStep.messages.push({
+									date: Date.now(),
+									value: data.perUser
+										? clampCount +
+											" user entries clamped to new limits (triggers not executed)"
+										: "Value clamped from " + prevValue + " to " + data.value,
+								});
+							}
+						}
+					}
 				} else //Handle counter update trigger action
 				if (step.type == "count") {
 					let text = await this.parsePlaceholders({
@@ -5079,6 +5314,9 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					}
 					if (!step.action) step.action = "ADD";
+					//"EDIT" action is handled on its own branch above
+					const valueAction =
+						step.action as TriggerActionDataTypes.TriggerActionCountDataAction;
 
 					const ids = step.counters;
 					let action: NonNullable<
@@ -5148,7 +5386,7 @@ export default class TriggerActionHandler {
 											if (value != null && !isNaN(value)) {
 												StoreProxy.counters.increment(
 													c.id,
-													step.action,
+													valueAction,
 													value,
 													user,
 												);
@@ -5232,7 +5470,7 @@ export default class TriggerActionHandler {
 										for (const uid in c.users) {
 											StoreProxy.counters.increment(
 												c.id,
-												step.action,
+												valueAction,
 												value,
 												undefined,
 												uid,
@@ -5291,7 +5529,7 @@ export default class TriggerActionHandler {
 											if (value != null && !isNaN(value)) {
 												StoreProxy.counters.increment(
 													c.id,
-													step.action,
+													valueAction,
 													value,
 													undefined,
 													user.id,
@@ -5329,7 +5567,7 @@ export default class TriggerActionHandler {
 										if (value != null && !isNaN(value)) {
 											const newValue = StoreProxy.counters.increment(
 												c.id,
-												step.action,
+												valueAction,
 												value,
 												user,
 											);
@@ -8408,26 +8646,133 @@ export default class TriggerActionHandler {
 			logStep.messages.push({ date: Date.now(), value: "✔ Step execution complete" });
 		}
 
-		if (queue) {
-			const item = queue.shift();
-			if (item) {
-				log.entries.push({
-					date: Date.now(),
-					type: "message",
-					value: "✔ Resolve queue " + queueKey,
-				});
-				item.resolver(); //Proceed to next trigger in current queue
+		// console.log("Steps parsed", actions);
+		return true;
+	}
+
+	/**
+	 * Waits for given queue item to be released.
+	 * Regularly logs what's holding it if it remains locked for too long
+	 */
+	private async waitForQueueItem(
+		queueKey: string,
+		item: TriggerQueueItem,
+		log: LogTrigger,
+	): Promise<void> {
+		type LogMessage = Extract<LogTrigger["entries"][number], { type: "message" }>;
+		const start = Date.now();
+		let entry: LogMessage | null = null;
+		const intervalId = window.setInterval(() => {
+			//First item of the queue is the one currently executing
+			const holder = this.triggerTypeToQueue[queueKey]?.[0];
+			if (!holder) return;
+			const now = Date.now();
+			let value =
+				'⚠️ Queue "' +
+				queueKey +
+				'" still busy after ' +
+				Utils.formatDuration(now - start, true) +
+				'. Held by "' +
+				holder.name +
+				'" started at ' +
+				Utils.formatDate(new Date(holder.date), true, false);
+			if (holder.action) {
+				value +=
+					", executing action " +
+					holder.action +
+					" for " +
+					Utils.formatDuration(now - (holder.actionDate ?? now), true);
+			} else {
+				value += ", not executing any action yet";
 			}
+			if (entry) {
+				entry.date = now;
+				entry.value = value;
+			} else {
+				//Reactive so updating it refreshes the logs
+				entry = reactive<LogMessage>({ date: now, type: "message", value });
+				log.entries.push(entry);
+			}
+		}, 60_000);
+
+		try {
+			await item.promise;
+		} finally {
+			window.clearInterval(intervalId);
 		}
-		log.complete = true;
+	}
+
+	/**
+	 * Removes given item from its queue and lets the next trigger of the queue execute
+	 */
+	private releaseQueueItem(queueKey: string, item: TriggerQueueItem, log: LogTrigger): void {
+		const queue = this.triggerTypeToQueue[queueKey];
+		const index = queue ? queue.indexOf(item) : -1;
+		if (index > -1) queue!.splice(index, 1);
 		log.entries.push({
 			date: Date.now(),
 			type: "message",
-			value: "✔ Trigger execution complete",
+			value: "✔ Resolve queue " + queueKey,
 		});
+		item.resolver(); //Proceed to next trigger in current queue
+	}
 
-		// console.log("Steps parsed", actions);
-		return true;
+	/**
+	 * Ultimate workaround OBS issue that sometimes doesn't advertise for media
+	 * playback complete.
+	 * Regularly cheks for current media playback state, if it's not playing 2
+	 * consecutive times, consider it's complete.
+	 * This also handles the case where a media source is removed while playing
+	 * which would also lock the trigger queue.
+	 */
+	private waitForMediaEnd(sourceName: string, logStep: LogTriggerStep): Promise<void> {
+		return new Promise<void>((resolve) => {
+			let complete = false;
+			let idleChecks = 0;
+			let pollId = -1;
+
+			const stopWaiting = (reason: string) => {
+				if (complete) return;
+				complete = true;
+				OBSWebSocket.instance.removeEventListener("ON_OBS_PLAYBACK_ENDED", onPlaybackEnd);
+				window.clearInterval(pollId);
+				logStep.messages.push({ date: Date.now(), value: reason });
+				resolve();
+			};
+
+			const onPlaybackEnd = (e: TwitchatEvent<"ON_OBS_PLAYBACK_ENDED">) => {
+				if (e.data.inputName != sourceName) return;
+				stopWaiting('Media "' + sourceName + '" playing complete.');
+			};
+			OBSWebSocket.instance.addEventListener("ON_OBS_PLAYBACK_ENDED", onPlaybackEnd);
+
+			pollId = window.setInterval(async () => {
+				let state: OBSMediaPlaybackStates | AutocompletableString;
+				try {
+					state =
+						(await OBSWebSocket.instance.getMediaState(sourceName)) ??
+						"obs disconnected";
+				} catch (_error) {
+					//Source most probably removed or renamed
+					state = `obs source "${sourceName}" not found`;
+				}
+				// media completed in the meantime, ignore the result
+				if (complete) return;
+
+				if (MEDIA_ACTIVE_STATES.has(state)) {
+					idleChecks = 0;
+					return;
+				}
+				if (++idleChecks < 5) return;
+				stopWaiting(
+					'⚠️ Media "' +
+						sourceName +
+						'" is not playing anymore but OBS never notified its end (state: ' +
+						state +
+						"). Stop waiting for it.",
+				);
+			}, 2_000);
+		});
 	}
 
 	/**
@@ -8647,6 +8992,20 @@ export default class TriggerActionHandler {
 						 */
 					} else if (pointer === "__command__") {
 						value = subEvent || "-none-";
+						cleanSubevent = false;
+
+						/**
+						 * If the placeholder requests for the command's target.
+						 * First word after the command, falls back to the message's author
+						 */
+					} else if (pointer === "__target__") {
+						if (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							let text = (message.message || "").trim();
+							if (subEvent_reg) text = text.replace(subEvent_reg, "").trim();
+							value =
+								text.split(/\s+/)[0]!.replace(/^@/, "") ||
+								message.user.displayNameOriginal;
+						}
 						cleanSubevent = false;
 
 						/**

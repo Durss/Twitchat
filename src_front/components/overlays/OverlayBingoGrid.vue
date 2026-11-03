@@ -1002,7 +1002,7 @@ async function animateViewer(data: IUserBingoData): Promise<void> {
 			delay: 0.7,
 		},
 	);
-	gsap.set(uc, { scale: 0 });
+	gsap.set(uc, { x: 0, y: 0, xPercent: -50, yPercent: -50, scale: 0 });
 	gsap.set(
 		us.map((v) => v.$el),
 		{ scale: 0 },
@@ -1052,9 +1052,9 @@ async function animateViewer(data: IUserBingoData): Promise<void> {
 			for (let i = 0; i < data.count; i++) {
 				gsap.fromTo(
 					uc,
-					{ transform: "translate(-50%, -50%) scale(" + (3 + i * 0.2) + ")" },
+					{ scale: 3 + i * 0.2 },
 					{
-						transform: "translate(-50%, -50%) scale(0)",
+						scale: 0,
 						immediateRender: false,
 						duration: stagger,
 						delay,

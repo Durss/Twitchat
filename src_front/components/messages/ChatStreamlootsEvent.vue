@@ -7,7 +7,13 @@
 		<Icon name="streamloots" alt="streamloots" class="icon" />
 
 		<div class="messageHolder">
-			<i18n-t scope="global" tag="span" :keypath="labelKey" :plural="count">
+			<i18n-t
+				scope="global"
+				tag="span"
+				:keypath="labelKey"
+				:plural="count"
+				class="messageWithTime"
+			>
 				<template #USER>
 					<strong>{{ messageData.userName }}</strong>
 				</template>
@@ -101,4 +107,3 @@ const count = computed((): number => {
 .chatstreamlootsevent {
 }
 </style>
-

@@ -8,13 +8,17 @@
 					<a
 						class="userlink"
 						v-if="messageData.moderator"
-						@click.stop="openUserCard(messageData.moderator!, messageData.channel_id)"
+						@click="openUserCard(messageData.moderator!, messageData.channel_id)"
 						>{{ messageData.moderator!.displayName }}</a
 					>
 				</template>
 			</i18n-t>
 
-			<ChatMessage class="quote" :messageData="messageData.chatMessage" lightMode />
+			<ChatMessage
+				class="quote messageWithTime"
+				:messageData="messageData.chatMessage"
+				lightMode
+			/>
 		</div>
 	</div>
 </template>

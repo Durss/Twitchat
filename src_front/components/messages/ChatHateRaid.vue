@@ -37,7 +37,7 @@
 			</template>
 
 			<a
-				class="footer"
+				class="footer messageWithTime"
 				href="https://dashboard.twitch.tv/settings/moderation/blocked-terms"
 				target="_blank"
 				>{{ $t("chat.hate_raid.footer") }} <Icon name="newtab"
@@ -47,7 +47,7 @@
 			<TTButton
 				v-if="canUnblockTerms"
 				icon="unblock"
-				@click.stop="unblockTerms()"
+				@click="unblockTerms()"
 				:loading="unblocking"
 				light
 				alert
@@ -57,7 +57,7 @@
 			<TTButton
 				v-if="canBanUsers"
 				icon="ban"
-				@click.stop="banHaters()"
+				@click="banHaters()"
 				:loading="banning"
 				light
 				alert
@@ -66,7 +66,7 @@
 			>
 		</div>
 
-		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
+		<ClearButton class="closeBt" @click="deleteMessage()" small />
 	</div>
 </template>
 

@@ -15,7 +15,7 @@
 					</a>
 
 					<img
-						v-if="!isOwnRaid && remoteChan && !remoteChan.temporary"
+						v-if="!isOwnRaid && remoteChan && !remoteChan.errored"
 						:src="remoteChan.avatarPath"
 						alt="avatar"
 						class="avatar mini"
@@ -31,7 +31,7 @@
 					>
 						<icon name="show" />
 						<span v-if="!censorCount">{{ raidInfo.viewerCount }}</span>
-						<span v-else class="censored">{{ raidInfo.viewerCount }}</span>
+						<span v-else class="censored">xx</span>
 					</mark>
 					<mark v-if="roomSettings?.subOnly == true"
 						><icon name="sub" />{{ t("raid.sub_only") }}</mark
@@ -154,9 +154,9 @@
 				</div>
 			</ToggleBlock>
 
-			<div class="card-item infos" v-if="isOwnRaid">
-				{{ t("raid.cant_force", { TIMER: timeLeft }) }}
-			</div>
+			<TTButton icon="newtab" light primary @click="openTwitchChat">{{
+				t("raid.force_raid")
+			}}</TTButton>
 		</div>
 	</div>
 </template>
@@ -215,9 +215,7 @@ const raidInfo = computed(() => storeStream.currentRaid!);
 
 const isModeratedChan = computed(() => {
 	if (!user.value) return false;
-	const chaninfo = storeAuth.twitch.user.channelInfo[user.value.id];
-	if (!chaninfo) return false;
-	return chaninfo.is_broadcaster || chaninfo.is_moderator;
+	return storeAuth.isModerator(user.value.id);
 });
 
 function getBanDuration(user: TwitchatDataTypes.TwitchatUser): string {
@@ -274,9 +272,12 @@ function copybannedUsers(): void {
 /**
  * Connect to raided chat
  */
-function remoteConnect(): void {
+async function remoteConnect(): Promise<void> {
 	remoteConnecting.value = true;
-	storeStream.connectToExtraChan(user.value!);
+	if (!(await storeStream.connectToExtraChan(user.value!))) {
+		remoteConnecting.value = false;
+		return;
+	}
 	window.setTimeout(() => {
 		canRemoteConnect.value = false;
 	}, 500);
@@ -297,6 +298,7 @@ onMounted(async () => {
 	const raid = storeStream.currentRaid;
 	if (raid) {
 		loading.value = true;
+		await storeUsers.waitUserLoaded(raid.user);
 		user.value = raid.user;
 		roomSettings.value = await TwitchUtils.getRoomSettings(user.value.id);
 		const liveInfos = await TwitchUtils.getCurrentStreamInfo([user.value.id]);
@@ -305,10 +307,8 @@ onMounted(async () => {
 		raidingLatestRaid.value = latestRaid && latestRaid.uid === raid.user.id;
 		isOwnRaid.value = storeAuth.twitch.user.id == raid.channel_id;
 		if (!isOwnRaid.value) {
-			remoteChan.value = await storeUsers.getUserFrom(
-				"twitch",
-				storeAuth.twitch.user.id,
-				raid.channel_id,
+			remoteChan.value = await storeUsers.waitUserLoaded(
+				storeUsers.getUserFrom("twitch", storeAuth.twitch.user.id, raid.channel_id),
 			);
 		}
 		loading.value = false;
@@ -350,6 +350,17 @@ onMounted(async () => {
 	bannedOnline.value = bannedOnlineList;
 	timedoutOnline.value = timedoutOnlineList;
 });
+
+function openTwitchChat(): void {
+	let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
+		width=350,height=${screen.availHeight},left=0,top=0`;
+	const url = "https://www.twitch.tv/popout/" + raidInfo.value.channel_login + "/chat";
+	try {
+		window.open(url, "chatPage", params);
+	} catch (error) {
+		//Ignore it
+	}
+}
 
 onBeforeUnmount(() => {
 	clearInterval(timerInterval);

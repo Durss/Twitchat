@@ -12,6 +12,7 @@
 
 		<div class="holder">
 			<i18n-t
+				class="messageWithTime"
 				scope="global"
 				tag="p"
 				:keypath="
@@ -23,7 +24,7 @@
 						class="userlink"
 						:href="getProfilePage(messageData.user)"
 						target="_blank"
-						@click.stop.prevent="
+						@click.prevent="
 							openUserCard(
 								messageData.user,
 								messageData.channel_id,
@@ -42,7 +43,7 @@
 				</template>
 			</i18n-t>
 
-			<div class="quote">
+			<div class="quote messageWithTime">
 				<ChatMessageChunksParser
 					:chunks="messageData.message_chunks"
 					:channel="messageData.channel_id"

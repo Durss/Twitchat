@@ -12,6 +12,7 @@ export default class DataStoreCommon {
 	public static SAVE_VERSION: string = "saveVersion";
 	public static SAVE_ID: string = "saveId";
 	public static SYNC_STATE: string = "syncState";
+	public static DATA_OWNER: string = "dataOwner";
 	public static UPDATE_INDEX: string = "updateIndex";
 	public static GREET_AUTO_DELETE_AFTER: string = "greetAutoDeleteAfter";
 	public static GREET_AUTO_SCROLL_DOWN: string = "greetScrollDownAuto";
@@ -122,6 +123,7 @@ export default class DataStoreCommon {
 	public static KOFI_CONFIGS: string = "kofiConfigs";
 	public static TWITCH_BOT: string = "twitchBot";
 	public static TIMERS_CONFIGS: string = "timersConfigs";
+	public static CHAT_COMMANDS_CONFIGS: string = "chatCommandsConfigs";
 	public static ANIMATED_TEXT_CONFIGS: string = "animatedTextConfigs";
 	public static CUSTOM_TRAIN_CONFIGS: string = "customTrainConfigs";
 	public static CENSOR_VIEWER_COUNT: string = "censorViewerCount";
@@ -154,6 +156,7 @@ export default class DataStoreCommon {
 		this.GREET_HISTORY,
 		this.SYNC_DATA_TO_SERVER,
 		this.SYNC_STATE,
+		this.DATA_OWNER,
 		this.CHAT_COL_CTA,
 		this.PARAMS_SECTIONS_CTA,
 		this.REDIRECT,

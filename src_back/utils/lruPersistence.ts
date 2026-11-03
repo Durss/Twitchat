@@ -10,8 +10,6 @@ export type LRUPersistenceOptions<K extends string | number, V extends {}, S = V
 	cache: LRUCache<K, V>;
 	/** Absolute file path for the on-disk snapshot. */
 	fileName: string;
-	/** Save interval for the auto-save loop. Defaults to 30 s. */
-	intervalMs?: number;
 	/**
 	 * Convert a cached value to a JSON-safe form before writing.
 	 * Needed when V contains things JSON can't represent (Set, Map, BigInt, …).
@@ -23,7 +21,31 @@ export type LRUPersistenceOptions<K extends string | number, V extends {}, S = V
 	name?: string;
 };
 
-const DEFAULT_INTERVAL_MS = 30_000;
+const loadedCaches = new Set<() => Promise<void>>();
+let shutdownHooked = false;
+let shutdownSave: Promise<void> | null = null;
+
+/**
+ * Saves caches to disk when process shutsdown
+ */
+function hookShutdown(): void {
+	if (shutdownHooked) return;
+	shutdownHooked = true;
+	for (const signal of ["SIGINT", "SIGTERM"]) {
+		process.once(signal, () => {
+			// Shared so a SIGINT followed by a SIGTERM doesn't write the same `.tmp` files concurrently
+			if (!shutdownSave) {
+				console.info(
+					`[lru-persist] ${signal} received, saving ${loadedCaches.size} cache(s)`,
+				);
+				shutdownSave = Promise.all([...loadedCaches].map((save) => save())).then(() => {});
+			}
+			void shutdownSave.then(() => {
+				if (process.listenerCount(signal) === 0) process.exit(0);
+			});
+		});
+	}
+}
 
 /**
  * Persists an `lru-cache` instance to a JSON file. TTL/start metadata is preserved
@@ -36,11 +58,13 @@ const DEFAULT_INTERVAL_MS = 30_000;
  * the caller passes an absolute path built from `Config`.
  */
 export class LRUPersistence<K extends string | number, V extends {}, S = V> {
-	private timer: NodeJS.Timeout | null = null;
 	private filePath: string = "";
 	private readonly serialize: (value: V) => S;
 	private readonly deserialize: (value: S) => V;
 	private readonly label: string;
+
+	private readonly saveOnShutdown = (): Promise<void> =>
+		this.save().catch((e) => console.error(`[lru-persist:${this.label}] save failed`, e));
 
 	constructor(private readonly opts: LRUPersistenceOptions<K, V, S>) {
 		this.serialize = opts.serialize ?? ((v) => v as unknown as S);
@@ -49,7 +73,9 @@ export class LRUPersistence<K extends string | number, V extends {}, S = V> {
 		this.filePath = path.resolve(this.opts.fileName);
 	}
 
-	/** Restore the cache from disk. Silent no-op when the file doesn't exist yet. */
+	/**
+	 * Restore the cache from disk. Silent no-op when the file doesn't exist yet.
+	 */
 	async load(): Promise<void> {
 		try {
 			const raw = await readFile(this.filePath, "utf8");
@@ -64,36 +90,24 @@ export class LRUPersistence<K extends string | number, V extends {}, S = V> {
 				console.error(`[lru-persist:${this.label}] load failed`, e);
 			}
 		}
+
+		loadedCaches.add(this.saveOnShutdown);
+		hookShutdown();
 	}
 
 	/** Atomic dump to disk: write to `.tmp` then rename, so a crash never leaves half-written JSON. */
 	async save(): Promise<void> {
-		const dump: Dump<K, S> = this.opts.cache.dump().map(([k, e]) => {
-			const { value, ...rest } = e;
-			return [k as K, { ...rest, value: this.serialize(value) }];
-		});
+		// Not using `cache.dump()` which is ~20x slower than this loop
+		const dump: Dump<K, S> = [];
+		for (const k of this.opts.cache.rkeys()) {
+			const entry = this.opts.cache.info(k);
+			if (!entry) continue;
+			const { value, ...rest } = entry;
+			dump.push([k, { ...rest, value: this.serialize(value) }]);
+		}
 		await mkdir(path.dirname(this.filePath), { recursive: true });
 		const tmp = this.filePath + ".tmp";
 		await writeFile(tmp, JSON.stringify(dump), "utf8");
 		await rename(tmp, this.filePath);
-	}
-
-	/** Start the periodic-save loop. Idempotent; the timer is unref'd so it doesn't block process exit. */
-	start(): void {
-		if (this.timer) return;
-		this.timer = setInterval(() => {
-			void this.save().catch((e) =>
-				console.error(`[lru-persist:${this.label}] save failed`, e),
-			);
-		}, this.opts.intervalMs ?? DEFAULT_INTERVAL_MS);
-		this.timer.unref();
-	}
-
-	/** Stop the periodic-save loop. Does NOT flush, call `save()` explicitly if needed. */
-	stop(): void {
-		if (this.timer) {
-			clearInterval(this.timer);
-			this.timer = null;
-		}
 	}
 }

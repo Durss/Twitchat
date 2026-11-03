@@ -195,6 +195,7 @@ function answer(confirm = false): void {
 		.title {
 			font-size: 2em;
 			text-align: center;
+			text-wrap: balance;
 		}
 
 		.voiceHelper {

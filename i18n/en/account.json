@@ -7,7 +7,7 @@
 		"updatesBt": "Latest updates",
 		"erase_dataBt": "Erase local parameters",
 		"erase_confirm_title": "Erase local parameters?",
-		"erase_confirm_description": "This will only erase parameters from this browser.<br>Triggers, voice commands, text to speech actions, automod params, emergency params, etc... will be reset.",
+		"erase_confirm_description": "This will only erase parameters from this browser.<br>Triggers, voice commands, text to speech actions, automod params, emergency params, etc... will be reset.<br><br>Twichat will then restart.",
 		"authorization": "Authorizations",
 		"language": "Interface language",
 		"invoices": {

@@ -67,6 +67,7 @@
 			"connect_extra_chan": "Se connecter à une chaîne Twitch",
 			"extra_chan_params_tt": "Paramètres",
 			"extra_chan_info": "Les Triggers, le mode urgence, l'automod,\netc... ne s'exécuteront que pour votre propre chaîne",
+			"extra_chan_limit": "Impossible de se connecter à {USER}, trop de chaînes sont connectées.\nDéconnectez-vous d'une autre chaîne d'abord.\nLes chaînes que vous modérez pèsent plus que les autres.",
 			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live YouTube",
 			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur YouTube",
 			"twitch_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur Twitch",
@@ -282,7 +283,7 @@
 		"follow": "{USER} vous suit",
 		"follow_remote": "{USER} suit la chaîne",
 		"raid": {
-			"text": "{USER} a lancé un raid sur votre chaîne avec {COUNT} personne. | {USER} a lancé un raid sur votre chaîne avec {COUNT} personnes.",
+			"text": "{USER} vient de raid avec {COUNT} personne. | {USER} vient de raid avec {COUNT} personnes.",
 			"offline": "hors ligne",
 			"offline_tt": "{USER} était hors ligne au moment du raid"
 		},

@@ -6,11 +6,16 @@
 	>
 		<Icon name="modiversary" alt="modiversary" class="icon" />
 
-		<i18n-t scope="global" tag="div" keypath="chat.user_modiversary.label">
+		<i18n-t
+			scope="global"
+			tag="div"
+			keypath="chat.user_modiversary.label"
+			class="messageWithTime"
+		>
 			<template #USER>
 				<a
 					class="userlink"
-					@click.stop="openUserCard(props.messageData.user, props.messageData.channel_id)"
+					@click="openUserCard(props.messageData.user, props.messageData.channel_id)"
 					>{{ props.messageData.user.displayName }}</a
 				>
 			</template>

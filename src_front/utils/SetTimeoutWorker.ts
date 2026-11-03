@@ -40,6 +40,7 @@ export default class SetTimeoutWorker {
 	 * Stops an interval by id
 	 */
 	public delete(id: string): void {
+		delete this._idToCallback[id];
 		this._worker.postMessage({ command: "stopTimeout", id });
 	}
 
@@ -51,8 +52,10 @@ export default class SetTimeoutWorker {
 		this._worker.onmessage = (event) => {
 			const message = event.data;
 			if (message.type === "timeoutMessage") {
-				if (!this._idToCallback[message.data]) return;
-				this._idToCallback[message.data]!();
+				const callback = this._idToCallback[message.data];
+				if (!callback) return;
+				delete this._idToCallback[message.data];
+				callback();
 			}
 		};
 	}

@@ -55,6 +55,7 @@
 					:lightMode="lightMode"
 					:childrenList="messageIdToChildren[m.id]"
 				/>
+				<div class="markRead" v-if="m.id === readMarkRowId"></div>
 			</div>
 
 			<div
@@ -66,10 +67,6 @@
 				<div class="message empty">{{ $t("chat.no_message") }}</div>
 			</div>
 		</div>
-
-		<teleport :to="markedReadItem" v-if="markedReadItem">
-			<div class="markRead"></div>
-		</teleport>
 
 		<teleport :to="selectedItem" v-if="selectedItem">
 			<div :class="selectedClasses"></div>
@@ -210,7 +207,9 @@ import {
 	onBeforeMount,
 	onBeforeUnmount,
 	ref,
+	shallowRef,
 	toRaw,
+	triggerRef,
 	useTemplateRef,
 	watch,
 } from "vue";
@@ -257,7 +256,7 @@ const conversationMessages = useTemplateRef<HTMLDivElement>("conversationMessage
 const messageRefs: Record<string, HTMLDivElement> = {};
 
 const filteredMessages = ref<TwitchatDataTypes.ChatMessageTypes[]>([]);
-const pendingMessages = ref<TwitchatDataTypes.ChatMessageTypes[]>([]);
+const pendingMessages = shallowRef<TwitchatDataTypes.ChatMessageTypes[]>([]);
 const lockedLiveMessages = ref<TwitchatDataTypes.ChatMessageTypes[]>([]);
 const conversation = ref<TwitchatDataTypes.MessageChatData[]>([]);
 const hovered = ref(false);
@@ -266,15 +265,24 @@ const showSummaryForm = ref(false);
 const customActivitiesDisplayed = ref(false);
 const showLoadingGradient = ref(false);
 const conversationMode = ref(true);
-const markedReadItem = ref<HTMLDivElement | null>(null);
+const readMark = ref({ id: "", date: 0 });
 const selectedItem = ref<HTMLDivElement | null>(null);
 const selectedMessage = ref<TwitchatDataTypes.ChatMessageTypes | null>(null);
 const messageIdToChildren = ref<{ [key: string]: TwitchatDataTypes.ChatMessageTypes[] }>({});
 const conversationPos = ref(0);
 const selectedMessageIsChild = ref(false);
 
+// Chat col configs that do not change filtering so we can avoid full
+// rebuild of the message list when they change
+const DISPLAY_ONLY_CONFIG_KEYS: (keyof TwitchatDataTypes.ChatColumnsConfig)[] = [
+	"size",
+	"liveLockCount",
+	"showPanelsHere",
+	"showGreetHere",
+	"backgroundColor",
+];
+
 let maxMessages = 50;
-let markedAsReadDate = 0;
 let selectionDate = 0;
 let selectionTimeout = -1;
 let virtualMessageHeight = 32;
@@ -295,6 +303,7 @@ let closeConvTimeout: number = -1;
 let prevTouchMove!: TouchEvent;
 let touchDragOffset = 0;
 let filteredChanIDs: { [key: string]: boolean } | null = null;
+let showMessageCache: Map<TwitchatDataTypes.ChatMessageTypes, boolean> | null = null;
 let userBlockSet: Set<string> | null = null;
 let publicApiEventHandler!: (
 	e: TwitchatEventOf<
@@ -384,6 +393,21 @@ const rowAlt = computed(() => {
 	return res;
 });
 
+/**
+ * Find message ID closest to current date marked as read
+ */
+const readMarkRowId = computed<string>(() => {
+	const { id, date } = readMark.value;
+	if (date === 0) return "";
+	const list = filteredMessagesDeduped.value;
+	const children = messageIdToChildren.value;
+	const row = list.findLast(
+		(m) => m.id == id || (children[m.id]?.some((v) => v.id == id) ?? false),
+	);
+	if (row) return row.id;
+	return list.findLast((m) => m.date <= date)?.id ?? "";
+});
+
 //If text size is changed, scroll to bottom of tchat
 watch(
 	() => storeParams.appearance.defaultSize.value,
@@ -434,7 +458,10 @@ watch(
 	() => rebuildChannelIdsHashmap(),
 );
 watch(
-	() => props.config,
+	() =>
+		(Object.keys(props.config) as (keyof TwitchatDataTypes.ChatColumnsConfig)[])
+			.filter((key) => !DISPLAY_ONLY_CONFIG_KEYS.includes(key))
+			.map((key) => props.config[key]),
 	() => rebuildChannelIdsHashmap(),
 	{ deep: true },
 );
@@ -612,41 +639,35 @@ function fullListRefresh(scrollToBottom: boolean = true): void {
 
 	clearTimeout(updateDebounce);
 	updateDebounce = window.setTimeout(async () => {
-		if (!lockScroll.value) {
-			pendingMessages.value = [];
-			lockedLiveMessages.value = [];
-			messageIdToChildren.value = {};
-			scrollUpIndexOffset = -1;
-		}
-
 		const messages = storeChat.messages;
+		//When paused, rebuild the list from its current top message and rebuild the
+		//pending messages from there as well, so they still directly follow the
+		//displayed ones. Otherwise messages could be skipped or shown out of order.
+		const topIndex = lockScroll.value ? findTopMessageIndex(messages) : -1;
 
-		let result: TwitchatDataTypes.ChatMessageTypes[] = [];
-		let index = messages.length - 1 - Math.max(0, scrollUpIndexOffset - maxMessages);
 		//Reset merged children references
 		messageIdToChildren.value = {};
+		scrollUpIndexOffset = -1;
 
-		for (; index >= 0; index--) {
-			const m = messages[index]!;
-			if (shouldShowMessage(m)) {
-				//Merge messages if necessary
-				if (mergeWithPrevious(m, index - 1, messages)) continue;
-
-				//Make sure message isn't pending for display
-				//This sometimes happens when stressing the list... Probably due
-				//the fact that the reference point ("scrollUpIndexOffset") is based
-				//on the top of the list instead of its bottom. (this needs refactoring)
-				const pIndex = pendingMessages.value.findIndex((v) => v.id == m.id);
-				if (pIndex > -1) {
-					pendingMessages.value.splice(pIndex, 1);
-				}
-
-				result.unshift(m);
-				if (result.length == maxMessages) break;
+		showMessageCache = new Map();
+		try {
+			if (topIndex > -1) {
+				const list = collectDisplayableMessages(messages, topIndex);
+				const count = Math.max(maxMessages, filteredMessages.value.length);
+				filteredMessages.value = list.slice(0, count);
+				pendingMessages.value = list.slice(count);
+				const pendingIds = new Set(pendingMessages.value.map((v) => v.id));
+				lockedLiveMessages.value = lockedLiveMessages.value.filter((v) =>
+					pendingIds.has(v.id),
+				);
+			} else {
+				pendingMessages.value = [];
+				lockedLiveMessages.value = [];
+				filteredMessages.value = collectDisplayableMessages(messages, 0, maxMessages);
 			}
+		} finally {
+			showMessageCache = null;
 		}
-
-		filteredMessages.value = result;
 
 		await nextTick();
 
@@ -665,6 +686,52 @@ function fullListRefresh(scrollToBottom: boolean = true): void {
 		}
 		replaceReadMarkerAndSelector();
 	}, 50);
+}
+
+/**
+ * Finds index of the message currently displayed at the top in the
+ * global message collection
+ * @returns index or -1 if message doesn't exist anymore
+ */
+function findTopMessageIndex(messages: TwitchatDataTypes.ChatMessageTypes[]): number {
+	const ids = new Set<string>();
+	for (const m of filteredMessages.value) {
+		ids.add(m.id);
+		messageIdToChildren.value[m.id]?.forEach((v) => ids.add(v.id));
+	}
+	pendingMessages.value.forEach((v) => ids.add(v.id));
+
+	let index = -1;
+	for (let i = messages.length - 1; i >= 0 && ids.size > 0; i--) {
+		if (ids.delete(messages[i]!.id)) index = i;
+	}
+	return index;
+}
+
+/**
+ * Finds the messages that should be displayed starting at given index.
+ *
+ * @param messages colleting in which searching messages
+ * @param fromIndex index at which starting searching messages
+ * @param maxCount max number of messages to return
+ */
+function collectDisplayableMessages(
+	messages: TwitchatDataTypes.ChatMessageTypes[],
+	fromIndex: number,
+	maxCount: number = Infinity,
+): TwitchatDataTypes.ChatMessageTypes[] {
+	const result: TwitchatDataTypes.ChatMessageTypes[] = [];
+	let merged = false;
+	for (let index = messages.length - 1; index >= 0; index--) {
+		if (index < fromIndex && !merged) break;
+		const m = messages[index]!;
+		if (!shouldShowMessage(m)) continue;
+		merged = mergeWithPrevious(m, index - 1, messages);
+		if (merged) continue;
+		result.push(m);
+		if (result.length == maxCount) break;
+	}
+	return result.reverse();
 }
 
 /**
@@ -693,16 +760,29 @@ function rebuildChannelIdsHashmap(): void {
 	//Pre-build user block list as a Set for O(1) lookup in shouldShowMessage
 	const blockList = props.config.userBlockList;
 	userBlockSet =
-		blockList && blockList.length > 0 ? new Set(blockList.map((v) => v.toLowerCase())) : null;
+		blockList && blockList.length > 0
+			? new Set(blockList.map((v) => v.trim().replace(/^@/, "").toLowerCase()))
+			: null;
 
 	fullListRefresh();
 }
 
 /**
  * Returns if a message should be displayed or not
+ * Result is cached
  * @param m
  */
 function shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
+	if (!showMessageCache) return computeShouldShowMessage(m);
+	let show = showMessageCache.get(m);
+	if (show === undefined) {
+		show = computeShouldShowMessage(m);
+		showMessageCache.set(m, show);
+	}
+	return show;
+}
+
+function computeShouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
 	//Hide shared chat messages if requested
 	if (
 		m.twitchSharedChat === true &&
@@ -802,7 +882,8 @@ function shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
 			if (
 				userBlockSet &&
 				m.user.displayNameOriginal.length > 0 &&
-				userBlockSet.has(m.user.login.toLowerCase())
+				(userBlockSet.has(m.user.login.toLowerCase()) ||
+					userBlockSet.has(m.user.displayNameOriginal.toLowerCase()))
 			) {
 				return false;
 			}
@@ -997,7 +1078,8 @@ function shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
 		case TwitchatDataTypes.TwitchatMessageType.CONNECT:
 		case TwitchatDataTypes.TwitchatMessageType.DISCONNECT:
 		case TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY:
-		case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
+		case TwitchatDataTypes.TwitchatMessageType.NOTICE:
+		case TwitchatDataTypes.TwitchatMessageType.CHAT_COMMAND_UPDATE: {
 			return props.config.filters.notice === true;
 		}
 
@@ -1126,6 +1208,7 @@ function onAddMessage(e: GlobalEvent): void {
 
 	if (lockScroll.value) {
 		pendingMessages.value.push(m);
+		triggerRef(pendingMessages);
 		if (storeParams.features.liveMessages.value === true) {
 			//add to "live message" list if allowed
 			lockedLiveMessages.value.push(m);
@@ -1152,23 +1235,68 @@ function onDeleteMessage(e: GlobalEvent): void {
 	//If a message occurence count is incremented, the message is deleted
 	//then added back. Deleting is asynchronous bnut adding is synchronous
 	//which opens possibilities for a message to be twice on the list
+	//Also remove it from pending messages
 	const data = e.data as { message: TwitchatDataTypes.ChatMessageTypes; force: boolean };
-	for (let i = filteredMessages.value.length - 1; i >= 0; i--) {
-		const m = filteredMessages.value[i]!;
-		if (m.id == data.message.id) {
-			filteredMessages.value.splice(i, 1);
-			break;
+
+	if (lockScroll.value) {
+		deleteMessageInPlace(data.message);
+		return;
+	}
+
+	for (const list of [filteredMessages.value, pendingMessages.value, lockedLiveMessages.value]) {
+		const index = list.findLastIndex((v) => v.id == data.message.id);
+		if (index > -1) list.splice(index, 1);
+	}
+	triggerRef(pendingMessages);
+	fullListRefresh(false);
+}
+
+/**
+ * Removes a message from the current list without fully rebuilding it
+ *
+ * If it was the first message of a merge group, the next message of
+ * the group replaces it.
+ */
+function deleteMessageInPlace(message: TwitchatDataTypes.ChatMessageTypes): void {
+	const inHistory = storeChat.messages.findLastIndex((v) => v.id == message.id) > -1;
+	// is messages is still displayed and should show as deleted?
+	if (inHistory && shouldShowMessage(message)) return;
+
+	// If deleted message was the first of merged ones, make its
+	// first child the new parent
+	const children = messageIdToChildren.value;
+	const merged = children[message.id];
+	let replacement: TwitchatDataTypes.ChatMessageTypes | undefined;
+	if (merged && merged.length > 0) {
+		replacement = merged[0]!;
+		children[replacement.id] = merged.slice(1);
+	}
+	delete children[message.id];
+
+	let found = false;
+	// check if message is currently displayed and drop or replace it
+	// with the new parent
+	for (const list of [filteredMessages.value, pendingMessages.value, lockedLiveMessages.value]) {
+		const index = list.findLastIndex((v) => v.id == message.id);
+		if (index == -1) continue;
+		found = true;
+		if (replacement) list.splice(index, 1, replacement);
+		else list.splice(index, 1);
+	}
+	triggerRef(pendingMessages);
+
+	// message not currently displayed, just drop it from its parent
+	if (!found) {
+		for (const id in children) {
+			const index = children[id]!.findIndex((v) => v.id == message.id);
+			if (index > -1) {
+				children[id]!.splice(index, 1);
+				break;
+			}
 		}
 	}
 
-	for (let i = lockedLiveMessages.value.length - 1; i >= 0; i--) {
-		const m = lockedLiveMessages.value[i]!;
-		if (m.id == data.message.id) {
-			lockedLiveMessages.value.splice(i, 1);
-			break;
-		}
-	}
-	fullListRefresh(false);
+	void nextTick(() => replaceReadMarkerAndSelector());
 }
 
 /**
@@ -1189,13 +1317,16 @@ function onPublicApiEvent(e: Parameters<typeof publicApiEventHandler>[0]): void 
 			if (count === 0) count = 1;
 			const messageList = storeChat.messages;
 			let offset = messageList.length - 1;
-			let currentMessageIndex = -1;
-			if (markedAsReadDate === 0) markedAsReadDate = Date.now();
+			if (readMark.value.date === 0) readMark.value = { id: "", date: Date.now() };
+			const { id: markId, date: markDate } = readMark.value;
+			let currentMessageIndex = markId
+				? messageList.findLastIndex((m) => m.id == markId)
+				: -1;
 
 			//Search for first message marked as read
-			for (let i = offset; i >= 0; i--) {
+			for (let i = offset; i >= 0 && currentMessageIndex == -1; i--) {
 				const m = messageList[i]!;
-				if (m.date <= markedAsReadDate && shouldShowMessage(m)) {
+				if (m.date <= markDate && shouldShowMessage(m)) {
 					currentMessageIndex = i;
 					break;
 				}
@@ -1208,7 +1339,7 @@ function onPublicApiEvent(e: Parameters<typeof publicApiEventHandler>[0]): void 
 						const m = messageList[i]!;
 						if (shouldShowMessage(m)) count++;
 						if (count === 1) {
-							markedAsReadDate = m.date;
+							readMark.value = { id: m.id, date: m.date };
 							replaceReadMarkerAndSelector(true);
 							break;
 						}
@@ -1219,7 +1350,7 @@ function onPublicApiEvent(e: Parameters<typeof publicApiEventHandler>[0]): void 
 						const m = messageList[i]!;
 						if (shouldShowMessage(m)) count--;
 						if (count === -1) {
-							markedAsReadDate = m.date;
+							readMark.value = { id: m.id, date: m.date };
 							replaceReadMarkerAndSelector(true);
 							break;
 						}
@@ -1659,12 +1790,14 @@ function showNextPendingMessage(): void {
 		if (!shouldShowMessage(message!)) {
 			message = undefined;
 		} else if (message) {
-			if (mergeWithPrevious(message, undefined, pendingMessages.value)) continue;
+			const displayed = filteredMessages.value.concat(localArray);
+			if (mergeWithPrevious(message, undefined, displayed)) continue;
 			//Add message
 			messageCountToAdd--;
 			localArray.push(message);
 		}
 	} while (pendingMessages.value.length > 0 && messageCountToAdd > 0);
+	triggerRef(pendingMessages);
 
 	filteredMessages.value.push(...localArray);
 
@@ -1726,6 +1859,7 @@ async function showPrevMessage(): Promise<void> {
 
 	if (messageAdded) {
 		removed.forEach((v) => pendingMessages.value.unshift(v));
+		triggerRef(pendingMessages);
 
 		// Wait for DOM to reflect the prepended messages, then adjust
 		// scrollTop so the user's visual position stays stable.
@@ -1928,25 +2062,15 @@ function toggleMarkRead(m: TwitchatDataTypes.ChatMessageTypes, event?: MouseEven
 		return;
 	}
 
-	if (event) {
-		let target = event.target as HTMLElement;
-		do {
-			if (target.tagName.toLowerCase() == "a") return;
-			target = target.parentElement as HTMLElement;
-		} while (target != document.body);
-	}
-
 	//Do not mark as read if there's a text selection
 	if (window.getSelection()?.type === "Range") return;
 
-	if (markedAsReadDate == m.date) {
+	if (readMark.value.id == m.id) {
 		//Disable marker if the message was already marked as read
-		markedAsReadDate = 0;
+		readMark.value = { id: "", date: 0 };
 	} else {
-		markedAsReadDate = m.date;
+		readMark.value = { id: m.id, date: m.date };
 	}
-
-	replaceReadMarkerAndSelector();
 
 	if (
 		m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE ||
@@ -1954,7 +2078,7 @@ function toggleMarkRead(m: TwitchatDataTypes.ChatMessageTypes, event?: MouseEven
 	) {
 		PublicAPI.instance.broadcast("ON_MESSAGE_MARKED_AS_READ", {
 			manual: event != null,
-			selected: markedAsReadDate == m.date,
+			selected: readMark.value.id == m.id,
 			channel: m.channel_id,
 			message:
 				m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
@@ -2044,7 +2168,8 @@ function trimOldMessages(
 }
 
 /**
- * Replaces the read marker and selector
+ * Replaces the stream deck selector.
+ * This also scrolls the to read maker if it moved
  */
 function replaceReadMarkerAndSelector(movingReadMark: boolean = false): void {
 	if (selectedMessageIsChild.value && selectedItem.value) {
@@ -2052,61 +2177,43 @@ function replaceReadMarkerAndSelector(movingReadMark: boolean = false): void {
 		selectedMessageIsChild.value = false;
 	}
 
-	markedReadItem.value = null;
 	selectedItem.value = null;
 	selectedMessage.value = null;
-	let toFindCount = 0;
 
-	if (markedAsReadDate > 0) toFindCount++;
-	if (selectionDate > 0) toFindCount++;
-	if (toFindCount == 0) return;
-
-	let foundCount = 0;
-	for (let i = filteredMessages.value.length - 1; i >= 0; i--) {
+	for (let i = filteredMessages.value.length - 1; i >= 0 && selectionDate > 0; i--) {
 		const mLoc = filteredMessages.value[i]!;
+		if (mLoc.date > selectionDate) continue;
 
-		// Move read marker
-		if (!markedReadItem.value && markedAsReadDate > 0 && mLoc.date <= markedAsReadDate) {
-			const div = messageRefs[mLoc.id]!;
-			markedReadItem.value = div;
-			foundCount++;
-		}
+		//Using element IDs instead of $refs so we can target sub elements.
+		//Merged messages are handled within a message, this list doesn't have any reference
+		//to the actual children except via their element ID
+		const div = document.getElementById(
+			"message_" + mLoc.id + "_" + props.config.order,
+		) as HTMLDivElement;
+		selectedItem.value = div;
+		selectedMessage.value = mLoc as TwitchatDataTypes.MessageChatData;
 
-		// Move selection
-		if (!selectedItem.value && selectionDate > 0 && mLoc.date <= selectionDate) {
-			//Using element IDs instead of $refs so we can target sub elements.
-			//Merged messages are handled within a message, this list doesn't have any reference
-			//to the actual children except via their element ID
-			const div = document.getElementById(
-				"message_" + mLoc.id + "_" + props.config.order,
-			) as HTMLDivElement;
-			selectedItem.value = div;
-			selectedMessage.value = mLoc as TwitchatDataTypes.MessageChatData;
-			foundCount++;
-
-			//Search on merged children if any
-			const children = messageIdToChildren.value[mLoc.id];
-			if (children) {
-				for (const child of children) {
-					if (selectionDate > 0 && child.date <= selectionDate) {
-						const div = document.getElementById(
-							"message_" + child.id + "_" + props.config.order,
-						) as HTMLDivElement;
-						selectedItem.value.classList.remove("selectedChildMessage");
-						selectedItem.value = div;
-						selectedMessage.value = child as TwitchatDataTypes.MessageChatData;
-						selectedMessageIsChild.value = true;
-						div.classList.add("selectedChildMessage");
-					}
+		//Search on merged children if any
+		const children = messageIdToChildren.value[mLoc.id];
+		if (children) {
+			for (const child of children) {
+				if (child.date <= selectionDate) {
+					const div = document.getElementById(
+						"message_" + child.id + "_" + props.config.order,
+					) as HTMLDivElement;
+					selectedItem.value.classList.remove("selectedChildMessage");
+					selectedItem.value = div;
+					selectedMessage.value = child as TwitchatDataTypes.MessageChatData;
+					selectedMessageIsChild.value = true;
+					div.classList.add("selectedChildMessage");
 				}
 			}
 		}
-
-		if (foundCount == toFindCount) break;
+		break;
 	}
 
-	//Scroll chat to make sure the selection remains visible on screen
-	const item = movingReadMark ? markedReadItem.value : selectedItem.value;
+	//Scroll chat to make sure the selection or the read marker remains visible on screen
+	const item = movingReadMark ? (messageRefs[readMarkRowId.value] ?? null) : selectedItem.value;
 	if (item) {
 		const messageHolder = chatMessageHolder.value;
 		if (!messageHolder) return;
@@ -2245,7 +2352,7 @@ function mergeWithPrevious(
 			}
 			if (prevSize + newCast.message_size > maxSizeTotal) return false;
 		} else //Merging rewards from the same user...
-		 if (
+		if (
 			newMessage.type == TwitchatDataTypes.TwitchatMessageType.REWARD &&
 			prevMessage.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 		) {
@@ -2259,7 +2366,7 @@ function mergeWithPrevious(
 			if (newMessage.message_html && !prevMessage.message_html) return false;
 			if (!newMessage.message_html && prevMessage.message_html) return false;
 		} else //Merge cheers
-		 if (
+		if (
 			newMessage.type == TwitchatDataTypes.TwitchatMessageType.CHEER &&
 			prevMessage.type == TwitchatDataTypes.TwitchatMessageType.CHEER
 		) {
@@ -2419,7 +2526,8 @@ function showSelectionError(): void {
 			border-bottom: 2px solid var(--splitter-color);
 			box-shadow: 0px 0 5px 0px rgba(0, 0, 0, 0.5);
 			position: absolute;
-			bottom: 0;
+			// bottom: calc(100% + 0.25em);
+			bottom: -0.25em;
 			left: 0;
 			pointer-events: none;
 			z-index: 1;

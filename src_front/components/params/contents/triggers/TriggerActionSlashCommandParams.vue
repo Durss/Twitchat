@@ -5,14 +5,8 @@
 			@change="onUpdateCommand()"
 			:paramData="param_command"
 			:autofocus="true"
-			:error="cmdNameConflict || formatError"
-			:errorMessage="
-				cmdNameConflict
-					? $t('triggers.actions.chat.conflict')
-					: formatError
-						? $t('triggers.slash_cmd.format_error')
-						: ''
-			"
+			:error="cmdNameConflict"
+			:errorMessage="cmdNameConflict ? $t('triggers.actions.chat.conflict') : ''"
 		/>
 		<ParamItem
 			noBackground
@@ -50,6 +44,7 @@ import ParamItem from "../../ParamItem.vue";
 import TriggerActionCommandArgumentParams from "./TriggerActionCommandArgumentParams.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import { TriggerTypes } from "@/types/TriggerTypes.js";
+import { formatSlashCommand } from "@/utils/ChatCommandUtils";
 
 const storeTriggers = useStoreTriggers();
 const storeChat = useStoreChat();
@@ -58,7 +53,6 @@ const props = defineProps<{
 	triggerData: TriggerData;
 }>();
 
-const formatError = ref(false);
 const cmdNameConflict = ref(false);
 const param_command = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
@@ -90,15 +84,13 @@ onBeforeMount(() => {
 function onUpdateCommand(): void {
 	cmdNameConflict.value = false;
 
-	props.triggerData.chatCommand = param_command.value.value = param_command.value.value
-		.trim()
-		.replace(/\s+/g, "");
+	props.triggerData.chatCommand = param_command.value.value = formatSlashCommand(
+		param_command.value.value,
+	);
 
 	//Make sure no other chat command has the same name
 	const triggers = storeTriggers.triggerList;
 	const mainCmd = props.triggerData.chatCommand?.toLowerCase() || "";
-
-	formatError.value = mainCmd.indexOf("/") != 0;
 
 	//Check if any other trigger contain the same command
 	for (const trigger of triggers) {

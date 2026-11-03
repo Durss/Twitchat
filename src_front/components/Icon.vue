@@ -37,7 +37,7 @@ const store = storeCommon();
 const props = withDefaults(
 	defineProps<{
 		name: string;
-		theme?: string;
+		theme?: "" | "dark" | "light" | "primary" | "secondary" | "alert" | "premium" | "twitch";
 		forceFill?: boolean;
 	}>(),
 	{

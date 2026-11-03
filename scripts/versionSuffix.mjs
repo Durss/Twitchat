@@ -33,6 +33,9 @@ fs.writeFileSync(packageJsonPath, JSON.stringify(packageJsonNew, undefined, "	")
 
 console.info(`Version bumped to ${packageJsonNew.version}`);
 
+//Update server's version file so it's part of the version commit
+execSync("npm run server/version", { stdio: "inherit" });
+
 execSync("git add .", { stdio: "inherit" });
 const commitMessage = `Upgrade version to ${packageJsonNew.version}`;
 execSync(`git commit -m "${commitMessage}"`, { stdio: "inherit" });

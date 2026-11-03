@@ -21,9 +21,6 @@ select,
 
 	&.noBg {
 		background-color: transparent;
-		&:focus {
-			outline: none;
-		}
 	}
 
 	&.primary {
@@ -118,6 +115,7 @@ button {
 	padding: 0;
 	font-size: 1em;
 	cursor: pointer;
+	color: currentColor;
 }
 
 @supports (-webkit-appearance: none) or (-moz-appearance: none) {
@@ -125,7 +123,6 @@ button {
 		appearance: none;
 		height: 1em;
 		width: 1em;
-		outline: none;
 		display: inline-block;
 		margin: 0;
 		cursor: pointer;
@@ -205,6 +202,9 @@ button {
 		background-color: var(--color-secondary);
 		.listIcon {
 			filter: brightness(10);
+		}
+		&.vs__dropdown-option--disabled {
+			color: var(--color-light);
 		}
 	}
 	& > .category {

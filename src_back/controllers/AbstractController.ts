@@ -94,12 +94,31 @@ export default class AbstractController {
 			}
 		}
 
+		AbstractController._dataSharing = {};
 		if (fs.existsSync(Config.DATA_SHARING)) {
-			AbstractController._dataSharing = JSON.parse(
-				fs.readFileSync(Config.DATA_SHARING, "utf-8"),
-			);
-		} else {
-			AbstractController._dataSharing = {};
+			try {
+				const json = JSON.parse(fs.readFileSync(Config.DATA_SHARING, "utf-8"));
+				if (!json || typeof json !== "object" || Array.isArray(json)) {
+					throw new Error("Invalid data sharing file format");
+				}
+				AbstractController._dataSharing = json;
+			} catch (error) {
+				//File is broken. Move it aside so the next save can't overwrite it
+				//and it can be fixed by hand, then start without any link.
+				const backupPath = Config.DATA_SHARING.replace(
+					/\.json$/,
+					"_broken_" + Date.now() + ".json",
+				);
+				fs.renameSync(Config.DATA_SHARING, backupPath);
+				Logger.error("[DATA SHARING] Broken file moved to " + backupPath);
+				console.log(error);
+				Utils.sendDashboardNotification(
+					"Data sharing file broken",
+					"All account links are disabled until " + backupPath + " is fixed and restored",
+					undefined,
+					"error",
+				);
+			}
 		}
 		AbstractController._dataPreloaded = true;
 	}
@@ -348,6 +367,27 @@ export default class AbstractController {
 	}
 
 	/**
+	 * Persists data sharing links.
+	 * Written to a temp file then renamed so a crash mid-write can't leave a broken
+	 * file behind. Kept synchronous so successive updates can't be written out of order.
+	 */
+	private static saveDataSharing(): void {
+		const json = JSON.stringify(AbstractController._dataSharing);
+		const tmpFilePath = Config.DATA_SHARING + ".tmp";
+		fs.writeFileSync(tmpFilePath, json, "utf-8");
+		try {
+			fs.renameSync(tmpFilePath, Config.DATA_SHARING);
+		} catch (error) {
+			//Windows may refuse to replace a file opened elsewhere, write in place instead
+			const code = (error as NodeJS.ErrnoException).code;
+			if (code !== "EPERM" && code !== "EBUSY" && code !== "EACCES") throw error;
+			Logger.warn("[DATA SHARING] Atomic rename failed, writing in place");
+			fs.writeFileSync(Config.DATA_SHARING, json, "utf-8");
+			fs.rmSync(tmpFilePath, { force: true });
+		}
+	}
+
+	/**
 	 * Enables data sharing between 2 users.
 	 * "receiver" will use data from "sharer"
 	 * @param sharer user ID
@@ -356,34 +396,38 @@ export default class AbstractController {
 	protected enableUserDataSharing(sharer: string, receiver: string): boolean {
 		if (AbstractController._dataSharing[sharer] === receiver) return false;
 		AbstractController._dataSharing[receiver] = sharer;
-		fs.writeFileSync(
-			Config.DATA_SHARING,
-			JSON.stringify(AbstractController._dataSharing),
-			"utf-8",
-		);
+		AbstractController.saveDataSharing();
 		Logger.info("Enable data sharing between users " + sharer + "(main) and " + receiver);
 		return true;
 	}
 
 	/**
 	 * Disables data sharing between 2 users.
-	 * @param uid user ID
+	 * @param uid1 receiver user ID
+	 * @param uid2 sharer user ID
+	 * @param copyData if true, the receiver keeps a copy of the data they were sharing
 	 */
-	protected disableUserDataSharing(uid1: string, uid2: string): void {
+	protected disableUserDataSharing(uid1: string, uid2: string, copyData: boolean = true): void {
 		const ref = AbstractController._dataSharing[uid1];
 		if (ref !== uid2) return;
 
 		delete AbstractController._dataSharing[uid1];
-		fs.writeFileSync(
-			Config.DATA_SHARING,
-			JSON.stringify(AbstractController._dataSharing),
-			"utf-8",
-		);
+		AbstractController.saveDataSharing();
 
 		//Copy ref data to removed user
-		const refFilePath = Config.USER_DATA_PATH + ref + ".json";
-		const targetFilePath = Config.USER_DATA_PATH + uid2 + ".json";
-		fs.copyFileSync(refFilePath, targetFilePath);
+		if (copyData) {
+			const refFilePath = Config.USER_DATA_PATH + ref + ".json";
+			const targetFilePath = Config.USER_DATA_PATH + uid1 + ".json";
+			const tmpFilePath = targetFilePath + ".tmp";
+			try {
+				fs.copyFileSync(refFilePath, tmpFilePath);
+				fs.renameSync(tmpFilePath, targetFilePath);
+			} catch (error) {
+				fs.rmSync(tmpFilePath, { force: true });
+				Logger.error("Failed copying shared data of user " + ref + " to user " + uid1);
+				console.log(error);
+			}
+		}
 
 		Logger.info("Disable data sharing between users " + uid1 + " and " + uid2);
 	}
@@ -415,6 +459,19 @@ export default class AbstractController {
 			}
 		}
 
+		return res;
+	}
+
+	/**
+	 * Get all users sharing data with given own
+	 * @param ownerUid user ID owning the data file
+	 */
+	protected getDataSharingGroup(ownerUid: string): string[] {
+		const res: string[] = [ownerUid];
+		const dict = AbstractController._dataSharing;
+		for (const receiver in dict) {
+			if (dict[receiver] === ownerUid) res.push(receiver);
+		}
 		return res;
 	}
 

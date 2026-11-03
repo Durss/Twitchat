@@ -7,19 +7,26 @@
 	>
 		<div class="messageHolder">
 			<div class="content">
+				<button
+					class="closeBt"
+					@click="deleteMessage()"
+					v-if="messageData.canClose !== false"
+				>
+					<Icon name="trash" />
+				</button>
 				<Icon v-if="messageData.icon" :name="messageData.icon" />
 				<span class="username" :style="userStyles" v-if="messageData.user?.name">{{
 					messageData.user.name
 				}}</span>
-				<span class="message" v-if="messageData.message_chunks"
+				<span class="message messageWithTime" v-if="messageData.message_chunks"
 					><ChatMessageChunksParser :chunks="messageData.message_chunks"
 				/></span>
-				<span class="message" v-else-if="messageData.message">{{
+				<span class="message messageWithTime" v-else-if="messageData.message">{{
 					messageData.message
 				}}</span>
 			</div>
 
-			<template v-if="messageData.actions">
+			<div class="messageWithTime" v-if="(messageData.actions || []).length > 0">
 				<Button
 					v-for="action in messageData.actions"
 					class="cta"
@@ -36,25 +43,20 @@
 					:light="action.theme == 'light'"
 					:primary="action.theme == 'primary'"
 					:secondary="action.theme == 'secondary'"
-					@click.stop="onClickButton(action)"
+					@click="onClickButton(action)"
 					>{{ action.label }}</Button
 				>
-			</template>
+			</div>
 
 			<div class="quote" v-if="messageData.quote">
-				<span class="message" v-if="messageData.quote_chunks"
+				<span class="message messageWithTime" v-if="messageData.quote_chunks"
 					><ChatMessageChunksParser :chunks="messageData.quote_chunks"
 				/></span>
-				<span class="message" v-else-if="messageData.quote">{{ messageData.message }}</span>
+				<span class="message messageWithTime" v-else-if="messageData.quote">{{
+					messageData.message
+				}}</span>
 			</div>
 		</div>
-
-		<ClearButton
-			class="closeBt"
-			@click.stop="deleteMessage()"
-			small
-			v-if="messageData.canClose !== false"
-		/>
 	</div>
 </template>
 
@@ -69,9 +71,8 @@ import TriggerUtils from "@/utils/TriggerUtils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import { gsap } from "gsap/gsap-core";
 import { computed, ref, useTemplateRef, type CSSProperties } from "vue";
-import ClearButton from "../ClearButton.vue";
 import Icon from "../Icon.vue";
-import Button from "../TTButton.vue";
+import { default as Button, default as TTButton } from "../TTButton.vue";
 import ChatMessageChunksParser from "./components/ChatMessageChunksParser.vue";
 
 const props = withDefaults(
@@ -211,10 +212,9 @@ async function onClickButton(
 		justify-content: flex-end;
 		align-items: center;
 		flex-grow: 1;
-		padding-right: 1.5em;
 		.content {
 			flex-grow: 1;
-			.icon {
+			& > .icon {
 				height: 1em;
 				margin-right: 0.25em;
 				vertical-align: middle;
@@ -265,6 +265,24 @@ async function onClickButton(
 					color: var(--color-light) !important;
 				}
 			}
+		}
+	}
+
+	.closeBt {
+		display: inline-flex;
+		width: 1.5em;
+		height: 1.5em;
+		vertical-align: middle;
+		align-items: center;
+		justify-content: center;
+		padding: 0.2em;
+		border-radius: var(--border-radius);
+		margin-right: 0.5em;
+		.icon {
+			height: 100%;
+		}
+		&:hover {
+			background-color: var(--background-color-fader);
 		}
 	}
 }

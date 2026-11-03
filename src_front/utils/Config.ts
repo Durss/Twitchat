@@ -1,4 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { reactive, type Reactive } from "vue";
 import { TwitchScopes, type TwitchScopesString } from "./twitch/TwitchScopes";
@@ -191,6 +192,14 @@ export default class Config {
 	 * Maximum number of trigger actions
 	 */
 	public MAX_TRIGGER_ACTIONS = 100;
+	/**
+	 * Maxium number of simple chat commands that can be created without being premium
+	 */
+	public MAX_CHAT_COMMANDS = 20;
+	/**
+	 * Maxium number of simple chat commands that can be created when premium
+	 */
+	public MAX_CHAT_COMMANDS_PREMIUM = 500;
 	/**
 	 * Maxium number of triggers that can be created without being premium
 	 */
@@ -750,4 +759,5 @@ export interface ServerConfig {
 	tiltify_client_id: string;
 	tiltify_scopes: string;
 	twitchExtension_client_id: string;
+	maintenance?: TwitchatDataTypes.MaintenanceData;
 }

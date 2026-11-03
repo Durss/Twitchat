@@ -14,7 +14,7 @@
 				<template #USER>
 					<a
 						class="userlink"
-						@click.stop="
+						@click="
 							openUserCard(props.messageData.creator!, props.messageData.channel_id)
 						"
 						>{{ props.messageData.creator!.displayName }}</a

@@ -634,7 +634,7 @@ const param_hideUsers = ref<TwitchatDataTypes.ParameterData<string, string>>({
 	labelKey: "chat.filters.hide_users",
 	placeholderKey: "chat.filters.hide_users_placeholder",
 	icon: "hide",
-	maxLength: 25,
+	maxLength: 100,
 	max: 1000000,
 });
 const param_showPanelsHere = ref<TwitchatDataTypes.ParameterData<boolean>>({
@@ -1435,6 +1435,8 @@ async function previewSubMessage(
  */
 function clickPreview(e: MouseEvent): void {
 	e.stopPropagation();
+	//Let message's links/buttons do their job without closing the preview
+	if (Utils.isInteractiveElement(e)) return;
 	e.preventDefault();
 	previewData.value = [];
 }

@@ -9,7 +9,7 @@
 				<template #USER>
 					<a
 						class="userlink"
-						@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+						@click="openUserCard(messageData.user, messageData.channel_id)"
 						>{{ messageData.user.displayName }}</a
 					>
 				</template>
@@ -66,7 +66,6 @@ export default toNative(ChatCustomPowerUp);
 	}
 
 	.holder {
-		gap: 1em;
 		width: 100%;
 		display: flex;
 		flex-direction: row;

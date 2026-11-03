@@ -211,7 +211,8 @@ export default class KofiController extends AbstractController {
 			SSEController.sendToUser(user.twitch, SSECode.KO_FI_EVENT, data);
 
 			//Check if user defined webhooks and proxy the event to them
-			const userFilePath = Config.USER_DATA_PATH + user.twitch + ".json";
+			// User may be using another account's data
+			const userFilePath = Config.USER_DATA_PATH + super.getSharedUID(user.twitch) + ".json";
 			let userFileContent: string | null = null;
 			try {
 				userFileContent = await Utils.readFileAsync(userFilePath, { encoding: "utf8" });

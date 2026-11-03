@@ -3,6 +3,7 @@
 		<Icon name="ticket" alt="icon" class="icon" />
 
 		<i18n-t
+			class="messageWithTime"
 			scope="global"
 			tag="div"
 			:keypath="messageData.winner.tip ? 'chat.raffle.title_tip' : 'chat.raffle.title'"
@@ -10,7 +11,7 @@
 			<template #USER v-if="user">
 				<a
 					class="userlink"
-					@click.stop="openUserCard(user!, messageData.winner.user?.channel_id)"
+					@click="openUserCard(user!, messageData.winner.user?.channel_id)"
 					>{{ user!.displayName }}</a
 				>
 			</template>

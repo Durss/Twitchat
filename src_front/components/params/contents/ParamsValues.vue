@@ -28,10 +28,7 @@
 
 		<section class="card-item" v-if="showForm">
 			<form @submit.prevent="createValue()">
-				<ParamItem
-					:paramData="param_title"
-					:errorMessage="t('values.form.name_conflict')"
-				/>
+				<ParamItem :paramData="param_title" />
 				<ParamItem :paramData="param_value" />
 				<ParamItem :paramData="param_more" v-model="param_more.value">
 					<ParamItem
@@ -50,22 +47,14 @@
 						type="submit"
 						v-if="!editedValue"
 						icon="add"
-						:disabled="
-							param_title.value.length == 0 ||
-							param_title.error ||
-							param_placeholder.error
-						"
+						:disabled="param_title.value.length == 0 || param_placeholder.error"
 						>{{ t("global.create") }}</TTButton
 					>
 					<TTButton
 						type="submit"
 						v-else
 						icon="edit"
-						:disabled="
-							param_title.value.length == 0 ||
-							param_title.error ||
-							param_placeholder.error
-						"
+						:disabled="param_title.value.length == 0 || param_placeholder.error"
 						>{{ t("values.editBt") }}</TTButton
 					>
 				</div>
@@ -132,6 +121,7 @@
 							class="value"
 							v-if="!entry.value.perUser"
 							:paramData="entry.param"
+							:modelValue="entry.value.value"
 							@change="onChangeValue(entry)"
 						/>
 
@@ -264,6 +254,7 @@
 												class="value"
 												noBackground
 												:paramData="item.param"
+												:modelValue="entry.value.users?.[item.user.id]?.value"
 												@input="onChangeValue(entry, item)"
 											/>
 										</div>
@@ -375,22 +366,6 @@ function openTriggers(): void {
 onMounted(() => {
 	buildEntries();
 });
-watch(
-	() => param_title.value.value,
-	() => {
-		const values = storeValues.valueList;
-		const name = param_title.value.value.toLowerCase();
-		let exists = false;
-		for (const c of values) {
-			if (c.id == editedValue.value?.id) continue;
-			if (c.name.toLowerCase() === name) {
-				exists = true;
-				continue;
-			}
-		}
-		param_title.value.error = exists;
-	},
-);
 
 watch(
 	() => param_placeholder.value.value,
@@ -413,6 +388,20 @@ watch(
 		param_placeholder.value.error = exists;
 		param_placeholder.value.errorMessage = exists ? t("values.form.placeholder_conflict") : "";
 	},
+);
+
+// Detect value added/deleted/sorted
+watch(() => [...storeValues.valueList], buildEntries);
+
+// Detect users deletion
+watch(
+	() =>
+		valueEntries.value.map((entry) => {
+			const v = entry.value;
+			const userEntries = entry.idToUsers[v.id] ?? [];
+			return userEntries.map((u) => v.users?.[u.user.id] != undefined);
+		}),
+	syncEntries,
 );
 
 defineExpose<IParameterContent>({
@@ -456,7 +445,6 @@ function createValue(): void {
 		storeValues.editValueParams(data.id, data);
 	} else {
 		storeValues.addValue(data);
-		buildEntries();
 	}
 	showForm.value = false;
 	cancelForm();
@@ -468,16 +456,13 @@ function createValue(): void {
 function onChangeValue(entry: ValueEntry, userEntry?: UserEntry): void {
 	clearTimeout(timeoutEdit);
 	timeoutEdit = window.setTimeout(() => {
-		if (userEntry) {
-			storeValues.updateValue(
-				entry.value.id,
-				userEntry.param.value,
-				undefined,
-				userEntry.user.id,
-			);
-		} else {
-			storeValues.updateValue(entry.value.id, entry.param.value);
-		}
+		const param = userEntry ? userEntry.param : entry.param;
+		const value = userEntry
+			? entry.value.users?.[userEntry.user.id]?.value
+			: entry.value.value;
+		//Nothing changed, or user has been deleted meanwhile
+		if (value === undefined || param.value === value) return;
+		storeValues.updateValue(entry.value.id, param.value, undefined, userEntry?.user.id);
 	}, 250);
 }
 
@@ -489,7 +474,6 @@ function deleteValue(entry: ValueEntry): void {
 	confirm(t("values.delete_confirm.title"), t("values.delete_confirm.desc"))
 		.then(() => {
 			storeValues.delValue(entry.value);
-			buildEntries();
 		})
 		.catch(() => {
 			/* ignore */
@@ -787,14 +771,6 @@ function resetUsers(entry: ValueEntry): void {
 				entry.value.users![key]!.value = "";
 			}
 
-			//Reset view data
-			if (entry.idToUsers[entry.value.id]) {
-				for (let i = 0; i < entry.idToUsers[entry.value.id]!.length; i++) {
-					const u = entry.idToUsers[entry.value.id]![i]!;
-					u.param.value = "";
-				}
-			}
-
 			storeValues.updateValue(entry.value.id, entry.value.value);
 		})
 		.catch(() => {});
@@ -842,8 +818,17 @@ function openYoutubeConnect(): void {
  * Builds up local values list
  */
 function buildEntries(): void {
-	const list = storeValues.valueList;
-	valueEntries.value = list.map((v): ValueEntry => {
+	const prevEntries: { [id: string]: ValueEntry } = {};
+	for (const entry of valueEntries.value) prevEntries[entry.value.id] = entry;
+
+	valueEntries.value = storeValues.valueList.map((v): ValueEntry => {
+		// An entry already exists? Keep it
+		const prevEntry = prevEntries[v.id];
+		if (prevEntry) {
+			prevEntry.value = v;
+			return prevEntry;
+		}
+
 		return {
 			value: v,
 			param: reactive({ type: "string", value: v.value, labelKey: "values.form.value" }),
@@ -851,17 +836,26 @@ function buildEntries(): void {
 			idToLoading: {},
 			idToNoResult: {},
 			idToUsers: {},
-			search: {},
-			sortDirection: {},
-			sortType: {},
+			search: { [v.id]: "" },
+			sortDirection: { [v.id]: -1 },
+			sortType: { [v.id]: "points" },
 			idToYoutubeConnect: {},
 		};
 	});
+}
 
-	for (const element of valueEntries.value) {
-		element.sortType[element.value.id] = "points";
-		element.sortDirection[element.value.id] = -1;
-		element.search[element.value.id] = "";
+/**
+ * Resync currently displayed values with actual data.
+ * Values are directly bound to the store, only deleted users need to be synced
+ */
+function syncEntries(): void {
+	for (const entry of valueEntries.value) {
+		const v = entry.value;
+		const userEntries = entry.idToUsers[v.id];
+		if (!userEntries) continue;
+		//Remove users deleted from elsewhere
+		const remaining = userEntries.filter((u) => v.users?.[u.user.id]);
+		if (remaining.length != userEntries.length) entry.idToUsers[v.id] = remaining;
 	}
 }
 

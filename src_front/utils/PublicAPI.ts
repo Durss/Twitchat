@@ -55,7 +55,7 @@ export default class PublicAPI extends EventDispatcher {
 		void this.listenOBS(isMainApp);
 
 		//Broadcast twitchat ready state
-		if (isMainApp) this.broadcast("ON_TWITCHAT_READY", undefined, false);
+		if (isMainApp) this.broadcastReady();
 	}
 
 	/**
@@ -295,6 +295,18 @@ export default class PublicAPI extends EventDispatcher {
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
+	/**
+	 * Tells overlays the app is ready.
+	 * Send app version so overlay know if they must reload (when major changes)
+	 */
+	private broadcastReady(): void {
+		void this.broadcast(
+			"ON_TWITCHAT_READY",
+			{ appVersion: import.meta.env.PACKAGE_VERSION },
+			false,
+		);
+	}
+
 	private listenOBS(isMainApp: boolean): Promise<void> {
 		return new Promise((resolve, _reject): void => {
 			//OBS api not ready yet, wait for it
@@ -304,7 +316,7 @@ export default class PublicAPI extends EventDispatcher {
 						"ON_OBS_WEBSOCKET_CONNECTED",
 						connectHandler,
 					);
-					if (isMainApp) this.broadcast("ON_TWITCHAT_READY", undefined, false);
+					if (isMainApp) this.broadcastReady();
 					resolve();
 				};
 				OBSWebsocket.instance.addEventListener(

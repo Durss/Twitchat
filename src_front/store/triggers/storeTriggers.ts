@@ -130,6 +130,11 @@ function refreshScheduledTriggers(triggers: TriggerData[]): void {
 		}
 	}
 
+	// add simple "chat command" timers
+	for (const trigger of StoreProxy.chatCommands.generatedTriggers) {
+		knownIds.add(trigger.id);
+	}
+
 	SchedulerHelper.instance.unscheduleMissingTriggers(knownIds);
 
 	for (const id of Object.keys(enabledStateCache)) {

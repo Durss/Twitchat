@@ -1514,7 +1514,7 @@ export interface TriggerActionGoXLRData extends TriggerActionData {
 	sampleIndex?: ["A" | "B" | "C", "BottomLeft" | "BottomRight" | "TopLeft" | "TopRight"];
 }
 
-export const TriggerActionCountDataActionList = ["ADD", "DEL", "SET"] as const;
+export const TriggerActionCountDataActionList = ["ADD", "DEL", "SET", "EDIT"] as const;
 export type TriggerActionCountDataAction = (typeof TriggerActionCountDataActionList)[number];
 export interface TriggerActionCounterData extends TriggerActionData {
 	type: "count";
@@ -1547,6 +1547,40 @@ export interface TriggerActionCounterData extends TriggerActionData {
 	 * delete: delete the entry
 	 */
 	userAction?: { [valueId: string]: "update" | "delete" };
+	/**
+	 * Counter params to update if action is "EDIT"
+	 */
+	editParams?: {
+		/**
+		 * Rename the counter
+		 */
+		updateName: boolean;
+		/**
+		 * New name of the counter.
+		 * Supports placeholders
+		 */
+		name: string;
+		/**
+		 * Update the min value.
+		 * Only applied to counters with a min value enabled
+		 */
+		updateMin: boolean;
+		/**
+		 * New min value.
+		 * Can be a number, an arithmetical operation, placeholders or a bit of all
+		 */
+		min: string;
+		/**
+		 * Update the max value.
+		 * Only applied to counters with a max value enabled
+		 */
+		updateMax: boolean;
+		/**
+		 * New max value.
+		 * Can be a number, an arithmetical operation, placeholders or a bit of all
+		 */
+		max: string;
+	};
 }
 
 export interface TriggerActionValueData extends TriggerActionData {
@@ -2899,6 +2933,14 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			numberParsable: true,
 			isUserID: false,
 			example: "!so",
+		},
+		{
+			tag: "TARGET",
+			descKey: "triggers.placeholders.target",
+			pointer: "__target__",
+			numberParsable: false,
+			isUserID: false,
+			example: "Durss",
 		},
 	];
 

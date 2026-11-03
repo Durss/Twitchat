@@ -18,11 +18,11 @@
 			v-tooltip="$t('chat.bluesky.platform_bluesky')"
 		/>
 
-		<i18n-t scope="global" tag="span" :keypath="'chat.follow'">
+		<i18n-t class="messageWithTime" scope="global" tag="span" :keypath="'chat.follow'">
 			<template #USER>
 				<a
 					class="userlink"
-					@click.stop="
+					@click="
 						openUserCard(messageData.user, messageData.channel_id, messageData.platform)
 					"
 					>{{ messageData.user.displayName }}</a

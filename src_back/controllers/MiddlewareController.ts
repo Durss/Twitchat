@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import AbstractController from "./AbstractController.js";
+import MaintenanceController from "./MaintenanceController.js";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
 import * as fs from "fs";
@@ -65,7 +66,7 @@ export default class MiddlewareController extends AbstractController {
 					return false; //Force rate limiting on auth endpoints
 				}
 				// Apply rate limit only to API endpoints except /api/configs which
-				// actually only returns a static JSON
+				// actually only returns a static JSON.
 				return !/\/api\//.test(request.url) || request.url == "/api/configs";
 			},
 			onBanReach: (request: FastifyRequest, _key: string) => {
@@ -73,12 +74,13 @@ export default class MiddlewareController extends AbstractController {
 			},
 			errorResponseBuilder: (
 				_request: FastifyRequest,
-				_context: errorResponseBuilderContext,
+				context: errorResponseBuilderContext,
 			) => {
 				return {
+					statusCode: 429,
 					code: 429,
 					error: "Too Many Requests",
-					errorCode: "RATE_LIMIT",
+					errorCode: context.ban ? "RATE_LIMIT_BAN" : "RATE_LIMIT",
 				};
 			},
 		});
@@ -123,6 +125,17 @@ export default class MiddlewareController extends AbstractController {
 			},
 		});
 
+		//Maintenance mode.
+		//Admins keep using the app, everyone else is sent to the maintenance
+		//page and refused API calls once the server is locked.
+		//Runs on every request: stays synchronous unless maintenance is on.
+		this.server.addHook("onRequest", (request, response, done) => {
+			if (!MaintenanceController.isClientLocked) return done();
+			this.handleMaintenance(request, response).then((sent) => {
+				if (!sent) done();
+			}, done);
+		});
+
 		//Hook called on every request to refuse any request from a banned user
 		//A banned user rate limit duration is expanded as long as they keep
 		//trying to call any endpoint
@@ -143,6 +156,20 @@ export default class MiddlewareController extends AbstractController {
 			} else //Redirect /public/ route to overlay's html page
 			if (/^\/public\//gi.test(request.url)) {
 				staticFile = path.join(Config.PUBLIC_ROOT, "public.html");
+			} else //Redirect /maintenance route to the standalone maintenance page
+			if (/^\/maintenance(\/|\?|$)/i.test(request.url)) {
+				// send user back to where they were if no maintenance in progress
+				if (MaintenanceController.maintenanceStatus.state == "off") {
+					this.disableCache(response);
+					const query = new URL(request.url, "http://localhost").searchParams;
+					let from = query.get("from") || "";
+					if (!/^\/(?![/\\])[\x21-\x7e]*$/.test(from) || /^\/maintenance/i.test(from)) {
+						from = "/chat";
+					}
+					response.status(302).header("Location", from).send();
+					return;
+				}
+				staticFile = path.join(Config.PUBLIC_ROOT, "maintenance.html");
 			}
 
 			if (staticFile) {
@@ -193,6 +220,44 @@ export default class MiddlewareController extends AbstractController {
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
+	/**
+	 * Refuses API calls and redirects page loads while maintenance is on
+	 * @returns true if a response has been sent
+	 */
+	private async handleMaintenance(
+		request: FastifyRequest,
+		response: FastifyReply,
+	): Promise<boolean> {
+		const urlPath = request.url.split("?")[0] ?? "";
+		if (/^\/api\//i.test(urlPath)) {
+			//Refuse API calls once server is locked
+			if (!MaintenanceController.isServerLocked) return false;
+			if (await MaintenanceController.isApiCallAllowed(request)) return false;
+			this.disableCache(response);
+			MaintenanceController.refuse(response, "Twitchat is under maintenance");
+			return true;
+		}
+
+		//Send pages to the maintenance page, except overlays and static files.
+		//Page loads carry no Authorization header, admins are recognized by
+		//the cookie given by the admin endpoints.
+		if (
+			request.method != "GET" ||
+			/^\/(assets|overlay|maintenance)(\/|$)/i.test(urlPath) ||
+			/\.[a-z0-9]+$/i.test(urlPath) ||
+			MaintenanceController.hasAdminCookie(request)
+		) {
+			return false;
+		}
+		//Don't send users back to OAuth callbacks as their code would be expired
+		const from = /auth(\/|$)/i.test(urlPath) ? "" : "?from=" + encodeURIComponent(request.url);
+		this.disableCache(response);
+		response
+			.status(302)
+			.header("Location", "/maintenance" + from)
+			.send();
+		return true;
+	}
 
 	private notFound(request: FastifyRequest, response: FastifyReply): void {
 		//Return 404 only for /api and /assets paths
@@ -242,8 +307,8 @@ export default class MiddlewareController extends AbstractController {
 	/**
 	 * Get user IP from request.
 	 *
-	 * Fastify is configured with `trustProxy: 1` in bootstrap.ts so request.ip
-	 * already resolves X-Forwarded-For from the closest trusted proxy. Reading
+	 * Fastify is configured with `trustProxy: TRUSTED_PROXIES` in bootstrap.ts so
+	 * request.ip already resolves X-Forwarded-For through the trusted proxies. Reading
 	 * the raw `x-*-ip` headers ourselves would let any client spoof their IP
 	 * (and thus bypass rate-limit bans / forge IPs in 404 logs).
 	 */

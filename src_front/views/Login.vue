@@ -211,6 +211,10 @@ onMounted(async () => {
 		authenticating.value = true;
 		const code = Utils.getQueryParameterByName("code");
 		const csrfToken = Utils.getQueryParameterByName("state");
+		// Only accept a data sharing flow started from this tab. Otherwise anyone could
+		// send a Twitch auth link holding their own token and get someone else to
+		// confirm sharing their data with them.
+		const isOwnDataShare = DataStore.consumePendingDataShareToken(csrfToken);
 		if (code) {
 			const res = await ApiHelper.call("auth/CSRFToken", "POST", { token: csrfToken! });
 			if (!res.json.success) {
@@ -219,7 +223,7 @@ onMounted(async () => {
 			} else {
 				storeAuth.twitch_autenticate(code, (success: boolean, betaRefused?: boolean) => {
 					if (success) {
-						if (res.json.uidShare) {
+						if (res.json.uidShare && isOwnDataShare) {
 							storeMain.tempStoreValue = {
 								uid: res.json.uidShare,
 								csrf: csrfToken,

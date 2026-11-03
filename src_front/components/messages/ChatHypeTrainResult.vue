@@ -1,12 +1,12 @@
 <template>
-	<div class="chathypetrainresult chatMessage highlight">
+	<div class="chathypetrainresult chatMessage highlight" ref="rootEl">
 		<Icon name="train" alt="icon" class="icon" />
 		<div class="infoHolder">
 			<i18n-t scope="global" tag="strong" keypath="chat.hype_train.summary_title">
 				<template #LEVEL
 					><mark
-						>{{ $t("chat.hype_train.summary_level") }}
-						{{ messageData.train.level }}</mark
+						>{{ t("chat.hype_train.summary_level") }}
+						{{ props.messageData.train.level }}</mark
 					></template
 				>
 				<template #PERCENT
@@ -15,46 +15,63 @@
 			</i18n-t>
 
 			<div class="details">
-				<div class="row" v-if="bits > 0" v-tooltip="$t('global.tooltips.bits')">
+				<div class="row" v-if="bits > 0" v-tooltip="t('global.tooltips.bits')">
 					<Icon name="bits" class="icon" key="bits" />
 					<span class="label">{{ bits }}</span>
 				</div>
 
-				<div
+				<button
 					class="row subs"
+					:class="{ open: showSubsDetails }"
 					v-if="subs1 > 0 || subs2 > 0 || subs3 > 0 || primes > 0"
 					key="subs"
+					@click="showSubsDetails = !showSubsDetails"
 				>
-					<div class="sum">
+					<span class="sum">
 						<Icon name="sub" class="icon" />
 						<span class="label">{{ subs1 + subs2 + subs3 + primes }}</span>
-					</div>
-					<div
-						class="info prime"
-						v-if="primes > 0"
-						v-tooltip="$t('global.tooltips.primes')"
-					>
-						<Icon name="prime" class="icon" />
-						<span class="label">{{ primes }}</span>
-					</div>
-					<div class="info t1" v-if="subs1 > 0" v-tooltip="$t('global.tooltips.subs1')">
-						<span class="tier">T1</span>
-						<span class="label">{{ subs1 }}</span>
-					</div>
-					<div class="info t2" v-if="subs2 > 0" v-tooltip="$t('global.tooltips.subs2')">
-						<span class="tier">T2</span>
-						<span class="label">{{ subs2 }}</span>
-					</div>
-					<div class="info t3" v-if="subs3 > 0" v-tooltip="$t('global.tooltips.subs3')">
-						<span class="tier">T3</span>
-						<span class="label">{{ subs3 }}</span>
-					</div>
-				</div>
+					</span>
+					<template v-if="showSubsDetails">
+						<span
+							class="info prime"
+							v-if="primes > 0"
+							v-tooltip="t('global.tooltips.primes')"
+						>
+							<span class="label">{{ primes }}</span>
+							<Icon name="prime" class="icon" />
+						</span>
+						<span
+							class="info t1"
+							v-if="subs1 > 0"
+							v-tooltip="t('global.tooltips.subs1')"
+						>
+							<span class="label">{{ subs1 }}</span>
+							<span class="tier">T1</span>
+						</span>
+						<span
+							class="info t2"
+							v-if="subs2 > 0"
+							v-tooltip="t('global.tooltips.subs2')"
+						>
+							<span class="label">{{ subs2 }}</span>
+							<span class="tier">T2</span>
+						</span>
+						<span
+							class="info t3"
+							v-if="subs3 > 0"
+							v-tooltip="t('global.tooltips.subs3')"
+						>
+							<span class="label">{{ subs3 }}</span>
+							<span class="tier">T3</span>
+						</span>
+					</template>
+					<Icon name="arrowRight" class="icon arrow" />
+				</button>
 
 				<div
 					class="row"
 					v-if="subgifts > 0"
-					v-tooltip="$t('global.tooltips.subgifts')"
+					v-tooltip="t('global.tooltips.subgifts')"
 					key="subgifts"
 				>
 					<Icon name="gift" class="icon" />
@@ -64,29 +81,33 @@
 
 			<div class="conductors">
 				<div
-					v-if="messageData.train.conductor_subs"
+					v-if="props.messageData.train.conductor_subs"
 					class="conductor"
 					ref="conductor_subs_holder"
-					v-tooltip="$t('train.conductor_subs_tt')"
+					v-tooltip="t('train.conductor_subs_tt')"
 				>
 					<Icon name="sub" />
 
-					<img :src="messageData.train.conductor_subs.user.avatarPath" class="avatar" />
+					<img
+						:src="props.messageData.train.conductor_subs.user.avatarPath"
+						class="avatar"
+					/>
 
 					<div>
 						<a
 							class="userlink"
 							:href="
-								'https://twitch.tv/' + messageData.train.conductor_subs.user.login
+								'https://twitch.tv/' +
+								props.messageData.train.conductor_subs.user.login
 							"
 							target="_blank"
-							@click.stop.prevent="
+							@click.prevent="
 								openUserCard(
-									messageData.train.conductor_subs!.user,
-									messageData.channel_id,
+									props.messageData.train.conductor_subs!.user,
+									props.messageData.channel_id,
 								)
 							"
-							>{{ messageData.train.conductor_subs.user.displayName }}</a
+							>{{ props.messageData.train.conductor_subs.user.displayName }}</a
 						>
 
 						<i18n-t
@@ -104,29 +125,33 @@
 				</div>
 
 				<div
-					v-if="messageData.train.conductor_bits"
+					v-if="props.messageData.train.conductor_bits"
 					class="conductor"
 					ref="conductor_bits_holder"
-					v-tooltip="$t('train.conductor_bits_tt')"
+					v-tooltip="t('train.conductor_bits_tt')"
 				>
 					<Icon name="bits" />
 
-					<img :src="messageData.train.conductor_bits.user.avatarPath" class="avatar" />
+					<img
+						:src="props.messageData.train.conductor_bits.user.avatarPath"
+						class="avatar"
+					/>
 
 					<div>
 						<a
 							class="userlink"
 							:href="
-								'https://twitch.tv/' + messageData.train.conductor_bits.user.login
+								'https://twitch.tv/' +
+								props.messageData.train.conductor_bits.user.login
 							"
 							target="_blank"
-							@click.stop.prevent="
+							@click.prevent="
 								openUserCard(
-									messageData.train.conductor_bits.user,
-									messageData.channel_id,
+									props.messageData.train.conductor_bits.user,
+									props.messageData.channel_id,
 								)
 							"
-							>{{ messageData.train.conductor_bits.user.displayName }}</a
+							>{{ props.messageData.train.conductor_bits.user.displayName }}</a
 						>
 
 						<i18n-t
@@ -134,11 +159,11 @@
 							tag="div"
 							class="label"
 							keypath="train.conductor_bits"
-							:plural="messageData.train.conductor_bits.amount"
+							:plural="props.messageData.train.conductor_bits.amount"
 						>
 							<template #COUNT>
 								<span class="count">{{
-									messageData.train.conductor_bits.amount
+									props.messageData.train.conductor_bits.amount
 								}}</span>
 							</template>
 						</i18n-t>
@@ -146,96 +171,105 @@
 				</div>
 			</div>
 
-			<Button
-				v-if="!filtering && messageData.activities.length > 0"
+			<TTButton
+				v-if="!props.filtering && props.messageData.activities.length > 0"
 				small
 				icon="filters"
-				@click.stop="filter()"
-				>{{ $t("chat.hype_train.filterBt") }}</Button
+				@click="filter()"
+				>{{ t("chat.hype_train.filterBt") }}</TTButton
 			>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
+import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 import TTButton from "../TTButton.vue";
-import AbstractChatMessage from "./AbstractChatMessage";
+import Icon from "../Icon.vue";
 
-@Component({
-	components: {
-		Button: TTButton,
+const props = withDefaults(
+	defineProps<{
+		messageData: TwitchatDataTypes.MessageHypeTrainSummaryData;
+		filtering?: boolean;
+		lightMode?: boolean;
+		contextMenuOff?: boolean;
+	}>(),
+	{
+		filtering: false,
 	},
-	emits: ["setCustomActivities", "onRead"],
-})
-class ChatHypeTrainResult extends AbstractChatMessage {
-	@Prop({
-		type: Boolean,
-		default: false,
-	})
-	public filtering!: boolean;
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageHypeTrainSummaryData;
+);
 
-	public reachPercent: number = 0;
-	public subs1: number = 0;
-	public subs2: number = 0;
-	public subs3: number = 0;
-	public subgifts: number = 0;
-	public primes: number = 0;
-	public bits: number = 0;
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+	setCustomActivities: [activities: TwitchatDataTypes.ChatMessageTypes[]];
+}>();
 
-	public get iconColor(): string {
-		return this.$store.common.theme == "dark" ? "#00d6d6" : "#00a3a3";
-	}
+const { t } = useI18n();
+const storeCommon = useStoreCommon();
+const rootEl = useTemplateRef("rootEl");
+const { openUserCard } = useChatMessage(props, emit, rootEl);
 
-	public getConductorSubCount(): number {
-		let count = 0;
-		for (const element of this.messageData.activities) {
-			if (
-				element.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION &&
-				element.user.id === this.messageData.train.conductor_subs!.user.id
-			) {
-				if (element.is_gift) count += element.gift_count || 1;
-				else count++;
-			}
-		}
-		return count;
-	}
+const reachPercent = ref(0);
+const subs1 = ref(0);
+const subs2 = ref(0);
+const subs3 = ref(0);
+const subgifts = ref(0);
+const primes = ref(0);
+const bits = ref(0);
+const showSubsDetails = ref(false);
 
-	public mounted(): void {
-		this.reachPercent = Math.round(
-			(this.messageData.train.currentValue / this.messageData.train.goal) * 100,
-		);
-		for (const el of this.messageData.activities) {
-			switch (el.type) {
-				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-					if (el.tier == "prime") this.primes++;
-					else if (el.is_gift) {
-						let count = el.gift_recipients!.length ?? 1;
-						this.subgifts += count;
-					} else {
-						if (el.tier == 1) this.subs1++;
-						if (el.tier == 2) this.subs2++;
-						if (el.tier == 3) this.subs3++;
-					}
-					break;
-				}
+const iconColor = computed(() => {
+	return storeCommon.theme == "dark" ? "#00d6d6" : "#00a3a3";
+});
 
-				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-					this.bits += el.bits;
-					break;
-				}
-			}
+function getConductorSubCount(): number {
+	let count = 0;
+	for (const element of props.messageData.activities) {
+		if (
+			element.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION &&
+			element.user.id === props.messageData.train.conductor_subs!.user.id
+		) {
+			if (element.is_gift) count += element.gift_count || 1;
+			else count++;
 		}
 	}
-
-	public filter(): void {
-		this.$emit("setCustomActivities", [...this.messageData.activities, this.messageData]);
-	}
+	return count;
 }
-export default toNative(ChatHypeTrainResult);
+
+onMounted(() => {
+	reachPercent.value = Math.round(
+		(props.messageData.train.currentValue / props.messageData.train.goal) * 100,
+	);
+	for (const el of props.messageData.activities) {
+		switch (el.type) {
+			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+				if (el.tier == "prime") primes.value++;
+				else if (el.is_gift) {
+					let count = el.gift_recipients!.length ?? 1;
+					subgifts.value += count;
+				} else {
+					if (el.tier == 1) subs1.value++;
+					if (el.tier == 2) subs2.value++;
+					if (el.tier == 3) subs3.value++;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+				bits.value += el.bits;
+				break;
+			}
+		}
+	}
+});
+
+function filter(): void {
+	emit("setCustomActivities", [...props.messageData.activities, props.messageData]);
+}
 </script>
 
 <style scoped lang="less">
@@ -295,26 +329,50 @@ export default toNative(ChatHypeTrainResult);
 				align-items: center;
 				flex-wrap: wrap;
 				justify-content: center;
-				gap: 0.5em;
+				gap: 0.25em;
+				cursor: pointer;
+				&:hover {
+					background-color: var(--color-primary-light);
+				}
+				.sum {
+					display: flex;
+					align-items: center;
+				}
+				.arrow {
+					height: 0.8em;
+					margin-right: 0;
+				}
+				&.open .arrow {
+					transform: scaleX(-1);
+				}
 				.tier {
 					font-weight: bold;
 					display: inline-block;
-					// border-radius: .25em;
-					// padding: 0 .2em;
-					font-size: 0.9em;
+					font-size: 0.8em;
 					vertical-align: top;
-					margin-right: 0.5em;
 					font-weight: normal;
-					// color: var(--color-dark);
-					// background-color: var(--color-light);
+					opacity: 0.7;
 				}
 				.info {
 					background-color: rgba(0, 0, 0, 0.3);
 					padding: 0px 5px;
 					border-radius: var(--border-radius);
 					font-size: 0.8em;
+					gap: 0.5em;
+					display: flex;
+					align-items: center;
+					flex-direction: row;
 					.icon {
 						vertical-align: text-top;
+					}
+
+					&.prime {
+						.icon {
+							margin-right: 0;
+							margin-top: -0.1em;
+							opacity: 0.5;
+							height: 0.8em;
+						}
 					}
 				}
 			}

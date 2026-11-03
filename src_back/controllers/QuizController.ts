@@ -117,7 +117,8 @@ export default class QuizController extends AbstractController {
 	 * @param quizId Optional quiz ID to filter by, already validated
 	 */
 	private async loadStreamerQuiz(channelId: string, quizId?: string): Promise<CachedQuiz> {
-		const userFilePath = Config.USER_DATA_PATH + channelId + ".json";
+		// Channel may be using another account's data
+		const userFilePath = Config.USER_DATA_PATH + super.getSharedUID(channelId) + ".json";
 		try {
 			const data = JSON.parse(
 				await Utils.readFileAsync(userFilePath, { encoding: "utf8" }),

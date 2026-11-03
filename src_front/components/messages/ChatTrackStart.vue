@@ -1,7 +1,7 @@
 <template>
 	<div class="chattrackstart chatMessage highlight">
 		<Icon name="music" alt="notice" class="icon" />
-		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
+		<ClearButton class="closeBt" @click="deleteMessage()" small />
 
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" keypath="chat.now_playing.title">
@@ -16,7 +16,7 @@
 						class="userlink"
 						:href="'https://twitch.tv/' + messageData.userOrigin!.login"
 						target="_blank"
-						@click.stop.prevent="
+						@click.prevent="
 							openUserCard(messageData.userOrigin!, messageData.channel_id)
 						"
 						>{{ messageData.userOrigin!.displayName }}</a

@@ -54,17 +54,13 @@
 						transparent
 						medium
 						:icon="'pin'"
-						:class="{
-							off: !storeStream.autoconnectChans.find(
-								(v) => v.id == entry.user.id && v.platform == entry.user.platform,
-							),
-						}"
+						:class="{ off: !isPinned(entry) }"
 						@click.capture.stop="togglePinState(entry)"
 					/>
 					<button
 						@click="onSelectChannel(entry.user.id, entry.user.login, entry.platform)"
 						class="channelInfo"
-						:class="{ active: currentChannelId == entry.user.id }"
+						:class="{ active: currentChannelId == entry.user.id, live: isLive(entry) }"
 						:disabled="!entry.connected"
 					>
 						<img
@@ -97,7 +93,7 @@
 						icon="offline"
 						transparent
 						medium
-						:disabled="!canConnectChans"
+						:disabled="!EventSub.instance.canConnectToChannel(entry.user)"
 						v-tooltip="t('global.connect')"
 						@click.capture.stop="connect(entry.user)"
 					/>
@@ -130,6 +126,7 @@ import {
 	useTemplateRef,
 	watch,
 } from "vue";
+import EventSub from "@/utils/twitch/EventSub";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import SearchUserForm from "../SearchUserForm.vue";
@@ -169,6 +166,7 @@ const emit = defineEmits<{
 	change: [value: string];
 }>();
 
+const MAX_PINNED_CHANS = 100;
 const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeStream = useStoreStream();
@@ -180,14 +178,20 @@ const youtubeUrl = ref<string>("");
 const currentChannelId = ref<string>("");
 const user = ref<TwitchDataTypes.UserInfo | undefined>(undefined);
 const liveFollingList = ref<TwitchDataTypes.UserInfo[]>([]);
+const liveStates = ref<{ [uid: string]: boolean }>({});
 
 const popin = useTemplateRef<HTMLDivElement>("popin");
 
 let clickHandler!: (e: MouseEvent) => void;
 const pinnedUsers = ref<{ [key: string]: TwitchatDataTypes.TwitchatUser }>({});
 
+/**
+ * Is there room left on EventSub's socket for at least a channel we're not a mod of.
+ * Picked channel is checked by connectToExtraChan()
+ */
 const canConnectChans = computed<boolean>(() => {
-	return storeStream.connectedTwitchChans.length < 6;
+	if (channels.value.length >= MAX_PINNED_CHANS) return false;
+	return EventSub.instance.canConnectToChannel();
 });
 
 const channels = computed<ChannelEntry[]>(() => {
@@ -261,6 +265,39 @@ async function loadLiveFollowing(): Promise<void> {
 }
 
 /**
+ * Loads live states of remote twitch channels (connected and pinned)
+ */
+async function loadLiveStates(): Promise<void> {
+	const ids = new Set([
+		...storeStream.connectedTwitchChans.map((v) => v.user.id),
+		...storeStream.autoconnectChans.filter((v) => v.platform == "twitch").map((v) => v.id),
+	]);
+	if (ids.size == 0) return;
+	const streams = await TwitchUtils.getCurrentStreamInfo([...ids]);
+	const states: { [uid: string]: boolean } = {};
+	streams.forEach((v) => (states[v.user_id] = true));
+	liveStates.value = states;
+}
+
+/**
+ * Is given entry pinned
+ */
+function isPinned(entry: ChannelEntry): boolean {
+	return storeStream.autoconnectChans.some(
+		(v) => v.id == entry.user.id && v.platform == entry.user.platform,
+	);
+}
+
+/**
+ * Is given entry a remote channel currently live
+ */
+function isLive(entry: ChannelEntry): boolean {
+	return (
+		entry.isRemoteChan && entry.platform == "twitch" && liveStates.value[entry.user.id] === true
+	);
+}
+
+/**
  * Called when selecting a twitch user after searching for them
  */
 async function onSelectUser(selected?: TwitchDataTypes.UserInfo): Promise<void> {
@@ -274,6 +311,7 @@ async function onSelectUser(selected?: TwitchDataTypes.UserInfo): Promise<void> 
 		user.value.display_name,
 	);
 	storeStream.connectToExtraChan(ttUser);
+	void loadLiveStates();
 	user.value = undefined;
 	showForm.value = false;
 }
@@ -312,7 +350,6 @@ function cycleChannel(event: MouseEvent): void {
  * Connect to given twitch channel
  */
 function connect(target: TwitchatDataTypes.TwitchatUser): void {
-	if (!canConnectChans.value) return;
 	void storeStream.connectToExtraChan(target);
 }
 
@@ -337,10 +374,7 @@ function disconnect(target: TwitchatDataTypes.TwitchatUser): void {
  * Toggle pin states of an entry
  */
 function togglePinState(entry: ChannelEntry): void {
-	const pinned =
-		storeStream.autoconnectChans.findIndex(
-			(v) => v.id == entry.user.id && v.platform == entry.user.platform,
-		) == -1;
+	const pinned = !isPinned(entry);
 	storeStream.setExtraChanAutoconnectState(entry.user, pinned);
 }
 
@@ -349,6 +383,7 @@ function togglePinState(entry: ChannelEntry): void {
  */
 async function open(event: MouseEvent): Promise<void> {
 	loadLiveFollowing();
+	void loadLiveStates();
 	event.stopPropagation();
 	event.preventDefault();
 	if (expand.value) {
@@ -475,11 +510,25 @@ watch(
 			color: var(--color-text);
 			text-align: left;
 			flex: 1;
+			position: relative;
 			.avatar {
 				width: 1.5em;
 				height: 1.5em;
 				border-radius: 50%;
 				border: 2px solid currentColor;
+			}
+			&.live {
+				&::after {
+					content: "";
+					width: 7px;
+					height: 7px;
+					border-radius: 50%;
+					background-color: #f00;
+					box-shadow: -2px 2px 3px #000;
+					position: absolute;
+					top: calc(50% - 0.75em);
+					left: calc(2px + 1.2em);
+				}
 			}
 
 			.platformIcon {
@@ -514,7 +563,10 @@ watch(
 			.channelInfo {
 				opacity: 0.5;
 				cursor: default;
-				filter: grayscale(1);
+				//Keep live indicator red
+				&:not(.live) {
+					filter: grayscale(1);
+				}
 				&:hover {
 					background-color: transparent;
 				}

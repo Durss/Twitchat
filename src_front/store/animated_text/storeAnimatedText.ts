@@ -13,6 +13,25 @@ import StoreProxy, {
 
 const queryIdToResolver = new Map<string, () => void>();
 
+/**
+ * Registers a query completed by the overlay's answer
+ * Adds a fail safe 60s timeout that completes the query
+ * if the overlay didn't answer before that.
+ * In case the user destroys the overlay before it has a
+ * chance to advertise for complete
+ */
+function registerQuery(resolve: () => void): string {
+	const queryId: string = Utils.getUUID();
+	const complete = (): void => {
+		clearTimeout(timeout);
+		queryIdToResolver.delete(queryId);
+		resolve();
+	};
+	const timeout = window.setTimeout(complete, 60_000);
+	queryIdToResolver.set(queryId, complete);
+	return queryId;
+}
+
 export const storeAnimatedText = defineStore("animatedtext", {
 	state: (): IAnimatedTextState => ({
 		animatedTextList: [],
@@ -131,8 +150,7 @@ export const storeAnimatedText = defineStore("animatedtext", {
 			bypassAll: boolean = false,
 		): Promise<void> {
 			return new Promise<void>((resolve, _reject) => {
-				const queryId: string = Utils.getUUID();
-				queryIdToResolver.set(queryId, resolve);
+				const queryId = registerQuery(resolve);
 				PublicAPI.instance.broadcast("SET_ANIMATED_TEXT_CONTENT", {
 					id: overlayId,
 					queryId,
@@ -145,8 +163,7 @@ export const storeAnimatedText = defineStore("animatedtext", {
 
 		async hideText(overlayId: string): Promise<void> {
 			return new Promise<void>((resolve, _reject) => {
-				const queryId: string = Utils.getUUID();
-				queryIdToResolver.set(queryId, resolve);
+				const queryId = registerQuery(resolve);
 				PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_CLOSE", { id: overlayId, queryId });
 			});
 		},

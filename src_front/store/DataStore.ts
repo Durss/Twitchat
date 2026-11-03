@@ -39,6 +39,7 @@ export default class DataStore extends DataStoreCommon {
 	private static savePromiseResolver: Function[] = [];
 	private static isSaving: boolean = false;
 	private static pendingSave: boolean = false;
+	private static pedingDataShareStorageKey: string = "pendingDataShareToken";
 
 	/********************
 	 * GETTER / SETTERS *
@@ -49,10 +50,19 @@ export default class DataStore extends DataStoreCommon {
 	 ******************/
 
 	/**
+	 * Sends any pending save right awa
+	 */
+	static flush(): Promise<void> {
+		return this.save(false, true);
+	}
+
+	/**
 	 * Save user's data server side
+	 * @param force forces upload even if server data is more recent
+	 * @param immediate skips the debounce delay
 	 * @returns
 	 */
-	static override async save(force: boolean = false): Promise<void> {
+	static override async save(force: boolean = false, immediate: boolean = false): Promise<void> {
 		if (!force) {
 			//Nothing will be sent to the server, release any awaiting caller
 			if (
@@ -166,7 +176,7 @@ export default class DataStore extends DataStoreCommon {
 						this.flushSavePromises();
 					}
 				},
-				force ? 0 : 5000,
+				force || immediate ? 0 : 5000,
 			);
 		});
 	}
@@ -229,6 +239,45 @@ export default class DataStore extends DataStoreCommon {
 	}
 
 	/**
+	 * This clears local data if they do not belong to current user.
+	 * @param ownerId ID of the account current data belongs to
+	 */
+	public static setDataOwner(ownerId: string): void {
+		if (this.get(this.SYNC_DATA_TO_SERVER) === "false") return;
+		const prevOwnerId = this.get(this.DATA_OWNER);
+		if (prevOwnerId && prevOwnerId !== ownerId) this.clear(true);
+		void this.set(this.DATA_OWNER, ownerId, false);
+	}
+
+	/**
+	 * Remembers the CSRF token of a data sharing flow started from this tab.
+	 * Kept in sessionStorage as it survives the Twitch OAuth redirect.
+	 * @param token CSRF token sent as OAuth state
+	 */
+	public static setPendingDataShareToken(token: string): void {
+		try {
+			sessionStorage.setItem(this.pedingDataShareStorageKey, token);
+		} catch (_error) {
+			//Storage unavailable, the flow won't be accepted back
+		}
+	}
+
+	/**
+	 * Tells if given token belongs to a data sharing flow started from this tab.
+	 * A token can only be checked once.
+	 * @param token CSRF token received as OAuth state
+	 */
+	public static consumePendingDataShareToken(token: string | null): boolean {
+		try {
+			const pendingToken = sessionStorage.getItem(this.pedingDataShareStorageKey);
+			sessionStorage.removeItem(this.pedingDataShareStorageKey);
+			return !!token && pendingToken === token;
+		} catch (_error) {
+			return false;
+		}
+	}
+
+	/**
 	 * Emergency backup
 	 */
 	public static async emergencyBackupStorage(force: boolean = false): Promise<void> {
@@ -263,7 +312,7 @@ export default class DataStore extends DataStoreCommon {
 	 */
 	static override async migrateData(data: any): Promise<any> {
 		let v = parseFloat(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 71;
+		const latestVersion = 72;
 
 		if (v < 44) {
 			const res: { [key: string]: unknown } = {};
@@ -394,7 +443,11 @@ export default class DataStore extends DataStoreCommon {
 			v = 70;
 		}
 		if (v == 70) {
-			this.migrateTriggersToParallelExecution(data);
+			//Dropped migration
+			v = 71;
+		}
+		if (v == 71) {
+			this.migrateTranslateLangCodes(data);
 			v = latestVersion;
 		}
 
@@ -406,6 +459,7 @@ export default class DataStore extends DataStoreCommon {
 			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"]];
 		}
 		delete data["YOUTUBE_AUTH_TOKEN"]; //Probably some old beta data added by mistake that remains on few people
+		delete data["bluesky_diag"]; //TODO remove in a few months (added 19/10/2026) (this is data only beta users got)
 		data[this.DATA_VERSION] = v;
 		return data;
 	}
@@ -1257,6 +1311,20 @@ export default class DataStore extends DataStoreCommon {
 	}
 
 	/**
+	 * Fixes language codes that were wrong on TranslatableLanguagesMap.
+	 * "tk" is Turkmen, "nn" was refused by the server, and "ku" is Kurmanji
+	 * whereas detectors find Sorani.
+	 * @param data
+	 */
+	private static migrateTranslateLangCodes(data: any): void {
+		const fixes: { [key: string]: string } = { tk: "tr", nn: "no", ku: "ckb" };
+		for (const key of ["p:autoTranslateLang", "p:autoTranslateSpoken"]) {
+			if (!Array.isArray(data[key])) continue;
+			data[key] = data[key].map((lang: string) => fixes[lang] ?? lang);
+		}
+	}
+
+	/**
 	 * Fixes custom hype train record data that are broken due to
 	 * shit data from Streamlabs corrupting everything
 	 * @param data
@@ -1276,56 +1344,5 @@ export default class DataStore extends DataStoreCommon {
 				}
 			});
 		}
-	}
-
-	/**
-	 * Triggers of the same event used to execute one after another, they now
-	 * execute in parallel.
-	 * Put the triggers without queue in a queue per event to keep their order.
-	 */
-	private static migrateTriggersToParallelExecution(data: any): void {
-		const triggers: TriggerData[] = data[DataStore.TRIGGERS];
-		if (!triggers || !Array.isArray(triggers)) return;
-
-		const calledTriggers = new Set<string>();
-		const usedNames = new Set<string>();
-		for (const t of triggers) {
-			if (!t) continue;
-			if (t.queue) usedNames.add(t.queue);
-			if (!Array.isArray(t.actions)) continue;
-			for (const a of t.actions) {
-				if (!a) continue;
-				if (a.type == "trigger" && a.triggerId) calledTriggers.add(a.triggerId);
-				if (a.type == "random" && a.mode == "trigger" && Array.isArray(a.triggers)) {
-					a.triggers.forEach((id) => calledTriggers.add(id));
-				}
-			}
-		}
-
-		const eventToQueue: { [key: string]: string } = {};
-		for (const t of triggers) {
-			if (!t || !t.type || t.queue || calledTriggers.has(t.id)) continue;
-
-			//Schedules and slash commands are executed one by one, not by event
-			const individual =
-				t.type == TriggerTypes.SCHEDULE || t.type == TriggerTypes.SLASH_COMMAND;
-			const key = (!individual && getTriggerEventKeys(t)[0]) || t.id;
-
-			if (!eventToQueue[key]) {
-				const labelKey = TriggerTypeDefinitionFromType(t.type)?.labelKey;
-				const label =
-					labelKey && StoreProxy.i18n?.te(labelKey) ? StoreProxy.i18n.t(labelKey) : "";
-				let name = Utils.slugify(label + " " + (t.name || t.chatCommand || "")) || "queue";
-				if (usedNames.has(name)) {
-					let index = 1;
-					while (usedNames.has(name + "_" + index)) index++;
-					name += "_" + index;
-				}
-				usedNames.add(name);
-				eventToQueue[key] = name;
-			}
-			t.queue = eventToQueue[key];
-		}
-		data[DataStore.TRIGGERS] = triggers;
 	}
 }

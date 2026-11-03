@@ -72,6 +72,11 @@ onMounted(() => {
 
 <style scoped lang="less">
 .checkbox {
+	//The native input is hidden, show its keyboard focus on the visible control
+	&:has(.checkboxInput:focus-visible) {
+		outline: auto;
+	}
+
 	cursor: pointer;
 	display: flex;
 	flex-direction: row;

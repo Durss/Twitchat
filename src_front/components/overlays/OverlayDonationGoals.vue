@@ -66,7 +66,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 	private donationHandler!: (e: TwitchatEvent<"ON_DONATION_EVENT">) => void;
 
 	public get color(): string {
-		return this.state!.params.color || "#000000";
+		return this.state?.params.color || "#000000";
 	}
 
 	public get color_fill(): string {
@@ -149,7 +149,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 		}
 
 		//Show list if necessary
-		if (state!.params.autoDisplay && !this.show) {
+		if (state.params.autoDisplay && !this.show) {
 			this.show = true;
 			await Utils.promisedTimeout(500);
 		} else {
@@ -180,18 +180,19 @@ class OverlayDonationGoals extends AbstractOverlay {
 	 */
 	public async onDonation(e: Parameters<typeof this.donationHandler>[0]): Promise<void> {
 		if (!e.data) return;
+		if (!this.state) return;
 		if (e.data.overlayId != this.id) return; //Not for this overlay
 
 		//Show list if necessary
-		if (this.state!.params.autoDisplay && !this.show) {
+		if (this.state.params.autoDisplay && !this.show) {
 			this.show = true;
 			await Utils.promisedTimeout(500);
 		} else {
 			this.show = true;
 		}
 
-		if (this.state!.params.notifyTips) {
-			this.poolAlerts.push({ username: e.data!.username, amount: e.data!.amount });
+		if (this.state.params.notifyTips) {
+			this.poolAlerts.push({ username: e.data.username, amount: e.data.amount });
 			if (this.poolAlerts.length == 1) this.showNextAlert();
 		}
 
@@ -207,7 +208,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 		if (!this.state) return;
 
 		clearTimeout(this.autoHideTimeout);
-		if (this.state!.params.autoDisplay === true) {
+		if (this.state.params.autoDisplay === true) {
 			//Schedule hide
 			this.autoHideTimeout = window.setTimeout(() => (this.show = false), 10000);
 		}
@@ -246,8 +247,9 @@ class OverlayDonationGoals extends AbstractOverlay {
 	 * Compute relative percent of each goal
 	 */
 	private buildLocalParams(): void {
+		if (!this.state) return;
 		let offset = 0;
-		for (const goal of this.state!.params.goalList) {
+		for (const goal of this.state.params.goalList) {
 			const target = Math.min(
 				1,
 				Math.max(0, (this.localRaised - offset) / (goal.amount - offset)),
@@ -272,8 +274,8 @@ class OverlayDonationGoals extends AbstractOverlay {
 
 		//Find current goal
 		this.currentIndex = -1;
-		for (let i = 0; i < this.state!.params.goalList.length; i++) {
-			const g = this.state!.params.goalList[i]!;
+		for (let i = 0; i < this.state.params.goalList.length; i++) {
+			const g = this.state.params.goalList[i]!;
 			const p = this.goalToParams[g.id]!;
 			if (p.percent >= 1) continue;
 			this.currentIndex = i;
@@ -282,8 +284,8 @@ class OverlayDonationGoals extends AbstractOverlay {
 
 		//Compute distances to current goal
 		//Used to only show the N next items to current goal
-		for (let i = 0; i < this.state!.params.goalList.length; i++) {
-			const g = this.state!.params.goalList[i]!;
+		for (let i = 0; i < this.state.params.goalList.length; i++) {
+			const g = this.state.params.goalList[i]!;
 			const p = this.goalToParams[g.id]!;
 			p.distanceToCurrentIndex = i - this.currentIndex;
 		}
@@ -298,7 +300,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 		this.currentAlert = this.poolAlerts[0]!;
 		await this.$nextTick();
 		let holder = this.$refs.notification as HTMLElement | ComponentPublicInstance[];
-		if (Array.isArray(holder)) holder = holder[0]!.$el as HTMLElement;
+		if (Array.isArray(holder) && holder.length > 0) holder = holder[0]!.$el as HTMLElement;
 
 		//Show notification
 		gsap.fromTo(

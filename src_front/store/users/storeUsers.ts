@@ -12,7 +12,7 @@ import EventSub from "@/utils/twitch/EventSub";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { acceptHMRUpdate, defineStore } from "pinia";
-import { reactive } from "vue";
+import { isReactive, reactive, watch } from "vue";
 import DataStore from "../DataStore";
 import type { IUsersActions, IUsersGetters, IUsersState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -60,6 +60,13 @@ function getUserById(
 	uid: string,
 ): TwitchatDataTypes.TwitchatUser | undefined {
 	return userMaps[platform]?.idToUser[uid];
+}
+
+/**
+ * Gets if given channel is our own Twitch channel.
+ */
+function isMyTwitchChannel(platform: TwitchatDataTypes.ChatPlatform, channelId: string): boolean {
+	return platform == "twitch" && channelId == StoreProxy.auth.twitch.user?.id;
 }
 
 /**
@@ -558,6 +565,9 @@ export const storeUsers = defineStore("users", {
 							if (batchType == "id") twitchUserBatchIdTimeout = to;
 							else twitchUserBatchLoginTimeout = to;
 						}
+					} else if (!userExisted) {
+						//Nothing to load this new user from, don't leave it temporary forever
+						user.temporary = false;
 					}
 				}
 			} else if (user.temporary) {
@@ -608,6 +618,21 @@ export const storeUsers = defineStore("users", {
 			return user;
 		},
 
+		waitUserLoaded(
+			user: TwitchatDataTypes.TwitchatUser,
+		): Promise<TwitchatDataTypes.TwitchatUser> {
+			if (user.temporary !== true) return Promise.resolve(user);
+			//Watch the reactive version in case a raw object is given
+			const reactiveUser = isReactive(user) ? user : reactive(user);
+			return new Promise((resolve) => {
+				watch(
+					() => reactiveUser.temporary,
+					() => resolve(user),
+					{ once: true },
+				);
+			});
+		},
+
 		getUserColorFromLogin(
 			login: string,
 			platform: TwitchatDataTypes.ChatPlatform,
@@ -636,21 +661,35 @@ export const storeUsers = defineStore("users", {
 		},
 
 		flagMod(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
+			//Twitch doesn't allow a user to be both a moderator and a VIP
+			this.flagUnvip(platform, channelId, uid);
+			if (platform == "twitch" && uid == StoreProxy.auth.twitch.user.id) {
+				StoreProxy.auth.setModeratorState(channelId, true);
+				return;
+			}
+			if (isMyTwitchChannel(platform, channelId)) this.myMods.twitch[uid] = true;
 			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
 			if (chanInfo) chanInfo.is_moderator = true;
 		},
 
 		flagUnmod(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
+			if (platform == "twitch" && uid == StoreProxy.auth.twitch.user.id) {
+				StoreProxy.auth.setModeratorState(channelId, false);
+				return;
+			}
+			if (isMyTwitchChannel(platform, channelId)) this.myMods.twitch[uid] = false;
 			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
 			if (chanInfo) chanInfo.is_moderator = false;
 		},
 
 		flagVip(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
+			if (isMyTwitchChannel(platform, channelId)) this.myVIPs.twitch[uid] = true;
 			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
 			if (chanInfo) chanInfo.is_vip = true;
 		},
 
 		flagUnvip(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
+			if (isMyTwitchChannel(platform, channelId)) this.myVIPs.twitch[uid] = false;
 			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
 			if (chanInfo) chanInfo.is_vip = false;
 		},
@@ -736,10 +775,6 @@ export const storeUsers = defineStore("users", {
 				return;
 			}
 
-			if (channelId == StoreProxy.auth.twitch.user.id) {
-				void StoreProxy.labels.clearUserLabelValue(bannedUser.id);
-			}
-
 			const banEndDate = Date.now() + (duration_s || 0) * 1000;
 			//User already perma banned, stop there
 			if (bannedUser.channelInfo[channelId]!.is_banned && !duration_s) return;
@@ -753,6 +788,15 @@ export const storeUsers = defineStore("users", {
 				return;
 
 			bannedUser.channelInfo[channelId]!.is_banned = true;
+
+			// Make sure user is actually fully initialized
+			await StoreProxy.users.waitUserLoaded(bannedUser);
+			uid = bannedUser.id;
+
+			if (channelId == StoreProxy.auth.twitch.user.id) {
+				void StoreProxy.labels.clearUserLabelValue(bannedUser.id);
+			}
+
 			if (
 				bannedUser.channelInfo[channelId]!.is_moderator === true &&
 				StoreProxy.params.features.autoRemod.value == true
@@ -763,7 +807,11 @@ export const storeUsers = defineStore("users", {
 				bannedUser.channelInfo[channelId]!.autoRemod =
 					channelId == StoreProxy.auth.twitch.user.id;
 			}
-			bannedUser.channelInfo[channelId]!.is_moderator = false;
+			if (platform == "twitch" && bannedUser.id == StoreProxy.auth.twitch.user.id) {
+				StoreProxy.auth.setModeratorState(channelId, false);
+			} else {
+				bannedUser.channelInfo[channelId]!.is_moderator = false;
+			}
 			//Set ban state
 			if (duration_s) {
 				bannedUser.channelInfo[channelId]!.banEndDate = banEndDate;

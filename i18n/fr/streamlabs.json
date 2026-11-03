@@ -9,7 +9,7 @@
 		"charity_header_overlayBt": "l'overlay d'objectifs",
 		"step1": "Ouvrez vos teams Streamlabs Charity",
 		"step2": "Cliquez \"Afficher l'équipe\" sur la team à laquelle se connecter",
-		"step3": "Dans la section \"Alertes caritatives pour votre stream\" selectionnez \"Alerts\" pour ne recevoir que les alertes de dons faits via votre chaîne",
+		"step3": "Dans la section \"Alertes caritatives pour votre stream\" selectionnez \"Mes alerts\" pour ne recevoir que les alertes de dons faits via votre chaîne",
 		"step4": "Cliquez \"Copier le lien\" en haut de la page",
 		"step5": "Collez le lien dans le champs ci-dessous:",
 		"step6": "Définissez la campagne active sur {LINK}",

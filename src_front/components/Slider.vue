@@ -198,6 +198,11 @@ onBeforeUnmount(() => {
 
 <style scoped lang="less">
 .slider {
+	//The native input is hidden, show its keyboard focus on the visible control
+	&:has(input:focus-visible) {
+		outline: auto;
+	}
+
 	.bevel();
 	height: 1em;
 	position: relative;

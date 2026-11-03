@@ -7,6 +7,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import fetch from "node-fetch";
 import AbstractController from "./AbstractController.js";
 import { TwitchToken } from "@/utils/TwitchUtils.js";
+import MaintenanceController from "./MaintenanceController.js";
 
 /**
  * Created : 13/03/2022
@@ -37,22 +38,27 @@ export default class AuthController extends AbstractController {
 	public async initialize(): Promise<void> {
 		this.server.get(
 			"/api/auth/twitch",
+			MaintenanceController.ROUTE_ALLOWED,
 			async (request, response) => await this.twitchAuth(request, response),
 		);
 		this.server.get(
 			"/api/auth/twitch/refreshtoken",
+			MaintenanceController.ROUTE_ALLOWED,
 			async (request, response) => await this.refreshToken(request, response),
 		);
 		this.server.get(
 			"/api/auth/CSRFToken",
+			MaintenanceController.ROUTE_ALLOWED,
 			async (request, response) => await this.getCSRFToken(request, response),
 		);
 		this.server.post(
 			"/api/auth/CSRFToken",
+			MaintenanceController.ROUTE_ALLOWED,
 			async (request, response) => await this.validateCSRFToken(request, response),
 		);
 		this.server.post(
 			"/api/auth/validate",
+			MaintenanceController.ROUTE_ALLOWED,
 			async (request, response) => await this.validateTwitchToken(request, response),
 		);
 		this.server.post(

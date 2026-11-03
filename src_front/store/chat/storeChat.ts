@@ -21,7 +21,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
-import { reactive, watch } from "vue";
+import { reactive } from "vue";
 import Database from "../Database";
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from "../StoreProxy";
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
@@ -1449,7 +1449,7 @@ export const storeChat = defineStore("chat", {
 							.map((v) => v.value)
 							.join("")
 							.trim() || "";
-					if (text.length >= 4 && spokenLanguages.length > 0) {
+					if (text.length >= 10 && spokenLanguages.length > 0) {
 						//Check language of the message from the worker
 						LandeWorker.instance.lande(text, (langs) => {
 							const iso3 = langs[0]![0] as keyof typeof TranslatableLanguagesMap;
@@ -3037,6 +3037,9 @@ export const storeChat = defineStore("chat", {
 
 					//Handle quiz answers
 					void sQuiz.handleChatAnswer(typedMessage);
+
+					//Handle simple chat commands management
+					void StoreProxy.chatCommands.handleChatCommand(typedMessage, cmd);
 				}
 
 				if (logTimings) console.log("3", message.id, Date.now() - s);
@@ -3156,16 +3159,12 @@ export const storeChat = defineStore("chat", {
 					if ("user" in message && message.user) {
 						const u = message.user as TwitchatDataTypes.TwitchatUser;
 						if (u.temporary === true) {
-							watch(
-								() => u.temporary,
-								() => {
-									void Database.instance.updateMessage(message).catch((error) => {
-										console.error("Database updateMessage() error");
-										console.log(error);
-									});
-								},
-								{ once: true },
-							);
+							void StoreProxy.users.waitUserLoaded(u).then(() => {
+								void Database.instance.updateMessage(message).catch((error) => {
+									console.error("Database updateMessage() error");
+									console.log(error);
+								});
+							});
 						}
 					}
 				}
@@ -3365,8 +3364,9 @@ export const storeChat = defineStore("chat", {
 
 				//Don't keep automod accept/reject message
 				if (
-					message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
-					message.twitch_automod
+					(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
+						message.twitch_automod) ||
+					message.type == TwitchatDataTypes.TwitchatMessageType.CUSTOM
 				) {
 					const i = findMessageIndex(message.id);
 					if (i > -1) messageList.splice(i, 1);
@@ -3785,7 +3785,7 @@ export const storeChat = defineStore("chat", {
 						mess.id == message_parent_id &&
 						TwitchatDataTypes.IsTranslatableMessage[mess.type]
 					) {
-						message.parentMessage = mess as TwitchatDataTypes.TranslatableMessage;
+						message.parentMessage = mess;
 						break;
 					}
 				}

@@ -128,9 +128,7 @@ const pinnedEntries = computed(() => {
 			param_duration: state.param_duration,
 			param_indefinite: state.param_indefinite,
 			loadingUnpin: state.loadingUnpin,
-			canModerate:
-				storeAuth.twitchModeratedChannels.find((c) => c.broadcaster_id == channelId) ||
-				channelId == ownChannelId.value,
+			canModerate: storeAuth.isModerator(channelId),
 		};
 	});
 });

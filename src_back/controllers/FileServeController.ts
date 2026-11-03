@@ -5,12 +5,13 @@ import Logger from "../utils/Logger.js";
 import TwitchUtils from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
 import AdminController from "./AdminController.js";
+import MaintenanceController from "./MaintenanceController.js";
 
 /**
  * Created : 22/02/2023
  */
 export default class FileServeController extends AbstractController {
-	private config_cache: string = "";
+	private config_cache: Record<string, unknown> | null = null;
 	private DOWNLOAD_MAX_BYTES: number = 10 * 1024 * 1024;
 	private LOG_MAX_CHARS: number = 100 * 1024;
 
@@ -31,9 +32,12 @@ export default class FileServeController extends AbstractController {
 			return { success: true };
 		});
 
-		//Get latest app configs
-		this.server.get("/api/configs", async (request: FastifyRequest, response: FastifyReply) =>
-			this.getConfigs(request, response),
+		//Get latest app configse
+		this.server.get(
+			"/api/configs",
+			MaintenanceController.ROUTE_ALLOWED,
+			async (request: FastifyRequest, response: FastifyReply) =>
+				this.getConfigs(request, response),
 		);
 
 		//Starts download of the given file
@@ -116,11 +120,13 @@ export default class FileServeController extends AbstractController {
 				json.youtube_scopes = Config.credentials.youtube_scopes;
 			}
 
-			this.config_cache = config = JSON.stringify(json);
+			this.config_cache = config = json;
 		}
+
+		config["maintenance"] = MaintenanceController.maintenanceStatus;
 		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(config);
+		response.send(JSON.stringify(config));
 	}
 
 	private getAnnouncements(_request: FastifyRequest, response: FastifyReply): void {

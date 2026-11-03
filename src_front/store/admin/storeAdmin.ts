@@ -3,6 +3,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { toast } from "@/utils/toast/toast";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import StoreProxy, {
 	type IAdminActions,
@@ -180,6 +181,28 @@ export const storeAdmin = defineStore("Admin", {
 				channel_id: StoreProxy.auth.twitch.user.id,
 			};
 			void StoreProxy.chat.addMessage(message);
+		},
+
+		async getMaintenance(): Promise<TwitchatDataTypes.MaintenanceData | null> {
+			const res = await ApiHelper.call("admin/maintenance", "GET", undefined, false);
+			if (res.status === 200 && res.json.success) return res.json.data;
+			return null;
+		},
+
+		async setMaintenance(
+			state: TwitchatDataTypes.MaintenanceData["state"],
+			lockInMinutes?: number,
+			message?: TwitchatDataTypes.MaintenanceData["message"],
+		): Promise<TwitchatDataTypes.MaintenanceData | null> {
+			const res = await ApiHelper.call(
+				"admin/maintenance",
+				"POST",
+				{ state, lockInMinutes, message },
+				false,
+			);
+			if (res.status === 200 && res.json.success) return res.json.data;
+			toast(StoreProxy.i18n.t("maintenance.admin_error"), { type: "error" });
+			return null;
 		},
 
 		async ungiftPremium(login: string): Promise<void> {

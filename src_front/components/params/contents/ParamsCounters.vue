@@ -39,10 +39,7 @@
 
 		<section class="card-item" v-if="showForm">
 			<form @submit.prevent="createCounter()">
-				<ParamItem
-					:paramData="param_title"
-					:errorMessage="t('counters.form.name_conflict')"
-				/>
+				<ParamItem :paramData="param_title" />
 				<ParamItem :paramData="param_value" />
 				<ParamItem :paramData="param_more" v-model="param_more.value" />
 				<div class="ctas">
@@ -53,22 +50,14 @@
 						type="submit"
 						v-if="!editedCounter"
 						icon="add"
-						:disabled="
-							param_title.value.length == 0 ||
-							param_title.error ||
-							param_placeholder.error
-						"
+						:disabled="param_title.value.length == 0 || param_placeholder.error"
 						>{{ t("global.create") }}</TTButton
 					>
 					<TTButton
 						type="submit"
 						v-else
 						icon="edit"
-						:disabled="
-							param_title.value.length == 0 ||
-							param_title.error ||
-							param_placeholder.error
-						"
+						:disabled="param_title.value.length == 0 || param_placeholder.error"
 						>{{ t("counters.editBt") }}</TTButton
 					>
 				</div>
@@ -157,7 +146,7 @@
 							class="value"
 							v-if="!entry.counter.perUser"
 							:paramData="entry.param"
-							v-model="entry.param.value"
+							:modelValue="entry.counter.value"
 							@change="onChangeValue(entry)"
 						/>
 
@@ -317,6 +306,7 @@
 											class="value"
 											noBackground
 											:paramData="item.param"
+											:modelValue="entry.counter.users?.[item.user.id]?.value"
 											@input="onChangeValue(entry, item)"
 										/>
 										<button class="deleteBt" @click="deleteUser(entry, item)">
@@ -518,7 +508,6 @@ function createCounter(): void {
 		storeCounters.updateCounter(data);
 	} else {
 		storeCounters.addCounter(data);
-		buildEntries();
 	}
 	showForm.value = false;
 	cancelForm();
@@ -529,13 +518,14 @@ function createCounter(): void {
  */
 function onChangeValue(entry: CounterEntry, userEntry?: UserEntry): void {
 	clearTimeout(timeoutEdit);
-	let diff = 0;
 	timeoutEdit = window.setTimeout(() => {
-		if (userEntry) {
-			diff = userEntry.param.value - entry.counter.users![userEntry.user.id]!.value;
-		} else {
-			diff = entry.param.value - entry.counter.value;
-		}
+		const param = userEntry ? userEntry.param : entry.param;
+		const value = userEntry
+			? entry.counter.users?.[userEntry.user.id]?.value
+			: entry.counter.value;
+		const diff = param.value - (value ?? NaN);
+		//Nothing changed, or user has been deleted meanwhile
+		if (!diff) return;
 		storeCounters.increment(entry.counter.id, "ADD", diff, undefined, userEntry?.user.id);
 	}, 500);
 }
@@ -548,7 +538,6 @@ function deleteCounter(entry: CounterEntry): void {
 	confirm(t("counters.delete_confirm.title"), t("counters.delete_confirm.desc"))
 		.then(() => {
 			storeCounters.delCounter(entry.counter);
-			buildEntries();
 		})
 		.catch(() => {
 			/* ignore */
@@ -589,13 +578,6 @@ function cancelForm(): void {
 	param_valueLoop_toggle.value.value = false;
 	param_userSpecific.value.value = false;
 	param_more.value.value = false;
-}
-
-/**
- * Open a user's profile info
- */
-function openUserCard(user: TwitchatDataTypes.TwitchatUser): void {
-	storeUsers.openUserCard(user);
 }
 
 /**
@@ -873,13 +855,6 @@ function resetUsers(entry: CounterEntry): void {
 				entry.counter.users[key]!.value = value;
 			}
 
-			//Reset view data
-			if (entry.idToUsers[entry.counter.id]) {
-				for (const u of entry.idToUsers[entry.counter.id]!) {
-					u.param.value = 0;
-				}
-			}
-
 			storeCounters.updateCounter(entry.counter);
 		})
 		.catch(() => {});
@@ -930,8 +905,11 @@ function sortOn(entry: CounterEntry, type?: "name" | "points"): void {
 				return 0;
 			}
 			if (entry.sortType[entry.counter.id] == "points") {
-				if (a.param.value > b.param.value) return entry.sortDirection[entry.counter.id]!;
-				if (a.param.value < b.param.value) return -entry.sortDirection[entry.counter.id]!;
+				const users = entry.counter.users ?? {};
+				const valueA = users[a.user.id]?.value ?? 0;
+				const valueB = users[b.user.id]?.value ?? 0;
+				if (valueA > valueB) return entry.sortDirection[entry.counter.id]!;
+				if (valueA < valueB) return -entry.sortDirection[entry.counter.id]!;
 				return 0;
 			}
 			return 0;
@@ -963,10 +941,19 @@ function openYoutubeConnect(): void {
  * Builds up local counter list
  */
 function buildEntries(): void {
-	const list = storeCounters.counterList;
-	counterEntries.value = list.map((v): CounterEntry => {
-		const min = v.min == false ? Number.MIN_SAFE_INTEGER : v.min;
-		const max = v.max == false ? Number.MAX_SAFE_INTEGER : v.max;
+	const prevEntries: { [id: string]: CounterEntry } = {};
+	for (const entry of counterEntries.value) prevEntries[entry.counter.id] = entry;
+
+	counterEntries.value = storeCounters.counterList.map((v): CounterEntry => {
+		// An entry already exists? Keep it
+		const prevEntry = prevEntries[v.id];
+		if (prevEntry) {
+			prevEntry.counter = v;
+			return prevEntry;
+		}
+
+		const min = v.min === false ? Number.MIN_SAFE_INTEGER : v.min;
+		const max = v.max === false ? Number.MAX_SAFE_INTEGER : v.max;
 		return {
 			counter: v,
 			param: reactive({
@@ -980,17 +967,34 @@ function buildEntries(): void {
 			idToLoading: {},
 			idToNoResult: {},
 			idToUsers: {},
-			search: {},
-			sortDirection: {},
-			sortType: {},
+			search: { [v.id]: "" },
+			sortDirection: { [v.id]: -1 },
+			sortType: { [v.id]: "points" },
 			idToYoutubeConnect: {},
 		};
 	});
+}
 
-	for (const element of counterEntries.value) {
-		element.sortType[element.counter.id] = "points";
-		element.sortDirection[element.counter.id] = -1;
-		element.search[element.counter.id] = "";
+/**
+ * Resync currently displayed counters with actual data.
+ * Values are directly bound to counters, only min/max limits
+ * and deleted users need to be synced
+ */
+function syncEntries(): void {
+	for (const entry of counterEntries.value) {
+		const c = entry.counter;
+		entry.param.min = c.min === false ? Number.MIN_SAFE_INTEGER : c.min;
+		entry.param.max = c.max === false ? Number.MAX_SAFE_INTEGER : c.max;
+
+		const userEntries = entry.idToUsers[c.id];
+		if (!userEntries) continue;
+		//Remove users deleted from elsewhere
+		const remaining = userEntries.filter((v) => c.users?.[v.user.id]);
+		if (remaining.length != userEntries.length) entry.idToUsers[c.id] = remaining;
+		for (const userEntry of remaining) {
+			userEntry.param.min = c.min || undefined;
+			userEntry.param.max = c.max || undefined;
+		}
 	}
 }
 
@@ -1005,50 +1009,45 @@ onMounted(() => {
 	param_valueMin_toggle.value.children = [param_valueMin_value.value];
 	param_valueMax_toggle.value.children = [param_valueMax_value.value];
 
-	watch(
-		() => param_title.value.value,
-		() => {
-			const counters = storeCounters.counterList;
-			const name = param_title.value.value.toLowerCase();
-			let exists = false;
-			for (const c of counters) {
-				if (c.id == editedCounter.value?.id) continue;
-				if (c.name.toLowerCase() === name) {
-					exists = true;
-					continue;
-				}
-			}
-			param_title.value.error = exists;
-		},
-	);
-
-	watch(
-		() => param_placeholder.value.value,
-		() => {
-			if (!param_placeholder.value.value) {
-				param_placeholder.value.error = false;
-				return;
-			}
-			//Check if a placeholder with the same name already exists
-			const counters = storeCounters.counterList;
-			const placeholder = param_placeholder.value.value.toLowerCase();
-			let exists = false;
-			for (const c of counters) {
-				if (c.id == editedCounter.value?.id) continue;
-				if (c.placeholderKey && c.placeholderKey.toLowerCase() === placeholder) {
-					exists = true;
-					continue;
-				}
-			}
-			param_placeholder.value.error = exists;
-			param_placeholder.value.errorMessage = exists
-				? t("counters.form.placholder_conflict")
-				: "";
-		},
-	);
-
 	buildEntries();
 });
+
+watch(
+	() => param_placeholder.value.value,
+	() => {
+		if (!param_placeholder.value.value) {
+			param_placeholder.value.error = false;
+			return;
+		}
+		//Check if a placeholder with the same name already exists
+		const counters = storeCounters.counterList;
+		const placeholder = param_placeholder.value.value.toLowerCase();
+		let exists = false;
+		for (const c of counters) {
+			if (c.id == editedCounter.value?.id) continue;
+			if (c.placeholderKey && c.placeholderKey.toLowerCase() === placeholder) {
+				exists = true;
+				continue;
+			}
+		}
+		param_placeholder.value.error = exists;
+		param_placeholder.value.errorMessage = exists ? t("counters.form.placholder_conflict") : "";
+	},
+);
+
+// Detect counter added/deleted/sorted
+watch(() => [...storeCounters.counterList], buildEntries);
+
+// Detect counter's min/max values updates or users deletion
+watch(
+	() =>
+		counterEntries.value.map((entry) => {
+			const c = entry.counter;
+			const userEntries = entry.idToUsers[c.id] ?? [];
+			return [c.min, c.max, userEntries.map((v) => c.users?.[v.user.id] != undefined)];
+		}),
+	syncEntries,
+);
 
 interface CounterEntry {
 	param: TwitchatDataTypes.ParameterData<number, unknown, unknown>;
