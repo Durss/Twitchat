@@ -633,7 +633,9 @@ watch(
 
 			const params = storeMain.chatAlertParams;
 			gsap.killTweensOf(rootEl.value);
-			if (params.shake) {
+			const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+			//If reduce motion is set in the browser or OS-wide, then no motion at all
+			if (params.shake && !reduceMotion) {
 				gsap.fromTo(
 					rootEl.value,
 					{ x: -10 },
@@ -650,14 +652,17 @@ watch(
 				await nextTick();
 				const layer = blinkLayer.value!;
 				gsap.killTweensOf(layer);
+				//Reduced motion: a single fade instead of blinking
+				const flashes = reduceMotion
+					? { duration: 0.5, repeat: 1, yoyo: true } //Fade-in and then fade-out in 1s
+					: { duration: 0.25, repeat: 3, yoyo: true }; //Slower blinking to match WCAG criterion (< 3Hz)
 				gsap.fromTo(
 					layer,
 					{ opacity: 0 },
 					{
-						duration: 0.17,
+						...flashes,
 						opacity: 1,
 						clearProps: "opacity",
-						repeat: 3,
 						onComplete: () => {
 							showBlinkLayer.value = false;
 						},
