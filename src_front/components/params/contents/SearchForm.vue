@@ -18,6 +18,7 @@
 </template>
 <script setup lang="ts">
 import Icon from "@/components/Icon.vue";
+import Utils from "@/utils/Utils";
 import { ref, watch, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -52,6 +53,9 @@ function onKeyUp(e: KeyboardEvent) {
 		search.value = "";
 		e.preventDefault();
 		e.stopPropagation();
+	} else if (e.key === "Escape") {
+		//Nothing to clear, leave the field so the next Escape can close the panel
+		Utils.blurFocusedTextField(e.target);
 	}
 }
 

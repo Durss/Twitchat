@@ -29,6 +29,35 @@ export default class Utils {
 		return document.body.classList.contains("light");
 	}
 
+	private static readonly TEXT_INPUT_TYPES = new Set([
+		"text",
+		"search",
+		"email",
+		"url",
+		"tel",
+		"password",
+		"number",
+		"date",
+		"time",
+		"datetime-local",
+		"month",
+		"week",
+	]);
+	/**
+	 * Blurs the given element (defaults to the focused one) if it's a text field.
+	 * Returns true if element was blurred.
+	 * Used by modals and panels to avoid closing if an input has focus.
+	 */
+	public static blurFocusedTextField(el: EventTarget | null = document.activeElement): boolean {
+		const isTextField =
+			el instanceof HTMLTextAreaElement ||
+			(el instanceof HTMLInputElement && Utils.TEXT_INPUT_TYPES.has(el.type)) ||
+			(el instanceof HTMLElement && el.isContentEditable);
+		if (!isTextField) return false;
+		el.blur();
+		return true;
+	}
+
 	/**
 	 * Checks if given event occured on a button-ish element.
 	 */
