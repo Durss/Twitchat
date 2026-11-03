@@ -1,7 +1,8 @@
 <template>
 	<div
 		class="chatcelebration chatMessage highlight"
-		@contextmenu="onContextMenu($event, messageData, $el)"
+		ref="rootEl"
+		@contextmenu="onContextMenu($event, props.messageData, rootEl!)"
 	>
 		<div class="holder">
 			<Icon name="watchStreak" />
@@ -9,21 +10,21 @@
 				<template #USER>
 					<a
 						class="userlink"
-						@click="openUserCard(messageData.user, messageData.channel_id)"
-						>{{ messageData.user.displayName }}</a
+						@click="openUserCard(props.messageData.user, props.messageData.channel_id)"
+						>{{ props.messageData.user.displayName }}</a
 					>
 				</template>
 				<template #PRICE>
-					<strong>{{ messageData.cost }}</strong>
+					<strong>{{ props.messageData.cost }}</strong>
 					<Icon class="bitsIcon" name="bits" />
 				</template>
 			</i18n-t>
 			<img
-				v-if="messageData.emoteID"
+				v-if="props.messageData.emoteID"
 				class="emote large"
 				:src="
 					'https://static-cdn.jtvnw.net/emoticons/v2/' +
-					messageData.emoteID +
+					props.messageData.emoteID +
 					'/default/light/3.0'
 				"
 				alt="emote"
@@ -32,23 +33,25 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import Icon from "../Icon.vue";
-import AbstractChatMessage from "./AbstractChatMessage";
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { useTemplateRef } from "vue";
+import Icon from "../Icon.vue";
 
-@Component({
-	components: {
-		Icon,
-	},
-	emits: ["onRead"],
-})
-class ChatCelebration extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageTwitchCelebrationData;
-}
-export default toNative(ChatCelebration);
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageTwitchCelebrationData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
+}>();
+
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
+
+const rootEl = useTemplateRef("rootEl");
+
+const { onContextMenu, openUserCard } = useChatMessage(props, emit, rootEl);
 </script>
 
 <style scoped lang="less">
@@ -70,7 +73,7 @@ export default toNative(ChatCelebration);
 		width: 100%;
 		display: flex;
 		flex-direction: row;
-		align-items: center;
+		align-items: flex-start;
 		.label {
 			flex-grow: 1;
 		}

@@ -1,7 +1,8 @@
 <template>
 	<div
 		class="chatcustompowerup chatMessage highlight"
-		@contextmenu="onContextMenu($event, messageData, $el)"
+		ref="rootEl"
+		@contextmenu="onContextMenu($event, props.messageData, rootEl!)"
 	>
 		<div class="holder">
 			<Icon name="watchStreak" />
@@ -9,36 +10,40 @@
 				<template #USER>
 					<a
 						class="userlink"
-						@click="openUserCard(messageData.user, messageData.channel_id)"
-						>{{ messageData.user.displayName }}</a
+						@click="openUserCard(props.messageData.user, props.messageData.channel_id)"
+						>{{ props.messageData.user.displayName }}</a
 					>
 				</template>
 				<template #NAME>
-					<strong>{{ messageData.powerUpTitle }}</strong>
+					<strong>{{ props.messageData.powerUpTitle }}</strong>
 				</template>
 			</i18n-t>
-			<div class="cost">{{ messageData.cost }} <Icon class="bitsIcon" name="bits" /></div>
+			<div class="cost">
+				{{ props.messageData.cost }} <Icon class="bitsIcon" name="bits" />
+			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import Icon from "../Icon.vue";
-import AbstractChatMessage from "./AbstractChatMessage";
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { useTemplateRef } from "vue";
+import Icon from "../Icon.vue";
 
-@Component({
-	components: {
-		Icon,
-	},
-	emits: ["onRead"],
-})
-class ChatCustomPowerUp extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageTwitchCustomPowerUpData;
-}
-export default toNative(ChatCustomPowerUp);
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageTwitchCustomPowerUpData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
+}>();
+
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
+
+const rootEl = useTemplateRef("rootEl");
+
+const { onContextMenu, openUserCard } = useChatMessage(props, emit, rootEl);
 </script>
 
 <style scoped lang="less">
@@ -69,7 +74,7 @@ export default toNative(ChatCustomPowerUp);
 		width: 100%;
 		display: flex;
 		flex-direction: row;
-		align-items: center;
+		align-items: flex-start;
 
 		.label {
 			flex-grow: 1;

@@ -42,11 +42,9 @@
 </template>
 
 <script setup lang="ts">
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractChatMessage from "./AbstractChatMessage";
-import { computed, useTemplateRef } from "vue";
 import { useChatMessage } from "@/composables/useChatMessage";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, useTemplateRef } from "vue";
 
 const rootEl = useTemplateRef("rootEl");
 const props = defineProps<{
@@ -69,15 +67,10 @@ const percent = computed(() => {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.5em;
-		align-items: center;
 		.label {
 			flex-basis: 200px;
 			flex-grow: 1;
 		}
-	}
-
-	.icon {
-		align-self: center;
 	}
 
 	.numbers {
@@ -85,8 +78,7 @@ const percent = computed(() => {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		justify-content: center;
-		flex-grow: 1;
+		justify-content: flex-end;
 		.percent {
 			font-size: 2em;
 			font-weight: bold;
