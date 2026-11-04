@@ -77,7 +77,7 @@
 		"dom-to-image-more": "^3.10.2",
 		"dpdm": "^3.15.1",
 		"eld": "^2.1.0",
-		"groq-sdk": "^0.9.1",
+		"groq-sdk": "^1.6.0",
 		"gsap": "^3.15.0",
 		"highlight.js": "^11.11.1",
 		"isomorphic-dompurify": "^1.13.0",

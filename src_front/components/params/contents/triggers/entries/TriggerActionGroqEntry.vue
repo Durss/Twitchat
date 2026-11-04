@@ -21,7 +21,7 @@
 			>
 				<template #LINK>
 					<a
-						href="https://console.groq.com/docs/text-chat#json-mode-object-object"
+						href="https://console.groq.com/docs/structured-outputs#json-object-mode"
 						target="_blank"
 						>{{ $t("triggers.actions.groq.jsonMode_hint_link") }}</a
 					>
@@ -122,12 +122,14 @@ class TriggerActionGroqEntry extends AbstractTriggerActionEntry {
 				outputPlaceholder: "",
 			};
 
-		this.param_model.listValues = this.$store.groq.availableModels.map((m) => ({
-			value: m.id == this.$store.groq.defaultModel ? "" : m.id,
-			label:
-				m.id.replace(/-/g, " ") +
-				(m.id == this.$store.groq.defaultModel ? " (default)" : ""),
-		}));
+		this.param_model.listValues = this.$store.groq.availableModels
+			.filter((m) => m.type === "text")
+			.map((m) => ({
+				value: m.id == this.$store.groq.defaultModel ? "" : m.id,
+				label:
+					m.id.replace(/-/g, " ") +
+					(m.id == this.$store.groq.defaultModel ? " (default)" : ""),
+			}));
 	}
 
 	public onPlaceholderUpdate(list: ITriggerPlaceholder<unknown>[]): void {

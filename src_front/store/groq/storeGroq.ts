@@ -1,8 +1,8 @@
 import type { StoreActions } from "@/types/pinia-helpers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { toast } from "@/utils/toast/toast";
 import Utils from "@/utils/Utils";
 import Groq from "groq-sdk";
-import type { ChatCompletionCreateParamsNonStreaming } from "groq-sdk/resources/chat/completions";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { reactive } from "vue";
 import Database from "../Database";
@@ -13,6 +13,87 @@ import StoreProxy from "../StoreProxy";
 let groq: Groq | null = null;
 const OPEN_TAG = "⟦";
 const CLOSE_TAG = "⟧";
+/**
+ * Default model candidates by order of preference.
+ * Groq regularly shuts models down: https://console.groq.com/docs/deprecations
+ */
+const PREFERRED_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
+/**
+ * Minimum delay between 2 updates of a streamed answer.
+ * Groq sends hundreds of tokens per second, each update re-renders the answer
+ * and scrolls the history panel.
+ */
+const ANSWER_UPDATE_INTERVAL = 50;
+
+const getModelType = (id: string): IGroqState["availableModels"][number]["type"] => {
+	if (id.includes("whisper")) return "stt";
+	if (id.includes("tts") || id.includes("orpheus")) return "tts";
+	if (id.includes("guard")) return "guard";
+	if (id.includes("vision")) return "vision";
+	return "text";
+};
+
+/**
+ * Switches the default model if it's not available anymore
+ */
+const refreshDefaultModel = (): void => {
+	const store = StoreProxy.groq;
+	const models = store.availableModels.filter((m) => m.type === "text");
+	if (models.some((m) => m.id === store.defaultModel)) return;
+	const fallback =
+		PREFERRED_MODELS.find((id) => models.some((m) => m.id === id)) ?? models[0]?.id;
+	if (!fallback) return;
+	store.defaultModel = fallback;
+	store.saveConfigs();
+};
+
+/**
+ * Sends a request and, if its model has been shut down, sends it again with
+ * the default model.
+ * Checking the models list isn't enough as it may still advertise that model.
+ */
+const withFallbackModel = async <T>(
+	model: string,
+	request: (model: string) => Promise<T>,
+): Promise<T> => {
+	try {
+		return await request(model);
+	} catch (error) {
+		const body = error instanceof Groq.APIError ? error.error : undefined;
+		const code = (body as { error?: { code?: string } } | undefined)?.error?.code;
+		if (code !== "model_decommissioned" && code !== "model_not_found") throw error;
+
+		const store = StoreProxy.groq;
+		store.availableModels = store.availableModels.filter((m) => m.id !== model);
+		refreshDefaultModel();
+		if (store.defaultModel === model) throw error;
+		return request(store.defaultModel);
+	}
+};
+
+/**
+ * Params common to all text generations.
+ * Reasoning tokens count towards max_completion_tokens. GPT-OSS models reason
+ * at "medium" level by default which isn't needed here and could leave no room
+ * for the actual answer. Not all models accept this value.
+ */
+const getCompletionParams = (
+	messages: Groq.Chat.Completions.ChatCompletionMessageParam[],
+	model: string,
+) => ({
+	messages,
+	model,
+	temperature: 0.5,
+	max_completion_tokens: 2048,
+	...(model.startsWith("openai/gpt-oss") && { reasoning_effort: "low" as const }),
+});
+
+/**
+ * Some models write their reasoning within the answer, in <think> tags.
+ * Also removes an unclosed block so it's not displayed while streaming.
+ */
+const stripReasoning = (text: string): string =>
+	text.replace(/<think>[\s\S]*?(<\/think>\s*|$)/g, "");
 
 const getAnonUserName = (login: string, userMap: { [login: string]: string }): string => {
 	const key = Object.keys(userMap).find((v) => v.toLowerCase() === login.toLowerCase());
@@ -30,7 +111,7 @@ export const storeGroq = defineStore("groq", {
 		connected: false,
 		creditsTotal: 0,
 		creditsUsed: 0,
-		defaultModel: "llama-3.3-70b-versatile",
+		defaultModel: PREFERRED_MODELS[0]!,
 		availableModels: [],
 		answerHistory: [],
 	}),
@@ -70,18 +151,10 @@ export const storeGroq = defineStore("groq", {
 					groq.models
 						.list()
 						.then((models) => {
-							this.availableModels = models.data as typeof this.availableModels;
-							this.availableModels.forEach((model) => {
-								if (model.id.indexOf("vision") > -1) {
-									model.type = "vision";
-								} else if (model.id.indexOf("tts") > -1) {
-									model.type = "tts";
-								} else if (model.id.indexOf("whisper") > -1) {
-									model.type = "stt";
-								} else {
-									model.type = "text";
-								}
-							});
+							this.availableModels = (models.data as typeof this.availableModels)
+								.filter((model) => model.active !== false)
+								.map((model) => ({ ...model, type: getModelType(model.id) }));
+							refreshDefaultModel();
 							this.connected = true;
 							resolve(true);
 						})
@@ -116,6 +189,7 @@ export const storeGroq = defineStore("groq", {
 		): Promise<string> {
 			if (!groq) await this.connect();
 			if (!groq || !this.connected) return Promise.resolve("");
+			const client = groq;
 
 			const historyEntry: (typeof this.answerHistory)[number] = repromptEntry
 				? repromptEntry
@@ -203,23 +277,49 @@ export const storeGroq = defineStore("groq", {
 			if (!repromptEntry) this.answerHistory.push(historyEntry);
 			StoreProxy.params.openModal("groqHistory", true);
 
-			let stream = await groq.chat.completions.create({
-				messages: prompt,
-				model: this.defaultModel,
-				temperature: 0.5,
-				max_tokens: 1024,
-				top_p: 1,
-				stop: null,
-				stream: true,
-				// response_format: {
-				// 	type: "json_object",
-				// }
-			});
+			let answer = "";
+			let rawAnswer = "";
+			const updateAnswer = () => {
+				answer = stripReasoning(rawAnswer);
+				// Keeps previous answer of a reprompted entry until there's a new one
+				if (answer) historyEntry.answer = answer;
+			};
+			try {
+				const stream = await withFallbackModel(this.defaultModel, (model) =>
+					client.chat.completions.create({
+						...getCompletionParams(prompt, model),
+						stream: true,
+					}),
+				);
 
-			if (repromptEntry) repromptEntry.answer = "";
-
-			for await (const chunk of stream) {
-				historyEntry.answer += chunk.choices[0]?.delta?.content || "";
+				let lastUpdate = 0;
+				for await (const chunk of stream) {
+					rawAnswer += chunk.choices[0]?.delta?.content || "";
+					if (Date.now() - lastUpdate < ANSWER_UPDATE_INTERVAL) continue;
+					lastUpdate = Date.now();
+					updateAnswer();
+				}
+				updateAnswer();
+				if (!answer) throw new Error("Empty answer");
+			} catch (error) {
+				console.error(error);
+				updateAnswer();
+				toast(
+					StoreProxy.i18n.t("groq.generation_error", {
+						ERROR: (error as Error).message,
+					}),
+					{ type: "error" },
+				);
+				if (!answer) {
+					// Don't leave a new entry loading forever
+					if (!repromptEntry) {
+						this.answerHistory = this.answerHistory.filter(
+							(entry) => entry.id !== historyEntry.id,
+						);
+						if (this.answerHistory.length === 0) StoreProxy.params.closeModal();
+					}
+					return "";
+				}
 			}
 
 			if (!repromptEntry) {
@@ -265,14 +365,17 @@ export const storeGroq = defineStore("groq", {
 		): Promise<string | false> {
 			if (!groq) await this.connect();
 			if (!groq || !this.connected) return Promise.resolve("");
+			const client = groq;
 
 			const promptList: Groq.Chat.Completions.ChatCompletionMessageParam[] = [];
 
+			// JSON mode requires the messages to ask for JSON, even without preprompt
+			if (jsonSchema) {
+				const jsonPrompt = StoreProxy.i18n.t("groq.json_preprompt", { SCHEMA: jsonSchema });
+				preprompt = preprompt ? preprompt + "\n" + jsonPrompt : jsonPrompt;
+			}
+
 			if (preprompt) {
-				if (jsonSchema) {
-					preprompt +=
-						"\n" + StoreProxy.i18n.t("groq.json_preprompt", { SCHEMA: jsonSchema });
-				}
 				promptList.push({
 					role: "system",
 					content: preprompt,
@@ -286,23 +389,22 @@ export const storeGroq = defineStore("groq", {
 				});
 			}
 
-			const options: ChatCompletionCreateParamsNonStreaming = {
-				messages: promptList,
-				model: this.defaultModel,
-				temperature: 0.5,
-				max_tokens: 1024,
-				top_p: 1,
-				stop: null,
-				stream: false,
-			};
-			if (jsonSchema) {
-				options.response_format = {
-					type: "json_object",
-				};
-			}
+			// Requested model may have been shut down since the trigger was configured
+			const isAvailable = this.availableModels.some(
+				(m) => m.id === model && m.type === "text",
+			);
+
 			try {
-				let result = await groq.chat.completions.create(options);
-				return result.choices[0]!.message.content || "";
+				const result = await withFallbackModel(
+					isAvailable ? model : this.defaultModel,
+					(targetModel) =>
+						client.chat.completions.create({
+							...getCompletionParams(promptList, targetModel),
+							stream: false,
+							response_format: jsonSchema ? { type: "json_object" } : undefined,
+						}),
+				);
+				return stripReasoning(result.choices[0]?.message.content || "") || false;
 			} catch (error) {
 				console.error(error);
 				return false;

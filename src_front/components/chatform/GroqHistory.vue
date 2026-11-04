@@ -50,14 +50,19 @@ const entries = computed(() => {
 onMounted(() => {
 	const el = holder.value!;
 	el.scrollTop = el.scrollHeight;
+	// Not a deep watcher: it would go through all the history, including every
+	// prompt and user map, each time an answer is updated.
 	watch(
-		() => storeGroq.answerHistory,
+		() =>
+			entries.value.reduce(
+				(total, entry) => total + entry.answer.length,
+				entries.value.length,
+			),
 		() => {
 			nextTick(() => {
 				el.scrollTop = el.scrollHeight;
 			});
 		},
-		{ deep: true },
 	);
 });
 </script>

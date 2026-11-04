@@ -26,12 +26,13 @@
 					v-model="newPrompt"
 					:no-nl="false"
 					:no-html="true"
-					:placeholder="t('groq.reprompt_placeholder')"
+					:placeholder="
+						newPrompt.trim().length === 0
+							? t('groq.reprompt_placeholder')
+							: t('groq.reprompt_placeholder')
+					"
 					@keydown.enter="onEnter"
 				/>
-				<div class="placeholder" v-if="newPrompt.trim().length === 0">
-					{{ t("groq.reprompt_placeholder") }}
-				</div>
 				<TTButton icon="checkmark"></TTButton>
 			</form>
 		</div>
@@ -168,7 +169,7 @@ function formatDate(ts: number): string {
 				flex: 1;
 				word-break: break-word;
 			}
-			* {
+			& > * {
 				border-radius: 0;
 				&:first-child {
 					border-top-left-radius: var(--border-radius);
@@ -178,15 +179,6 @@ function formatDate(ts: number): string {
 					border-top-right-radius: var(--border-radius);
 					border-bottom-right-radius: var(--border-radius);
 				}
-			}
-
-			.placeholder {
-				font-style: italic;
-				opacity: 0.7;
-				position: absolute;
-				margin-left: 1em;
-				pointer-events: none;
-				align-self: center;
 			}
 		}
 

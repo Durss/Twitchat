@@ -5,6 +5,7 @@
 		"instructions": "Vous devez créer un compte sur Groq et créer une clé d'API",
 		"install": "Créer une clé d'API",
 		"invalid_api_key": "Clé d'API invalide",
+		"generation_error": "Groq n'a pas pu générer de réponse : {ERROR}",
 		"apiKey": "Clé d'API",
 		"credits_usage": "Crédits restant: {REMAINING}/{LIMIT}",
 		"usage": "Vous pouvez maintenant utiliser Groq depuis les {TRIGGERS}.\nAussi, lors de l'ouverture d'une conversation entre utilisateurices, vous aurez la possibilité de générer un résumé de la conversation afin de ne pas avoir à tout lire.",

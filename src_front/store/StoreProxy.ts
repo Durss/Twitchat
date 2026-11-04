@@ -4185,7 +4185,7 @@ export interface IGroqState {
 	availableModels: (Groq.Models.Model & {
 		active: boolean;
 		context_window: number;
-		type: "text" | "stt" | "tts" | "vision";
+		type: "text" | "stt" | "tts" | "vision" | "guard";
 	})[];
 	answerHistory: TwitchatDataTypes.GroqHistoryItem[];
 }
