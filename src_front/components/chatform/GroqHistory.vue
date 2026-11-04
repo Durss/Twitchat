@@ -71,6 +71,7 @@ onMounted(() => {
 .groqhistory {
 	.content {
 		overflow-y: auto;
+		contain: size layout;
 	}
 }
 </style>
