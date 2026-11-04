@@ -3,11 +3,7 @@
 		<div ref="content" class="holder">
 			<transition name="slide">
 				<component class="content" :is="component" v-if="component">
-					<ClearButton
-						class="closeBt clearButton"
-						aria-label="close"
-						@click="$emit('close')"
-					/>
+					<ClearButton class="closeBt clearButton" @click="$emit('close')" />
 				</component>
 			</transition>
 		</div>

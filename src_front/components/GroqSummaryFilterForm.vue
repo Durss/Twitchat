@@ -6,12 +6,7 @@
 			primary: standalone === false,
 		}"
 	>
-		<ClearButton
-			aria-label="close"
-			@click="$emit('close')"
-			class="closeBt"
-			v-if="standalone === false"
-		/>
+		<ClearButton @click="$emit('close')" class="closeBt" v-if="standalone === false" />
 		<div class="title" v-if="standalone === false">{{ $t("groq.summarize_title") }}</div>
 		<div class="title" v-else>{{ $t("groq.summarize_chat_title") }}</div>
 
