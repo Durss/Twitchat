@@ -49,6 +49,7 @@ const hasSearch = ref(false);
 let debounceTimeout = -1;
 
 function onKeyUp(e: KeyboardEvent) {
+	if (e.repeat) return;
 	if (e.key === "Escape" && search.value) {
 		search.value = "";
 		e.preventDefault();

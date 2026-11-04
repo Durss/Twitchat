@@ -53,7 +53,7 @@ export default class Utils {
 			el instanceof HTMLTextAreaElement ||
 			(el instanceof HTMLInputElement && Utils.TEXT_INPUT_TYPES.has(el.type)) ||
 			(el instanceof HTMLElement && el.isContentEditable);
-		if (!isTextField) return false;
+		if (!isTextField || el.textContent.trim().length == 0) return false;
 		el.blur();
 		return true;
 	}

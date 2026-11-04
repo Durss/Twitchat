@@ -114,6 +114,7 @@ import TTButton from "../TTButton.vue";
 import RewardListEditForm from "./RewardListEditForm.vue";
 import RewardListItem from "./RewardListItem.vue";
 import RewardListTransferForm from "./RewardListTransferForm.vue";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 const emit = defineEmits<{
 	close: [];
@@ -123,6 +124,8 @@ const { t } = useI18n();
 const storeRewards = useStoreRewards();
 
 const rootEl = useTemplateRef("rootEl");
+
+useCloseOnEscape(close);
 
 const loading = ref(true);
 const createReward = ref(false);

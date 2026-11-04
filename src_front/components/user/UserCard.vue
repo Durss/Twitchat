@@ -576,6 +576,7 @@
 </template>
 
 <script setup lang="ts">
+import { useSidePanel } from "@/composables/useSidePanel";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
@@ -626,6 +627,8 @@ const rootEl = useTemplateRef("rootEl");
 const customUsernameRef = useTemplateRef("customUsername");
 const userIDRef = useTemplateRef("userID");
 
+const { open: openPanel } = useSidePanel(rootEl, emit, false, closeCard);
+
 const error = ref(false);
 const loading = ref(true);
 const avatarError = ref(false);
@@ -670,7 +673,6 @@ const hasWhisperPerms = ref(false);
 
 let dateOffsetTimeout: number = -1;
 let messageBuildInterval: number = -1;
-let panelClosed = true;
 
 /**
  * Returns the message list with a dateLabel prop for any message
@@ -774,68 +776,6 @@ const ttsReadBtLabel = computed(() => {
 	}
 	return label;
 });
-
-/**
- * Open animation (replaces AbstractSidePanel.open)
- */
-function openPanel(): Promise<void> {
-	return new Promise((resolve) => {
-		panelClosed = false;
-		const el = rootEl.value;
-		if (!el) {
-			resolve();
-			return;
-		}
-		gsap.set(el, { translateY: 0 });
-		gsap.from(el, {
-			duration: 0.4,
-			translateY: "100%",
-			clearProps: "transform",
-			ease: "back.out",
-			onComplete: () => resolve(),
-		});
-	});
-}
-
-/**
- * Close animation (replaces AbstractSidePanel.close)
- */
-function closePanel(): Promise<void> {
-	//contenteditable component crashes if it has focus when destroyed.
-	//The following makes sure nothing has focus when closing the form.
-	//This can also trigger some save process depending on the forms.
-	if (document.activeElement) (document.activeElement as HTMLElement).blur();
-
-	return new Promise((resolve) => {
-		const el = rootEl.value;
-		if (!el) {
-			emit("close");
-			resolve();
-			return;
-		}
-		gsap.to(el, {
-			duration: 0.25,
-			translateY: "-100%",
-			clearProps: "transform",
-			ease: "back.in",
-			onComplete: () => {
-				emit("close");
-				resolve();
-			},
-		});
-	});
-}
-
-/**
- * Close the window when hitting escape key (replaces AbstractSidePanel.onKeyDown)
- */
-function onSidePanelKeyDown(e: KeyboardEvent): void {
-	if (panelClosed) return;
-	if (e.key?.toLowerCase() == "escape" && !Utils.blurFocusedTextField(e.target)) {
-		panelClosed = true;
-		void closePanel();
-	}
-}
 
 async function closeCard(): Promise<void> {
 	storeUsers.openUserCard(null);
@@ -1142,11 +1082,9 @@ function onKeyUp(e: KeyboardEvent): void {
 	if (e.key == "Escape") {
 		if (edittingLogin.value) {
 			edittingLogin.value = false;
-		} else {
-			closeCard();
+			e.preventDefault();
+			e.stopPropagation();
 		}
-		e.preventDefault();
-		e.stopPropagation();
 	}
 }
 
@@ -1239,14 +1177,12 @@ onMounted(() => {
 		moderatedChannelList_pinned.value.push(chan);
 	});
 
-	document.addEventListener("keydown", onSidePanelKeyDown);
 	document.body.addEventListener("keyup", onKeyUp);
 });
 
 onBeforeUnmount(() => {
 	clearInterval(messageBuildInterval);
 	document.body.removeEventListener("keyup", onKeyUp);
-	document.removeEventListener("keydown", onSidePanelKeyDown);
 });
 
 watch(
@@ -1295,7 +1231,7 @@ watch(
 		} else {
 			clearInterval(dateOffsetTimeout);
 			if (user.value) {
-				await closePanel();
+				closeCard();
 			}
 			user.value = null;
 		}

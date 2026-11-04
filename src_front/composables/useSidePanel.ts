@@ -8,18 +8,19 @@ import Utils from "@/utils/Utils";
  *
  * @param rootEl - template ref to the panel's root element
  * @param emit - the component's emit function (must support "close" event)
+ * @param closeCallback - if set, replaces the local close animation with this call
  */
 export function useSidePanel(
 	rootEl: Readonly<Ref<HTMLElement | null>>,
 	emit: (event: "close") => void,
 	autoAnimateOpen = true,
+	closeCallback?: () => void,
 ) {
 	let closed = true;
 
 	function onKeyDown(e: KeyboardEvent): void {
-		if (closed) return;
+		if (closed || e.repeat) return;
 		if (e.key?.toLowerCase() == "escape" && !Utils.blurFocusedTextField(e.target)) {
-			closed = true;
 			void close();
 		}
 	}
@@ -47,6 +48,7 @@ export function useSidePanel(
 	 * Close animation
 	 */
 	async function close(): Promise<void> {
+		closed = true;
 		//contenteditable component crashes if it has focus when destroyed.
 		//The following makes sure nothing has focus when closing the form.
 		//This can also trigger some save process depending on the forms.
@@ -59,6 +61,9 @@ export function useSidePanel(
 				clearProps: "transform",
 				ease: "back.in",
 				onComplete: () => {
+					if (closeCallback) {
+						closeCallback();
+					}
 					emit("close");
 					resolve();
 				},

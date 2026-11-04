@@ -171,7 +171,7 @@ function renderTimeout(): void {
 }
 
 function onKeyDown(e: KeyboardEvent): void {
-	if (!data.value || e.key != "Escape") return;
+	if (!data.value || e.key != "Escape" || e.repeat) return;
 	//First Escape leaves the text field, the next one closes the prompt
 	if (!Utils.blurFocusedTextField()) cancel();
 	e.preventDefault();

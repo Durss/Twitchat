@@ -19,7 +19,11 @@
 					/>
 				</div>
 
-				<SearchForm class="search" v-model="storeParams.currentParamSearch" />
+				<SearchForm
+					ref="searchFieldEl"
+					class="search"
+					v-model="storeParams.currentParamSearch"
+				/>
 			</div>
 
 			<div class="scrollable">
@@ -205,6 +209,7 @@
 				id="paramContentScrollableHolder"
 			>
 				<SearchForm
+					ref="searchFieldEl"
 					class="search"
 					v-model="storeParams.currentParamSearch"
 					v-if="
@@ -352,6 +357,7 @@ const storeAuth = useStoreAuth();
 const storeParams = useStoreParams();
 
 const rootEl = useTemplateRef("rootEl");
+const searchFieldEl = useTemplateRef("searchFieldEl");
 const currentContent = useTemplateRef<IParameterContent>("currentContent");
 
 const closed = ref(true);
@@ -772,7 +778,7 @@ function onEditMenu(): void {
  * @param isCapture
  */
 function onKeyDown(e: KeyboardEvent, isCapture: boolean = false): void {
-	if (closed.value) return;
+	if (closed.value || e.repeat) return;
 	if (isCapture) {
 		keydownCaptureTarget = document.activeElement;
 		return;

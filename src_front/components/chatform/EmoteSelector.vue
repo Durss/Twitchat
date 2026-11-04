@@ -201,6 +201,7 @@ import { useI18n } from "vue-i18n";
 import { useTippy } from "vue-tippy";
 import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 const props = withDefaults(
 	defineProps<{
@@ -224,15 +225,18 @@ const sUsers = useStoreUsers();
 const sParams = useStoreParams();
 const emojiList = ref<TwitchatDataTypes.Emoji[]>([]);
 const { getAsset } = asset();
+useCloseOnEscape(close, () => {
+	filter.value = "";
+});
 
-const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
+const rootEl = useTemplateRef("rootEl");
+const listEl = useTemplateRef("listEl");
 
 const users = ref<{ user: TwitchatDataTypes.TwitchatUser; emotes: TwitchatDataTypes.Emote[] }[]>(
 	[],
 );
 const filter = ref("");
 const youtubeEmotes = ref<TwitchatDataTypes.Emote[]>([]);
-const listEl = useTemplateRef<HTMLDivElement>("listEl");
 const visibleSections = reactive(new Set<string>());
 
 const EMOJI_CHUNK_SIZE = 40;

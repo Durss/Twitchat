@@ -491,6 +491,7 @@ import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { toast } from "@/utils/toast/toast";
 import { useI18n } from "vue-i18n";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 const emit = defineEmits<{
 	close: [];
@@ -504,6 +505,8 @@ const storeChat = useStoreChat();
 const storeDebug = useStoreDebug();
 const storeStream = useStoreStream();
 const storeUsers = useStoreUsers();
+
+useCloseOnEscape(close);
 
 const pubsubHistoryLink = ref<string | null>(null);
 const search = ref("");

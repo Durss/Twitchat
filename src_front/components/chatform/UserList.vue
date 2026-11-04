@@ -88,6 +88,7 @@ import {
 import { useI18n } from "vue-i18n";
 import TabMenu from "../TabMenu.vue";
 import ToggleBlock from "../ToggleBlock.vue";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 interface ChannelUserList {
 	channelId: string;
@@ -112,6 +113,8 @@ const storeParams = useStoreParams();
 const storeStream = useStoreStream();
 const storeUsers = useStoreUsers();
 const rootEl = useTemplateRef("rootEl");
+
+useCloseOnEscape(close);
 
 const myChannelId = ref("");
 const channels = ref<{ [key: string]: ChannelUserList }>({});

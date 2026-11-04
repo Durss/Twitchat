@@ -311,6 +311,7 @@ import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storePrediction as useStorePrediction } from "@/store/prediction/storePrediction";
 import { storePoll as useStorePoll } from "@/store/poll/storePoll";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape";
 import { useConfirm } from "@/composables/useConfirm";
 import TTButton from "../TTButton.vue";
 import ParamItem from "../params/ParamItem.vue";
@@ -335,6 +336,8 @@ const storeParams = useStoreParams();
 const storePrediction = useStorePrediction();
 const storePoll = useStorePoll();
 const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
+
+useCloseOnEscape(close);
 
 const raidUser = ref<TwitchDataTypes.UserInfo | undefined>(undefined);
 const adCooldown = ref<number>(0);
