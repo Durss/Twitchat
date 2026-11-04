@@ -1,5 +1,5 @@
 <template>
-	<button :class="classes" type="button" :aria-label="ariaLabel">
+	<button :class="classes" type="button" :aria-label="defaultLabel">
 		<Icon class="icon" :name="icon" :theme="theme" />
 	</button>
 </template>
@@ -23,8 +23,8 @@ const props = withDefaults(
 const { t } = useI18n();
 const classes = ref<string[]>([]);
 
-//Accessible name from the icon, still can be overridden
-const ariaLabel = computed(() => {
+//Default accessible name of the icon, a parent's aria-label overrides it
+const defaultLabel = computed(() => {
 	if (props.icon == "cross") return t("global.close");
 	if (props.icon == "back") return t("global.back");
 	return undefined;
