@@ -2,6 +2,7 @@
 	<div :class="classes" @pointerdown="onMouseDown" @wheel="onMouseWheel">
 		<input
 			type="range"
+			:id="id"
 			v-model.number="localValue"
 			:min="min"
 			:max="max"
@@ -28,6 +29,7 @@ import {
 
 const props = withDefaults(
 	defineProps<{
+		id?: string;
 		secondary?: boolean;
 		alert?: boolean;
 		premium?: boolean;
