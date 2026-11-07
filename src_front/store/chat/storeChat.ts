@@ -1898,7 +1898,7 @@ export const storeChat = defineStore("chat", {
 
 							//Handle spoiler command
 							if (
-								message.answersTo &&
+								message.directlyAnswersTo &&
 								(await Utils.checkPermissions(
 									this.spoilerParams.permissions,
 									message.user,
@@ -1910,8 +1910,8 @@ export const storeChat = defineStore("chat", {
 									.trim()
 									.toLowerCase();
 								if (cmd.indexOf("!spoiler") === 0) {
-									message.answersTo.spoiler = true;
-									void Database.instance.updateMessage(message.answersTo);
+									message.directlyAnswersTo.spoiler = true;
+									void Database.instance.updateMessage(message.directlyAnswersTo);
 								}
 							}
 
@@ -1960,7 +1960,8 @@ export const storeChat = defineStore("chat", {
 								const ts = Date.now();
 								const timeframe = 5 * 60 * 1000; //Check if a massage answers another within this timeframe
 								const matches = message.message.match(/@\w+/gi) as RegExpMatchArray;
-								for (let i = 0; i < matches.length; i++) {
+								//Stop after first link so the message doesn't join multiple conversations
+								for (let i = 0; i < matches.length && !message.answersTo; i++) {
 									const match = matches[i]!.replace("@", "").toLowerCase();
 									// console.log("Search for message from ", match);
 									for (let j = messageList.length - 1; j >= 0; j--) {
@@ -1977,31 +1978,7 @@ export const storeChat = defineStore("chat", {
 										)
 											continue;
 
-										//If it's the root message of a conversation
-										if (m.answers) {
-											//Add current message to its answers
-											m.answers.push(message);
-											this.notifyManyReplies(m);
-											message.answersTo = m;
-											void Database.instance.updateMessage(m);
-
-											//If the messages answers to a message itself
-										} else if (m.answersTo && m.answersTo.answers) {
-											//answering to another message
-											m.answersTo.answers.push(message);
-											this.notifyManyReplies(m.answersTo);
-											message.answersTo = m.answersTo;
-											void Database.instance.updateMessage(m);
-
-											//If message answers to a message that is not part a conversation
-										} else {
-											//Create conversation thread
-											message.answersTo = m;
-											if (!m.answers) m.answers = [];
-											m.answers.push(message);
-											this.notifyManyReplies(m);
-											void Database.instance.updateMessage(m);
-										}
+										this.linkAnswer(m, message, true);
 										break;
 									}
 								}
@@ -3784,11 +3761,44 @@ export const storeChat = defineStore("chat", {
 			return message;
 		},
 
+		linkAnswer(
+			parent: TwitchatDataTypes.MessageChatData,
+			answer: TwitchatDataTypes.MessageChatData,
+			guessed: boolean = false,
+		): void {
+			let root = parent.answersTo || parent;
+			if (root !== parent) {
+				// Messages restored from DB reference a detached copy of their root.
+				// Use the live instance so the stale copy doesn't overwrite it in DB.
+				const live = messageList[findMessageIndex(root.id)];
+				if (live?.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					root = live;
+					parent.answersTo = live;
+				}
+			}
+			root.answers.push(answer);
+			answer.answersTo = root;
+			if (!guessed) answer.directlyAnswersTo = parent;
+			this.notifyManyReplies(root);
+			void Database.instance.updateMessage(root);
+		},
+
 		notifyManyReplies(message: TwitchatDataTypes.MessageChatData): void {
-			if (
-				message.answers.length !==
-				StoreProxy.params.features.manyRepliesAlertThreshold.value
-			)
+			//No need to warn about our own messages
+			if (message.user.channelInfo[message.channel_id]?.is_broadcaster) return;
+
+			// Count distinct users
+			const answers = message.answers;
+			const last = answers[answers.length - 1];
+			if (!last || last.user.id === message.user.id) return;
+			const users = new Set<string>();
+			for (let i = 0; i < answers.length - 1; i++) {
+				const id = answers[i]!.user.id;
+				if (id === last.user.id) return;
+				if (id !== message.user.id) users.add(id);
+			}
+			//+1 for the last answer's author
+			if (users.size + 1 !== StoreProxy.params.features.manyRepliesAlertThreshold.value)
 				return;
 
 			const notif: TwitchatDataTypes.MessageManyRepliesData = {

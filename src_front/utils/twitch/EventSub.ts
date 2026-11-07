@@ -10,7 +10,6 @@ import { TwitchChannelModerateV2Scopes, TwitchScopes } from "./TwitchScopes";
 import TwitchUtils from "./TwitchUtils";
 import ApiHelper from "../ApiHelper";
 import MessengerProxy from "@/messaging/MessengerProxy";
-import Database from "@/store/Database";
 import { toast } from "@/utils/toast/toast";
 import { ref } from "vue";
 
@@ -2986,12 +2985,7 @@ export default class EventSub {
 						let m = messageList[i]!;
 						if (m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 						if (m.id === event.reply.parent_message_id) {
-							if (!m.answers) m.answers = [];
-							m.answers.push(message);
-							StoreProxy.chat.notifyManyReplies(m);
-							message.answersTo = m.answersTo || m;
-							message.directlyAnswersTo = m;
-							Database.instance.updateMessage(m);
+							StoreProxy.chat.linkAnswer(m, message);
 							break;
 						}
 					}

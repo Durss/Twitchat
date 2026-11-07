@@ -13,7 +13,6 @@ import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
 import * as Sentry from "@sentry/vue";
 import Logger from "@/utils/Logger";
-import Database from "@/store/Database";
 import { reactive } from "vue";
 
 type AnyUserstate =
@@ -1012,12 +1011,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				let m = messages[i]!;
 				if (m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 				if (m.id === tags["reply-parent-msg-id"]) {
-					if (!m.answers) m.answers = [];
-					m.answers.push(data);
-					StoreProxy.chat.notifyManyReplies(m);
-					data.answersTo = m.answersTo || m;
-					data.directlyAnswersTo = m;
-					Database.instance.updateMessage(m);
+					StoreProxy.chat.linkAnswer(m, data);
 					break;
 				}
 			}

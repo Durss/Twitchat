@@ -6492,7 +6492,8 @@ export namespace TwitchatDataTypes {
 		 */
 		message_size: number;
 		/**
-		 * All messages that answered to this message
+		 * All messages that answered to this message, directly or indirectly.
+		 * Only filled on the root message of a conversation.
 		 */
 		answers: MessageChatData[];
 		/**

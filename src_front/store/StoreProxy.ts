@@ -1028,6 +1028,22 @@ export interface IChatActions {
 		message_parent_fallback?: TwitchatDataTypes.MessagePrivateModeratorData["parentMessageFallback"],
 	): TwitchatDataTypes.MessagePrivateModeratorData;
 	/**
+	 * Links an answer to the message it replies to.
+	 * - the conversation's root gets the answer in its "answers" (direct and indirect)
+	 * - answer.answersTo gets the root of the conversation
+	 * - answer.directlyAnswersTo gets the parent, unless the link is guessed
+	 *   (e.g. from an @mention) so it's not displayed as an actual reply
+	 * Persists the root and notifies if it reaches the "many replies" threshold.
+	 * @param parent message being answered
+	 * @param answer message answering to parent
+	 * @param guessed true if the link is inferred rather than a native reply
+	 */
+	linkAnswer(
+		parent: TwitchatDataTypes.MessageChatData,
+		answer: TwitchatDataTypes.MessageChatData,
+		guessed?: boolean,
+	): void;
+	/**
 	 * When a message gets lots of replies notify
 	 * @param message
 	 */
