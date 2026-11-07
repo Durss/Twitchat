@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="robots" content="noindex" />
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=1" />
+	<title>Twitchat - Maintenance</title>
+	<style>
+		:root {
+			--color-text: #eeeeee;
+			--color-text-fade: rgba(238, 238, 238, 0.5);
+			--color-primary-fader: rgba(0, 134, 103, 0.4);
+			--color-secondary: #e04e00;
+			--color-secondary-light: #ff7023;
+			--color-secondary-extralight: #ffa87a;
+			--background-color-fader: rgba(255, 255, 255, 0.15);
+			--background-color-fadest: rgba(255, 255, 255, 0.05);
+			--border-radius: 0.5rem;
+		}
+
+		body.light {
+			--color-text: #101010;
+			--color-text-fade: rgba(16, 16, 16, 0.5);
+			--color-primary-fader: rgba(3, 147, 114, 0.4);
+			--background-color-fader: rgba(0, 0, 0, 0.15);
+			--background-color-fadest: rgba(0, 0, 0, 0.075);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			padding: 0;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+			font-family: Inter, Helvetica, Arial, sans-serif;
+			color: var(--color-text);
+			background-color: #18181b;
+		}
+
+		body.light {
+			background-color: #ffffff;
+		}
+
+		a {
+			color: var(--color-secondary-light);
+		}
+
+		a:hover {
+			color: var(--color-secondary-extralight);
+		}
+
+		body.light a {
+			color: var(--color-secondary);
+		}
+
+		body.light a:hover {
+			color: var(--color-secondary-light);
+		}
+
+		.home-gradient-bg {
+			background: linear-gradient(180deg, var(--color-primary-fader) 0%, transparent 100%);
+			width: 100%;
+			height: 100vh;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+
+		.holder {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			z-index: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 1em;
+			width: 380px;
+			max-width: 100vw;
+			max-height: 100vh;
+			overflow-y: auto;
+			padding: 0.5em;
+			border-radius: 0.5em;
+			backdrop-filter: blur(10px);
+			background: linear-gradient(180deg,
+					rgba(0, 0, 0, 0.7) 0%,
+					rgba(0, 0, 0, 0.85) 50%,
+					rgba(0, 0, 0, 0.7) 100%);
+			box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5);
+		}
+
+		body.light .holder {
+			background: linear-gradient(180deg,
+					rgba(255, 255, 255, 0.5) 0%,
+					rgba(255, 255, 255, 0.6) 50%,
+					rgba(255, 255, 255, 0.5) 100%);
+		}
+
+		.holder>.head {
+			align-self: center;
+			padding-top: 20px;
+			gap: 10px;
+			display: flex;
+			align-items: center;
+		}
+
+		.holder>.head>span {
+			font-size: 2.5em;
+			margin-top: -10px;
+		}
+
+		.holder>.head>.icon {
+			height: 50px;
+		}
+
+		.holder>.content {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 1em;
+			text-align: center;
+			line-height: 1.5em;
+		}
+
+		.holder>.content>.title {
+			font-size: 1.25em;
+			font-weight: bold;
+		}
+
+		.holder>.content>.quote {
+			font-style: italic;
+			word-break: break-word;
+			line-height: 1.2em;
+			border-radius: var(--border-radius);
+			border-left: 2px solid var(--background-color-fader);
+			background-image: linear-gradient(90deg,
+					var(--background-color-fadest),
+					transparent);
+			padding: 0.5em;
+			text-align: left;
+			line-height: 1.2em;
+		}
+
+		.holder>.content>.quote.hidden {
+			display: none;
+		}
+
+		.holder>.content>.quote>svg {
+			width: 1em;
+			height: 1em;
+			display: inline-block;
+			margin-right: .25em;
+		}
+
+		.holder>.content>.quote>span {
+			white-space: pre-line;
+		}
+
+		.holder>.content>.discord-link>svg {
+			display: inline-block;
+			height: 1em;
+			width: 1em;
+			margin-right: .25em;
+			vertical-align: middle;
+			color: var(--color-secondary);
+		}
+
+		.holder>.content>.admin-link {
+			font-weight: bold;
+		}
+
+		.holder>.content>.admin-link.hidden {
+			display: none;
+		}
+
+		.holder>.content>.spinner {
+			width: 30px;
+			height: 30px;
+			display: block;
+		}
+
+		body.light .holder>.content>.spinner {
+			filter: invert();
+		}
+
+		.holder>.content>.status-holder {
+			gap: 5px;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.holder>.content>.status-holder>.status {
+			font-size: 0.8em;
+			color: var(--color-text-fade);
+			white-space: pre-line;
+		}
+
+		.holder>.content>.status-holder>.spinner {
+			height: .8em;
+			opacity: 0;
+			width: 0;
+			margin-left: -5px;
+			transition: all .25s;
+		}
+
+		.holder>.content>.status-holder>.spinner.visible {
+			opacity: 1;
+			margin-left: 0;
+			width: .8em;
+		}
+	</style>
+</head>
+
+<body>
+	<script type="text/javascript">
+		try {
+			let theme = localStorage.getItem("twitchat_theme");
+			//Apply theme from storage
+			if (theme) {
+				document.body.classList.add(theme === "light" ? "light" : "dark");
+			} else if (matchMedia("(prefers-color-scheme: light)").matches) {
+				//Apply theme from browser pref
+				document.body.classList.add("light");
+			} else {
+				document.body.classList.add("dark");
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	</script>
+
+	<div class="home-gradient-bg"></div>
+
+	<div class="holder">
+		<div class="head">
+			<img class="icon" src="/twitchat.svg" alt="twitchat" />
+		</div>
+
+		<div class="content">
+			<div class="title" id="title">Twitchat is under maintenance</div>
+			<div id="description"></div>
+			<div class="quote hidden" id="quote">
+				<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+					y="0px" width="473.6px" height="473.6px" viewBox="0 0 473.6 473.6"
+					style="enable-background:new 0 0 473.6 473.6;" xml:space="preserve">
+					<path style="fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;" d="M236.8,473.6C106,473.6,0,367.6,0,236.8S106,0,236.8,0
+	s236.8,106,236.8,236.8S367.6,473.6,236.8,473.6z M201.3,206v156.3c0,19.6,15.9,35.5,35.5,35.5s35.5-15.9,35.5-35.5V206
+	c0-19.6-15.9-35.5-35.5-35.5S201.3,186.4,201.3,206z M236.8,146.8c19.6,0,35.5-15.9,35.5-35.5s-15.9-35.5-35.5-35.5
+	s-35.5,15.9-35.5,35.5C201.3,130.9,217.2,146.8,236.8,146.8z" />
+				</svg>
+				<span id="message"></span>
+			</div>
+			<a href="https://discord.gg/fmqD2xUYvP" target="_blank" rel="noopener" class="discord-link">
+				<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+					y="0px" width="516px" height="375.2px" viewBox="0 0 516 375.2"
+					style="enable-background:new 0 0 516 375.2;" xml:space="preserve">
+					<path style="fill: currentColor;;" d="M344.7,349.6c39.2-13.8,72.7-36,100-67.4c-0.5,0.3-0.9,0.6-1.4,0.9c-18.2,13.6-37.8,24.8-58.8,33.5
+	c-18.4,7.6-37.4,13.2-57,17c-12.5,2.4-25.1,4.1-37.8,5.1c-17.9,1.4-35.9,1.6-53.8,0.6c-13.7-0.7-27.2-2.1-40.7-4.4
+	c-24.1-4.1-47.5-10.9-69.8-20.9c-18.5-8.3-35.9-18.5-52.3-30.6c-0.6-0.4-1.2-0.9-1.9-1.1c13.3,15.5,28.5,28.9,45.5,40.2
+	c17,11.4,35.2,20.3,54.6,27.1c-0.4,0.6-0.7,1.1-1,1.5c-5.7,7.6-11.3,15.1-17,22.7c-0.7,0.9-1.4,1.4-2.6,1.3
+	c-9.2-1.1-18.6-1.7-27.7-3.3c-23-4.1-45-11.4-65.8-22.2C35.7,338.4,16.8,324,0.8,305.8c-0.5-0.6-0.9-1.7-0.8-2.5
+	c0.7-9.2,1.3-18.4,2.2-27.5C3.3,265.4,4.3,255,6,244.7c2.6-16.4,5.4-32.8,8.7-49.1c5.8-28.3,13.8-56.1,24-83.1
+	c8.4-22.3,18-44,30.7-64.3c0.6-1,1.4-1.9,2.4-2.5c17.6-13,36.7-23.3,57-31.3c17.5-6.9,35.5-11.7,54.1-14c4.6-0.6,4.6-0.6,6.7,3.6
+	c1.2,2.3,2.3,4.6,3.6,7.3c-42.4,9-79.1,28.8-110.9,58.7c1-0.4,1.5-0.7,2.1-0.9c16.8-8.5,33.6-16.9,51.2-23.7
+	c19.6-7.7,39.8-13.4,60.6-17c14.4-2.4,28.8-3.9,43.3-4.6c15.7-0.7,31.3-0.6,47,0.5C324,26.9,360,35.7,394.3,51.2
+	c12.5,5.7,24.8,11.9,37.2,17.9c0.5,0.3,1,0.5,1.8,0.9C402.2,39.3,365,20.7,322.7,11.3c1.9-3.8,3.5-7.2,5.4-10.6
+	c0.3-0.5,1.3-0.8,2-0.7c9.3,0.8,18.5,2.4,27.5,4.7c31.5,8,60.2,22.1,86.5,41c1,0.7,1.8,1.6,2.5,2.6c9,14.2,16.2,29.3,22.8,44.7
+	c11.7,27.5,20.8,55.8,27.9,84.8c5,20.6,9.2,41.3,12,62.3c2,15.2,3.6,30.5,5.3,45.7c0.6,5.5,0.9,11.1,1.4,16.7
+	c0.1,1.5-0.2,2.7-1.3,3.9c-23,25.8-51.3,43.6-83.7,55.2c-16.3,5.8-33.1,10-50.3,12c-5.2,0.6-10.5,1-15.8,1.4c-0.6,0-1.6-0.3-1.9-0.8
+	c-6.1-8-12.1-16-18.1-24.1C344.8,350.1,344.8,349.9,344.7,349.6z M140.5,211c0.2,13.8,4.6,25.8,14.3,35.7c14.8,15.1,39,15,53.8-0.2
+	c7.6-7.8,12.1-17.1,13.6-27.8c2.2-16.7-2-31.4-13.9-43.5c-14.8-15-38.8-14.8-53.5,0.3C145.1,185.3,140.7,197.4,140.5,211z
+	 M375.4,210.9c-0.2-13.6-4.5-25.7-14.3-35.5c-7.5-7.5-16.5-11.5-27.1-11.4c-12.1,0.1-22,5.4-29.6,14.7c-9.3,11.4-12.6,24.6-10.9,39
+	c1.5,12.4,6.8,22.9,16.4,31.2c15,12.9,37.1,12,51-2.1C370.8,236.8,375.2,224.8,375.4,210.9z" />
+				</svg>
+
+				<span id="discord"></span>
+			</a>
+			<a id="admin" href="/chat" class="admin-link hidden"></a>
+			<div class="status-holder">
+				<div class="status" id="status">...</div>
+				<img class="spinner" src="/loader.svg" alt="loading" />
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		const POLL_INTERVAL = 10000;
+		//Random offset so clients don't all poll at the same time
+		const POLL_OFFSET = Math.random() * 5000;
+		//Max random delay before going back so users don't all hit the server at once
+		const MAX_RETURN_DELAY = 30000;
+		const REQUEST_TIMEOUT = 8000;
+
+		const labels = {
+			en: {
+				title: "Maintenance",
+				description:
+					"This page will automatically refresh once maintainance completes.",
+				lastCheck: "Last check: {TIME}",
+				back: "Maintenance is over!\nGoing back to Twitchat in {SECONDS}s...",
+				discord: "Join Discord for updates",
+				admin: "🔐 go back to Twitchat",
+			},
+			fr: {
+				title: "Maintenance",
+				description:
+					"La page se rafraichira automatiquement une fois la maintenance terminée.",
+				lastCheck: "Dernière vérification : {TIME}",
+				back: "Maintenance terminée dans {SECONDS}s...",
+				discord: "Suivez l'avancement sur Discord",
+				admin: "🔐 retour sur Twitchat",
+			},
+		};
+		//Same language as the app: the one picked in its settings, or the browser's
+		let lang = (navigator.language || "en").substring(0, 2).toLowerCase();
+		try {
+			lang = localStorage.getItem("twitchat_lang") || lang;
+		} catch (error) {}
+		if (!labels[lang]) lang = "en";
+		const t = labels[lang];
+		document.documentElement.lang = lang;
+		document.title = "Twitchat - " + t.title;
+		document.getElementById("title").innerText = "🚧 "+t.title+" 🚧";
+		document.getElementById("description").innerText = t.description;
+		document.getElementById("discord").innerText = t.discord;
+
+		const statusHolder = document.getElementById("status");
+		const quoteHolder = document.getElementById("quote");
+		const messageHolder = document.getElementById("message");
+		const adminLink = document.getElementById("admin");
+		const spinner = document.querySelector(".spinner");
+		let firstPoll = true;
+
+		/**
+		 * Get the page to go back to.
+		 * Only accept relative paths, "//host" and "/\host" would send
+		 * the user to another website.
+		 */
+		function getReturnPath() {
+			const from = new URLSearchParams(document.location.search).get("from") || "";
+			if (!/^\/(?![\/\\])/.test(from) || /^\/maintenance/i.test(from)) return "/chat";
+			return from;
+		}
+
+		/**
+		 * Get the message in user's language, english as a fallback
+		 */
+		function getMessage(message) {
+			return message?.[lang] || message?.en || "";
+		}
+
+		/**
+		 * Go back to the app after the given delay
+		 */
+		function goBack(delay) {
+			const end = Date.now() + delay;
+			const tick = () => {
+				const remaining = Math.max(0, Math.ceil((end - Date.now()) / 1000));
+				statusHolder.innerText = t.back.replace("{SECONDS}", remaining);
+				if (remaining <= 0) {
+					document.location.href = getReturnPath();
+					return;
+				}
+				setTimeout(tick, 250);
+			};
+			tick();
+		}
+
+		/**
+		 * Check maintenance status.
+		 * Only an explicit "off" state sends the user back. Network errors,
+		 * timeouts, 5xx and non-JSON responses (proxy error pages) all mean
+		 * "stay", otherwise a server that's down would send users back to
+		 * a broken app.
+		 */
+		async function poll() {
+			spinner.classList.add("visible");
+			const controller = new AbortController();
+			const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+			try {
+				const res = await fetch("/api/maintenance/status", {
+					cache: "no-store",
+					signal: controller.signal,
+				});
+				const json = res.ok ? await res.json() : null;
+				const data = json?.success === true ? json.data : null;
+				if (data?.state === "off") {
+					//No need to wait if maintenance was already over when opening the page
+					goBack(firstPoll ? 0 : Math.random() * MAX_RETURN_DELAY);
+					return;
+				}
+				const message = getMessage(data?.message);
+				messageHolder.innerText = message;
+				quoteHolder.classList.toggle("hidden", !message);
+			} catch (error) {
+				//Server unreachable, try again later
+			} finally {
+				clearTimeout(timeout);
+			}
+
+			firstPoll = false;
+			statusHolder.innerText = t.lastCheck.replace("{TIME}", new Date().toLocaleTimeString());
+			setTimeout(poll, POLL_INTERVAL + POLL_OFFSET);
+			setTimeout(() => {
+				spinner.classList.remove("visible");
+			}, 1000);
+		}
+
+		/**
+		 * Admins keep access to the app during maintenance.
+		 * The server recognizes their page loads by a cookie its admin
+		 * endpoints set, this gets it from the app's Twitch token (same
+		 * origin storage) so an admin without the cookie can get back in.
+		 */
+		async function checkAdmin() {
+			let token = "";
+			try {
+				const auth = JSON.parse(localStorage.getItem("twitchat_oAuthToken") || "{}");
+				token = auth.access_token || "";
+			} catch (error) {}
+			if (!token) return;
+			try {
+				const res = await fetch("/api/admin/maintenance", {
+					cache: "no-store",
+					headers: { Authorization: "Bearer " + token },
+				});
+				if (res.status != 200) return;
+				adminLink.innerText = t.admin;
+				adminLink.href = getReturnPath();
+				adminLink.classList.remove("hidden");
+			} catch (error) {
+				//Not an admin or server unreachable, nothing to show
+			}
+		}
+
+		poll();
+		checkAdmin();
+	</script>
+</body>
+
+</html>

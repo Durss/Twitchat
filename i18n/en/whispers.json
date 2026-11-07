@@ -1,10 +1,10 @@
 {
 	"whispers": {
 		"title": "Whispers",
-		"user_list":"User list",
+		"user_list": "User list",
 		"cant_send_1": "Unable to send whisper.",
 		"cant_send_2": "You must be affiliate and have enabled 2FA in order to send whispers from outside of Twitch.",
 		"input_placeholder": "answer...",
-		"add_scope_bt":"Authorize sending answers"
+		"add_scope_bt": "Authorize sending answers"
 	}
 }

@@ -1,41 +1,39 @@
 {
-	"obs":{
-		"connection_success":"Connected with OBS",
-		"how_to_title":"Where can i find these values?",
-		"how_to1":"On OBS, open to \"Tools => obs-websocket Settings\".",
-		"how_to2":"You'll probably want to leave the IP to {IP}",
-		"ip_advice":"You may want to set the IP to 127.0.0.1 instead of what OBS shows you",
-		"form_port":"OBS websocket server port",
-		"form_pass":"OBS websocket password",
-		"form_ip":"OBS websocket IP",
-		"credentials_form_title":"OBS credentials",
-		"disable_brave":"Brave users\nYou need to disable Brave Shields for the connection to work",
+	"obs": {
+		"connection_success": "Connected with OBS",
+		"how_to_title": "Where can i find these values?",
+		"how_to1": "On OBS, open to \"Tools => obs-websocket Settings\".",
+		"how_to2": "You'll probably want to leave the IP to {IP}",
+		"ip_advice": "You may want to set the IP to 127.0.0.1 instead of what OBS shows you",
+		"form_port": "Port",
+		"form_pass": "Password",
+		"form_ip": "IP",
+		"credentials_form_title": "OBS credentials",
 
 		"scenes": "Scenes",
 		"sources": "Sources",
 
-		"header":"Create your own twitch alerts, allow your mods basic control over your OBS and much more",
-		"install":"In order to work, this needs {OBS_VERSION}",
-		
-		"permissions_title":"Permissions",
-		"permissions_head":"Users allowed to use the chat commands",
-		
-		"microphone_title":"Control microphone",
-		"microphone_head":"Give control over your microphone so some users can mute or unmute you from the chat",
-		"microphone_empty":"- no audio source found -",
-		"microphone_reCheck":"Check again",
-		"microphone_source":"Audio source",
-		"microphone_mute":"Mute command",
-		"microphone_unmute":"Unmute command",
-		"microphone_default_entry":"- none -",
+		"header": "Create your own twitch alerts, allow your mods basic control over your OBS and much more",
 
-		"browser_sources_title":"Browser sources",
-		"browser_sources_refresh":"Reload",
-		"browser_sources_refresh_all":"Reload all browser sources",
+		"permissions_title": "Permissions",
+		"permissions_head": "Users allowed to use the chat commands",
 
-		"scenes_title":"Control scenes",
-		"scenes_empty":"You have no scene on OBS",
-		"scenes_col_name":"OBS Scene",
-		"scenes_col_cmd":"Chat command"
+		"microphone_title": "Control microphone",
+		"microphone_head": "Give control over your microphone so some users can mute or unmute you from the chat",
+		"microphone_empty": "- no audio source found -",
+		"microphone_reCheck": "Check again",
+		"microphone_source": "Audio source",
+		"microphone_mute": "Mute command",
+		"microphone_unmute": "Unmute command",
+		"microphone_default_entry": "- none -",
+
+		"browser_sources_title": "Browser sources",
+		"browser_sources_refresh": "Reload",
+		"browser_sources_refresh_all": "Reload all browser sources",
+
+		"scenes_title": "Control scenes",
+		"scenes_empty": "You have no scene on OBS",
+		"scenes_col_name": "OBS Scene",
+		"scenes_col_cmd": "Chat command"
 	}
 }

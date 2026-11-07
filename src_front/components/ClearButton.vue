@@ -1,45 +1,45 @@
 <template>
-	<button :class="classes" type="button">
-		<Icon class="icon" :name="icon" :theme="theme"/>
+	<button :class="classes" type="button" :aria-label="defaultLabel">
+		<Icon class="icon" :name="icon" :theme="theme" />
 	</button>
 </template>
 
-<script lang="ts">
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import Icon from './Icon.vue';
+<script lang="ts" setup>
+import { computed, onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{
-		Icon,
+const props = withDefaults(
+	defineProps<{
+		theme?: string;
+		small?: boolean;
+		icon?: string;
+	}>(),
+	{
+		theme: "",
+		small: false,
+		icon: "cross",
 	},
-	emits:[],
-})
-class ClearButton extends Vue {
+);
+const { t } = useI18n();
+const classes = ref<string[]>([]);
 
-	@Prop({type:String, default:""})
-	public theme!:string;
+//Default accessible name of the icon, a parent's aria-label overrides it
+const defaultLabel = computed(() => {
+	if (props.icon == "cross") return t("global.close");
+	if (props.icon == "back") return t("global.back");
+	return undefined;
+});
 
-	@Prop({type:Boolean, default:false})
-	public small!:boolean;
-
-	@Prop({type:String, default:"cross"})
-	public icon!:string;
-
-	public classes:string[] = [];
-
-	public beforeMount():void {
-		this.classes.push("clearbutton");
-		if(this.small !== false)  {
-			this.classes.push("small");
-		}
+onBeforeMount(() => {
+	classes.value.push("clearbutton");
+	if (props.small !== false) {
+		classes.value.push("small");
 	}
-
-}
-export default toNative(ClearButton);
+});
 </script>
 
 <style scoped lang="less">
-.clearbutton{
+.clearbutton {
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -50,7 +50,7 @@ export default toNative(ClearButton);
 	color: inherit;
 	.icon {
 		height: 1em;
-		transition: transform .15s;
+		transition: transform 0.15s;
 	}
 	&:hover {
 		.icon {
@@ -58,7 +58,7 @@ export default toNative(ClearButton);
 		}
 	}
 	&.small {
-		padding: .5em;
+		padding: 0.5em;
 	}
 }
 </style>

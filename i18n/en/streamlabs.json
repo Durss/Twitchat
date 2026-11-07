@@ -1,7 +1,7 @@
 {
-	"streamlabs":{
-		"header":"Receive {LINK} and {CHARITY_LINK} alerts on Twitchat",
-		"examples":"Message examples",
+	"streamlabs": {
+		"header": "Receive {LINK} and {CHARITY_LINK} alerts on Twitchat",
+		"examples": "Message examples",
 		"personnal_title": "Personnal notifications",
 		"personnal_header": "Notifications for tips and merch made on your personnal account are premium-only. Streamlabs Charity events do NOT require to be premium.",
 		"charity_title": "Streamlabs Charity Campaign",
@@ -16,7 +16,6 @@
 		"step6_link": "this page",
 		"step6_url": "https://streamlabs.com/dashboard#/settings/integrations",
 		"charity_error": "Cannot get campaign details.\nMake sure you specified the right URL.\nURL must look like this \"https://streamlabscharity.com/teams/{'@'}...\"",
-		"charity_connected": "Connected to campaign {NAME}",
 		"raised_personnal": "Amount raised personnal:",
 		"raised_team": "Amount raised team:"
 	}

@@ -1,12 +1,13 @@
 <template>
 	<div class="goxlrdebug">
-
 		<form @submit.prevent="connect()" class="content sidePanel" v-if="!connected">
 			<h1>Connect with GoXLR-Utility</h1>
 			<ParamItem :paramData="param_ip" />
 			<ParamItem :paramData="param_port" />
-			<Button type="submit" :loading="connecting">Connect</Button>
-			<div class="card-item alert error" v-if="error" @click="error = false">Connection failed</div>
+			<TTButton type="submit" :loading="connecting">Connect</TTButton>
+			<div class="card-item alert error" v-if="error" @click="error = false">
+				Connection failed
+			</div>
 		</form>
 
 		<div class="content sidePanel" v-else>
@@ -22,105 +23,131 @@
 			<div class="card-item">
 				<div>Enable preset</div>
 				<div class="presets">
-					<Button v-for="i in 6" @click="setActivePreset(i-1)" :selected="selectedPresetIndex == i-1">{{ i }}</Button>
+					<TTButton
+						v-for="i in 6"
+						@click="setActivePreset(i - 1)"
+						:selected="selectedPresetIndex == i - 1"
+						>{{ i }}</TTButton
+					>
 				</div>
-				<Button @click="toggleFX()" :selected="fxEnabled">Toggle FX</Button>
+				<TTButton @click="toggleFX()" :selected="fxEnabled">Toggle FX</TTButton>
 			</div>
 		</div>
-
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+<script setup lang="ts">
+import TTButton from "@/components/TTButton.vue";
+import ParamItem from "@/components/params/ParamItem.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
+import { computed, ref, watch } from "vue";
 
-@Component({
-	components:{
-		Button: TTButton,
-		ParamItem,
-	},
-	emits:[],
-})
-class GoXLRDebug extends Vue {
+const storeAuth = useStoreAuth();
 
-	public error:boolean = false;
-	public fxEnabled:boolean = false;
-	public connecting:boolean = false;
-	public selectedPresetIndex:number = 0;
-	public param_ip:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"127.0.0.1", label:"IP"};
-	public param_port:TwitchatDataTypes.ParameterData<number> = {type:"number", value:14564, label:"Port"};
-	
-	public param_genderStyle:TwitchatDataTypes.ParameterData<"Narrow"|"Medium"|"Wide"> = {type:"list", listValues:["Narrow", "Medium", "Wide"].map(v=>{ return {label:v, value:v}; }), value:"Narrow", label:"Gender style"};
-	public param_genderAmount:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:0, min:-12, max:12, step:1, label:"Gender amount {VALUE}"};
-	
-	public param_echoStyle:TwitchatDataTypes.ParameterData<"Quarter"|"Eighth"|"MultiTap"|"Triplet"|"PingPong"|"ClassicSlap"> = {type:"list", listValues:["Quarter","Eighth","MultiTap","Triplet","PingPong","ClassicSlap"].map(v=>{ return {label:v, value:v}; }), value:"Quarter", label:"Echo style"};
-	public param_echoAmount:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:0, min:0, max:100, step:1, label:"Echo amount {VALUE}"};
+const error = ref(false);
+const fxEnabled = ref(false);
+const connecting = ref(false);
+const selectedPresetIndex = ref(0);
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "127.0.0.1",
+	label: "IP",
+});
+const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 14564,
+	label: "Port",
+});
 
-	public get connected():boolean { return GoXLRSocket.instance.connected.value; }
+const param_genderStyle = ref<TwitchatDataTypes.ParameterData<"Narrow" | "Medium" | "Wide">>({
+	type: "list",
+	listValues: ["Narrow", "Medium", "Wide"].map((v) => {
+		return { label: v, value: v };
+	}),
+	value: "Narrow",
+	label: "Gender style",
+});
+const param_genderAmount = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "slider",
+	value: 0.5,
+	min: 0,
+	max: 1,
+	step: 0.1,
+	label: "Gender amount {VALUE}",
+});
 
-	public mounted():void {
-		watch(()=>this.param_genderStyle.value, ()=> {
-			const limit = {Narrow: 12, Medium: 25, Wide: 50}[this.param_genderStyle.value];
-			this.param_genderAmount.min = -limit!;
-			this.param_genderAmount.max = limit;
-		})
+const param_echoStyle = ref<
+	TwitchatDataTypes.ParameterData<
+		"Quarter" | "Eighth" | "MultiTap" | "Triplet" | "PingPong" | "ClassicSlap"
+	>
+>({
+	type: "list",
+	listValues: ["Quarter", "Eighth", "MultiTap", "Triplet", "PingPong", "ClassicSlap"].map((v) => {
+		return { label: v, value: v };
+	}),
+	value: "Quarter",
+	label: "Echo style",
+});
+const param_echoAmount = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "slider",
+	value: 0.5,
+	min: 0,
+	max: 1,
+	step: 0.1,
+	label: "Echo amount {VALUE}",
+});
+
+const connected = computed<boolean>(() => GoXLRSocket.instance.connected.value);
+
+async function connect(): Promise<void> {
+	error.value = false;
+	connecting.value = true;
+	try {
+		storeAuth.premiumType = "lifetime"; //Force premium to allow connection
+		await GoXLRSocket.instance.connect(param_ip.value.value, param_port.value.value);
+	} catch (err) {
+		console.log(err);
+		error.value = true;
 	}
-
-	public async connect():Promise<void> {
-		this.error = false;
-		this.connecting = true;
-		try {
-			await GoXLRSocket.instance.connect(this.param_ip.value, this.param_port.value);
-		}catch(error) {
-			console.log(error);
-			this.error = true;
-		}
-		const state = GoXLRSocket.instance.status.value;
-		if(state) {
-			this.fxEnabled = state.effects.is_enabled;
-			this.selectedPresetIndex = parseInt(state.effects.active_preset.replace(/\D/gi, ""));
-		}
-		this.connecting = false;
+	const state = GoXLRSocket.instance.status.value;
+	if (state) {
+		fxEnabled.value = state.effects.is_enabled;
+		selectedPresetIndex.value = parseInt(state.effects.active_preset.replace(/\D/gi, ""));
 	}
-
-	public setGenderStyle():void {
-		GoXLRSocket.instance.setGenderStyle(this.param_genderStyle.value);
-	}
-
-	public setGenderAmount():void {
-		GoXLRSocket.instance.setEncoderPercentValue("gender", this.param_genderAmount.value);
-	}
-
-	public setEchoStyle():void {
-		GoXLRSocket.instance.setEchoStyle(this.param_echoStyle.value);
-	}
-
-	public setEchoAmount():void {
-		GoXLRSocket.instance.setEncoderPercentValue("echo", this.param_echoAmount.value);
-	}
-
-	public setActivePreset(index:number):void {
-		this.selectedPresetIndex = index;
-		GoXLRSocket.instance.activeEffectPreset = index;
-	}
-
-	public toggleFX():void {
-		this.fxEnabled = !this.fxEnabled;
-		GoXLRSocket.instance.setFXEnabled(this.fxEnabled);
-	}
-
+	connecting.value = false;
 }
-export default toNative(GoXLRDebug);
+
+function setGenderStyle(): void {
+	GoXLRSocket.instance.setGenderStyle(param_genderStyle.value.value);
+}
+
+function setGenderAmount(): void {
+	GoXLRSocket.instance.setEncoderPercentValue("gender", param_genderAmount.value.value);
+}
+
+function setEchoStyle(): void {
+	GoXLRSocket.instance.setEchoStyle(param_echoStyle.value.value);
+}
+
+function setEchoAmount(): void {
+	GoXLRSocket.instance.setEncoderPercentValue("echo", param_echoAmount.value.value);
+}
+
+function setActivePreset(index: number): void {
+	selectedPresetIndex.value = index;
+	GoXLRSocket.instance.activeEffectPreset = index;
+}
+
+function toggleFX(): void {
+	fxEnabled.value = !fxEnabled.value;
+	GoXLRSocket.instance.setFXEnabled(fxEnabled.value);
+}
 </script>
 
 <style scoped lang="less">
-.goxlrdebug{
-	
+.goxlrdebug {
 	form {
 		max-width: 400px;
 		position: absolute;
@@ -136,7 +163,7 @@ export default toNative(GoXLRDebug);
 	}
 
 	.content {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 		padding: 1em;
@@ -146,7 +173,7 @@ export default toNative(GoXLRDebug);
 	}
 
 	.card-item {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 	}

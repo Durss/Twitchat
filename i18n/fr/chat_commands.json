@@ -1,0 +1,56 @@
+{
+	"chat_commands": {
+		"header": "Créez des commandes de tchat simples ou programmez des messages postés régulièrement sur votre tchat.\n\nPour des besoins plus avancés, utilisez {LINK_TRIGGER}.",
+		"header_link_trigger": "@:values.header_link_trigger",
+		"addBt": "Créer une commande",
+		"untitled": "Nouvelle commande",
+		"nonpremium_limit": "Vous avez créé le nombre maximum de {MAX} commandes. Devenez premium pour en créer jusqu'à {MAX_PREMIUM}.",
+		"premium_limit": "Vous avez créé le nombre maximum de {MAX_PREMIUM} commandes.",
+		"restore_not_found": "Cette commande ne peut plus être restaurée.",
+		"restore_limit": "Impossible de restaurer cette commande, vous avez atteint le nombre maximum de {MAX} commandes.",
+		"restore_conflict": "Impossible de restaurer cette commande, une autre utilise déjà \"{CMD}\".",
+		"delete_confirm": {
+			"title": "Supprimer la commande ?",
+			"desc": "Cette action est irréversible."
+		},
+		"manage": {
+			"title": "Gérer les commandes depuis le tchat",
+			"enabled": "Autoriser la gestion des commandes depuis le tchat",
+			"allowed_users": "Utilisateurices autorisé·es à gérer les commandes",
+			"usage_title": "Utilisation :",
+			"usage_message": "message à envoyer",
+			"usage_list": "liste les commandes que le viewer peut utiliser"
+		},
+		"form": {
+			"message": "Réponse",
+			"command": "@:triggers.actions.chat.param_cmd",
+			"automatic": "Envoyer automatiquement",
+			"aliases": "@:triggers.actions.chat.param_cmd_alias",
+			"allowed_users": "@:triggers.actions.chat.allowed_users",
+			"interval": "Envoyer automatiquement toutes les (minutes)",
+			"min_messages": "Envoyer automatiquement si au moins {VALUE} message a été reçu|Envoyer automatiquement si au moins {VALUE} messages ont été reçus",
+			"conflict": "\"{CMD}\" est déjà utilisé par une autre commande",
+			"updated_by": "Modifiée depuis le tchat par {USER} le {DATE}"
+		},
+		"chat": {
+			"usage": "{'@'}{USER} utilisation : {CMD} add !nom message / {CMD} edit !nom message / {CMD} remove !nom / {CMD} list",
+			"forbidden_slash": "{'@'}{USER} les messages ne peuvent pas commencer par une /commande, sauf /me et /announce",
+			"too_long": "{'@'}{USER} message trop long ({MAX} caractères max)",
+			"conflict": "{'@'}{USER} la commande {CMD} existe déjà",
+			"limit": "{'@'}{USER} nombre maximum de {MAX} commandes atteint",
+			"added": "{'@'}{USER} commande {CMD} ajoutée",
+			"edited": "{'@'}{USER} commande {CMD} modifiée",
+			"removed": "{'@'}{USER} commande {CMD} supprimée",
+			"not_found": "{'@'}{USER} commande {CMD} introuvable",
+			"list_prefix": "Commandes :",
+			"list_empty": "{'@'}{USER} aucune commande disponible"
+		},
+		"feed": {
+			"added": "{USER} a ajouté la commande {CMD}",
+			"edited": "{USER} a modifié la commande {CMD}",
+			"removed": "{USER} a supprimé la commande {CMD}",
+			"undoBt": "Annuler",
+			"restored": "Restaurée"
+		}
+	}
+}

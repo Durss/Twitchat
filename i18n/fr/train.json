@@ -1,15 +1,15 @@
 {
 	"train": {
 		"hype_approaching": "Train de la hype en approche!",
-		"hype_progress": "Train de la hype niveau {LEVEL} {PERCENT}",
+		"hype_progress": "Train de la hype niv.{LEVEL} {PERCENT}",
 		"hype_complete": "Train de la hype terminé",
 		"hype_cancel": "Le train est parti...",
 		"treasure_approaching": "Train au trésor en approche!",
-		"treasure_progress": "Train au trésor niveau {LEVEL} {PERCENT}",
+		"treasure_progress": "Train au trésor niv.{LEVEL} {PERCENT}",
 		"treasure_complete": "Train au trésor terminé",
 		"treasure_cancel": "Le train est parti...",
 		"golden_approaching": "Train Kappa doré en approche!",
-		"golden_progress": "Train Kappa doré niveau {LEVEL} {PERCENT}",
+		"golden_progress": "Train Kappa doré niv.{LEVEL} {PERCENT}",
 		"golden_complete": "Train Kappa doré terminé",
 		"golden_cancel": "Le train est parti...",
 		"hype_complete_details": "Niveau {LEVEL} atteint",

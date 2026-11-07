@@ -1,0 +1,13 @@
+{
+	"perf_report": {
+		"title": "Twitchat semble ralenti",
+		"message": "Souhaitez-vous envoyer le diagnositque pour m'aider à comprendre le problème ?",
+		"details": "Contient un court enregistrement de Twitchat sans aucun texte.",
+		"sending": "Diagnostic en cours, il sera envoyé d'ici une minute…",
+		"sendBt": "Envoyer",
+		"ignoreBt": "Ignorer",
+		"sent": "Rapport envoyé, merci !",
+		"failed": "Le rapport n'a pas pu être envoyé"
+	}
+}
+

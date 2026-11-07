@@ -1,6 +1,6 @@
 {
-	"tipeee":{
-		"header":"Receive {LINK} alerts on Twitchat",
-		"examples":"Message examples"
+	"tipeee": {
+		"header": "Receive {LINK} alerts on Twitchat",
+		"examples": "Message examples"
 	}
 }

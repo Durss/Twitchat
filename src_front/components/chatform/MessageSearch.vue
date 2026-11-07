@@ -1,17 +1,23 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" ref="rootEl">
 		<div class="head">
 			<div class="title">
 				<Icon name="search" />
 				<i18n-t scope="global" tag="h1" keypath="search.title">
-					<template #COUNT><span class="count" v-if="messages.length > 0"> | {{messages.length}}</span></template>
+					<template #COUNT
+						><span class="count" v-if="messages.length > 0">
+							| {{ messages.length }}</span
+						></template
+					>
 				</i18n-t>
 			</div>
-			
+
 			<i18n-t scope="global" class="description" tag="span" keypath="search.subtitle">
-				<template #SEARCH><span class="search">{{search}}</span></template>
+				<template #SEARCH
+					><span class="search">{{ search }}</span></template
+				>
 			</i18n-t>
-			
+
 			<ClearButton @click="close()" />
 		</div>
 
@@ -20,7 +26,7 @@
 				<ChatMessage
 					v-for="m in messages"
 					class="message"
-					:ref="'message_'+m.id"
+					:ref="'message_' + m.id"
 					:key="m.id"
 					:messageData="m"
 					lightMode
@@ -30,100 +36,100 @@
 			</div>
 
 			<div class="noResult" v-if="messages.length == 0">
-				{{ $t("search.no_result", {SEARCH:search}) }}
+				{{ t("search.no_result", { SEARCH: search }) }}
 			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import { watch } from '@vue/runtime-core';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
-import ClearButton from '../ClearButton.vue';
-import ChatMessage from '../messages/ChatMessage.vue';
+<script setup lang="ts">
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { useSidePanel } from "@/composables/useSidePanel";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import ClearButton from "../ClearButton.vue";
+import ChatMessage from "../messages/ChatMessage.vue";
 
-@Component({
-	components:{
-		Button: TTButton,
-		ClearButton,
-		ChatMessage,
-	},
-	emits:["close"]
-})
-class MessageSearch extends AbstractSidePanel {
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	public search = "";
-	public messages:TwitchatDataTypes.ChatMessageTypes[] = [];
+const { t } = useI18n();
+const storeChat = useStoreChat();
+const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
+const holder = useTemplateRef<HTMLDivElement>("holder");
+const { open, close: closePanel } = useSidePanel(rootEl, emit, false);
 
-	public get classes():string[] {
-		let res = ["messagesearch", "sidePanel"];
-		if(this.messages.length > 0) res.push("hasResult");
-		return res;
-	}
+const search = ref<string>("");
+const messages = ref<TwitchatDataTypes.MessageChatData[]>([]);
 
-	public mounted():void {
-		watch(() => this.$store.chat.searchMessages, () => {
-			this.updateList();
-		});
-		this.updateList();
-		super.open();
-	}
+const classes = computed<string[]>(() => {
+	let res = ["messagesearch", "sidePanel"];
+	if (messages.value.length > 0) res.push("hasResult");
+	return res;
+});
 
-	public async close():Promise<void> {
-		this.$store.chat.doSearchMessages("");
-		super.close();
-	}
+onMounted(() => {
+	watch(
+		() => storeChat.searchMessages,
+		() => {
+			updateList();
+		},
+	);
+	updateList();
+	open();
+});
 
-	private async updateList():Promise<void> {
-		if(this.$store.chat.searchMessages.length === 0) return;
-
-		if(this.search != this.$store.chat.searchMessages) {
-			//If search has changed clear all current results
-			//to make sure items are properly updated.
-			//If an item from the prev search is still there
-			//with the new search, the highlight wouldn't be
-			//updated if we wouldn't remove it first.
-			this.search = this.$store.chat.searchMessages;
-			this.messages = [];
-			await this.$nextTick();
-		}
-
-		const list = this.$store.chat.messages.concat();
-		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
-		for (const m of list) {
-			if(m.type != "message") continue;
-			//Remove any HTML tag to avoid wrong search results
-			const text = Utils.stripHTMLTags(m.message);
-			// const text = m.message.replace(/<[^>]*?>/gi, "");
-			if(new RegExp(this.search, "gim").test(text)
-			|| m.user.displayName.toLowerCase() == this.search.toLowerCase()) {
-				result.push(m);
-			}
-		}
-		this.messages = result;
-		await this.$nextTick();
-		const holder = this.$refs.holder as HTMLDivElement;
-		holder.scrollTop = holder.scrollHeight;
-	}
-
+async function close(): Promise<void> {
+	storeChat.doSearchMessages("");
+	closePanel();
 }
-export default toNative(MessageSearch);
+
+async function updateList(): Promise<void> {
+	if (storeChat.searchMessages.length === 0) return;
+
+	if (search.value != storeChat.searchMessages) {
+		//If search has changed clear all current results
+		//to make sure items are properly updated.
+		//If an item from the prev search is still there
+		//with the new search, the highlight wouldn't be
+		//updated if we wouldn't remove it first.
+		search.value = storeChat.searchMessages;
+		messages.value = [];
+		await nextTick();
+	}
+
+	const list = storeChat.messages.concat();
+	const result: TwitchatDataTypes.MessageChatData[] = [];
+	for (const m of list) {
+		if (m.type != "message") continue;
+		//Remove any HTML tag to avoid wrong search results
+		const text = Utils.stripHTMLTags(m.message);
+		// const text = m.message.replace(/<[^>]*?>/gi, "");
+		if (
+			new RegExp(search.value, "gim").test(text) ||
+			m.user.displayName.toLowerCase() == search.value.toLowerCase()
+		) {
+			result.push(m);
+		}
+	}
+	messages.value = result;
+	await nextTick();
+	holder.value!.scrollTop = holder.value!.scrollHeight;
+}
 </script>
 
 <style scoped lang="less">
-.messagesearch{
-
+.messagesearch {
 	.count {
-		font-size: .7em;
+		font-size: 0.7em;
 		font-weight: normal;
 	}
 
 	.messages {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 		overflow-y: auto;
@@ -131,12 +137,12 @@ export default toNative(MessageSearch);
 		flex-shrink: 0;
 
 		.message {
-			margin: .25em 0;
-			
+			margin: 0.25em 0;
+
 			&:nth-child(odd) {
-				background-color: rgba(255, 255, 255, .05);
+				background-color: rgba(255, 255, 255, 0.05);
 				&:hover {
-					background-color: rgba(255, 255, 255, .2);
+					background-color: rgba(255, 255, 255, 0.2);
 				}
 			}
 		}
@@ -144,7 +150,7 @@ export default toNative(MessageSearch);
 
 	.noResult {
 		color: #ffffff;
-		opacity: .5;
+		opacity: 0.5;
 		font-size: 14px;
 		font-style: italic;
 		text-align: center;
