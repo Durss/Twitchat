@@ -260,6 +260,16 @@ export default class TriggerActionHandler {
 						forcedTriggerId,
 					);
 				}
+				if (message.twitch_gif) {
+					this.executeTriggersByType(
+						TriggerTypes.TWITCH_GIF,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					);
+				}
 
 				if (message.message) {
 					const cmd = message.message.trim().split(" ")[0]!.toLowerCase();

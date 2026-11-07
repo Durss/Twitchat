@@ -96,6 +96,22 @@ function broadcastDeletedMessages(messages: TwitchatDataTypes.GreetableMessages[
 	}
 }
 
+/**
+ * Updates the "last GIF" label placeholders from a message containing a GIF
+ */
+function updateGifLabels(message: TwitchatDataTypes.MessageChatData): void {
+	if (!message.twitch_gif) return;
+	StoreProxy.labels.updateLabelValue("GIF_ID", message.user.id);
+	StoreProxy.labels.updateLabelValue("GIF_NAME", message.user.displayNameOriginal);
+	StoreProxy.labels.updateLabelValue(
+		"GIF_AVATAR",
+		message.user.avatarPath || "",
+		message.user.id,
+	);
+	StoreProxy.labels.updateLabelValue("GIF_IMAGE", message.twitch_gif.url);
+	StoreProxy.labels.updateLabelValue("GIF_DESCRIPTION", message.twitch_gif.description);
+}
+
 export const storeChat = defineStore("chat", {
 	state: (): IChatState => ({
 		searchMessages: "",
@@ -958,6 +974,7 @@ export const storeChat = defineStore("chat", {
 					let lastPuCelebration = false;
 					let lastPuMessage = false;
 					let lastPuCustom = false;
+					let lastGif = false;
 					let lastSub = false;
 					let lastSubgift = false;
 					//History is inserted in one go after the loop. Unshifting messages
@@ -1062,6 +1079,15 @@ export const storeChat = defineStore("chat", {
 								m.user.avatarPath || "",
 								m.user.id,
 							);
+						}
+
+						if (
+							!lastGif &&
+							m.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
+							m.twitch_gif
+						) {
+							lastGif = true;
+							updateGifLabels(m);
 						}
 
 						if (!lastCheer && m.type === TwitchatDataTypes.TwitchatMessageType.CHEER) {
@@ -1682,6 +1708,10 @@ export const storeChat = defineStore("chat", {
 										message.user.avatarPath || "",
 										message.user.id,
 									);
+								}
+
+								if (message.twitch_gif) {
+									updateGifLabels(message);
 								}
 								if (/\b(?:https?:\/\/)?twitchat\.fr\b/gi.test(message.message)) {
 									SchedulerHelper.instance.resetAdSchedule(message);

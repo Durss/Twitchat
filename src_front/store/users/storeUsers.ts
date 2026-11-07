@@ -1501,6 +1501,7 @@ export const storeUsers = defineStore("users", {
 				TriggerTypes.SUBGIFT,
 				TriggerTypes.POWER_UP_GIANT_EMOTE,
 				TriggerTypes.POWER_UP_MESSAGE,
+				TriggerTypes.TWITCH_GIF,
 				TriggerTypes.POWER_UP_CELEBRATION,
 				TriggerTypes.PIN_MESSAGE,
 				TriggerTypes.UNPIN_MESSAGE,

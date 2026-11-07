@@ -425,6 +425,7 @@ const allowedOnRemoteChans = computed((): boolean => {
 		TriggerTypes.SUBGIFT,
 		TriggerTypes.CHEER,
 		TriggerTypes.POWER_UP_MESSAGE,
+		TriggerTypes.TWITCH_GIF,
 		TriggerTypes.POWER_UP_GIANT_EMOTE,
 		TriggerTypes.POWER_UP_CELEBRATION,
 		TriggerTypes.SHOUTOUT_IN,

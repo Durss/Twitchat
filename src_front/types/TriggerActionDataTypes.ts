@@ -2434,6 +2434,9 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 		TwitchatDataTypes.MessageChatData,
 		"answers" | "children" | "answersTo" | "directlyAnswersTo"
 	>;
+	type SafeGifMessage = SafeMessage & {
+		twitch_gif: NonNullable<SafeMessage["twitch_gif"]>;
+	};
 	type SafeReward = Omit<TwitchatDataTypes.MessageRewardRedeemData, "children">;
 	type SafeHypeTrain = TwitchatDataTypes.MessageHypeTrainEventData & {
 		train: Omit<TwitchatDataTypes.MessageHypeTrainEventData["train"], "sharedStates">;
@@ -2690,6 +2693,27 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 			example: "rainbow-eclipse",
 		} as ITriggerPlaceholder<SafeMessage>,
+	];
+
+	map[TriggerTypes.TWITCH_GIF] = [
+		...map[TriggerTypes.ANY_MESSAGE]!,
+		{
+			tag: "GIF_URL",
+			descKey: "triggers.placeholders.gif_url",
+			pointer: "twitch_gif.url",
+			numberParsable: false,
+			isUserID: false,
+			example:
+				"https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTZjZjQ1ZGF0bDlicXRoeW43Y2tzZnoxem9jamNtYXM0OGhpcmdmbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/90FH7I3McAQ7u/giphy.gif",
+		} as ITriggerPlaceholder<SafeGifMessage>,
+		{
+			tag: "GIF_DESCRIPTION",
+			descKey: "triggers.placeholders.gif_description",
+			pointer: "twitch_gif.description",
+			numberParsable: false,
+			isUserID: false,
+			example: "Angry spongebob",
+		} as ITriggerPlaceholder<SafeGifMessage>,
 	];
 
 	map[TriggerTypes.MESSAGE_ANSWER] = [
@@ -9693,6 +9717,15 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.MESSAGE_ANSWER.label",
 			value: TriggerTypes.MESSAGE_ANSWER,
 			descriptionKey: "triggers.events.MESSAGE_ANSWER.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+		},
+		{
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+			category: TriggerEventTypeCategories.CHAT_REWARDS,
+			icon: "emote",
+			labelKey: "triggers.events.TWITCH_GIF.label",
+			value: TriggerTypes.TWITCH_GIF,
+			descriptionKey: "triggers.events.TWITCH_GIF.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		},
 		{

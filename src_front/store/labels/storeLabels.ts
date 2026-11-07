@@ -269,6 +269,7 @@ export const storeLabels = defineStore("labels", {
 				"POWER_UP_CELEBRATION_ID",
 				"POWER_UP_MESSAGE_ID",
 				"POWER_UP_CUSTOM_ID",
+				"GIF_ID",
 			];
 			let hasClearedValue = false;
 			for (const key of userIdKeyList) {

@@ -1259,6 +1259,8 @@
 			"power_up_emote": "Code de l'mote géante",
 			"power_up_emote_url": "URL de l'mote géante",
 			"power_up_message": "Effet : 'simmer' ou 'rainbow-eclipse'",
+			"gif_url": "URL du GIF",
+			"gif_description": "Description du GIF",
 			"power_up_id": "ID du Power Up",
 			"power_up_title": "Titre du Power Up",
 			"superchat_tier": "Superchat tier (1 => 11)",
@@ -1346,6 +1348,10 @@
 			"MESSAGE_ANSWER": {
 				"label": "Réponse à un message",
 				"description": "Actions à exécuter lorsqu'un message répond à un autre"
+			},
+			"TWITCH_GIF": {
+				"label": "GIF envoyé",
+				"description": "Actions à exécuter lorsque quelqu'un envoie un GIF sur le chat"
 			},
 			"REWARD_REDEEM": {
 				"label": "Récompense de points de chaîne",

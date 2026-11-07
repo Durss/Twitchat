@@ -990,6 +990,47 @@ export const LabelItemPlaceholderList = [
 	} as const,
 
 	{
+		tag: "GIF_ID",
+		type: "string",
+		category: "twitch",
+		descriptionKey: "overlay.labels.placeholders.GIF_ID",
+		backup: true,
+		example: "29961813",
+	} as const,
+	{
+		tag: "GIF_NAME",
+		type: "string",
+		category: "twitch",
+		descriptionKey: "overlay.labels.placeholders.GIF_NAME",
+		backup: true,
+		example: "Durss",
+	} as const,
+	{
+		tag: "GIF_AVATAR",
+		type: "image",
+		category: "twitch",
+		descriptionKey: "overlay.labels.placeholders.GIF_AVATAR",
+		backup: true,
+		example: EXAMPLE_IMAGE,
+	} as const,
+	{
+		tag: "GIF_IMAGE",
+		type: "image",
+		category: "twitch",
+		descriptionKey: "overlay.labels.placeholders.GIF_IMAGE",
+		backup: true,
+		example: EXAMPLE_IMAGE,
+	} as const,
+	{
+		tag: "GIF_DESCRIPTION",
+		type: "string",
+		category: "twitch",
+		descriptionKey: "overlay.labels.placeholders.GIF_DESCRIPTION",
+		backup: true,
+		example: "Conan O Brien Everything GIF by GIPHY News",
+	} as const,
+
+	{
 		tag: "KOFI_TIP_NAME",
 		type: "string",
 		category: "kofi",

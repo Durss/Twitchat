@@ -644,6 +644,12 @@
 				"POWER_UP_CUSTOM_TITLE": "Custom Power-up - Title",
 				"POWER_UP_CUSTOM_COST": "Custom Power-up - Cost",
 
+				"GIF_ID": "Last GIF - User ID",
+				"GIF_NAME": "Last GIF - Username",
+				"GIF_AVATAR": "Last GIF - Avatar",
+				"GIF_IMAGE": "Last GIF - Image",
+				"GIF_DESCRIPTION": "Last GIF - Description",
+
 				"PATREON_USER": "Subscriber Username",
 				"PATREON_TITLE": "Subscription title",
 				"PATREON_AMOUNT": "Subscription amount",

@@ -538,7 +538,7 @@ function testTrigger(trigger: TriggerData): void {
 		if (trigger.type === TriggerTypes.SCHEDULE) {
 			TriggerActionHandler.instance.parseScheduleTrigger(trigger, true);
 		} else //If it's s slash command
-		 // if(trigger.type === TriggerTypes.SLASH_COMMAND) {
+		// if(trigger.type === TriggerTypes.SLASH_COMMAND) {
 		// storeDebug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, (data)=> {
 		// 	let m = data
 		// 	void TriggerActionHandler.instance.execute(m, true, trigger.id);
@@ -588,7 +588,7 @@ function testTrigger(trigger: TriggerData): void {
 						);
 						return;
 					} else //Chat message simulation
-					 if (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					if (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						switch (triggerEvent.value) {
 							case TriggerTypes.CHAT_COMMAND: {
 								//Add the command to the fake text message
@@ -610,7 +610,7 @@ function testTrigger(trigger: TriggerData): void {
 							}
 						}
 					} else //Reward redeem simulation
-					 if (m.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
+					if (m.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
 						//Inject actual reward data
 						let twitchReward = storeRewards.rewardList.find(
 							(v) => v.id == trigger.rewardId,
@@ -629,7 +629,7 @@ function testTrigger(trigger: TriggerData): void {
 							};
 						}
 					} else //Power Up redeem simulation
-					 if (m.type == TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP) {
+					if (m.type == TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP) {
 						let powerUp = storeRewards.powerUpList.find(
 							(v) => v.id == trigger.powerUpId,
 						);
@@ -639,19 +639,19 @@ function testTrigger(trigger: TriggerData): void {
 							m.powerUpTitle = powerUp.title;
 						}
 					} else //OBS scene change simulation
-					 if (m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE) {
+					if (m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE) {
 						m.sceneName = trigger.obsScene!;
 					} else //OBS source toggle simulation
-					 if (m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE) {
+					if (m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE) {
 						m.sourceName = trigger.obsSource!;
 						m.visible = trigger.type == TriggerTypes.OBS_SOURCE_ON;
 					} else //OBS source toggle simulation
-					 if (
-						m.type == TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE
-					) {
+					if (m.type == TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE) {
 						m.inputName = trigger.obsInput!;
 						const typeToState: Partial<{
-							[key in TriggerTypesValue]: TwitchatDataTypes.MessageOBSPlaybackStateValue;
+							[
+								key in TriggerTypesValue
+							]: TwitchatDataTypes.MessageOBSPlaybackStateValue;
 						}> = {};
 						typeToState[TriggerTypes.OBS_PLAYBACK_ENDED] = "complete";
 						typeToState[TriggerTypes.OBS_PLAYBACK_STARTED] = "start";
@@ -669,7 +669,7 @@ function testTrigger(trigger: TriggerData): void {
 							);
 						}
 					} else //Counter update simulation
-					 if (m.type == TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE) {
+					if (m.type == TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE) {
 						const counter = storeCounters.counterList.find(
 							(v) => v.id == trigger.counterId,
 						);
@@ -721,7 +721,7 @@ function testTrigger(trigger: TriggerData): void {
 						delete cd.finalDuration_ms;
 						delete cd.finalDuration_str;
 					} else //Subgift simulation
-					 if (triggerEvent.value == TriggerTypes.SUBGIFT) {
+					if (triggerEvent.value == TriggerTypes.SUBGIFT) {
 						const sub = m as TwitchatDataTypes.MessageSubscriptionData;
 						sub.is_gift = true;
 						const recipients = [];
@@ -891,6 +891,17 @@ function testTrigger(trigger: TriggerData): void {
 					} else if (triggerEvent.value == TriggerTypes.POWER_UP_MESSAGE) {
 						(m as TwitchatDataTypes.MessageChatData).twitch_animationId =
 							Utils.pickRand(["rainbow-eclipse", "simmer"])!;
+					} else if (triggerEvent.value == TriggerTypes.TWITCH_GIF) {
+						const gifMessage = m as TwitchatDataTypes.MessageChatData;
+						gifMessage.twitch_gif = {
+							url: "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTZjZjQ1ZGF0bDlicXRoeW43Y2tzZnoxem9jamNtYXM0OGhpcmdmbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/90FH7I3McAQ7u/giphy.gif",
+							description: "Angry spongebob",
+						};
+						// Real GIF messages carry no text, only the GIF
+						gifMessage.message = "";
+						gifMessage.message_chunks = [];
+						gifMessage.message_html = "";
+						gifMessage.message_size = 0;
 					} else if (triggerEvent.value == TriggerTypes.VOICEMOD) {
 						delete (m as TwitchatDataTypes.MessageVoicemodData).soundID;
 						delete (m as TwitchatDataTypes.MessageVoicemodData).soundName;
