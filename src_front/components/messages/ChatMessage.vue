@@ -536,7 +536,11 @@ const classes = computed<string[]>(() => {
 	if (!props.lightMode && props.messageData.user.is_tracked) res.push("tracked");
 
 	if (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-		if (message.directlyAnswersTo && storeParams.appearance.fadeAnswers.value === true)
+		if (
+			message.directlyAnswersTo &&
+			storeParams.appearance.fadeAnswers.value === true &&
+			!props.disableAnswerParent
+		)
 			res.push("fade");
 		if (message.cleared) res.push("cleared");
 		if (message.deleted) res.push("deleted");
