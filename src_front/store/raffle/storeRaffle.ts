@@ -762,6 +762,7 @@ export const storeRaffle = defineStore("raffle", {
 				} else if (data.mode == "sub") {
 					const idToExists: { [key: string]: boolean } = {};
 					let subs = await TwitchUtils.getSubsList(false);
+					const gifterIds = new Set(subs.map((v) => v.gifter_id));
 					subs = subs.filter((v) => {
 						//Avoid duplicates
 						if (idToExists[v.user_id] == true) return false;
@@ -769,10 +770,7 @@ export const storeRaffle = defineStore("raffle", {
 						idToExists[v.user_id] = true;
 						idToExists[v.gifter_id] = true;
 						//Filter based on params
-						if (
-							data.subMode_includeGifters == true &&
-							subs.find((v2) => v2.gifter_id == v.user_id)
-						)
+						if (data.subMode_includeGifters == true && gifterIds.has(v.user_id))
 							return true;
 						if (data.subMode_excludeGifted == true && v.is_gift) return false;
 						if (v.user_id == v.broadcaster_id) return false; //Exclude self

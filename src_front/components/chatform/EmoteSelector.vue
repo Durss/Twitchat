@@ -556,19 +556,17 @@ onMounted(async () => {
 		users.value = sChat.emoteSelectorCache;
 	} else {
 		const emotes = await TwitchUtils.getEmotes();
-		//Get unique users
-		var uniqueUsers = emotes.filter(
-			(v, i, a) => a.findIndex((v2) => v2.owner!.id == v.owner!.id) === i,
-		);
-		//Remove users with wrong IDs (like "twitch")
-		uniqueUsers = uniqueUsers.filter((v) => parseInt(v.owner!.id).toString() === v.owner!.id);
+		//Get unique owner IDs
+		const ownerIds = [...new Set(emotes.map((v) => v.owner!.id))]
+			//Remove users with wrong IDs (like "twitch")
+			.filter((id) => parseInt(id).toString() === id);
 		//Load all users details to get their names
-		const tmpList = await TwitchUtils.getUserInfo(uniqueUsers.map((v) => v.owner!.id));
+		const tmpList = await TwitchUtils.getUserInfo(ownerIds);
 		const userList: TwitchatDataTypes.TwitchatUser[] = [];
 
 		for (const u of tmpList) {
 			const user = sUsers.getUserFrom("twitch", undefined, u.id, u.login, u.display_name);
-			user.avatarPath = tmpList.find((v) => v.id == user.id)!.profile_image_url;
+			user.avatarPath = u.profile_image_url;
 			userList.push(user);
 		}
 

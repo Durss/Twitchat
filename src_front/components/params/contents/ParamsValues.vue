@@ -730,10 +730,11 @@ async function loadUsers(valueItem: ValueEntry): Promise<void> {
 		}
 	}
 
+	const loadedIds = new Set(entries.map((v) => v.user.id));
 	for (const uid in valueItem.value.users) {
 		const user = valueItem.value.users[uid]!;
 		//If entry does not exists in the loaded list, push it
-		if (entries.findIndex((v) => v.user.id == uid) === -1) {
+		if (!loadedIds.has(uid)) {
 			const value = user.value || "";
 			entries.push({
 				hide: false,

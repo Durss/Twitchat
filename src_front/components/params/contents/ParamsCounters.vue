@@ -808,10 +808,11 @@ async function loadUsers(counterItem: CounterEntry): Promise<void> {
 		}
 	}
 
+	const loadedIds = new Set(entries.map((v) => v.user.id));
 	for (const uid in counterItem.counter.users) {
 		const user = counterItem.counter.users[uid]!;
 		//If entry does not exists in the loaded list, push it
-		if (entries.findIndex((v) => v.user.id == uid) === -1) {
+		if (!loadedIds.has(uid)) {
 			entries.push({
 				hide: false,
 				param: reactive({
