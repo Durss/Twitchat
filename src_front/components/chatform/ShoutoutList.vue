@@ -59,6 +59,7 @@ import { gsap } from "gsap";
 import { onBeforeMount, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import draggable from "vuedraggable";
 import Button from "../TTButton.vue";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 const emit = defineEmits<{
 	close: [];
@@ -67,6 +68,7 @@ const emit = defineEmits<{
 const storeStream = useStoreStream();
 const storeUsers = useStoreUsers();
 const rootEl = useTemplateRef("rootEl");
+useCloseOnEscape(() => close());
 
 const channelId = ref("");
 const timerOffset = ref(0);

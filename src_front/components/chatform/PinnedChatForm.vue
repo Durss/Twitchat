@@ -77,6 +77,7 @@ import Icon from "../Icon.vue";
 import ChatMessageChunksParser from "../messages/components/ChatMessageChunksParser.vue";
 import ParamItem from "../params/ParamItem.vue";
 import TTButton from "../TTButton.vue";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 interface FormState {
 	param_duration: TwitchatDataTypes.ParameterData<number>;
@@ -90,6 +91,7 @@ const storeChat = useStoreChat();
 const storeAuth = useStoreAuth();
 const storeStream = useStoreStream();
 const storeUsers = useStoreUsers();
+useCloseOnEscape(() => close());
 
 const emits = defineEmits<{ close: [] }>();
 const rootEl = useTemplateRef("rootEl");

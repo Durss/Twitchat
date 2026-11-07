@@ -96,6 +96,7 @@ import { computed, nextTick, onBeforeMount, onBeforeUnmount, ref, useTemplateRef
 import { useI18n } from "vue-i18n";
 import ButtonNotification from "../ButtonNotification.vue";
 import TTButton from "../TTButton.vue";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 defineProps<{
 	mode: IChatState["messageMode"];
@@ -110,6 +111,7 @@ const storeAuth = useStoreAuth();
 const storeChat = useStoreChat();
 const storeStream = useStoreStream();
 const popin = useTemplateRef("popin");
+useCloseOnEscape(() => close());
 
 const expand = ref(false);
 const activeMode = ref<IChatState["messageMode"]>("message");

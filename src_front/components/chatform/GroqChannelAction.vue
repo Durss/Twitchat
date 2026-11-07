@@ -14,9 +14,11 @@ import { nextTick, onBeforeMount, onBeforeUnmount, ref, useTemplateRef } from "v
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import ButtonNotification from "../ButtonNotification.vue";
 import GroqSummaryFilterForm from "../GroqSummaryFilterForm.vue";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 const storeChat = useStoreChat();
 const popin = useTemplateRef<HTMLDivElement>("popin");
+useCloseOnEscape(() => close());
 
 const expand = ref<boolean>(false);
 

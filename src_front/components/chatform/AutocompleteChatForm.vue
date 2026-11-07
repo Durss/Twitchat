@@ -103,6 +103,7 @@ import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { TriggerTypes } from "@/types/TriggerTypes";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape";
 
 /**
  * This component is used to select an emote by typing ":xxx" on the
@@ -131,6 +132,7 @@ const storeDiscord = useStoreDiscord();
 const storeUsers = useStoreUsers();
 const storeParams = useStoreParams();
 const storeStream = useStoreStream();
+useCloseOnEscape(() => close());
 
 const selectedIndex = ref(0);
 const showEmotesLoading = ref(false);
@@ -190,9 +192,6 @@ function selectItem(item: ListItem): void {
  */
 function onkeyUp(e: KeyboardEvent): void {
 	switch (e.key) {
-		case "Escape":
-			emit("close");
-			break;
 		case "Enter": {
 			const item = filteredItems.value[selectedIndex.value];
 			if (item) {
@@ -477,9 +476,7 @@ onMounted(() => {
 
 	triggerCommands = storeTriggers.triggerList
 		.concat(storeChatCommands.generatedTriggers)
-		.filter(
-			(v) => v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND,
-		);
+		.filter((v) => v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND);
 
 	document.addEventListener("keyup", onkeyUp, true);
 	document.addEventListener("keydown", onkeyDown, true);

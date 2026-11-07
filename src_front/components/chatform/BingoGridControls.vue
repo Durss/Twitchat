@@ -191,6 +191,7 @@ import ToggleButton from "../ToggleButton.vue";
 import TTButton from "../TTButton.vue";
 import Icon from "../Icon.vue";
 import ExtensionInstaller from "../params/contents/overlays/ExtensionInstaller.vue";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 const { t } = useI18n();
 const storeUsers = useStoreUsers();
@@ -201,6 +202,7 @@ const search = ref("");
 const loading = ref(false);
 const showLeaderboard = ref(false);
 const clickHandler = (e: MouseEvent) => onClick(e);
+useCloseOnEscape(() => close());
 
 const gridList = computed(() => storeBingoGrid.gridList.filter((v) => v.enabled));
 

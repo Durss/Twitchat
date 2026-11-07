@@ -134,6 +134,7 @@ import { useI18n } from "vue-i18n";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 interface ChannelEntry {
 	platform: TwitchatDataTypes.ChatPlatform;
@@ -171,6 +172,7 @@ const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeStream = useStoreStream();
 const storeUsers = useStoreUsers();
+useCloseOnEscape(() => close());
 
 const expand = ref<boolean>(false);
 const showForm = ref<boolean>(false);

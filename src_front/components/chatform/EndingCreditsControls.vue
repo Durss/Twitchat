@@ -32,6 +32,7 @@ import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import Icon from "../Icon.vue";
 import Slider from "../Slider.vue";
 import TTButton from "../TTButton.vue";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 const emit = defineEmits<{
 	close: [];
@@ -40,6 +41,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const storeStream = useStoreStream();
 const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
+useCloseOnEscape(() => close());
 
 const speed = ref<number>(0);
 const ignoreSpeedchange = ref<boolean>(false);

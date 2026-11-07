@@ -25,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import {
 	PIN_CHAT_TRIGGER_PREFIX_ID,
@@ -44,6 +45,7 @@ const storeParams = useStoreParams();
 const storeTriggers = useStoreTriggers();
 const rootEl = useTemplateRef("rootEl");
 const clickHandler = (e: MouseEvent) => onClick(e);
+useCloseOnEscape(() => close());
 
 onMounted(() => {
 	document.addEventListener("mousedown", clickHandler);
