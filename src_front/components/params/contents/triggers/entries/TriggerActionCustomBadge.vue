@@ -233,18 +233,22 @@ class TriggerActionCustomBadge extends AbstractTriggerActionEntry {
 
 	public listUpdate(list: TwitchatDataTypes.TwitchatCustomUserBadge[]): void {
 		//Avoid badges duplicates
-		const idDone: { [key: string]: boolean } = {};
-		list.forEach((v, index) => {
-			if (idDone[v.id] === true) list.splice(index, 1);
-			idDone[v.id] = true;
-		});
+		const idDone = new Set<string>();
+		for (let i = 0; i < list.length; i++) {
+			const id = list[i]!.id;
+			if (idDone.has(id)) {
+				list.splice(i, 1);
+				i--;
+			} else {
+				idDone.add(id);
+			}
+		}
 
 		//Avoid having a badge on both cols
-		let cleanup = this.badgesAdd;
-		if (list == this.badgesAdd) cleanup = this.badgesDel;
-		cleanup.forEach((v, index) => {
-			if (idDone[v.id] === true) cleanup.splice(index, 1);
-		});
+		const cleanup = list == this.badgesAdd ? this.badgesDel : this.badgesAdd;
+		for (let i = cleanup.length - 1; i >= 0; i--) {
+			if (idDone.has(cleanup[i]!.id)) cleanup.splice(i, 1);
+		}
 
 		this.action.customBadgeAdd = this.badgesAdd.map((v) => v.id);
 		this.action.customBadgeDel = this.badgesDel.map((v) => v.id);
