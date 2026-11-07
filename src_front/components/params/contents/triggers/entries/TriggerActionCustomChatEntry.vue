@@ -216,7 +216,7 @@ const param_message = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
 	value: "",
 	longText: true,
-	maxLength: 1000,
+	maxLength: 10000,
 	labelKey: "triggers.actions.customChat.param_message",
 });
 

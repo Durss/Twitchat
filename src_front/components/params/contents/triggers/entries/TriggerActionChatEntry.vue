@@ -64,7 +64,7 @@ const param_message = ref<TwitchatDataTypes.ParameterData<string>>({
 	longText: true,
 	value: "",
 	icon: "whispers",
-	maxLength: 500,
+	maxLength: 10000,
 	labelKey: "triggers.actions.chat.param_message",
 });
 const param_reply = ref<TwitchatDataTypes.ParameterData<boolean>>({

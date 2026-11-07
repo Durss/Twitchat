@@ -588,7 +588,7 @@ const UserDataSchema = {
 								},
 								triggerId: { type: "string", maxLength: 50 },
 								filterName: { type: "string", maxLength: 100 },
-								text: { type: "string", maxLength: 1000 },
+								text: { type: "string", maxLength: 10000 },
 								sendAsReply: { type: "boolean" },
 								url: { type: "string", maxLength: 10000 },
 								browserSourceCss: { type: "string", maxLength: 10000 },
@@ -1039,7 +1039,7 @@ const UserDataSchema = {
 									type: "object",
 									additionalProperties: false,
 									properties: {
-										message: { type: "string", maxLength: 1000 },
+										message: { type: "string", maxLength: 10000 },
 										icon: { type: "string", maxLength: 100 },
 										col: { type: "integer", maximum: 100 },
 										style: { enum: ["highlight", "error", "message"] },
