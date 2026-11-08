@@ -61,6 +61,14 @@
 			</form>
 		</section>
 
+		<section class="limit" v-if="storeValues.valueList.length > 0">
+			<LimitCounter
+				:count="storeValues.valueList.length"
+				:max="Config.instance.MAX_VALUES"
+				:maxPremium="Config.instance.MAX_VALUES_PREMIUM"
+			/>
+		</section>
+
 		<draggable
 			class="entryList"
 			v-model="valueEntries"
@@ -291,6 +299,7 @@ import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import draggable from "vuedraggable";
+import LimitCounter from "../LimitCounter.vue";
 import ParamItem from "../ParamItem.vue";
 import PremiumLimitMessage from "../PremiumLimitMessage.vue";
 import type IParameterContent from "./IParameterContent";
@@ -927,6 +936,11 @@ interface UserEntry {
 				}
 			}
 		}
+	}
+
+	.limit {
+		//Aligned with entries
+		width: calc(100% - 2em);
 	}
 
 	.entryList {

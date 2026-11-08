@@ -16,6 +16,13 @@
 			/>
 		</div>
 
+		<LimitCounter
+			v-if="storeDonationGoals.overlayList.length > 0"
+			:count="storeDonationGoals.overlayList.length"
+			:max="$config.MAX_DONATION_GOALS"
+			:maxPremium="$config.MAX_DONATION_GOALS_PREMIUM"
+		/>
+
 		<VueDraggable
 			class="overlayList"
 			v-model="storeDonationGoals.overlayList"
@@ -491,6 +498,7 @@ import { computed, onBeforeMount, ref } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
+import LimitCounter from "../../LimitCounter.vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
 

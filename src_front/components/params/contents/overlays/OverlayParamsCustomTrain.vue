@@ -16,6 +16,13 @@
 			/>
 		</section>
 
+		<LimitCounter
+			v-if="storeCustomTrain.customTrainList.length > 0"
+			:count="storeCustomTrain.customTrainList.length"
+			:max="Config.instance.MAX_CUSTOM_TRAIN"
+			:maxPremium="Config.instance.MAX_CUSTOM_TRAIN_PREMIUM"
+		/>
+
 		<VueDraggable
 			class="entryList"
 			v-model="storeCustomTrain.customTrainList"
@@ -649,6 +656,7 @@ import { useI18n } from "vue-i18n";
 import TTButton from "../../../TTButton.vue";
 import ToggleBlock from "../../../ToggleBlock.vue";
 import ParamItem from "../../ParamItem.vue";
+import LimitCounter from "../../LimitCounter.vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
 

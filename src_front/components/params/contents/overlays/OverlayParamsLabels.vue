@@ -16,6 +16,13 @@
 			/>
 		</div>
 
+		<LimitCounter
+			v-if="storeLabels.labelList.length > 0"
+			:count="storeLabels.labelList.length"
+			:max="Config.instance.MAX_LABELS"
+			:maxPremium="Config.instance.MAX_LABELS_PREMIUM"
+		/>
+
 		<VueDraggable
 			class="labelList"
 			v-model="storeLabels.labelList"
@@ -214,6 +221,7 @@ import { VueDraggable } from "vue-draggable-plus";
 import { computed, onBeforeMount, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
+import LimitCounter from "../../LimitCounter.vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
 import Icon from "@/components/Icon.vue";

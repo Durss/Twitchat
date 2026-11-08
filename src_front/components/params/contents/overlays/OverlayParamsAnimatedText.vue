@@ -8,6 +8,13 @@
 			</template>
 		</i18n-t>
 
+		<LimitCounter
+			v-if="storeAnimatedText.animatedTextList.length > 0"
+			:count="storeAnimatedText.animatedTextList.length"
+			:max="$config.MAX_ANIMATED_TEXT"
+			:maxPremium="$config.MAX_ANIMATED_TEXT_PREMIUM"
+		/>
+
 		<VueDraggable
 			class="entryList"
 			v-model="storeAnimatedText.animatedTextList"
@@ -142,6 +149,7 @@ import { VueDraggable } from "vue-draggable-plus";
 import { useI18n } from "vue-i18n";
 import ToggleBlock from "../../../ToggleBlock.vue";
 import TTButton from "../../../TTButton.vue";
+import LimitCounter from "../../LimitCounter.vue";
 import ParamItem from "../../ParamItem.vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";

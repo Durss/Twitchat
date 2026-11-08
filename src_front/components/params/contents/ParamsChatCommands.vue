@@ -89,10 +89,12 @@
 			/>
 		</section>
 
-		<section v-if="!isFiltering">
-			<span class="count" v-if="storeChatCommands.entryList.length > 0"
-				>{{ enabledCount }} / {{ maxEntries }}</span
-			>
+		<section v-if="!isFiltering && storeChatCommands.entryList.length > 0">
+			<LimitCounter
+				:count="enabledCount"
+				:max="Config.instance.MAX_CHAT_COMMANDS"
+				:maxPremium="Config.instance.MAX_CHAT_COMMANDS_PREMIUM"
+			/>
 		</section>
 
 		<VueDraggable
@@ -153,6 +155,7 @@ import Config from "@/utils/Config";
 import { computed, nextTick, onBeforeUnmount, ref, useTemplateRef } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { useI18n } from "vue-i18n";
+import LimitCounter from "../LimitCounter.vue";
 import ParamItem from "../ParamItem.vue";
 import PremiumLimitMessage from "../PremiumLimitMessage.vue";
 import ChatCommandEntryForm from "./chat_commands/ChatCommandEntryForm.vue";
@@ -307,12 +310,6 @@ function getExcerpt(message: string): string {
 		gap: 0.5em;
 		width: 100%;
 		width: calc(100% - 2em);
-
-		.count {
-			font-size: 0.85em;
-			opacity: 0.6;
-			align-self: flex-end;
-		}
 	}
 
 	.manage,

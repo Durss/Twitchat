@@ -19,6 +19,12 @@
 				t("triggers.search_in_actions")
 			}}</Checkbox>
 		</SearchForm>
+		<LimitCounter
+			v-if="!triggerId && !hasSearch && folderTriggerList.length > 0"
+			:count="activeTriggerCount"
+			:max="Config.instance.MAX_TRIGGERS"
+			:maxPremium="Config.instance.MAX_TRIGGERS_PREMIUM"
+		/>
 		<TriggerListFolderItem
 			v-model:items="filteredTriggerList"
 			:rewards="rewards"
@@ -49,6 +55,7 @@ import {
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import LimitCounter from "@/components/params/LimitCounter.vue";
 import TriggerUtils from "@/utils/TriggerUtils";
 import Utils from "@/utils/Utils";
 import { computed, onBeforeUnmount, ref, watch } from "vue";
@@ -94,6 +101,11 @@ const buildBatchSize = 25;
 
 const hasSearch = computed((): boolean => {
 	return debouncedSearch.value.trim().length > 0;
+});
+
+//Same count as the one limiting trigger creation in ParamsTriggers
+const activeTriggerCount = computed((): number => {
+	return storeTriggers.triggerList.filter((v) => v.enabled !== false).length;
 });
 
 const filteredTriggerList = computed({

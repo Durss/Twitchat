@@ -20,6 +20,13 @@
 		<template v-else>
 			<div class="header">{{ $t("overlay.heatDistort.description") }}</div>
 
+			<LimitCounter
+				v-if="distortionList.length > 0"
+				:count="distortionList.length"
+				:max="$config.MAX_DISTORTION_OVERLAYS"
+				:maxPremium="$config.MAX_DISTORTION_OVERLAYS_PREMIUM"
+			/>
+
 			<template v-for="(item, index) in distortionList" :key="item.id">
 				<HeatDistortParams
 					v-model="distortionList[index]!"
@@ -102,6 +109,7 @@
 <script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
+import LimitCounter from "@/components/params/LimitCounter.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";

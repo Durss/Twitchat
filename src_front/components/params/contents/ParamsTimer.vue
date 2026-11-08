@@ -39,6 +39,14 @@
 			<TTButton icon="overlay" @click="openOverlays()">{{ t("timers.overlayBt") }}</TTButton>
 		</section>
 
+		<section class="limit" v-if="customTimerCount > 0">
+			<LimitCounter
+				:count="customTimerCount"
+				:max="Config.instance.MAX_TIMERS"
+				:maxPremium="Config.instance.MAX_TIMERS_PREMIUM"
+			/>
+		</section>
+
 		<draggable
 			class="entryList"
 			v-model="storeTimer.timerList"
@@ -260,6 +268,7 @@ import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import draggable from "vuedraggable";
+import LimitCounter from "../LimitCounter.vue";
 import ParamItem from "../ParamItem.vue";
 import type IParameterContent from "./IParameterContent";
 import PremiumLimitMessage from "../PremiumLimitMessage.vue";
@@ -293,12 +302,16 @@ const defaultCountdownPLaceholder = ref<string>("");
 
 let refreshInterval = -1;
 
+//Default timers don't count in the limit
+const customTimerCount = computed<number>(() => {
+	return storeTimer.timerList.filter((v) => !v.isDefault).length;
+});
+
 const maxReached = computed<boolean>(() => {
-	const count = storeTimer.timerList.filter((v) => !v.isDefault).length;
 	const max = storeAuth.isPremium
 		? Config.instance.MAX_TIMERS_PREMIUM
 		: Config.instance.MAX_TIMERS;
-	return count >= max;
+	return customTimerCount.value >= max;
 });
 
 const canEnableMore = computed<boolean>(() => {
@@ -406,6 +419,11 @@ defineExpose<IParameterContent>({
 .paramstimer {
 	.ctas {
 		align-items: center;
+	}
+
+	.limit {
+		//Aligned with entries
+		width: calc(100% - 2em);
 	}
 
 	.entryList {

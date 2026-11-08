@@ -12,7 +12,11 @@
 			<section class="card-item library">
 				<div class="sectionHead">
 					<span class="title">{{ t("usercard.badge_list") }}</span>
-					<span class="count">{{ badgesList.length }} / {{ maxBadges }}</span>
+					<LimitCounter
+						:count="badgesList.length"
+						:max="$config.MAX_CUSTOM_BADGES"
+						:maxPremium="$config.MAX_CUSTOM_BADGES_PREMIUM"
+					/>
 				</div>
 				<div class="badgeList">
 					<button
@@ -109,7 +113,11 @@
 						<span class="title">{{
 							t("premium.cleanup.custom_badges_attribution")
 						}}</span>
-						<span class="count">{{ usedAttributions }} / {{ maxAttributions }}</span>
+						<LimitCounter
+							:count="usedAttributions"
+							:max="$config.MAX_CUSTOM_BADGES_ATTRIBUTION"
+							:maxPremium="$config.MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"
+						/>
 					</template>
 					<template v-else>
 						<span class="title">{{ t("usercard.badge_users") }}</span>
@@ -179,6 +187,7 @@ import Config from "@/utils/Config";
 import { fileToBase64Img } from "@/utils/utils/fileToBase64.js";
 import { computed, nextTick, onBeforeMount, ref, shallowReactive, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import LimitCounter from "../params/LimitCounter.vue";
 import PremiumLimitMessage from "../params/PremiumLimitMessage.vue";
 import InfiniteList from "../InfiniteList.vue";
 import SearchUserForm from "../SearchUserForm.vue";
@@ -236,11 +245,6 @@ const listHeight = computed(
 //Attribution slots are counted per user, whatever their badge count
 //(see storeUsers.giveCustomBadge)
 const usedAttributions = computed(() => Object.keys(storeUsers.customUserBadges).length);
-const maxAttributions = computed(() =>
-	storeAuth.isPremium
-		? Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM
-		: Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION,
-);
 //Only non-premium limit is enforced
 const attributionLimitReached = computed(
 	() =>

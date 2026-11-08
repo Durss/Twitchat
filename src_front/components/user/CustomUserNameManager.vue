@@ -51,7 +51,11 @@
 		<section class="card-item userHolder" v-if="itemList.length > 0">
 			<div class="sectionHead">
 				<span class="title">{{ t("usercard.manage_usernames_list") }}</span>
-				<span class="count">{{ itemList.length }} / {{ maxUsernames }}</span>
+				<LimitCounter
+					:count="itemList.length"
+					:max="$config.MAX_CUSTOM_USERNAMES"
+					:maxPremium="$config.MAX_CUSTOM_USERNAMES_PREMIUM"
+				/>
 			</div>
 			<input
 				class="filter"
@@ -122,6 +126,7 @@ import Icon from "../Icon.vue";
 import InfiniteList from "../InfiniteList.vue";
 import SearchUserForm from "../SearchUserForm.vue";
 import TTButton from "../TTButton.vue";
+import LimitCounter from "../params/LimitCounter.vue";
 import PremiumLimitMessage from "../params/PremiumLimitMessage.vue";
 
 const emit = defineEmits<{ close: []; back: [] }>();
@@ -142,12 +147,6 @@ const selectedUser = ref<TwitchDataTypes.UserInfo>();
 const customName = ref("");
 const editedUid = ref("");
 const editedName = ref("");
-
-const maxUsernames = computed(() => {
-	return storeAuth.isPremium
-		? Config.instance.MAX_CUSTOM_USERNAMES_PREMIUM
-		: Config.instance.MAX_CUSTOM_USERNAMES;
-});
 
 //Only non-premium limit is enforced (see storeUsers.setCustomUsername)
 const nonPremiumLimitReached = computed(
@@ -274,10 +273,6 @@ onMounted(() => {
 		margin-bottom: 0.5em;
 		.title {
 			font-weight: bold;
-		}
-		.count {
-			font-size: 0.85em;
-			opacity: 0.6;
 		}
 	}
 

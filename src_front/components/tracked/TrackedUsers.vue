@@ -2,7 +2,7 @@
 	<div :class="classes" ref="rootEl">
 		<div class="head">
 			<ClearButton @click="close()" />
-			<h1 class="title"><Icon name="magnet" class="icon" />{{ t("tracked.title") }}sss</h1>
+			<h1 class="title"><Icon name="magnet" class="icon" />{{ t("tracked.title") }}</h1>
 		</div>
 
 		<div class="content">
@@ -123,19 +123,20 @@ function selectUser(user: TwitchatDataTypes.TwitchatUser): void {
 
 function untrackUser(user: TwitchatDataTypes.TwitchatUser): void {
 	storeUsers.untrackUser(user);
-	onUpdateList();
 }
 
 const updateListHandler = (e: GlobalEvent) => onUpdateList();
 
 onBeforeMount(() => {
 	EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, updateListHandler);
+	EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, updateListHandler);
 	onUpdateList();
 	selectUser(trackedUsers.value[0]!);
 });
 
 onBeforeUnmount(() => {
 	EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, updateListHandler);
+	EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, updateListHandler);
 });
 
 async function refreshMessages(): Promise<void> {

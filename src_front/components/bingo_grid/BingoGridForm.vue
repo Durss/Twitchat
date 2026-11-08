@@ -126,6 +126,13 @@
 				</ParamItem>
 			</div>
 
+			<LimitCounter
+				v-if="editableGrids.length > 0"
+				:count="editableGrids.length"
+				:max="$config.MAX_BINGO_GRIDS"
+				:maxPremium="$config.MAX_BINGO_GRIDS_PREMIUM"
+			/>
+
 			<VueDraggable
 				class="gridList"
 				v-model="editableGrids"
@@ -457,6 +464,7 @@ import ToggleBlock from "../ToggleBlock.vue";
 import ToggleButton from "../ToggleButton.vue";
 import ChatMessage from "../messages/ChatMessage.vue";
 import ParamItem from "../params/ParamItem.vue";
+import LimitCounter from "../params/LimitCounter.vue";
 import PremiumLimitMessage from "../params/PremiumLimitMessage.vue";
 import ExtensionInstaller from "../params/contents/overlays/ExtensionInstaller.vue";
 import Overlay404 from "../params/contents/overlays/Overlay404.vue";

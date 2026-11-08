@@ -8,6 +8,7 @@
 		"premium_donor1": "You have lifetime Twitchat subscription",
 		"gifted": "You have been offered Premium membership",
 		"become_premiumBt": "Become premium",
+		"limit_counter_tt": "Up to {MAX_PREMIUM} with premium",
 		"restricted_access": "This feature requires premium membership",
 		"features_title": "Premium features",
 		"premium_only_tt": "Premium only",

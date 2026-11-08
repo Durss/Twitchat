@@ -11,6 +11,13 @@
 			:autoFocus="false"
 		/>
 
+		<LimitCounter
+			v-if="!search && quiz.questionList.length > 0"
+			:count="quiz.questionList.length"
+			:max="$config.MAX_QUESTIONS_PER_QUIZ"
+			:maxPremium="$config.MAX_QUESTIONS_PER_QUIZ_PREMIUM"
+		/>
+
 		<VueDraggable
 			class="questionList"
 			v-model="quiz.questionList"
@@ -163,6 +170,7 @@
 
 <script setup lang="ts">
 import SearchForm from "@/components/params/contents/SearchForm.vue";
+import LimitCounter from "@/components/params/LimitCounter.vue";
 import PremiumLimitMessage from "@/components/params/PremiumLimitMessage.vue";
 import TTButton from "@/components/TTButton.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";

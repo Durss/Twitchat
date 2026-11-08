@@ -64,6 +64,14 @@
 			</form>
 		</section>
 
+		<section class="limit" v-if="storeCounters.counterList.length > 0">
+			<LimitCounter
+				:count="storeCounters.counterList.length"
+				:max="Config.instance.MAX_COUNTERS"
+				:maxPremium="Config.instance.MAX_COUNTERS_PREMIUM"
+			/>
+		</section>
+
 		<draggable
 			class="entryList"
 			v-model="counterEntries"
@@ -343,6 +351,7 @@ import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import draggable from "vuedraggable";
+import LimitCounter from "../LimitCounter.vue";
 import ParamItem from "../ParamItem.vue";
 import PremiumLimitMessage from "../PremiumLimitMessage.vue";
 import type IParameterContent from "./IParameterContent";
@@ -1119,6 +1128,11 @@ defineExpose<IParameterContent>({ onNavigateBack });
 
 	.premiumLimit {
 		text-align: center;
+	}
+
+	.limit {
+		//Aligned with entries
+		width: calc(100% - 2em);
 	}
 
 	.entryList {

@@ -25,6 +25,13 @@
 
 			<ExtensionInstaller />
 
+			<LimitCounter
+				v-if="storeQuiz.quizList.length > 0"
+				:count="storeQuiz.quizList.length"
+				:max="$config.MAX_QUIZ"
+				:maxPremium="$config.MAX_QUIZ_PREMIUM"
+			/>
+
 			<VueDraggable
 				class="quizList"
 				v-model="storeQuiz.quizList"
@@ -162,6 +169,7 @@
 <script setup lang="ts">
 import ClearButton from "@/components/ClearButton.vue";
 import OverlayInstaller from "@/components/params/contents/overlays/OverlayInstaller.vue";
+import LimitCounter from "@/components/params/LimitCounter.vue";
 import ParamItem from "@/components/params/ParamItem.vue";
 import PremiumLimitMessage from "@/components/params/PremiumLimitMessage.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";

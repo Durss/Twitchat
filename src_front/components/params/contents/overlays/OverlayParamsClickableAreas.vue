@@ -35,6 +35,13 @@
 
 		<HeatDebug />
 
+		<LimitCounter
+			v-if="storeHeat.screenList.length > 0"
+			:count="storeHeat.screenList.length"
+			:max="$config.MAX_CUSTOM_HEAT_SCREENS"
+			:maxPremium="$config.MAX_CUSTOM_HEAT_SCREENS_PREMIUM"
+		/>
+
 		<VueDraggable
 			class="areaList"
 			v-model="storeHeat.screenList"
@@ -80,6 +87,7 @@ import { VueDraggable } from "vue-draggable-plus";
 import { useI18n } from "vue-i18n";
 import HeatDebug from "../heat/HeatDebug.vue";
 import HeatScreenEntry from "../heat/areas/HeatScreenEntry.vue";
+import LimitCounter from "../../LimitCounter.vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
 import Utils from "@/utils/Utils.js";
 import { toast } from "@/utils/toast/toast.js";

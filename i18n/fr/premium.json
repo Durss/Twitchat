@@ -8,6 +8,7 @@
 		"premium_donor1": "Vous possédez l'abonnement à vie de Twitchat",
 		"gifted": "L'abonnement premium vous a été offert",
 		"become_premiumBt": "Devenir premium",
+		"limit_counter_tt": "Jusqu'à {MAX_PREMIUM} avec premium",
 		"restricted_access": "Cette fonctionnalité nécessite d'être membre premium",
 		"features_title": "Fonctionnalités Premium",
 		"premium_only_tt": "Premium only",
