@@ -94,10 +94,7 @@ const customBadges = computed(() => {
 	const userBadges = storeUsers.customUserBadges[props.user.id];
 	if (!userBadges) return [];
 
-	let list = storeUsers.customBadgeList;
-	if (!storeAuth.isPremium) {
-		list = list.filter((v) => v.enabled !== false);
-	}
+	let list = storeUsers.customBadgeList.filter((v) => v.enabled !== false);
 	const res: TwitchatDataTypes.TwitchatCustomUserBadge[] = [];
 	for (const badge of userBadges) {
 		const badgeSource = list.find((v) => v.id == badge.id);

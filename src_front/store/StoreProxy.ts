@@ -2144,17 +2144,33 @@ export interface IUsersState {
 	} | null;
 	/**
 	 * Contains custom user names used for display on place of the actual username
-	 * Associates a user ID to a custom display name
+	 * Associates a user ID to a custom display name.
+	 * "login" and "displayName" are the user's actual names when the custom name
+	 * was set, used to display users that can't be loaded from their ID (non-Twitch)
 	 */
 	customUsernames: {
-		[uid: string]: { name: string; platform: TwitchatDataTypes.ChatPlatform; channel: string };
+		[uid: string]: {
+			name: string;
+			platform: TwitchatDataTypes.ChatPlatform;
+			channel: string;
+			login?: string;
+			displayName?: string;
+		};
 	};
 	/**
 	 * Contains custom user badges references.
-	 * Associates a user ID to custom badge ID from the customBadgeList array
+	 * Associates a user ID to custom badge ID from the customBadgeList array.
+	 * "login" and "displayName" are the user's actual names, used to display
+	 * users that can't be loaded from their ID (non-Twitch)
 	 */
 	customUserBadges: {
-		[uid: string]: { id: string; platform: TwitchatDataTypes.ChatPlatform; channel: string }[];
+		[uid: string]: {
+			id: string;
+			platform: TwitchatDataTypes.ChatPlatform;
+			channel: string;
+			login?: string;
+			displayName?: string;
+		}[];
 	};
 	/**
 	 * Contains custom user badges

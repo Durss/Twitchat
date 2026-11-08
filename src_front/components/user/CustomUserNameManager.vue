@@ -230,7 +230,7 @@ function refreshList(): void {
 	for (const uid in customUsernames) {
 		const u = customUsernames[uid]!;
 		itemList.value.push({
-			user: storeUsers.getUserFrom(u.platform, u.channel, uid),
+			user: storeUsers.getUserFrom(u.platform, u.channel, uid, u.login, u.displayName),
 			customName: u.name,
 		});
 	}

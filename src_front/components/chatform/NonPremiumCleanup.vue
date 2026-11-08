@@ -230,6 +230,7 @@
 							@click="deleteUserBadges(user)"
 						>
 							<div class="label">
+								<Icon :name="user.platform" />
 								<span class="username">{{ user.displayName }}</span>
 								<span
 									class="small"
@@ -688,8 +689,17 @@ const userBadges = computed<TwitchatDataTypes.TwitchatUser[]>(() => {
 	const customUserBadges = storeUsers.customUserBadges;
 	for (const uid in customUserBadges) {
 		const userBadges = customUserBadges[uid];
-		if (userBadges && userBadges?.length > 0) {
-			res.push(storeUsers.getUserFrom(userBadges[0]!.platform, userBadges[0]!.channel, uid));
+		const badge = userBadges?.[0];
+		if (badge) {
+			res.push(
+				storeUsers.getUserFrom(
+					badge.platform,
+					badge.channel,
+					uid,
+					badge.login,
+					badge.displayName,
+				),
+			);
 		}
 	}
 	return res;
@@ -697,9 +707,18 @@ const userBadges = computed<TwitchatDataTypes.TwitchatUser[]>(() => {
 
 const usernames = computed<TwitchatDataTypes.TwitchatUser[]>(() => {
 	const res: TwitchatDataTypes.TwitchatUser[] = [];
-	const user = storeUsers.customUsernames;
-	for (const uid in user) {
-		res.push(storeUsers.getUserFrom(user[uid]!.platform, user[uid]!.channel, uid));
+	const customUsernames = storeUsers.customUsernames;
+	for (const uid in customUsernames) {
+		const entry = customUsernames[uid]!;
+		res.push(
+			storeUsers.getUserFrom(
+				entry.platform,
+				entry.channel,
+				uid,
+				entry.login,
+				entry.displayName,
+			),
+		);
 	}
 	return res;
 });

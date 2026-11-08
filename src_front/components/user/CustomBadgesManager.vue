@@ -158,11 +158,13 @@
 								class="mini"
 							/>
 						</span>
+						<Icon :name="user.platform" class="platform" />
 						<span class="name">{{ user.displayName }}</span>
 						<TTButton icon="trash" transparent @click="removeAllBadgesFromUser(user)" />
 					</span>
 					<span class="card-item user" v-else>
 						<img :src="selectedBadge?.img" class="mini" />
+						<Icon :name="user.platform" class="platform" />
 						<span class="name">{{ user.displayName }}</span>
 						<TTButton
 							icon="trash"
@@ -289,12 +291,16 @@ onBeforeMount(() => {
 	const channelId = storeAuth.twitch.user.id;
 	userById.clear();
 	uids.forEach((id) => {
-		if (userBadges[id]!.length === 0) return;
-		userById.set(id, storeUsers.getUserFrom(userBadges[id]![0]!.platform, channelId, id));
+		const badge = userBadges[id]![0];
+		if (!badge) return;
+		userById.set(
+			id,
+			storeUsers.getUserFrom(badge.platform, channelId, id, badge.login, badge.displayName),
+		);
 	});
 	loading.value = false;
 
-	selectBadge(storeUsers.customBadgeList[0]!.id);
+	selectBadge(ALL_BADGES);
 });
 
 watch(
@@ -406,14 +412,17 @@ function removeAllBadgesFromUser(user: TwitchatDataTypes.TwitchatUser): void {
  */
 function giveBadgeToUser(user: TwitchDataTypes.UserInfo): void {
 	const channelId = storeAuth.twitch.user.id;
+	//Cached first so their names are saved along with the badge
+	const twitchatUser = storeUsers.getUserFrom(
+		"twitch",
+		channelId,
+		user.id,
+		user.login,
+		user.display_name,
+	);
 	if (!storeUsers.giveCustomBadge(user.id, "twitch", selectedBadgeId.value, channelId)) return;
 	//userById is only built on mount, register newcomers so they show up
-	if (!userById.has(user.id)) {
-		userById.set(
-			user.id,
-			storeUsers.getUserFrom("twitch", channelId, user.id, user.login, user.display_name),
-		);
-	}
+	if (!userById.has(user.id)) userById.set(user.id, twitchatUser);
 }
 
 /**
@@ -660,6 +669,9 @@ function saveBadges(): void {
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
+			}
+			.platform {
+				height: 1em;
 			}
 		}
 	}

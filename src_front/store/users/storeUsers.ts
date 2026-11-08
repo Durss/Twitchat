@@ -163,6 +163,28 @@ function getUserById(
 }
 
 /**
+ * Gets the actual names of a user so they can be saved along with their
+ * custom username or badges.
+ * Non-Twitch users can't be loaded from their ID, saved names are the only
+ * way to display them on next sessions.
+ * Unknown names are left out so they don't overwrite previously saved ones.
+ */
+function getUserNames(user: TwitchatDataTypes.TwitchatUser | undefined): {
+	login?: string;
+	displayName?: string;
+} {
+	const res: { login?: string; displayName?: string } = {};
+	//Temporary users may still have placeholder names
+	if (!user || user.temporary) return res;
+	const tmpName = StoreProxy.users.tmpDisplayName;
+	if (user.login && user.login != tmpName) res.login = user.login;
+	if (user.displayNameOriginal && user.displayNameOriginal != tmpName) {
+		res.displayName = user.displayNameOriginal;
+	}
+	return res;
+}
+
+/**
  * Gets if given channel is our own Twitch channel.
  */
 function isMyTwitchChannel(platform: TwitchatDataTypes.ChatPlatform, channelId: string): boolean {
@@ -532,6 +554,24 @@ export const storeUsers = defineStore("users", {
 				user = hashmaps.displayNameToUser[displayName];
 
 			const userExisted = user != undefined;
+
+			// make sure user doesn't remain in "...loading..." state if at some point
+			// this function is called with its complete info
+			if (
+				user &&
+				user.login == this.tmpDisplayName &&
+				login &&
+				login != this.tmpDisplayName
+			) {
+				user.login = login;
+				hashmaps.loginToUser[login] = user;
+				if (!user.displayNameOriginal || user.displayNameOriginal == this.tmpDisplayName) {
+					const name = displayName != this.tmpDisplayName ? displayName : undefined;
+					//Empty value makes the "displayName" getter fall back to the login
+					user.displayNameOriginal = name || "";
+					if (name) hashmaps.displayNameToUser[name] = user;
+				}
+			}
 
 			if (!user) {
 				//Create user if enough given info
@@ -1488,7 +1528,15 @@ export const storeUsers = defineStore("users", {
 					);
 					return false;
 				}
-				this.customUsernames[uid] = { name, platform, channel: channelId };
+				const cachedUser = typeof user === "string" ? getUserById(platform, uid) : user;
+				this.customUsernames[uid] = {
+					//Keeps previously saved names if user isn't cached anymore
+					...this.customUsernames[uid],
+					name,
+					platform,
+					channel: channelId,
+					...getUserNames(cachedUser),
+				};
 			}
 
 			this.saveCustomUsername();
@@ -1596,6 +1644,15 @@ export const storeUsers = defineStore("users", {
 					channel: channelId!,
 				});
 			}
+			//Saves names on all entries so whichever ends up first can display the user.
+			//Names from the first entry are kept if user isn't cached anymore.
+			const badges = this.customUserBadges[userId]!;
+			const names = {
+				login: badges[0]!.login,
+				displayName: badges[0]!.displayName,
+				...getUserNames(getUserById(platform, userId)),
+			};
+			for (const badge of badges) Object.assign(badge, names);
 			this.saveCustomBadges();
 			return true;
 		},
