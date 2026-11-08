@@ -1,11 +1,11 @@
 <template>
 	<div
 		class="triggerlistitem"
-		@click="selectMode !== false ? (selected = !selected) : null"
 		:class="{
 			deprecated: triggerTypeDef?.disabled === true,
 			disabled: entryData.trigger.enabled === false,
 		}"
+		@click="selectMode !== false ? (selected = !selected) : null"
 		@mouseenter="over = true"
 		@mouseleave="over = false"
 		v-newflag="{
@@ -20,6 +20,7 @@
 			v-tooltip="{
 				content: tooltipText,
 				placement: 'auto',
+				delay: [50, 0],
 				theme: triggerTypeDef?.disabled ? 'alert' : 'twitchat',
 			}"
 		>
@@ -39,13 +40,6 @@
 			<div class="label">
 				<span>{{ entryData.label }}</span>
 				<slot></slot>
-				<span
-					class="triggerId"
-					v-click2Select
-					v-if="storeMain.devmode && over && selectMode === false"
-					@click.stop=""
-					>{{
-				}}</span>
 			</div>
 		</button>
 
@@ -105,11 +99,7 @@
 
 <script setup lang="ts">
 import ToggleButton from "@/components/ToggleButton.vue";
-import {
-	TriggerSubTypeLabel,
-	TriggerTypeDefinitionFromType,
-	type TriggerTypeDefinition,
-} from "@/types/TriggerActionDataTypes";
+import { TriggerSubTypeLabel, TriggerTypeDefinitionFromType } from "@/types/TriggerActionDataTypes";
 import type { TriggerListEntry } from "./TriggerList.vue";
 import TriggerUtils from "@/utils/TriggerUtils";
 import { ref, watch } from "vue";
@@ -190,6 +180,8 @@ watch(
 	position: relative;
 	transition: background-color 0.1s;
 	overflow: hidden;
+	content-visibility: auto;
+	contain-intrinsic-height: auto 1.5em;
 
 	&:hover {
 		background-color: var(--background-color-fader);

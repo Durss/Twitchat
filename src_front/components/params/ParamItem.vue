@@ -17,7 +17,7 @@
 					:for="'custom' + key"
 					v-if="label"
 					v-html="label"
-					v-tooltip="{ content: tooltip, followCursor: 'horizontal' }"
+					v-tooltip="{ content: tooltip }"
 				></label>
 				<div><slot name="custom" :id="'custom' + key"></slot></div>
 			</div>
@@ -43,7 +43,7 @@
 					:for="'toggle' + key"
 					v-if="label"
 					v-html="label"
-					v-tooltip="{ content: tooltip, followCursor: 'horizontal' }"
+					v-tooltip="{ content: tooltip }"
 				></label>
 
 				<Icon class="loader" name="loader" v-if="loading" />

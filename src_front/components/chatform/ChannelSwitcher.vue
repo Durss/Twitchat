@@ -4,7 +4,6 @@
 			class="current"
 			v-if="currentChannel"
 			v-tooltip="{
-				touch: 'hold',
 				content:
 					channels.length == 1
 						? t('chat.form.connect_extra_chan')

@@ -10,7 +10,7 @@
 					loading="lazy"
 					:src="e.images.url_1x"
 					:alt="e.code"
-					@mouseover="openTooltip($event, e)"
+					v-tooltip="emoteTooltip(e)"
 					@click="emit('select', e)"
 				/>
 			</div>
@@ -35,7 +35,7 @@
 						loading="lazy"
 						:src="e.images.url_1x"
 						:alt="e.code"
-						@mouseover="openTooltip($event, e)"
+						v-tooltip="emoteTooltip(e)"
 						@click="emit('select', e)"
 					/>
 					<span
@@ -44,7 +44,7 @@
 						:key="e.emoji + e.shortcode"
 						:ref="e.emoji + e.shortcode"
 						:id="'emote_' + e.emoji + e.shortcode"
-						@mouseover="openTooltip($event, e)"
+						v-tooltip="emoteTooltip(e)"
 						@click="emit('select', e)"
 					>
 						<img
@@ -84,7 +84,7 @@
 						loading="lazy"
 						:src="e.images.url_1x"
 						:alt="e.code"
-						@mouseover="openTooltip($event, e)"
+						v-tooltip="emoteTooltip(e)"
 						@click="emit('select', e)"
 					/>
 				</div>
@@ -111,7 +111,7 @@
 							:key="e.emoji + e.shortcode"
 							:ref="e.emoji + e.shortcode"
 							:id="'emote_' + e.emoji + e.shortcode"
-							@mouseover="openTooltip($event, e)"
+							v-tooltip="emoteTooltip(e)"
 							@click="emit('select', e)"
 						>
 							<img
@@ -198,7 +198,6 @@ import {
 	watch,
 } from "vue";
 import { useI18n } from "vue-i18n";
-import { useTippy } from "vue-tippy";
 import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
 import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
@@ -245,7 +244,6 @@ const EMOJI_ITEM_SIZE = 36;
 const SEARCH_RESULTS_CAP = 200;
 
 const sectionHeights = new Map<string, number>();
-const tooltipCreated: { [key: string]: boolean } = {};
 const failedEmojiImages = reactive<Record<string, boolean>>({});
 let clickHandler!: (e: MouseEvent) => void;
 let listScrollHandler: (() => void) | null = null;
@@ -432,30 +430,25 @@ watch(
 );
 
 /**
- * Create tooltip only when hovering the image.
- * This avoids huge lag on build if creating tooltip on every items
- * at once.
+ * Tooltip content of an emote/emoji.
+ * v-tooltip displays all of them with a single shared tooltip, nothing is
+ * built per item.
  *
- * @param event
  * @param emote
  */
-function openTooltip(
-	event: MouseEvent,
-	emote: TwitchatDataTypes.Emote | TwitchatDataTypes.Emoji,
-): void {
-	const isEmote = "id" in emote;
-	const code = isEmote ? emote.id + emote.code : emote.shortcode;
-	if (tooltipCreated[code] === true) return;
-	tooltipCreated[code] = true;
-	useTippy(event.currentTarget as HTMLImageElement, {
-		content: isEmote
-			? "<img src=" +
-				emote.images.url_4x +
-				' width="112" class="emote"><br><center>' +
-				emote.code +
-				"</center>"
-			: emote.shortcode.replace(/_/g, " "),
-	});
+function emoteTooltip(emote: TwitchatDataTypes.Emote | TwitchatDataTypes.Emoji): string {
+	if ("id" in emote) {
+		// Fixed size so the tooltip is displayed at its final size right away
+		// instead of growing once the image is loaded
+		return (
+			"<img src=" +
+			emote.images.url_4x +
+			' width="112" height="112" style="object-fit: contain" class="emote"><br><center>' +
+			emote.code +
+			"</center>"
+		);
+	}
+	return emote.shortcode.replace(/_/g, " ");
 }
 
 /**

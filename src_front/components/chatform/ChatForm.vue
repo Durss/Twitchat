@@ -36,7 +36,6 @@
 								: () => {}
 						"
 						v-tooltip="{
-							touch: 'hold',
 							content:
 								element.item.id == 'chatters' &&
 								storeParams.appearance.showViewersCount.value === true
@@ -63,7 +62,7 @@
 					:aria-label="t('chat.form.addPinBt_aria')"
 					class="addPinBt"
 					icon="add"
-					v-tooltip="{ touch: 'hold', content: t('chat.form.addPinBt_aria') }"
+					v-tooltip="{ content: t('chat.form.addPinBt_aria') }"
 					@click="emit('update:showPins', true)"
 				/>
 			</div>
@@ -233,7 +232,6 @@
 						icon="shoutout"
 						:count="pendingShoutoutCount"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.shoutoutBt_aria'),
 							showOnCreate: true,
 							onHidden: () => onHideTooltip('shoutout'),
@@ -248,7 +246,6 @@
 						:aria-label="t('chat.form.pollBt_aria')"
 						icon="poll"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.pollBt_aria'),
 							showOnCreate: shouldShowTooltip('poll'),
 							onHidden: () => onHideTooltip('poll'),
@@ -263,7 +260,6 @@
 						:aria-label="t('chat.form.chatPollBt_aria')"
 						icon="chatPoll"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.chatPollBt_aria'),
 							showOnCreate: shouldShowTooltip('chatPoll'),
 							onHidden: () => onHideTooltip('chatPoll'),
@@ -278,7 +274,6 @@
 						:aria-label="t('chat.form.predictionBt_aria')"
 						icon="prediction"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.predictionBt_aria'),
 							showOnCreate: shouldShowTooltip('prediction'),
 							onHidden: () => onHideTooltip('prediction'),
@@ -293,7 +288,6 @@
 						:aria-label="t('chat.form.trainBt_aria')"
 						icon="train"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.trainBt_aria'),
 							showOnCreate: shouldShowTooltip('train'),
 							onHidden: () => onHideTooltip('train'),
@@ -309,7 +303,6 @@
 						icon="magnet"
 						v-if="trackedUserCount > 0"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.trackedBt_aria'),
 							showOnCreate: shouldShowTooltip('tracked'),
 							onHidden: () => onHideTooltip('tracked'),
@@ -325,7 +318,6 @@
 						icon="ticket"
 						:count="raffleEntryCount"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.raffleBt_aria'),
 							showOnCreate: shouldShowTooltip('raffle'),
 							onHidden: () => onHideTooltip('raffle'),
@@ -343,7 +335,6 @@
 						icon="bingo"
 						v-if="storeBingo.data"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.bingoBt_aria'),
 							showOnCreate: shouldShowTooltip('bingo'),
 							onHidden: () => onHideTooltip('bingo'),
@@ -358,7 +349,6 @@
 						icon="chatSugg"
 						:count="storeChatSuggestion.data?.choices.length"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.suggBt_aria'),
 							showOnCreate: shouldShowTooltip('chatsuggState'),
 							onHidden: () => onHideTooltip('chatsuggState'),
@@ -374,7 +364,7 @@
 						icon="whispers"
 						:count="storeChat.whispersUnreadCount"
 						v-if="whispersAvailable"
-						v-tooltip="{ touch: 'hold', content: t('chat.form.whispersBt_aria') }"
+						v-tooltip="{ content: t('chat.form.whispersBt_aria') }"
 						@click="openModal('whispers')"
 					/>
 				</transition>
@@ -384,7 +374,7 @@
 						:aria-label="t('chat.form.raidBt_aria')"
 						icon="raid"
 						v-if="storeStream.currentRaid != null"
-						v-tooltip="{ touch: 'hold', content: t('chat.form.raidBt_aria') }"
+						v-tooltip="{ content: t('chat.form.raidBt_aria') }"
 						@click="openNotifications('raid')"
 					>
 						<span class="time">{{ remainingRaidTime }}</span>
@@ -398,7 +388,6 @@
 						v-if="storeChat.savedMessages.length > 0"
 						:count="storeChat.savedMessages.length"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.saveBt_aria'),
 							showOnCreate: shouldShowTooltip('save'),
 							onHidden: () => onHideTooltip('save'),
@@ -424,7 +413,6 @@
 						class="chatHighlight"
 						icon="highlight"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.highlightBt_aria'),
 							showOnCreate: shouldShowTooltip('highlight'),
 							onHidden: () => onHideTooltip('highlight'),
@@ -483,7 +471,7 @@
 						icon="qna"
 						v-if="qnaSessionActive"
 						:aria-label="t('chat.form.qnaBt_aria')"
-						v-tooltip="{ touch: 'hold', content: t('chat.form.qnaBt_aria') }"
+						v-tooltip="{ content: t('chat.form.qnaBt_aria') }"
 						@click="openModal('qna')"
 					/>
 				</transition>
@@ -494,7 +482,7 @@
 						icon="credits"
 						v-if="creditsOverlayRunning"
 						:aria-label="t('chat.form.creditsBt_aria')"
-						v-tooltip="{ touch: 'hold', content: t('chat.form.creditsBt_aria') }"
+						v-tooltip="{ content: t('chat.form.creditsBt_aria') }"
 						@click="emit('update:showCredits', true)"
 						@click.ctrl="creditsOverlayRunning = false"
 					/>
@@ -506,7 +494,7 @@
 						icon="bingo_grid"
 						v-if="storeBingoGrid.gridList.filter((v) => v.enabled).length > 0"
 						:aria-label="t('chat.form.bingoGridBt_aria')"
-						v-tooltip="{ touch: 'hold', content: t('chat.form.bingoGridBt_aria') }"
+						v-tooltip="{ content: t('chat.form.bingoGridBt_aria') }"
 						@click="emit('update:showBingoGrid', true)"
 					/>
 				</transition>
@@ -521,7 +509,7 @@
 								.length > 0
 						"
 						:aria-label="t('chat.form.quizBt_aria')"
-						v-tooltip="{ touch: 'hold', content: t('chat.form.quizBt_aria') }"
+						v-tooltip="{ content: t('chat.form.quizBt_aria') }"
 						@click="openNotifications('quiz')"
 					/>
 				</transition>
@@ -533,7 +521,7 @@
 						v-if="pinnedMessagesCount > 0"
 						:count="pinnedMessagesCount > 1 ? pinnedMessagesCount : undefined"
 						:aria-label="t('chat.form.pinBt_aria')"
-						v-tooltip="{ touch: 'hold', content: t('chat.form.pinBt_aria') }"
+						v-tooltip="{ content: t('chat.form.pinBt_aria') }"
 						@click="emit('update:showPinnedMessage', true)"
 					/>
 				</transition>
@@ -548,7 +536,7 @@
 							storeGroq.answerHistory.length > 0
 						"
 						:aria-label="t('chat.form.groqBt_aria')"
-						v-tooltip="{ touch: 'hold', content: t('chat.form.groqBt_aria') }"
+						v-tooltip="{ content: t('chat.form.groqBt_aria') }"
 						@click="openModal('groqHistory')"
 					/>
 				</transition>
@@ -564,7 +552,6 @@
 								: t('chat.form.voicebot_startBt_aria')
 						"
 						v-tooltip="{
-							touch: 'hold',
 							content: voiceBotStarted
 								? t('chat.form.voicebot_stopBt_aria')
 								: t('chat.form.voicebot_startBt_aria'),
@@ -579,7 +566,6 @@
 						name="spotify"
 						v-if="storeMusic.spotifyConsecutiveErrors > 5"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.spotify_down'),
 							showOnCreate: true,
 							hideOnClick: 'toggle',
@@ -593,7 +579,6 @@
 						name="spotify"
 						v-if="spotifyRateLimited"
 						v-tooltip="{
-							touch: 'hold',
 							content: t('chat.form.spotify_rate_limited', {
 								DURATION: spotifyRateLimitedDurationFormated,
 							}),
@@ -617,7 +602,6 @@
 					icon="obs"
 					class="error"
 					v-tooltip="{
-						touch: 'hold',
 						content: t('chat.form.obs_disconnected_tt'),
 						showOnCreate: true,
 					}"
@@ -627,7 +611,6 @@
 				<ButtonNotification
 					v-if="showGazaBtn"
 					v-tooltip="{
-						touch: 'hold',
 						content: t('gaza.tooltip'),
 						showOnCreate: shouldShowTooltip('gaza'),
 						onHidden: () => onHideTooltip('gaza'),
@@ -649,7 +632,6 @@
 								: t('chat.form.emergency_startBt_aria')
 						"
 						v-tooltip="{
-							touch: 'hold',
 							content: storeEmergency.emergencyStarted
 								? t('chat.form.emergency_stopBt_aria')
 								: t('chat.form.emergency_startBt_aria'),
@@ -669,7 +651,6 @@
 					secondary
 					v-if="storeTTS.speaking"
 					v-tooltip="{
-						touch: 'hold',
 						content: t('chat.form.muteTTSBt_aria'),
 						placement: 'left',
 					}"
@@ -685,7 +666,6 @@
 					secondary
 					v-if="storeTTS.speaking"
 					v-tooltip="{
-						touch: 'hold',
 						content: t('chat.form.clearTTSBt_aria'),
 						placement: 'left',
 					}"
@@ -702,7 +682,6 @@
 						storeVoice.voicemodParams.voiceIndicator && storeVoice.voicemodCurrentVoice
 					"
 					v-tooltip="{
-						touch: 'hold',
 						content: t('chat.form.resetVoiceBt_aria'),
 						placement: 'left',
 					}"

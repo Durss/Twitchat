@@ -134,8 +134,7 @@
 				@duplicate="$emit('duplicate', $event, folder)"
 				@testTrigger="$emit('testTrigger', $event)"
 				@select="$emit('select', $event)"
-			>
-			</TriggerListItem>
+			/>
 		</template>
 	</draggable>
 </template>
