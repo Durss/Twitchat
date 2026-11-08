@@ -19,11 +19,7 @@
 					/>
 				</div>
 
-				<SearchForm
-					ref="searchFieldEl"
-					class="search"
-					v-model="storeParams.currentParamSearch"
-				/>
+				<SearchForm class="search" v-model="storeParams.currentParamSearch" />
 			</div>
 
 			<div class="scrollable">
@@ -209,7 +205,6 @@
 				id="paramContentScrollableHolder"
 			>
 				<SearchForm
-					ref="searchFieldEl"
 					class="search"
 					v-model="storeParams.currentParamSearch"
 					v-if="
@@ -336,6 +331,7 @@ import ParamsTwitchatAd from "./contents/ParamsTwitchatAd.vue";
 import ParamsValues from "./contents/ParamsValues.vue";
 import ParamsVoiceBot from "./contents/ParamsVoiceBot.vue";
 import SearchForm from "./contents/SearchForm.vue";
+import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 interface MenuEntry {
 	pinned: boolean;
@@ -357,7 +353,6 @@ const storeAuth = useStoreAuth();
 const storeParams = useStoreParams();
 
 const rootEl = useTemplateRef("rootEl");
-const searchFieldEl = useTemplateRef("searchFieldEl");
 const currentContent = useTemplateRef<IParameterContent>("currentContent");
 
 const closed = ref(true);
@@ -368,6 +363,12 @@ const pinnedMenuEntries = ref<MenuEntry[]>([]);
 const unpinnedMenuEntries = ref<MenuEntry[]>([]);
 const newFlagMoreParams = ref<{ id: string; date: number } | null>(null);
 const ParameterPages = TwitchatDataTypes.ParameterPages;
+
+useCloseOnEscape(
+	() => close(),
+	undefined,
+	() => !closed.value,
+);
 
 const button_donate: MenuEntry = {
 	pinned: true,
@@ -387,10 +388,7 @@ const button_premium: MenuEntry = {
 };
 
 let closing = false;
-let keydownCaptureTarget: Element | null = null;
 let history: TwitchatDataTypes.ParameterPagesStringType[] = [];
-let keyDownHandler: (e: KeyboardEvent) => void;
-let keyDownCaptureHandler: (e: KeyboardEvent) => void;
 
 const menuEntries: MenuEntry[] = [
 	{
@@ -569,17 +567,7 @@ onMounted(async () => {
 		open();
 	}
 
-	keyDownHandler = (e: KeyboardEvent) => onKeyDown(e);
-	keyDownCaptureHandler = (e: KeyboardEvent) => onKeyDown(e, true);
-	document.addEventListener("keydown", keyDownHandler);
-	document.addEventListener("keydown", keyDownCaptureHandler, { capture: true });
-
 	showNewFlagOnPin.value = rootEl.value!.querySelectorAll(".menuItem.newFlag").length > 0;
-});
-
-onBeforeUnmount(() => {
-	document.removeEventListener("keydown", keyDownHandler);
-	document.removeEventListener("keydown", keyDownCaptureHandler, { capture: true });
 });
 
 watch(
@@ -748,47 +736,6 @@ function onEditMenu(): void {
 			}),
 		);
 	DataStore.set(DataStore.PARAMS_SECTIONS, sections);
-}
-
-/**
- * Closes the window on escape if the focus isn't on an input.
- * The "keydownCaptureTarget" is here to store the currently focused
- * element with "capture" flag so it's called before the browser
- * natively removes focus from the field.
- *
- * This avoids a tricky situation when user is writing on a field
- * and presses escape key. If we were listening to the keydown event
- * without the capture flag, the browser would first remove the focus
- * from the field, then call this function and the "activeElement"
- * wouldn't be the field anymore.
- * To avoid that, we listen to the keyDown event with capture flag
- * so it's called before the field loses focus.
- * BUT, if we were only doing this, a child component wouldn't be
- * able to stop the escape key propagation (ex: the heat screen editor)
- * so the window wouldn't close if other things than just input
- * elements had focus.
- * The heat editor allows to drag areas and unselect them with the
- * escape key. This cannot generically be handle here, the event
- * needs to be stoped from the editor itself.
- *
- * This is why we only register the focused element on capture and
- * use it on a non-capture event. This fixes both above situations.
- *
- * @param e
- * @param isCapture
- */
-function onKeyDown(e: KeyboardEvent, isCapture: boolean = false): void {
-	if (closed.value || e.repeat) return;
-	if (isCapture) {
-		keydownCaptureTarget = document.activeElement;
-		return;
-	}
-	if (
-		e.key?.toLowerCase() == "escape" &&
-		!Utils.blurFocusedTextField(keydownCaptureTarget ?? document.activeElement)
-	) {
-		close();
-	}
 }
 </script>
 

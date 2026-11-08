@@ -111,7 +111,6 @@ const storeAuth = useStoreAuth();
 const storeChat = useStoreChat();
 const storeStream = useStoreStream();
 const popin = useTemplateRef("popin");
-useCloseOnEscape(() => close());
 
 const expand = ref(false);
 const activeMode = ref<IChatState["messageMode"]>("message");
@@ -122,6 +121,7 @@ const modeToIcon: { [key in IChatState["messageMode"]]: string } = {
 	question: "question",
 	message: "whispers",
 };
+useCloseOnEscape(() => close(), undefined, expand);
 
 let clickHandler!: (e: MouseEvent) => void;
 

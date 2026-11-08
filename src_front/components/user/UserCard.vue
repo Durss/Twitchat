@@ -627,7 +627,13 @@ const rootEl = useTemplateRef("rootEl");
 const customUsernameRef = useTemplateRef("customUsername");
 const userIDRef = useTemplateRef("userID");
 
-const { open: openPanel, close: closePanel } = useSidePanel(rootEl, emit, true, closeCard);
+const { open: openPanel, close: closePanel } = useSidePanel(
+	rootEl,
+	emit,
+	true,
+	closeCard,
+	() => user.value != null,
+);
 
 const error = ref(false);
 const loading = ref(true);

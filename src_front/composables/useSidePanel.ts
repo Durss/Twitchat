@@ -1,5 +1,12 @@
 import { gsap } from "gsap";
-import { onMounted, onBeforeUnmount, type Ref } from "vue";
+import {
+	onMounted,
+	onBeforeUnmount,
+	type Ref,
+	getCurrentInstance,
+	type MaybeRefOrGetter,
+	toValue,
+} from "vue";
 import Utils from "@/utils/Utils";
 
 /**
@@ -15,11 +22,14 @@ export function useSidePanel(
 	emit: (event: "close") => void,
 	autoAnimateOpen = true,
 	closeCallback?: () => void,
+	enabled: MaybeRefOrGetter<boolean> = true,
 ) {
 	let closed = true;
+	const instance = getCurrentInstance();
+	const componentName = instance?.type.name ?? instance?.type.__name;
 
 	function onKeyDown(e: KeyboardEvent): void {
-		if (closed || e.repeat) return;
+		if (closed || e.repeat || e.defaultPrevented || !toValue(enabled)) return;
 		if (e.key?.toLowerCase() == "escape" && !Utils.blurFocusedTextField(e.target)) {
 			void close();
 		}

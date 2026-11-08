@@ -171,7 +171,6 @@ const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeStream = useStoreStream();
 const storeUsers = useStoreUsers();
-useCloseOnEscape(() => close());
 
 const expand = ref<boolean>(false);
 const showForm = ref<boolean>(false);
@@ -182,6 +181,7 @@ const liveFollingList = ref<TwitchDataTypes.UserInfo[]>([]);
 const liveStates = ref<{ [uid: string]: boolean }>({});
 
 const popin = useTemplateRef<HTMLDivElement>("popin");
+useCloseOnEscape(() => close(), undefined, expand);
 
 let clickHandler!: (e: MouseEvent) => void;
 const pinnedUsers = ref<{ [key: string]: TwitchatDataTypes.TwitchatUser }>({});
