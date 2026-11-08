@@ -2406,8 +2406,9 @@ export interface IUsersActions {
 	 * Start track a user's messages
 	 * All their messages will be highlighted on chat
 	 * @param user
+	 * @param duration_ms automatically untrack the user after this duration.
 	 */
-	trackUser(user: TwitchatDataTypes.TwitchatUser): void;
+	trackUser(user: TwitchatDataTypes.TwitchatUser, duration_ms?: number): void;
 	/**
 	 * Stop tracking a user's message
 	 * @param user

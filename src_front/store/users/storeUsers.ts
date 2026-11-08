@@ -51,6 +51,106 @@ const USER_CACHE_CLEANUP_INTERVAL = 5 * 60_000;
 // last date a user has been accessed at
 const userToLastActivity = new WeakMap<TwitchatDataTypes.TwitchatUser, number>();
 let lastUserCacheCleanupDate = 0;
+// max tracked users count, oldest ones are untracked past this limit
+const TRACKED_USERS_MAX = 500;
+
+/**
+ * Tracked user as persisted on storage
+ */
+interface StoredTrackedUser {
+	id: string;
+	platform: TwitchatDataTypes.ChatPlatform;
+	login: string;
+	displayName: string;
+	/**
+	 * Date at which the user is automatically untracked.
+	 */
+	expiresAt?: number;
+}
+
+// tracked users, ordered from oldest to most recently tracked
+const trackedUsers = new Map<
+	TwitchatDataTypes.TwitchatUser,
+	{ expiresAt: number; timeout: number }
+>();
+
+/**
+ * Untracks a user once their tracking expires
+ */
+function scheduleUntrack(user: TwitchatDataTypes.TwitchatUser, expiresAt: number): number {
+	return window.setTimeout(
+		() => {
+			const entry = trackedUsers.get(user);
+			if (!entry) return;
+			if (Date.now() < entry.expiresAt) {
+				entry.timeout = scheduleUntrack(user, entry.expiresAt);
+			} else {
+				StoreProxy.users.untrackUser(user);
+			}
+		},
+		Math.min(expiresAt - Date.now(), 2147483647),
+	);
+}
+
+/**
+ * Flags a user as tracked.
+ * If a duration is given, the user is automatically untracked once it elapses.
+ *
+ * @returns false if nothing changed
+ */
+function addTrackedUser(user: TwitchatDataTypes.TwitchatUser, duration_ms?: number): boolean {
+	const entry = trackedUsers.get(user);
+	// never downgrade a permanent tracking to a temporary one
+	if (entry && entry.expiresAt === 0 && duration_ms != undefined) return false;
+	if (entry) clearTimeout(entry.timeout);
+	// delete before setting to move the user at the end of the list
+	trackedUsers.delete(user);
+	const expiresAt = duration_ms == undefined ? 0 : Date.now() + duration_ms;
+	trackedUsers.set(user, {
+		expiresAt,
+		timeout: expiresAt == 0 ? -1 : scheduleUntrack(user, expiresAt),
+	});
+	user.is_tracked = true;
+	return true;
+}
+
+/**
+ * Unflags a user as tracked
+ */
+function removeTrackedUser(user: TwitchatDataTypes.TwitchatUser): void {
+	const entry = trackedUsers.get(user);
+	if (entry) clearTimeout(entry.timeout);
+	trackedUsers.delete(user);
+	user.is_tracked = false;
+	EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.UNTRACK_USER, user));
+}
+
+/**
+ * Untracks the oldest tracked users if above limit
+ */
+function limitTrackedUsers(): void {
+	for (const user of trackedUsers.keys()) {
+		if (trackedUsers.size <= TRACKED_USERS_MAX) break;
+		removeTrackedUser(user);
+	}
+}
+
+function saveTrackedUsers(): void {
+	const list: StoredTrackedUser[] = [];
+	for (const [user, entry] of trackedUsers) {
+		// ID may not be the actual one yet, the user is saved once loaded
+		if (user.temporary) continue;
+		const item: StoredTrackedUser = {
+			id: user.id,
+			platform: user.platform,
+			login: user.login,
+			displayName: user.displayNameOriginal,
+		};
+		if (entry.expiresAt > 0) item.expiresAt = entry.expiresAt;
+		list.push(item);
+	}
+	void DataStore.set(DataStore.TRACKED_USERS, list);
+}
 
 /**
  * Gets a user from their ID via the hashmaps for fast accesses.
@@ -329,6 +429,46 @@ export const storeUsers = defineStore("users", {
 			if (customBadgeListParams) {
 				this.customBadgeList = JSON.parse(customBadgeListParams);
 				this.setTriggerPlaceholders();
+			}
+
+			//Init tracked users
+			const trackedUsersParams = DataStore.get(DataStore.TRACKED_USERS);
+			if (trackedUsersParams) {
+				let list: StoredTrackedUser[] = [];
+				try {
+					const json = JSON.parse(trackedUsersParams);
+					if (Array.isArray(json)) list = json;
+				} catch (_error) {
+					/*ignore*/
+				}
+				const now = Date.now();
+				let changed = false;
+				let restoredCount = 0;
+				for (const entry of list.slice(-TRACKED_USERS_MAX)) {
+					//Ignore invalid entries and unknown platforms
+					if (!entry?.id || !this.knownBots[entry.platform]) continue;
+					const duration_ms = entry.expiresAt ? entry.expiresAt - now : undefined;
+					if (duration_ms != undefined && duration_ms <= 0) continue;
+					const user = this.getUserFrom(
+						entry.platform,
+						undefined,
+						entry.id,
+						entry.login || undefined,
+						entry.displayName || undefined,
+						undefined,
+						undefined,
+						undefined,
+						undefined,
+						false,
+					);
+					if (addTrackedUser(user, duration_ms)) changed = true;
+					restoredCount++;
+				}
+				//Single event to avoid refreshing the message lists for every user
+				if (changed)
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.TRACK_USER));
+				//Drop expired and invalid entries from storage
+				if (restoredCount !== list.length) saveTrackedUsers();
 			}
 		},
 		/**
@@ -1161,14 +1301,19 @@ export const storeUsers = defineStore("users", {
 			}
 		},
 
-		trackUser(user: TwitchatDataTypes.TwitchatUser): void {
-			user.is_tracked = true;
+		trackUser(user: TwitchatDataTypes.TwitchatUser, duration_ms?: number): void {
+			if (!addTrackedUser(user, duration_ms)) return;
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.TRACK_USER, user));
+			limitTrackedUsers();
+			saveTrackedUsers();
+			//Temporary users are skipped from save until their actual ID is known
+			if (user.temporary) void this.waitUserLoaded(user).then(() => saveTrackedUsers());
 		},
 
 		untrackUser(user: TwitchatDataTypes.TwitchatUser): void {
-			user.is_tracked = false;
-			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.UNTRACK_USER, user));
+			const wasTracked = trackedUsers.has(user);
+			removeTrackedUser(user);
+			if (wasTracked) saveTrackedUsers();
 		},
 
 		async shoutout(

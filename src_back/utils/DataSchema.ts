@@ -1763,6 +1763,22 @@ const UserDataSchema = {
 				},
 			},
 		},
+		trackedUsers: {
+			type: "array",
+			minItems: 0,
+			maxItems: 500,
+			items: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					id: { type: "string", maxLength: 100 },
+					platform: { type: "string", maxLength: 30 },
+					login: { type: "string", maxLength: 100 },
+					displayName: { type: "string", maxLength: 100 },
+					expiresAt: { type: "integer", minimum: 0, maximum: 9999999999999 },
+				},
+			},
+		},
 		customBadgeList: {
 			type: "array",
 			minItems: 0,

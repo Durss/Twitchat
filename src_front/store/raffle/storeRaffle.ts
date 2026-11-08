@@ -232,11 +232,8 @@ export const storeRaffle = defineStore("raffle", {
 								undefined,
 								false,
 							);
-							StoreProxy.users.trackUser(user);
-							window.setTimeout(
-								() => {
-									StoreProxy.users.untrackUser(user);
-								},
+							StoreProxy.users.trackUser(
+								user,
 								((StoreProxy.params.features.raffleHighlightUserDuration
 									.value as number) ?? 0) *
 									1000 *

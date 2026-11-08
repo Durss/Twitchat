@@ -2131,27 +2131,20 @@ export const storeChat = defineStore("chat", {
 							StoreProxy.labels.updateLabelValue("RAID_COUNT", message.viewers);
 						}
 						message.user.channelInfo[message.channel_id]!.is_raider = true;
+						const raidHighlightDuration_ms =
+							((sParams.appearance.raidHighlightUserDuration.value as number) ?? 0) *
+							1000 *
+							60;
 						if (
 							sParams.appearance.raidHighlightUser.value &&
 							sParams.appearance.raidHighlightUserTrack.value === true
 						) {
-							StoreProxy.users.trackUser(message.user);
+							StoreProxy.users.trackUser(message.user, raidHighlightDuration_ms);
 						}
-						window.setTimeout(
-							() => {
-								const localMess = message as TwitchatDataTypes.MessageRaidData;
-								localMess.user.channelInfo[localMess.channel_id]!.is_raider = false;
-								if (
-									sParams.appearance.raidHighlightUser.value &&
-									sParams.appearance.raidHighlightUserTrack.value === true
-								) {
-									StoreProxy.users.untrackUser(localMess.user);
-								}
-							},
-							((sParams.appearance.raidHighlightUserDuration.value as number) ?? 0) *
-								1000 *
-								60,
-						);
+						window.setTimeout(() => {
+							const localMess = message as TwitchatDataTypes.MessageRaidData;
+							localMess.user.channelInfo[localMess.channel_id]!.is_raider = false;
+						}, raidHighlightDuration_ms);
 
 						PublicAPI.instance.broadcastGlobalStates();
 

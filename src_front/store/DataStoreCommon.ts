@@ -75,6 +75,7 @@ export default class DataStoreCommon {
 	public static CUSTOM_USERNAMES: string = "customUsernames";
 	public static CUSTOM_BADGE_LIST: string = "customBadgeList";
 	public static CUSTOM_USER_BADGES: string = "customUserBadges";
+	public static TRACKED_USERS: string = "trackedUsers";
 	public static ANNOUNCEMENTS_READ: string = "announcementsRead";
 	public static NEW_FLAGS: string = "newFlags";
 	public static GOXLR_CONFIG: string = "goxlrConfig";
