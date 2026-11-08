@@ -1,7 +1,8 @@
 <template>
 	<div
 		class="chattiktoklike chatMessage highlight"
-		@contextmenu="onContextMenu($event, messageData, $el)"
+		ref="rootEl"
+		@contextmenu="onContextMenu($event, props.messageData, rootEl!)"
 	>
 		<Icon name="likes" alt="follow" class="icon" />
 		<Icon name="tiktok" alt="tiktok" class="icon" />
@@ -10,47 +11,41 @@
 			<template #USER>
 				<a
 					class="userlink"
-					:href="getProfilePage(messageData.user)"
+					:href="getProfilePage(props.messageData.user)"
 					target="_blank"
 					@click.prevent="
-						openUserCard(messageData.user, messageData.channel_id, messageData.platform)
+						openUserCard(
+							props.messageData.user,
+							props.messageData.channel_id,
+							props.messageData.platform,
+						)
 					"
-					>{{ messageData.user.displayName }}</a
+					>{{ props.messageData.user.displayName }}</a
 				>
 			</template>
 			<template #COUNT>
-				<strong>{{ messageData.count }}</strong>
+				<strong>{{ props.messageData.count }}</strong>
 			</template>
 		</i18n-t>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { Component, Prop, toNative } from "vue-facing-decorator";
+import { useTemplateRef } from "vue";
 import Icon from "../Icon.vue";
-import AbstractChatMessage from "./AbstractChatMessage";
 
-@Component({
-	components: {
-		Icon,
-	},
-	emits: [],
-})
-class ChatTikTokLike extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageTikTokLikeData;
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageTikTokLikeData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
+}>();
 
-	@Prop
-	declare childrenList: TwitchatDataTypes.MessageTikTokLikeData[];
+const emit = defineEmits<{ onRead: [] }>();
 
-	@Prop({ type: Boolean, default: false })
-	declare lightMode: boolean;
-
-	@Prop({ type: Number, default: 0 })
-	public colIndex!: number;
-}
-export default toNative(ChatTikTokLike);
+const rootEl = useTemplateRef("rootEl");
+const { openUserCard, onContextMenu, getProfilePage } = useChatMessage(props, emit, rootEl);
 </script>
 
 <style scoped lang="less">
