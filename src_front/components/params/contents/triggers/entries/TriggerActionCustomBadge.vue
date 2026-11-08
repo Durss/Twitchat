@@ -1,16 +1,16 @@
 <template>
 	<div class="triggeractioncustombadge triggerActionForm">
-		<ParamItem :paramData="param_userSource" v-model="action.customBadgeUserSource" />
+		<ParamItem :paramData="param_userSource" v-model="props.action.customBadgeUserSource" />
 
 		<div class="card-item">
-			<div class="list" v-if="$store.users.customBadgeList.length > 0">
+			<div class="list" v-if="storeUsers.customBadgeList.length > 0">
 				<CustomBadgeSelector
 					noTooltip
-					v-tooltip="$t('triggers.actions.customBadge.param_add_badgeBt')"
+					v-tooltip="t('triggers.actions.customBadge.param_add_badgeBt')"
 				/>
 				<draggable
 					class="group"
-					v-model="$store.users.customBadgeList"
+					v-model="storeUsers.customBadgeList"
 					:group="{ name: 'badge', pull: 'clone', put: false }"
 					item-key="id"
 					ghost-class="ghost"
@@ -35,7 +35,7 @@
 			<div class="list" v-else>
 				<CustomBadgeSelector
 					noTooltip
-					v-tooltip="$t('triggers.actions.customBadge.param_add_badgeBt')"
+					v-tooltip="t('triggers.actions.customBadge.param_add_badgeBt')"
 				/>
 			</div>
 
@@ -43,11 +43,11 @@
 				<div class="col">
 					<div class="head">
 						<Icon name="cross" theme="alert" />
-						<span>{{ $t("triggers.actions.customBadge.badge_to_del") }}</span>
+						<span>{{ t("triggers.actions.customBadge.badge_to_del") }}</span>
 					</div>
 					<div class="dropZone">
 						<div class="placeholder" v-if="badgesDel.length == 0">
-							{{ $t("triggers.actions.customBadge.no_badge") }}
+							{{ t("triggers.actions.customBadge.no_badge") }}
 						</div>
 						<draggable
 							class="group"
@@ -68,7 +68,7 @@
 									index: number;
 								}"
 							>
-								<button class="badge" @click="badgesDel.splice(index, 1)">
+								<button class="badge" @click="removeBadge(badgesDel, index)">
 									<img :src="element.img" />
 								</button>
 							</template>
@@ -79,11 +79,11 @@
 				<div class="col">
 					<div class="head">
 						<Icon name="add" />
-						<span>{{ $t("triggers.actions.customBadge.badge_to_add") }}</span>
+						<span>{{ t("triggers.actions.customBadge.badge_to_add") }}</span>
 					</div>
 					<div class="dropZone">
 						<div class="placeholder" v-if="badgesAdd.length == 0">
-							{{ $t("triggers.actions.customBadge.no_badge") }}
+							{{ t("triggers.actions.customBadge.no_badge") }}
 						</div>
 						<draggable
 							class="group"
@@ -104,7 +104,7 @@
 									index: number;
 								}"
 							>
-								<button class="badge" @click="badgesAdd.splice(index, 1)">
+								<button class="badge" @click="removeBadge(badgesAdd, index)">
 									<img :src="element.img" />
 								</button>
 							</template>
@@ -116,10 +116,12 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import ParamItem from "@/components/params/ParamItem.vue";
 import CustomBadgeSelector from "@/components/user/CustomBadgeSelector.vue";
+import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import {
 	COUNTER_EDIT_SOURCE_CHATTERS,
 	COUNTER_EDIT_SOURCE_EVERYONE,
@@ -130,139 +132,146 @@ import {
 	type TriggerData,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import draggable from "vuedraggable";
-import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";
 
-@Component({
-	components: {
-		Icon,
-		draggable,
-		ParamItem,
-		CustomBadgeSelector,
-	},
-	emits: [],
-})
-class TriggerActionCustomBadge extends AbstractTriggerActionEntry {
-	@Prop
-	declare action: TriggerCustomBadgesData;
+const props = defineProps<{
+	action: TriggerCustomBadgesData;
+	triggerData: TriggerData;
+}>();
 
-	@Prop
-	declare triggerData: TriggerData;
+const { t } = useI18n();
+const storeUsers = useStoreUsers();
 
-	public param_userSource: TwitchatDataTypes.ParameterData<string, string> = {
-		type: "list",
-		value: "",
-		labelKey: "triggers.actions.customBadge.param_user",
-	};
-	public badgesAdd: TwitchatDataTypes.TwitchatCustomUserBadge[] = [];
-	public badgesDel: TwitchatDataTypes.TwitchatCustomUserBadge[] = [];
+const param_userSource = ref<TwitchatDataTypes.ParameterData<string, string>>({
+	type: "list",
+	value: "",
+	labelKey: "triggers.actions.customBadge.param_user",
+});
+const badgesAdd = ref<TwitchatDataTypes.TwitchatCustomUserBadge[]>([]);
+const badgesDel = ref<TwitchatDataTypes.TwitchatCustomUserBadge[]>([]);
 
-	private userPLaceholders: ITriggerPlaceholder<any>[] = [];
+const userPLaceholders = ref<ITriggerPlaceholder<any>[]>([]);
 
-	/**
-	 * Build user trigger source list
-	 */
-	private get userSourceOptions(): TwitchatDataTypes.ParameterDataListValue<string>[] {
-		const res: TwitchatDataTypes.ParameterDataListValue<string>[] = [
-			//Add static sources "sender" and "everyone"
-			{
-				labelKey: "triggers.actions.customBadge.user_source_sender",
-				value: COUNTER_EDIT_SOURCE_SENDER,
-			},
-			{
-				labelKey: "triggers.actions.customBadge.user_source_chatters",
-				value: COUNTER_EDIT_SOURCE_CHATTERS,
-			},
-			{
-				labelKey: "triggers.actions.customBadge.user_source_everyone",
-				value: COUNTER_EDIT_SOURCE_EVERYONE,
-			},
-		];
+/**
+ * Build user trigger source list
+ */
+const userSourceOptions = computed((): TwitchatDataTypes.ParameterDataListValue<string>[] => {
+	const res: TwitchatDataTypes.ParameterDataListValue<string>[] = [
+		//Add static sources "sender" and "everyone"
+		{
+			labelKey: "triggers.actions.customBadge.user_source_sender",
+			value: COUNTER_EDIT_SOURCE_SENDER,
+		},
+		{
+			labelKey: "triggers.actions.customBadge.user_source_chatters",
+			value: COUNTER_EDIT_SOURCE_CHATTERS,
+		},
+		{
+			labelKey: "triggers.actions.customBadge.user_source_everyone",
+			value: COUNTER_EDIT_SOURCE_EVERYONE,
+		},
+	];
 
-		//Add command's placeholders
-		if (this.triggerData.chatCommandParams) {
-			this.triggerData.chatCommandParams.forEach((v) => {
-				res.push({
-					label: this.$t("triggers.actions.count.user_source_placeholder", {
-						PLACEHOLDER: v.tag.toUpperCase(),
-					}),
-					value: v.tag,
-				});
+	//Add command's placeholders
+	if (props.triggerData.chatCommandParams) {
+		props.triggerData.chatCommandParams.forEach((v) => {
+			res.push({
+				label: t("triggers.actions.count.user_source_placeholder", {
+					PLACEHOLDER: v.tag.toUpperCase(),
+				}),
+				value: v.tag,
 			});
-		}
+		});
+	}
 
-		//Add global placeholders that may contain a user name
-		this.userPLaceholders
-			.filter((v) => v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) == -1)
-			.forEach((v) => {
-				res.push({
-					label: this.$t("triggers.actions.count.user_source_placeholder", {
-						PLACEHOLDER: v.tag.toUpperCase(),
-					}),
-					value: v.tag,
-				});
+	//Add global placeholders that may contain a user name
+	userPLaceholders.value
+		.filter((v) => v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) == -1)
+		.forEach((v) => {
+			res.push({
+				label: t("triggers.actions.count.user_source_placeholder", {
+					PLACEHOLDER: v.tag.toUpperCase(),
+				}),
+				value: v.tag,
 			});
-		return res;
-	}
+		});
+	return res;
+});
 
-	public mounted(): void {
-		if (!this.action.customBadgeAdd) this.action.customBadgeAdd = [];
-		if (!this.action.customBadgeDel) this.action.customBadgeDel = [];
-		if (!this.action.customBadgeUserSource)
-			this.action.customBadgeUserSource = COUNTER_EDIT_SOURCE_SENDER;
+useTriggerActionPlaceholders(props.action, props.triggerData, onPlaceholderUpdate);
 
-		this.badgesAdd = this.action.customBadgeAdd
-			.map((v) => {
-				return {
-					id: v,
-					img: this.$store.users.customBadgeList.find((w) => w.id === v)?.img || "",
-				};
-			})
-			.filter((v) => v.img != "");
+onMounted(() => {
+	if (!props.action.customBadgeAdd) props.action.customBadgeAdd = [];
+	if (!props.action.customBadgeDel) props.action.customBadgeDel = [];
+	if (!props.action.customBadgeUserSource)
+		props.action.customBadgeUserSource = COUNTER_EDIT_SOURCE_SENDER;
 
-		this.badgesDel = this.action.customBadgeDel
-			.map((v) => {
-				return {
-					id: v,
-					img: this.$store.users.customBadgeList.find((w) => w.id === v)?.img || "",
-				};
-			})
-			.filter((v) => v.img != "");
-	}
+	badgesAdd.value = props.action.customBadgeAdd
+		.map((v) => {
+			return {
+				id: v,
+				img: storeUsers.customBadgeList.find((w) => w.id === v)?.img || "",
+			};
+		})
+		.filter((v) => v.img != "");
 
-	public listUpdate(list: TwitchatDataTypes.TwitchatCustomUserBadge[]): void {
-		//Avoid badges duplicates
-		const idDone = new Set<string>();
-		for (let i = 0; i < list.length; i++) {
-			const id = list[i]!.id;
-			if (idDone.has(id)) {
-				list.splice(i, 1);
-				i--;
-			} else {
-				idDone.add(id);
-			}
+	badgesDel.value = props.action.customBadgeDel
+		.map((v) => {
+			return {
+				id: v,
+				img: storeUsers.customBadgeList.find((w) => w.id === v)?.img || "",
+			};
+		})
+		.filter((v) => v.img != "");
+});
+
+function listUpdate(list: TwitchatDataTypes.TwitchatCustomUserBadge[]): void {
+	//Avoid badges duplicates
+	const idDone = new Set<string>();
+	for (let i = 0; i < list.length; i++) {
+		const id = list[i]!.id;
+		if (idDone.has(id)) {
+			list.splice(i, 1);
+			i--;
+		} else {
+			idDone.add(id);
 		}
-
-		//Avoid having a badge on both cols
-		const cleanup = list == this.badgesAdd ? this.badgesDel : this.badgesAdd;
-		for (let i = cleanup.length - 1; i >= 0; i--) {
-			if (idDone.has(cleanup[i]!.id)) cleanup.splice(i, 1);
-		}
-
-		this.action.customBadgeAdd = this.badgesAdd.map((v) => v.id);
-		this.action.customBadgeDel = this.badgesDel.map((v) => v.id);
 	}
 
-	/**
-	 * Called when the available placeholder list is updated
-	 */
-	public onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
-		this.userPLaceholders = list;
-		this.param_userSource.listValues = this.userSourceOptions;
+	//Avoid having a badge on both cols
+	const cleanup = list == badgesAdd.value ? badgesDel.value : badgesAdd.value;
+	for (let i = cleanup.length - 1; i >= 0; i--) {
+		if (idDone.has(cleanup[i]!.id)) cleanup.splice(i, 1);
 	}
+
+	saveToAction();
 }
-export default toNative(TriggerActionCustomBadge);
+
+/**
+ * Removes a badge from the "add" or "delete" list
+ */
+function removeBadge(list: TwitchatDataTypes.TwitchatCustomUserBadge[], index: number): void {
+	list.splice(index, 1);
+	saveToAction();
+}
+
+/**
+ * Writes the displayed badge lists back to the trigger action data
+ */
+function saveToAction(): void {
+	props.action.customBadgeAdd = badgesAdd.value.map((v) => v.id);
+	props.action.customBadgeDel = badgesDel.value.map((v) => v.id);
+}
+
+/**
+ * Called when the available placeholder list is updated
+ */
+function onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
+	userPLaceholders.value = list;
+	param_userSource.value.listValues = userSourceOptions.value;
+}
 </script>
 
 <style scoped lang="less">

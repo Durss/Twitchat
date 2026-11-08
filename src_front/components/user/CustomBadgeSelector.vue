@@ -51,8 +51,8 @@ import Button from "../TTButton.vue";
 
 const props = withDefaults(
 	defineProps<{
-		user: TwitchatDataTypes.TwitchatUser;
-		channelId: string;
+		user?: TwitchatDataTypes.TwitchatUser;
+		channelId?: string;
 		noTooltip?: boolean;
 	}>(),
 	{
@@ -76,7 +76,7 @@ function onSelectBadgeFile(e: Event): void {
 
 	fileToBase64Img(files[0]!).then((base64Img) => {
 		const badgeId = storeUsers.createCustomBadge(base64Img);
-		if (badgeId !== false && props.user) {
+		if (badgeId !== false && props.user && props.channelId) {
 			storeUsers.giveCustomBadge(
 				props.user.id,
 				props.user.platform,
@@ -95,7 +95,7 @@ function getBadgeClasses(badge: TwitchatDataTypes.TwitchatCustomUserBadge): stri
 }
 
 function addBadge(id: string): void {
-	if (!storeUsers.giveCustomBadge(props.user!.id, props.user!.platform, id, props.channelId)) {
+	if (!storeUsers.giveCustomBadge(props.user!.id, props.user!.platform, id, props.channelId!)) {
 		emit("limitReached");
 	}
 }
