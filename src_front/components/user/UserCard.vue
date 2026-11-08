@@ -583,10 +583,10 @@ import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
 import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
@@ -627,7 +627,7 @@ const rootEl = useTemplateRef("rootEl");
 const customUsernameRef = useTemplateRef("customUsername");
 const userIDRef = useTemplateRef("userID");
 
-const { open: openPanel } = useSidePanel(rootEl, emit, false, closeCard);
+const { open: openPanel, close: closePanel } = useSidePanel(rootEl, emit, true, closeCard);
 
 const error = ref(false);
 const loading = ref(true);
@@ -1084,6 +1084,8 @@ function onKeyUp(e: KeyboardEvent): void {
 			edittingLogin.value = false;
 			e.preventDefault();
 			e.stopPropagation();
+		} else {
+			closeCard();
 		}
 	}
 }
@@ -1190,6 +1192,12 @@ watch(
 	async () => {
 		const card = storeUsers.userCard;
 		const isNewUser = card?.user?.id != user.value?.id;
+		if (!card?.user) {
+			void closePanel().then(() => {
+				user.value = null;
+			});
+			return;
+		}
 		if (card && card.user) {
 			const chanId = card.channelId ?? StoreProxy.auth.twitch.user.id;
 			channel.value = storeUsers.getUserFrom(card.platform || "twitch", chanId, chanId);
