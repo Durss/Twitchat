@@ -315,9 +315,9 @@ export const storeStream = defineStore("stream", {
 						TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER,
 					);
 				}
-				//Send donation reminder if requested
+				//Open changelog if requested
 				if (StoreProxy.params.updatesReminderEnabled) {
-					StoreProxy.params.donationReminderEnabled = false;
+					StoreProxy.params.updatesReminderEnabled = false;
 					StoreProxy.params.openChangelog();
 				}
 				//Cut OBS stream if requested
@@ -425,6 +425,12 @@ export const storeStream = defineStore("stream", {
 				}
 
 				void StoreProxy.bluesky.applyAutoLive();
+			}
+
+			//Open changelog if requested
+			if (StoreProxy.params.updatesReminderEnabled) {
+				StoreProxy.params.updatesReminderEnabled = false;
+				StoreProxy.params.openChangelog();
 			}
 
 			//Send donation reminder if requested

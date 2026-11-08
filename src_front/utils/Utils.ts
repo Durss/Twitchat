@@ -1146,6 +1146,24 @@ export default class Utils {
 	}
 
 	/**
+	 * Returns the 3 chars [0-9a-z] suffix binding a premium gift code to a user,
+	 * so a shared code only works for the user it was displayed to.
+	 * @param baseCode
+	 * @param uid
+	 * @returns
+	 */
+	public static getGiftCodeSuffix(baseCode: string, uid: string): string {
+		let h = this.hashCode(baseCode.toLowerCase() + ":" + uid);
+		// Avalanche so close user IDs don't get similar suffixes
+		h ^= h >>> 16;
+		h = Math.imul(h, 0x85ebca6b);
+		h ^= h >>> 13;
+		h = Math.imul(h, 0xc2b2ae35);
+		h ^= h >>> 16;
+		return ((h >>> 0) % 36 ** 3).toString(36).padStart(3, "0");
+	}
+
+	/**
 	 * Deeply checks for differences between 2 arbitrary objects
 	 * @param a
 	 * @param b

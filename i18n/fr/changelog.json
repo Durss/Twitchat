@@ -6,6 +6,7 @@
 		"companion_details_link": "Twitchat Companion",
 		"streamdeck_plugin": "Plugin Stream Deck",
 		"streamsocket_plugin": "Installer l'extension StreamSocket",
+		"gift": "Pour te remercier de lire les mises à jour, utilise cette commande pour un cadeau: {COMMAND}",
 		"highlights": [
 			{
 				"i": "twitchat_companion",
@@ -28,6 +29,16 @@
 					"l": "Essayer",
 					"param": "overlays",
 					"subparam": "quiz"
+				}
+			},
+			{
+				"i": "bidwar",
+				"l": "Bid war",
+				"d": "Système souvent utilisé durant les évènements caritatifs dans lequel les viewers ont 2 choix et doivent payer pour l'un des deux en entrant un mot clé dans leur message de don.\n\nLe choix remportant le plus d'argent gagne.",
+				"a": {
+					"l": "Try",
+					"param": "overlays",
+					"subparam": "bidwar"
 				}
 			},
 			{
@@ -130,7 +141,7 @@
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "Les triggers <strong>s'exécutent désormais en parallèle</strong>. Une file d'exécution a été définie sur tous vos triggers pour préserver le comportement précédent.\n\nLes triggers peuvent désormais avoir une <strong>icône personnalisée</strong> pour les repérer d'un coup d'œil dans votre liste.\n\nRetrouvez vos triggers grâce à un nouveau champ de recherche.\n\nNouvelle interface pour les conditions.\n\n22 nouveaux événements :<ul><li>Quiz terminé</li><li>Touches saisies sur le stream depuis <a href=\"https://dashboard.twitch.tv/extensions/zo8hnik5ey8nv1zcb97hh65sol97a2\" target=\"_blank\">Twitchat Companion</a></li><li>Power up custom acheté</li><li>Joyaux YouTube reçus</li><li>Quelqu'un rejoint un tirage au sort</li><li>Meld Studio : démarrage/arrêt du stream, changement de scène, visibilité d'un calque, activation d'un effet et mute d'une piste</li><li>Streamloots : carte jouée, packs achetés, packs offerts à quelqu'un ou à la communauté, carte légendaire obtenue, réaction jouée et emotes envoyées</li><li>Session de tchat partgagée démarrée/rejointe/quittée</li></ul>7 nouvelles actions :<ul><li>Activer/désactiver une zone cliquable</li><li>Modifier un label</li>{_LI}<li>Demander une saisie</li><li>Publier sur Bluesky</li><li>Contrôler Meld Studio</li><li>Modifier les paramètres de filtres OBS</li><li>Modifier les pistes audio d'une source OBS</li></ul>"
+				"d": "Les triggers <strong>s'exécutent désormais en parallèle</strong>. Une file d'exécution a été définie sur tous vos triggers pour préserver le comportement précédent.\n\nLes triggers peuvent désormais avoir une <strong>icône personnalisée</strong> pour les repérer d'un coup d'œil dans votre liste.\n\nRetrouvez vos triggers grâce à un nouveau champ de recherche.\n\nNouvelle interface pour les conditions.\n\n23 nouveaux événements :<ul><li>Quiz terminé</li><li>Touches saisies sur le stream depuis <a href=\"https://dashboard.twitch.tv/extensions/zo8hnik5ey8nv1zcb97hh65sol97a2\" target=\"_blank\">Twitchat Companion</a></li><li>Power up custom acheté</li><li>Joyaux YouTube reçus</li><li>Quelqu'un rejoint un tirage au sort</li><li>Meld Studio : démarrage/arrêt du stream, changement de scène, visibilité d'un calque, activation d'un effet et mute d'une piste</li><li>Streamloots : carte jouée, packs achetés, packs offerts à quelqu'un ou à la communauté, carte légendaire obtenue, réaction jouée et emotes envoyées</li><li>Session de tchat partgagée démarrée/rejointe/quittée</li><li>GIF reçu sur Twitch</li></ul>7 nouvelles actions :<ul><li>Activer/désactiver une zone cliquable</li><li>Modifier un label</li>{_LI}<li>Demander une saisie</li><li>Publier sur Bluesky</li><li>Contrôler Meld Studio</li><li>Modifier les paramètres de filtres OBS</li><li>Modifier les pistes audio d'une source OBS</li></ul>"
 			},
 			{
 				"i": "twitchat_api",

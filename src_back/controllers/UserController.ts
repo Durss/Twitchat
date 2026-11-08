@@ -778,8 +778,17 @@ export default class UserController extends AbstractController {
 				return;
 			}
 
-			const body: any = request.body as { code: string };
-			codeValid = Config.USE_PREMIUM_CREDITS(body.code);
+			const body = request.body as { code?: unknown };
+			const code = typeof body?.code == "string" ? body.code.trim().toLowerCase() : "";
+			// Last 3 chars bind the code to the user it was displayed to
+			const baseCode = code.slice(0, -3);
+			const suffix = code.slice(-3);
+			if (baseCode && suffix === Utils.getGiftCodeSuffix(baseCode, userInfo.user_id)) {
+				codeValid = Config.USE_PREMIUM_CREDITS(baseCode);
+			} else {
+				// Wrong suffix, don't tell if the base code is valid
+				codeValid = null;
+			}
 			if (codeValid !== true) {
 				this._giftCodeAttempts.set(userInfo.user_id, attempts + 1);
 			}
@@ -788,7 +797,7 @@ export default class UserController extends AbstractController {
 				try {
 					Utils.sendDashboardNotification(
 						"Gift code redeemed",
-						userInfo.login + " got premium membership with code " + body.code,
+						userInfo.login + " got premium membership with code " + code,
 						undefined,
 						"success",
 					);
@@ -798,7 +807,8 @@ export default class UserController extends AbstractController {
 			}
 		}
 
-		const result = codeValid === true ? "success" : "invalid_code";
+		const result =
+			codeValid === true ? "success" : codeValid === false ? "empty_credits" : "invalid_code";
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(

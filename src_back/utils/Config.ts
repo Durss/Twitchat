@@ -345,11 +345,11 @@ export default class Config {
 			const json = JSON.parse(fs.readFileSync(filepath, "utf-8")) as {
 				[code: string]: number;
 			};
-			if (json[code] != undefined) {
+			const key = Object.keys(json).find((k) => k.toLowerCase() === code.toLowerCase());
+			if (key != undefined) {
 				//Code exists
-				if (json[code] > 0) {
-					//No more credits
-					json[code]--;
+				if (json[key]! > 0) {
+					json[key]!--;
 					fs.writeFileSync(filepath, JSON.stringify(json, null, "\t"));
 					return true;
 				}

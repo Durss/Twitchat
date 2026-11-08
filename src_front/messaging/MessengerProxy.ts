@@ -545,10 +545,11 @@ export default class MessengerProxy {
 		} else if (cmd == "/userfromid") {
 			const res = await TwitchUtils.getUserInfo([params[0]!]);
 			if (res.length === 0) {
-				StoreProxy.common.alert(
+				toast(
 					StoreProxy.i18n.t("error.user_param_not_found", {
 						USER: "<mark>" + params[0] + "</mark>",
 					}),
+					{ type: "error" },
 				);
 			} else {
 				const userInfo = res[0]!;
@@ -750,7 +751,7 @@ export default class MessengerProxy {
 					parseInt(params[1]!).toString() != params[1] ||
 					parseInt(params[2]!).toString() != params[2]
 				) {
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.invalid_bingo"));
+					toast(StoreProxy.i18n.t("error.invalid_bingo"), { type: "error" });
 					return false;
 				} else {
 					payload.guessNumber = true;
@@ -761,7 +762,7 @@ export default class MessengerProxy {
 				payload.guessEmote = true;
 			} else if (params[0] == "custom") {
 				if (params.length < 2) {
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.invalid_bingo"));
+					toast(StoreProxy.i18n.t("error.invalid_bingo"), { type: "error" });
 					return false;
 				}
 				if (params.length > 2 && parseInt(params[1]!).toString() === params[1]) {
@@ -774,7 +775,7 @@ export default class MessengerProxy {
 				}
 				payload.guessCustom = true;
 			} else {
-				StoreProxy.common.alert(StoreProxy.i18n.t("error.invalid_bingo"));
+				toast(StoreProxy.i18n.t("error.invalid_bingo"), { type: "error" });
 				return false;
 			}
 
@@ -1061,7 +1062,7 @@ export default class MessengerProxy {
 			return true;
 		} else if (isAdmin && (cmd == "/userdata" || cmd == "/loaduserdata")) {
 			if (params.length == 0) {
-				StoreProxy.common.alert(StoreProxy.i18n.t("error.user_param_missing"));
+				toast(StoreProxy.i18n.t("error.user_param_missing"), { type: "error" });
 			} else {
 				let users: TwitchDataTypes.UserInfo[] = [];
 				try {
@@ -1069,9 +1070,9 @@ export default class MessengerProxy {
 				} catch (_error) {}
 
 				if (users.length == 0) {
-					StoreProxy.common.alert(
-						StoreProxy.i18n.t("error.user_param_not_found", { USER: params[0] }),
-					);
+					toast(StoreProxy.i18n.t("error.user_param_not_found", { USER: params[0] }), {
+						type: "error",
+					});
 				} else {
 					const res = await ApiHelper.call(
 						"user/data",
@@ -1090,17 +1091,17 @@ export default class MessengerProxy {
 							window.open(url, "_blank");
 						}
 					} else {
-						StoreProxy.common.alert("Unable to load user data");
+						toast("Unable to load user data", { type: "error" });
 					}
 				}
 			}
 			return true;
-		} else if (cmd && /^\/_.*_$/.test(cmd)) {
+		} else if (cmd && /^\/_p:.*_$/gi.test(cmd)) {
 			// Reject if user is already lifetime premium
 			const pType = StoreProxy.auth.premiumType;
 			if (pType != "patreon" && pType != "") return true;
 
-			const code = cmd.replace(/\/|_/g, "").toLowerCase();
+			const code = cmd.replace(/^\/_p:(.*)_$/, "$1");
 			const result = await ApiHelper.call("user/gift_premium", "POST", { code });
 			if (result.status == 200) {
 				if (result.json.result === "success") {
@@ -1116,12 +1117,11 @@ export default class MessengerProxy {
 						highlightColor: "#c400da",
 						icon: "premium",
 					};
-					console.log("Send message", message);
 					void StoreProxy.chat.addMessage(message);
 				} else if (result.json.result === "empty_credits") {
-					StoreProxy.common.alert(StoreProxy.i18n.t("premium.code_empty"));
+					toast(StoreProxy.i18n.t("premium.code_empty"), { type: "error" });
 				} else if (result.json.result === "invalid_code") {
-					StoreProxy.common.alert(StoreProxy.i18n.t("premium.code_wrong"));
+					toast(StoreProxy.i18n.t("premium.code_wrong"), { type: "error" });
 				}
 			}
 			return true;

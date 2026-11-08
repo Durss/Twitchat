@@ -59,8 +59,8 @@
 					class="carousel"
 					:items-to-show="1"
 					v-model="currentSlide"
-					:wrap-around="true"
-					:mouseDrag="items.length > 1"
+					:mouseDrag="false"
+					:touchDrag="items.length > 1"
 					@slide-start="onSlideStart"
 				>
 					<template #addons v-if="items.length > 1">
@@ -160,20 +160,8 @@
 								></video>
 							</div>
 
-							<!-- <div v-if="item.i == 'twitchat_companion'" class="card-item moreInfo">
-								<Icon name="info" />
-								<i18n-t
-									scope="global"
-									keypath="changelog.companion_details"
-									tag="span"
-								>
-									<template #LINK>
-										<a :href="$config.TWITCHAT_EXTENSION_URL" target="_blank">{{
-											t("changelog.companion_details_link")
-										}}</a>
-									</template>
-								</i18n-t>
-							</div> -->
+							<div v-if="item.i == 'bidwar'" class="card-item">TODO</div>
+
 							<RewardListItem
 								v-if="item.i == 'fear'"
 								class="reward"
@@ -497,6 +485,7 @@ function onSlideStart(data: {
 	slidingToIndex: number;
 }): void {
 	slideCountRead.set(data.slidingToIndex, true);
+	if (data.slidingToIndex === data.currentSlideIndex) return;
 	showPremiumFeatures.value = false;
 	scrollableRef.value!.scrollTo(0, 0);
 }
@@ -506,7 +495,11 @@ function onSlideStart(data: {
  * @param str
  */
 function parseCommonPlaceholders(str: string): string {
-	const message = "Congrats for reading! Use command <input readonly value='/_hYUZ8S5_' />";
+	const baseCode = "g4c48eA";
+	const code = baseCode + Utils.getGiftCodeSuffix(baseCode, storeAuth.twitch.user.id);
+	const message = t("changelog.gift", {
+		COMMAND: `<input readonly value='/_P:${code}_' onclick="this.select()" />`,
+	});
 	str = str.replace(
 		/\{HEAT\}/gi,
 		`<a href="${Config.instance.HEAT_EXTENSION_URL}" target="_blank">Heat</a>`,
@@ -1022,7 +1015,7 @@ function skinPagination(): void {
 
 		input {
 			background: none;
-			width: 100px;
+			width: 16ch;
 			border: none;
 			padding: 0;
 			border-radius: 0;
@@ -1031,6 +1024,7 @@ function skinPagination(): void {
 			outline: none;
 			color: var(--color-text);
 			font-weight: 300;
+			font-style: italic;
 		}
 	}
 
