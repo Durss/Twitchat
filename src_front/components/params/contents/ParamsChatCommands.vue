@@ -271,12 +271,9 @@ function deleteEntry(entry: TwitchatDataTypes.ChatCommandData): void {
 }
 
 function onTitleChange(entry: TwitchatDataTypes.ChatCommandData, title: string): void {
-	// ToggleBlock emits the default title when cleared, don't store it so it keeps
-	// following the command name/message
-	const value = title == getDefaultTitle(entry) ? "" : title;
-	// Avoid undefined => "" update that would make ToggleBlock reset its title to ""
-	if ((entry.title || "") == value) return;
-	entry.title = value;
+	// Avoid undefined => "" update that would trigger a useless save
+	if ((entry.title || "") == title) return;
+	entry.title = title;
 	save();
 }
 

@@ -28,7 +28,7 @@
 					ref="titleEditRef"
 					tag="h2"
 					class="titleText"
-					:class="{ default: displayTitle === titleDefault }"
+					:class="{ default: !localTitle }"
 					:contenteditable="isEditingTitle"
 					:model-value="displayTitle"
 					:no-nl="true"
@@ -183,8 +183,9 @@ const titleEditRef = useTemplateRef<InstanceType<typeof ContentEditable>>("title
 const isOpen = ref(props.noToggle || props.open);
 const isClosing = ref(false);
 const contentVisible = ref(props.noToggle || props.open);
-const localTitle = ref(props.title || props.titleDefault || "");
+const localTitle = ref(props.title || "");
 const isEditingTitle = ref(false);
+const isTitleFocused = ref(false);
 const actionsCollapsed = ref(false);
 const actionsMenuOpen = ref(false);
 const isSingleLineMode = ref(false);
@@ -214,9 +215,9 @@ const displayIcons = computed(() => {
 });
 
 const displayTitle = computed(() => {
-	// When editing, show actual localTitle (even if empty) to allow clearing default
-	if (isEditingTitle.value) return localTitle.value;
-	// When not editing, fallback to default if localTitle is empty
+	// While focused, show actual custom title (even if empty) so default isn't edited
+	if (isTitleFocused.value) return localTitle.value;
+	// Otherwise fallback to default if no custom title is set
 	return localTitle.value || props.titleDefault || "";
 });
 
@@ -285,9 +286,7 @@ async function toggle(forcedState?: boolean): Promise<void> {
 }
 
 function onTitleFocus(): void {
-	if (localTitle.value === props.titleDefault) {
-		localTitle.value = "";
-	}
+	isTitleFocused.value = true;
 	const el = titleEditRef.value?.$el;
 	if (el) {
 		const range = document.createRange();
@@ -300,8 +299,9 @@ function onTitleFocus(): void {
 
 function onTitleBlur(): void {
 	if (!localTitle.value.trim()) {
-		localTitle.value = props.titleDefault || "";
+		localTitle.value = "";
 	}
+	isTitleFocused.value = false;
 	isEditingTitle.value = false;
 }
 
@@ -421,14 +421,6 @@ watch(
 	() => props.title,
 	(newVal) => {
 		if (newVal !== undefined) localTitle.value = newVal;
-	},
-);
-
-watch(
-	() => props.titleDefault,
-	(newVal, oldVal) => {
-		// Keep displaying the default title if it changes while no custom title is set
-		if (localTitle.value === oldVal) localTitle.value = newVal || "";
 	},
 );
 
