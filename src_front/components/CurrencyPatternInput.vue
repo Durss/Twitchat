@@ -11,7 +11,6 @@
 				:no-nl="true"
 				:no-html="true"
 				:maxLength="10"
-				@input="onChange"
 			/>
 
 			<span class="label">42</span>
@@ -24,7 +23,6 @@
 				:no-nl="true"
 				:no-html="true"
 				:maxLength="10"
-				@input="onChange"
 			/>
 		</div>
 	</div>
@@ -35,6 +33,7 @@ import { ref, onMounted } from "vue";
 import Icon from "./Icon.vue";
 import Utils from "@/utils/Utils";
 import ContentEditable from "@/components/ContentEditable.vue";
+import { watch } from "vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -53,12 +52,6 @@ const emit = defineEmits<{
 const prefix = ref("");
 const suffix = ref("");
 
-function onChange() {
-	const pattern = prefix.value + Utils.CURRENCY_AMOUNT_TOKEN + suffix.value;
-	emit("update:modelValue", pattern);
-	emit("change", pattern);
-}
-
 onMounted(() => {
 	const match = props.modelValue
 		.trim()
@@ -67,6 +60,12 @@ onMounted(() => {
 		prefix.value = match[1]!;
 		suffix.value = match[2]!;
 	}
+});
+
+watch([prefix, suffix], () => {
+	const pattern = prefix.value + Utils.CURRENCY_AMOUNT_TOKEN + suffix.value;
+	emit("update:modelValue", pattern);
+	emit("change", pattern);
 });
 </script>
 
