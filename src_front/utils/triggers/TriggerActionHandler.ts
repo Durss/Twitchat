@@ -41,6 +41,7 @@ import {
 	type IPlaceholderOccurrence,
 } from "../PlaceholderModifiers";
 import PublicAPI from "../PublicAPI";
+import SchedulerHelper from "../SchedulerHelper";
 import SFXRUtils from "../SFXRUtils";
 import TTSUtils from "../TTSUtils";
 import TriggerUtils from "../TriggerUtils";
@@ -4680,6 +4681,9 @@ export default class TriggerActionHandler {
 									date: Date.now(),
 									value: `Call trigger "${TriggerUtils.getTriggerDisplayInfo(trigger).label}"`,
 								});
+								if (trigger.type == TriggerTypes.SCHEDULE) {
+									SchedulerHelper.instance.resetScheduleTimer(trigger);
+								}
 								await this.executeTrigger(
 									trigger,
 									message,

@@ -93,6 +93,23 @@ export default class SchedulerHelper {
 	}
 
 	/**
+	 * Reset the scheduling of given trigger.
+	 * Used from trigger when manually executing given trigger to reset it
+	 * @param trigger
+	 */
+	public resetScheduleTimer(trigger: TriggerData): void {
+		for (const element of this._pendingSchedules) {
+			if (element.trigger.id != trigger.id) continue;
+			const schedule = element.trigger.scheduleParams;
+			if (schedule?.type != TriggerScheduleTypes.REGULAR_REPEAT) continue;
+			element.messageCount = 0;
+			if (schedule.repeatDuration) {
+				element.date = Date.now() + schedule.repeatDuration * 1000;
+			}
+		}
+	}
+
+	/**
 	 * @param triggerIds IDs of the triggers that still exist
 	 */
 	public unscheduleMissingTriggers(triggerIds: Set<string>): void {
