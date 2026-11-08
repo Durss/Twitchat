@@ -1694,6 +1694,7 @@ const UserDataSchema = {
 			maxItems: 60,
 			items: { type: "string", maxLength: 3 },
 		},
+		"p:autoTranslateModel": { type: "string", maxLength: 10 },
 		v: { type: "number" },
 		saveVersion: { type: "number" },
 		saveId: { type: "string", maxLength: 40 },
