@@ -630,7 +630,7 @@ const userIDRef = useTemplateRef("userID");
 const { open: openPanel, close: closePanel } = useSidePanel(
 	rootEl,
 	emit,
-	true,
+	false,
 	closeCard,
 	() => user.value != null,
 );
@@ -1125,33 +1125,33 @@ function loadHistory(uid: string): void {
 		if (!allowedTypes.includes(mess.type)) continue;
 
 		if (mess.type == "shoutout" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "following" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if ((mess.type == "ban" || mess.type == "unban") && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if ((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "subscription" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "cheer" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "reward" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "user_watch_streak" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "youtube_subgift" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "youtube_subscription" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "tiktok_like" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "tiktok_gift" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "tiktok_sub" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		} else if (mess.type == "low_trust_treatment" && mess.user.id == uid) {
-			messageList.push(mess);
+			messageList.unshift(mess);
 		}
 		if (messageList.length > 500) break; //Limit message count for perf reasons
 	}
@@ -1199,6 +1199,7 @@ watch(
 		const card = storeUsers.userCard;
 		const isNewUser = card?.user?.id != user.value?.id;
 		if (!card?.user) {
+			if (!user.value) return;
 			void closePanel().then(() => {
 				user.value = null;
 			});

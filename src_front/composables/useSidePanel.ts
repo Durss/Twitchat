@@ -25,8 +25,6 @@ export function useSidePanel(
 	enabled: MaybeRefOrGetter<boolean> = true,
 ) {
 	let closed = true;
-	const instance = getCurrentInstance();
-	const componentName = instance?.type.name ?? instance?.type.__name;
 
 	function onKeyDown(e: KeyboardEvent): void {
 		if (closed || e.repeat || e.defaultPrevented || !toValue(enabled)) return;
