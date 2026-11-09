@@ -203,7 +203,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			);
 
 			/**
-			 * Relay to set grid visibility from Stream Deck socket
+			 * Sset grid visibility from Stream Deck socket
 			 */
 			PublicAPI.instance.addEventListener("SET_BINGO_GRID_STATE", async (event) => {
 				if (!event.data) return;
@@ -223,7 +223,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 							break;
 					}
 					PublicAPI.instance.broadcastGlobalStates();
-					void this.saveData(grid.id);
+					void this.saveData(grid.id, undefined, true);
 				}
 			});
 
