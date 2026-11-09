@@ -192,9 +192,13 @@ const props = withDefaults(
 
 const editedConditionId = defineModel<string>("editedConditionId", { default: "" });
 
+if (props.condition.placeholder)
+	props.condition.placeholder = props.condition.placeholder.toUpperCase();
+if (props.condition.caseSensitive == undefined) props.condition.caseSensitive = false;
+
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 const forceCustomValue = ref<boolean>(false);
-const forceCustomPlaceholder = ref<boolean>(false);
+const forceCustomPlaceholder = ref(props.condition.placeholder == CUSTOM_CONDITION_PLACEHOLDER);
 const param_placeholder = ref<TwitchatDataTypes.ParameterData<string, string>>({
 	type: "string",
 	value: "",
@@ -322,12 +326,6 @@ function getActivePlaceholders(): ITriggerPlaceholder<any>[] {
 }
 
 onBeforeMount(() => {
-	if (props.condition.placeholder)
-		props.condition.placeholder = props.condition.placeholder.toUpperCase();
-	if (props.condition.caseSensitive == undefined) props.condition.caseSensitive = false;
-
-	forceCustomPlaceholder.value = props.condition.placeholder == CUSTOM_CONDITION_PLACEHOLDER;
-
 	// Start edition if not conf is yet defined
 	if (!props.condition.placeholder) nextTick().then(() => startEdition());
 

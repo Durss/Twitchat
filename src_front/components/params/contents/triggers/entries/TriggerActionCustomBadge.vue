@@ -132,7 +132,7 @@ import {
 	type TriggerData,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import draggable from "vuedraggable";
 
@@ -202,30 +202,28 @@ const userSourceOptions = computed((): TwitchatDataTypes.ParameterDataListValue<
 
 useTriggerActionPlaceholders(props.action, props.triggerData, onPlaceholderUpdate);
 
-onMounted(() => {
-	if (!props.action.customBadgeAdd) props.action.customBadgeAdd = [];
-	if (!props.action.customBadgeDel) props.action.customBadgeDel = [];
-	if (!props.action.customBadgeUserSource)
-		props.action.customBadgeUserSource = COUNTER_EDIT_SOURCE_SENDER;
+if (!props.action.customBadgeAdd) props.action.customBadgeAdd = [];
+if (!props.action.customBadgeDel) props.action.customBadgeDel = [];
+if (!props.action.customBadgeUserSource)
+	props.action.customBadgeUserSource = COUNTER_EDIT_SOURCE_SENDER;
 
-	badgesAdd.value = props.action.customBadgeAdd
-		.map((v) => {
-			return {
-				id: v,
-				img: storeUsers.customBadgeList.find((w) => w.id === v)?.img || "",
-			};
-		})
-		.filter((v) => v.img != "");
+badgesAdd.value = props.action.customBadgeAdd
+	.map((v) => {
+		return {
+			id: v,
+			img: storeUsers.customBadgeList.find((w) => w.id === v)?.img || "",
+		};
+	})
+	.filter((v) => v.img != "");
 
-	badgesDel.value = props.action.customBadgeDel
-		.map((v) => {
-			return {
-				id: v,
-				img: storeUsers.customBadgeList.find((w) => w.id === v)?.img || "",
-			};
-		})
-		.filter((v) => v.img != "");
-});
+badgesDel.value = props.action.customBadgeDel
+	.map((v) => {
+		return {
+			id: v,
+			img: storeUsers.customBadgeList.find((w) => w.id === v)?.img || "",
+		};
+	})
+	.filter((v) => v.img != "");
 
 function listUpdate(list: TwitchatDataTypes.TwitchatCustomUserBadge[]): void {
 	//Avoid badges duplicates

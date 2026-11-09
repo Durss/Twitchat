@@ -60,7 +60,7 @@ import {
 	type TriggerActionPromptParamData,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { computed, onBeforeMount, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -170,17 +170,15 @@ function dedupeListEntries() {
 	param_listValues.value.value = filtered;
 }
 
-onBeforeMount(() => {
-	param_label.value.value = props.param.label;
-	param_placeholder.value.value = props.param.placeholder;
-	param_type.value.value = props.param.type;
-	param_listValues.value.value = props.param.listValues || [];
+param_label.value.value = props.param.label;
+param_placeholder.value.value = props.param.placeholder;
+param_type.value.value = props.param.type;
+param_listValues.value.value = props.param.listValues || [];
 
-	param_min.value.value = props.param.min != undefined;
-	if (props.param.min != undefined) param_minValue.value.value = props.param.min;
-	param_max.value.value = props.param.max != undefined;
-	if (props.param.max != undefined) param_maxValue.value.value = props.param.max;
-});
+param_min.value.value = props.param.min != undefined;
+if (props.param.min != undefined) param_minValue.value.value = props.param.min;
+param_max.value.value = props.param.max != undefined;
+if (props.param.max != undefined) param_maxValue.value.value = props.param.max;
 
 watch(
 	() => [param_min.value.value, param_minValue.value.value],

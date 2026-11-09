@@ -11,17 +11,14 @@
 import Icon from "@/components/Icon.vue";
 import GoXLRUI from "@/components/goxlr/GoXLRUI.vue";
 import type { TriggerData } from "@/types/TriggerActionDataTypes";
-import { onMounted } from "vue";
 
 const props = defineProps<{
 	triggerData: TriggerData;
 }>();
 
-onMounted(() => {
-	if (!props.triggerData.goxlrButtons) {
-		props.triggerData.goxlrButtons = [];
-	}
-});
+if (!props.triggerData.goxlrButtons) {
+	props.triggerData.goxlrButtons = [];
+}
 </script>
 
 <style scoped lang="less">

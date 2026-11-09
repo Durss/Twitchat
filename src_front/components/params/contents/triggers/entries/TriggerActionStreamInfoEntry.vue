@@ -25,73 +25,29 @@ import type {
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { onBeforeMount, ref, watch } from "vue";
+import { ref, watch } from "vue";
 
 const props = defineProps<{
 	action: TriggerActionStreamInfoData;
 	triggerData: TriggerData;
 }>();
-const loading = ref<boolean>(true);
-const title = ref<string>("");
-const tags = ref<string[]>([]);
-const branded = ref<boolean>(false);
-const labels = ref<{ id: string; enabled: boolean }[]>([]);
+const loading = ref(!!props.action.categoryId);
+const title = ref(props.action.title);
+const tags = ref(props.action.tags || []);
+const branded = ref(props.action.branded === true);
+const labels = ref(props.action.labels || []);
 const category = ref<TwitchDataTypes.StreamCategory | null>(null);
 const placeholderList = ref<ITriggerPlaceholder<any>[]>([]);
 useTriggerActionPlaceholders(props.action, props.triggerData, onPlaceholderUpdate);
 
-watch(
-	() => title.value,
-	() => onChange(),
-);
-watch(
-	() => tags.value,
-	() => onChange(),
-);
-watch(
-	() => category.value,
-	() => onChange(),
-);
-watch(
-	() => labels.value,
-	() => onChange(),
-);
-watch(
-	() => branded.value,
-	() => onChange(),
-);
+if (props.action.categoryId) {
+	TwitchUtils.getCategoryByID(props.action.categoryId).then((c) => {
+		category.value = c ?? null;
+		loading.value = false;
+	});
+}
 
-onBeforeMount(async () => {
-	if (props.action.categoryId) {
-		category.value = await TwitchUtils.getCategoryByID(props.action.categoryId);
-	}
-	title.value = props.action.title;
-	tags.value = props.action.tags || [];
-	branded.value = props.action.branded === true;
-	labels.value = props.action.labels || [];
-	loading.value = false;
-
-	watch(
-		() => title.value,
-		() => onChange(),
-	);
-	watch(
-		() => tags.value,
-		() => onChange(),
-	);
-	watch(
-		() => category.value,
-		() => onChange(),
-	);
-	watch(
-		() => labels.value,
-		() => onChange(),
-	);
-	watch(
-		() => branded.value,
-		() => onChange(),
-	);
-});
+watch([title, tags, category, labels, branded], () => onChange());
 
 function onChange(): void {
 	props.action.categoryId = category.value?.id ?? "";

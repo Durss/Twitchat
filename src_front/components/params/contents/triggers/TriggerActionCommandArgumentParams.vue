@@ -166,7 +166,7 @@ import ChatCommandCaptureUtils, {
 } from "@/utils/triggers/ChatCommandCaptureUtils";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap";
-import { computed, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -236,23 +236,17 @@ const testResult = computed<CaptureMatchResult>(() => {
 	return ChatCommandCaptureUtils.match(capture.value, text);
 });
 
-onBeforeMount(() => {
-	if (!props.triggerData.chatCommandCapture) {
-		props.triggerData.chatCommandCapture = {
-			mode: "pattern",
-			pattern: "",
-			regex: "",
-			regexEdited: false,
-		};
-	}
-	captureMode.value = props.triggerData.chatCommandCapture.mode;
-	patternValue.value = props.triggerData.chatCommandCapture.pattern;
-	regexValue.value = props.triggerData.chatCommandCapture.regex;
-	syncParams();
-});
-
-watch(tagList, () => syncParams());
-watch(patternValue, () => onPatternEdit());
+if (!props.triggerData.chatCommandCapture) {
+	props.triggerData.chatCommandCapture = {
+		mode: "pattern",
+		pattern: "",
+		regex: "",
+		regexEdited: false,
+	};
+}
+captureMode.value = props.triggerData.chatCommandCapture.mode;
+patternValue.value = props.triggerData.chatCommandCapture.pattern;
+regexValue.value = props.triggerData.chatCommandCapture.regex;
 
 onMounted(() => {
 	nextTick().then(() => updateHighlights());
@@ -447,6 +441,17 @@ function copy(event: MouseEvent, tag: string): void {
 		{ duration: 0.5, scale: 1, ease: "back.out(1.7)" },
 	);
 }
+
+watch(
+	tagList,
+	() => {
+		syncParams();
+	},
+	{ immediate: true },
+);
+watch(patternValue, () => {
+	onPatternEdit();
+});
 </script>
 
 <style scoped lang="less">

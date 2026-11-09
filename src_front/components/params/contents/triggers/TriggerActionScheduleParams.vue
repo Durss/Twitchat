@@ -91,7 +91,7 @@ import {
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import { onBeforeMount, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import ParamItem from "../../ParamItem.vue";
 
 const props = defineProps<{
@@ -136,30 +136,28 @@ const params_daily = ref<TwitchatDataTypes.ParameterData<boolean>[]>([]);
 const params_monthly = ref<TwitchatDataTypes.ParameterData<boolean>[]>([]);
 const params_yearly = ref<TwitchatDataTypes.ParameterData<boolean>[]>([]);
 
-onBeforeMount(() => {
-	//List all available trigger types
-	let events: TriggerScheduleEventType[] = ScheduleTriggerEvents().concat();
-	if (!props.triggerData.scheduleParams) {
-		props.triggerData.scheduleParams = {
-			type: events[1]!.value as TriggerScheduleTypesValue,
-			repeatDuration: 30 * 60,
-			repeatMinMessages: 100,
-			dates: [],
-		};
-	}
-	param_action.value.value = props.triggerData.scheduleParams?.type
-		? props.triggerData.scheduleParams?.type
-		: events[0]!.value;
-	param_action.value.listValues = events;
-	const duration = props.triggerData.scheduleParams!.repeatDuration;
-	const minMess = props.triggerData.scheduleParams!.repeatMinMessages;
-	param_repeatDurationCondition.value.value = duration != undefined && duration > 0;
-	param_repeatMessageCondition.value.value = minMess != undefined && minMess > 0;
+//List all available trigger types
+const events: TriggerScheduleEventType[] = ScheduleTriggerEvents().concat();
+if (!props.triggerData.scheduleParams) {
+	props.triggerData.scheduleParams = {
+		type: events[1]!.value as TriggerScheduleTypesValue,
+		repeatDuration: 30 * 60,
+		repeatMinMessages: 100,
+		dates: [],
+	};
+}
+param_action.value.value = props.triggerData.scheduleParams?.type
+	? props.triggerData.scheduleParams?.type
+	: events[0]!.value;
+param_action.value.listValues = events;
+const duration = props.triggerData.scheduleParams!.repeatDuration;
+const minMess = props.triggerData.scheduleParams!.repeatMinMessages;
+param_repeatDurationCondition.value.value = duration != undefined && duration > 0;
+param_repeatMessageCondition.value.value = minMess != undefined && minMess > 0;
 
-	for (let i = 0; i < props.triggerData.scheduleParams!.dates.length; i++) {
-		addDateParam();
-	}
-});
+for (let i = 0; i < props.triggerData.scheduleParams!.dates.length; i++) {
+	addDateParam();
+}
 
 function dateClasses(d: {
 	daily: boolean;

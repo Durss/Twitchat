@@ -69,7 +69,7 @@ import {
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import { computed, onBeforeMount, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import TriggerActionPromptParam from "./common/TriggerActionPromptParam.vue";
 import { useI18n } from "vue-i18n";
 import Splitter from "@/components/Splitter.vue";
@@ -138,28 +138,26 @@ const outputPlaceholders = computed((): string[] => {
 		.filter((v) => v.length > 0);
 });
 
-onBeforeMount(() => {
-	if (!props.action.promptData) {
-		props.action.promptData = {
-			title: "",
-			description: "",
-			stopOnCancel: true,
-			params: [],
-		};
-	}
+if (!props.action.promptData) {
+	props.action.promptData = {
+		title: "",
+		description: "",
+		stopOnCancel: true,
+		params: [],
+	};
+}
 
-	const actionDate = Utils.getUUIDTimestamp(props.action.id);
-	if (!props.action.promptData.params) props.action.promptData.params = [];
-	if (props.action.promptData.params.length === 0 && Date.now() - actionDate < 1000) addParam();
+const actionDate = Utils.getUUIDTimestamp(props.action.id);
+if (!props.action.promptData.params) props.action.promptData.params = [];
+if (props.action.promptData.params.length === 0 && Date.now() - actionDate < 1000) addParam();
 
-	param_title.value.value = props.action.promptData.title;
-	param_description.value.value = props.action.promptData.description;
-	param_stopOnCancel.value.value = props.action.promptData.stopOnCancel !== false;
+param_title.value.value = props.action.promptData.title;
+param_description.value.value = props.action.promptData.description;
+param_stopOnCancel.value.value = props.action.promptData.stopOnCancel !== false;
 
-	const timeout = props.action.promptData.timeout_s;
-	param_timeout.value.value = (timeout || 0) > 0;
-	if (timeout) param_timeoutValue.value.value = timeout;
-});
+const timeout = props.action.promptData.timeout_s;
+param_timeout.value.value = (timeout || 0) > 0;
+if (timeout) param_timeoutValue.value.value = timeout;
 
 watch(
 	() => [param_timeout.value.value, param_timeoutValue.value.value],
