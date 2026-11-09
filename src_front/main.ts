@@ -68,6 +68,7 @@ import { vNewflag } from "./directives/newflag";
 import { stickyTopShadow } from "./directives/stickyTopShadow";
 import { vTooltip } from "./directives/tooltip";
 import { storeAnimatedText } from "./store/animated_text/storeAnimatedText";
+import { storeBidWar } from "./store/bid_war/storeBidWar";
 import { storeAPI } from "./store/api/storeAPI";
 import { storeBluesky } from "./store/bluesky/storeBluesky";
 import { storeChatCommands } from "./store/chat_commands/storeChatCommands";
@@ -304,6 +305,7 @@ function buildApp() {
 	StoreProxy.default.playability = storePlayability();
 	StoreProxy.default.twitchBot = storeTwitchBot();
 	StoreProxy.default.animatedText = storeAnimatedText();
+	StoreProxy.default.bidWar = storeBidWar();
 	StoreProxy.default.customTrain = storeCustomTrain();
 	StoreProxy.default.streamSocket = storeStreamSocket();
 	StoreProxy.default.exporter = storeExporter();

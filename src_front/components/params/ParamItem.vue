@@ -1807,10 +1807,6 @@ watch(
 		transition: background-color 0.1s;
 		position: relative;
 
-		textarea {
-			width: 100%;
-		}
-
 		.holder {
 			flex-grow: 1;
 			display: flex;
@@ -2057,6 +2053,7 @@ watch(
 		textarea,
 		.textinputwithhighlights :deep(textarea) {
 			resize: vertical;
+			width: 100%;
 
 			// Auto-mode field: height is driven by autoResize() so we disable the
 			// manual resize handle and cap the growth (in JS), scrolling past the cap.
@@ -2069,6 +2066,7 @@ watch(
 				// let a manual resize grow the field freely.
 				&.multiline {
 					resize: vertical;
+					min-height: 2.5em;
 				}
 			}
 		}

@@ -64,6 +64,16 @@
 			</button>
 			<button
 				class="item"
+				key="bidwar"
+				v-if="matchesSearch('bidwar')"
+				@click="subContent = 'bidwar'"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_overlays_bidwar' }"
+			>
+				<img src="@/assets/img/overlays/bid_war.jpg" alt="Bid war" />
+				<span>{{ getLabel("bidwar") }}</span>
+			</button>
+			<button
+				class="item"
 				key="animatedtext"
 				v-if="matchesSearch('animatedtext')"
 				@click="subContent = 'animatedtext'"
@@ -347,6 +357,11 @@
 				:open="subContent == 'customtrain'"
 				v-if="subContent == 'customtrain'"
 			/>
+			<OverlayParamsBidWar
+				class="block"
+				:open="subContent == 'bidwar'"
+				v-if="subContent == 'bidwar'"
+			/>
 			<OverlayParamsQuiz
 				class="block"
 				:open="subContent == 'quiz'"
@@ -374,6 +389,7 @@ import TTButton from "../../TTButton.vue";
 import SearchForm from "./SearchForm.vue";
 import OverlayParamsAdBreak from "./overlays/OverlayParamsAdBreak.vue";
 import OverlayParamsAnimatedText from "./overlays/OverlayParamsAnimatedText.vue";
+import OverlayParamsBidWar from "./overlays/OverlayParamsBidWar.vue";
 import OverlayParamsBingoGrid from "./overlays/OverlayParamsBingoGrid.vue";
 import OverlayParamsBitswall from "./overlays/OverlayParamsBitswall.vue";
 import OverlayParamsChatPoll from "./overlays/OverlayParamsChatPoll.vue";
@@ -403,6 +419,7 @@ const search = ref<string>("");
 
 const overlaySearchKeys: { [key: string]: string } = {
 	animatedtext: "overlay.animatedText.search_terms",
+	bidwar: "overlay.bidWar.search_terms",
 	customtrain: "overlay.customTrain.search_terms",
 	donationgoals: "donation_goals.search_terms",
 	bingogrid: "overlay.bingo_grid.search_terms",

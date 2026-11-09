@@ -25,6 +25,7 @@
 		<OverlayAnimatedText v-else-if="overlay == 'animatedtext'" />
 		<OverlayCustomTrain v-else-if="overlay == 'customtrain'" />
 		<OverlayQuiz v-else-if="overlay == 'quiz'" />
+		<OverlayBidWar v-else-if="overlay == 'bidwar'" />
 	</div>
 </template>
 
@@ -98,6 +99,9 @@ const OverlayCustomTrain = defineAsyncComponent({
 });
 const OverlayQuiz = defineAsyncComponent({
 	loader: () => import("@/components/overlays/OverlayQuiz.vue"),
+});
+const OverlayBidWar = defineAsyncComponent({
+	loader: () => import("@/components/overlays/OverlayBidWar.vue"),
 });
 
 const router = useRouter();

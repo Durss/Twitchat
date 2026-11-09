@@ -154,6 +154,7 @@ export default class StoreProxy {
 		IAnimatedTextGetters,
 		IAnimatedTextActions
 	>;
+	public static bidWar: StoreInstance<IBidWarState, IBidWarGetters, IBidWarActions>;
 	public static customTrain: StoreInstance<
 		ICustomTrainState,
 		ICustomTrainGetters,
@@ -4322,6 +4323,63 @@ export interface IAnimatedTextActions {
 	 * Hide text currently displayed
 	 */
 	hideText(overlayId: string): Promise<void>;
+}
+
+export interface IBidWarState {
+	/**
+	 * Bid wars list
+	 */
+	bidWarList: TwitchatDataTypes.BidWarData[];
+}
+
+export interface IBidWarGetters {}
+
+export interface IBidWarActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData(): void;
+	/**
+	 * Broadcast bid war states via the PublicAPI
+	 * @param id optional bid war ID to broadcast. Broadcasts all if omitted
+	 */
+	broadcastStates(id?: string): void;
+	/**
+	 * Create a bid war
+	 */
+	createBidWar(): void;
+	/**
+	 * Deletes given bid war
+	 */
+	deleteBidWar(id: string): void;
+	/**
+	 * Saves data to server
+	 */
+	saveData(): void;
+	/**
+	 * Adds an amount to a side of a bid war
+	 * @param id bid war ID
+	 * @param sideIndex 0 or 1
+	 * @param amount amount to add
+	 */
+	addAmount(id: string, sideIndex: number, amount: number): void;
+	/**
+	 * Resets both sides amounts of a bid war
+	 */
+	resetAmounts(id: string): void;
+	/**
+	 * Called when a tip is received.
+	 * Adds its amount to the side whose keyword is in the tip message
+	 * for every enabled bid war accepting the given platform.
+	 * @param platform tip platform
+	 * @param message tip message
+	 * @param amount tip amount
+	 */
+	registerActivity(
+		platform: keyof TwitchatDataTypes.BidWarData["platforms"],
+		message: string,
+		amount: number,
+	): void;
 }
 
 export interface ICustomTrainState {

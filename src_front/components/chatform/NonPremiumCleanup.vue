@@ -459,6 +459,33 @@
 				</ToggleBlock>
 
 				<ToggleBlock
+					:icons="['coin']"
+					:title="t('premium.cleanup.bid_war')"
+					:alert="!bidWarsOK"
+					:open="!bidWarsOK"
+					v-if="storeBidWar.bidWarList.filter((v) => v.enabled).length > 0"
+				>
+					<template #right_actions>
+						<Icon :name="bidWarsOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{ storeBidWar.bidWarList.filter((v) => v.enabled).length }}/{{
+								config.MAX_BID_WAR
+							}}</strong
+						>
+					</template>
+					<div class="itemList">
+						<div class="rowItem" v-for="item in storeBidWar.bidWarList">
+							<span class="label">{{
+								item.title || t("overlay.bidWar.default_title")
+							}}</span>
+							<div class="toggle">
+								<ToggleButton v-model="item.enabled" @change="toggleBidWar()" />
+							</div>
+						</div>
+					</div>
+				</ToggleBlock>
+
+				<ToggleBlock
 					:icons="['train']"
 					:title="t('premium.cleanup.custom_train')"
 					:alert="!customTrainOK"
@@ -530,6 +557,7 @@
 import { useConfirm } from "@/composables/useConfirm";
 import { storeChatCommands as useStoreChatCommands } from "@/store/chat_commands/storeChatCommands";
 import { storeAnimatedText as useStoreAnimatedText } from "@/store/animated_text/storeAnimatedText";
+import { storeBidWar as useStoreBidWar } from "@/store/bid_war/storeBidWar";
 import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
 import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
 import { storeCustomTrain as useStoreCustomTrain } from "@/store/customtrain/storeCustomTrain";
@@ -580,6 +608,7 @@ const storeBingoGrid = useStoreBingoGrid();
 const storeLabels = useStoreLabels();
 const storeTimer = useStoreTimer();
 const storeAnimatedText = useStoreAnimatedText();
+const storeBidWar = useStoreBidWar();
 const storeCustomTrain = useStoreCustomTrain();
 const storeQuiz = useStoreQuiz();
 const storeChatCommands = useStoreChatCommands();
@@ -653,6 +682,9 @@ const animatedTextsOK = computed<boolean>(() => {
 		config.MAX_ANIMATED_TEXT
 	);
 });
+const bidWarsOK = computed<boolean>(() => {
+	return storeBidWar.bidWarList.filter((v) => v.enabled).length <= config.MAX_BID_WAR;
+});
 const customTrainOK = computed<boolean>(() => {
 	return (
 		storeCustomTrain.customTrainList.filter((v) => v.enabled).length <= config.MAX_CUSTOM_TRAIN
@@ -678,6 +710,7 @@ const allOK = computed<boolean>(() => {
 		labelsOK.value &&
 		timersOK.value &&
 		animatedTextsOK.value &&
+		bidWarsOK.value &&
 		customTrainOK.value &&
 		quizOK.value &&
 		chatCommandsOK.value
@@ -941,6 +974,11 @@ function toggleTimer(item: TwitchatDataTypes.TimerData): void {
 
 function toggleAnimatedText(item: TwitchatDataTypes.AnimatedTextData): void {
 	storeAnimatedText.saveData();
+}
+
+function toggleBidWar(): void {
+	storeBidWar.saveData();
+	storeBidWar.broadcastStates();
 }
 
 function toggleCustomTrain(item: TwitchatDataTypes.CustomTrainData): void {

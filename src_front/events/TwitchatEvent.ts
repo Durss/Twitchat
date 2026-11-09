@@ -376,6 +376,20 @@ export type TwitchatEventMap = {
 	 */
 	ON_ANIMATED_TEXT_CONFIGS: TwitchatDataTypes.AnimatedTextData;
 	/**
+	 * Request bid war overlay configuration
+	 * @answer ON_BID_WAR_CONFIGS
+	 */
+	GET_BID_WAR_CONFIGS: {
+		/**
+		 * Bid war overlay ID
+		 */
+		id: string;
+	};
+	/**
+	 * Receive bid war overlay configuration and amounts
+	 */
+	ON_BID_WAR_CONFIGS: TwitchatDataTypes.BidWarData;
+	/**
 	 * Set text content for an animated text overlay
 	 */
 	SET_ANIMATED_TEXT_CONTENT: {

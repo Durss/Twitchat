@@ -101,6 +101,7 @@ export namespace TwitchatDataTypes {
 		| "animatedtext"
 		| "customtrain"
 		| "quiz"
+		| "bidwar"
 		| "sfxr";
 
 	export const ParamDeepSections = {
@@ -1202,13 +1203,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Source to link this donation goal to
 		 */
-		dataSource:
-			| "streamlabs_charity"
-			| "tiltify"
-			| "counter"
-			| "twitch_subs"
-			| "twitch_followers"
-			| "twitch_charity";
+		dataSource: TipPlatform;
 		/**
 		 * Optional campaign ID.
 		 * Not used by "streamlabs_charity" as the campaign
@@ -1556,13 +1551,7 @@ export namespace TwitchatDataTypes {
 		 */
 		tip?: {
 			amount: string;
-			source:
-				| "kofi"
-				| "streamlabs"
-				| "streamlabs_charity"
-				| "streamlements"
-				| "tipeee"
-				| "tiltify";
+			source: TipPlatform;
 		};
 		/**
 		 * User info
@@ -3848,6 +3837,62 @@ export namespace TwitchatDataTypes {
 	] as const;
 
 	/**
+	 * Represents a Bid War overlay params.
+	 */
+	export interface BidWarData {
+		id: string;
+		enabled: boolean;
+		/**
+		 * Bid war's title
+		 */
+		title: string;
+		/**
+		 * Currency pattern
+		 */
+		currency: string;
+		/**
+		 * Sides users can vote for
+		 */
+		sides: [BidWarSideData, BidWarSideData];
+		/**
+		 * Tip platforms allowed to update the bid war
+		 */
+		platforms: Record<Exclude<TipPlatform, "patreon" | "twitch_charity">, boolean>;
+	}
+
+	/**
+	 * Represents one side of a Bid War
+	 */
+	export interface BidWarSideData {
+		/**
+		 * Keyword viewers must put in their tip message to tip for this side
+		 */
+		keyword: string;
+		/**
+		 * Amount raised so far
+		 */
+		amount: number;
+		/**
+		 * Side's color
+		 */
+		color: string;
+	}
+
+	/**
+	 * Tip platforms that can be enabled/disabled on features like
+	 * custom trains or bid wars
+	 */
+	export type TipPlatform =
+		| "kofi"
+		| "streamelements"
+		| "patreon"
+		| "streamlabs"
+		| "tipeee"
+		| "tiltify"
+		| "streamlabs_charity"
+		| "twitch_charity";
+
+	/**
 	 * Represents a custom train params
 	 */
 	export interface CustomTrainData {
@@ -4004,16 +4049,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Platforms allowed to make train progress
 		 */
-		platforms: {
-			kofi: boolean;
-			streamelements: boolean;
-			patreon: boolean;
-			streamlabs: boolean;
-			tipeee: boolean;
-			tiltify: boolean;
-			streamlabs_charity: boolean;
-			twitch_charity: boolean;
-		};
+		platforms: Record<TipPlatform, boolean>;
 	}
 
 	export interface CustomTrainState {

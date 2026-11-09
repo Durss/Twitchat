@@ -2184,6 +2184,11 @@ export const storeChat = defineStore("chat", {
 									message.amountFormatted,
 								);
 								sRaffle.checkRaffleJoin(message);
+								StoreProxy.bidWar.registerActivity(
+									"kofi",
+									message.message,
+									message.amount,
+								);
 								StoreProxy.customTrain.registerActivity(
 									message.id,
 									"kofi",
@@ -2226,6 +2231,11 @@ export const storeChat = defineStore("chat", {
 									message.amountFormatted,
 								);
 								sRaffle.checkRaffleJoin(message);
+								StoreProxy.bidWar.registerActivity(
+									"streamelements",
+									message.message,
+									message.amount,
+								);
 								StoreProxy.customTrain.registerActivity(
 									message.id,
 									"streamelements",
@@ -2250,6 +2260,11 @@ export const storeChat = defineStore("chat", {
 									message.amountFormatted,
 								);
 								sRaffle.checkRaffleJoin(message);
+								StoreProxy.bidWar.registerActivity(
+									"streamlabs",
+									message.message,
+									message.amount,
+								);
 								StoreProxy.customTrain.registerActivity(
 									message.id,
 									"streamlabs",
@@ -2287,6 +2302,11 @@ export const storeChat = defineStore("chat", {
 									message.campaign.id,
 								);
 								sRaffle.checkRaffleJoin(message);
+								StoreProxy.bidWar.registerActivity(
+									"streamlabs_charity",
+									message.message,
+									message.amount,
+								);
 								StoreProxy.customTrain.registerActivity(
 									message.id,
 									"streamlabs_charity",
@@ -2311,6 +2331,11 @@ export const storeChat = defineStore("chat", {
 									message.amountFormatted,
 								);
 								sRaffle.checkRaffleJoin(message);
+								StoreProxy.bidWar.registerActivity(
+									"tipeee",
+									message.message,
+									message.amount,
+								);
 								StoreProxy.customTrain.registerActivity(
 									message.id,
 									"tipeee",
@@ -2427,6 +2452,11 @@ export const storeChat = defineStore("chat", {
 						);
 						StoreProxy.labels.updateLabelValue(
 							"TILTIFY_LAST_TIP_AMOUNT",
+							message.amount,
+						);
+						StoreProxy.bidWar.registerActivity(
+							"tiltify",
+							message.message,
 							message.amount,
 						);
 						StoreProxy.customTrain.registerActivity(

@@ -705,6 +705,34 @@
 				"message": "Are you sure you want to delete this entry?"
 			}
 		},
+		"bidWar": {
+			"search_terms": ["bid war", "versus", "tips", "donation", "battle", "tug of war"],
+			"header": "Viewers tip for one side or the other by writing a keyword in their tip message.",
+			"add_bt": "Create bid war",
+			"default_title": "Bid war",
+			"premium_limit": "You reached the maximum number of bid wars you can create",
+			"non_premium_limit": "You reached the maximum number of {MAX} bid war.\nBecome premium to set up to {MAX_PREMIUM} bid wars.",
+			"install_title": "Install overlay",
+			"param_platforms": "Tip platforms that update the bar",
+			"side_title": "Side {INDEX}",
+			"param_keyword": "Keyword",
+			"param_keyword_placeholder": "keyword...",
+			"param_amount": "Current amount",
+			"param_color": "Color",
+			"reset_bt": "Reset amounts",
+			"reset_confirm": {
+				"title": "Reset amounts",
+				"message": "You'll lose progresses"
+			},
+			"delete_confirm": {
+				"title": "Delete bid war",
+				"message": "Are you sure you want to delete this bid war?"
+			}
+		},
+		"tipPlatforms": {
+			"connect_tt": "This platform is not connected",
+			"connect_twitchCharity_tt": "You have not linked any charity campaign with your Twitch account"
+		},
 		"customTrain": {
 			"search_terms": ["custom hype train", "train"],
 			"header": "Create custom hype trains linked to tips from external platforms",
@@ -715,8 +743,6 @@
 			"simulate_bt": "Simulate fake Train",
 			"state_cooldown_tt": "Train is on cooldown\nClick to reset.",
 			"state_expire_tt": "Train ends in...",
-			"connectPlatform_tt": "This platform has not been connected",
-			"connectPlatform_twitchCharity_tt": "You have not linked any charity campaign with your Twitch account",
 			"delete_confirm": {
 				"title": "Delete entry",
 				"message": "Are you sure you want to delete this entry?"

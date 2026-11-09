@@ -384,6 +384,20 @@ const UserDataSchema = {
 				},
 			},
 		},
+		tipPlatforms: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				kofi: { type: "boolean" },
+				streamelements: { type: "boolean" },
+				patreon: { type: "boolean" },
+				streamlabs: { type: "boolean" },
+				tipeee: { type: "boolean" },
+				tiltify: { type: "boolean" },
+				streamlabs_charity: { type: "boolean" },
+				twitch_charity: { type: "boolean" },
+			},
+		},
 	},
 
 	type: "object",
@@ -3192,6 +3206,43 @@ const UserDataSchema = {
 			},
 		},
 
+		bidWarConfigs: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				bidWarList: {
+					type: "array",
+					minItems: 0,
+					maxItems: 10,
+					items: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							id: { type: "string", maxLength: 50 },
+							enabled: { type: "boolean" },
+							title: { type: "string", maxLength: 60 },
+							currency: { type: "string", maxLength: 50 },
+							sides: {
+								type: "array",
+								minItems: 2,
+								maxItems: 2,
+								items: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										keyword: { type: "string", maxLength: 30 },
+										amount: { type: "number", minimum: 0, maximum: 1000000000 },
+										color: { type: "string", maxLength: 10 },
+									},
+								},
+							},
+							platforms: { $ref: "#/definitions/tipPlatforms" },
+						},
+					},
+				},
+			},
+		},
+
 		customTrainConfigs: {
 			type: "object",
 			additionalProperties: false,
@@ -3293,20 +3344,7 @@ const UserDataSchema = {
 									},
 								},
 							},
-							platforms: {
-								type: "object",
-								additionalProperties: false,
-								properties: {
-									kofi: { type: "boolean" },
-									streamelements: { type: "boolean" },
-									patreon: { type: "boolean" },
-									streamlabs: { type: "boolean" },
-									tipeee: { type: "boolean" },
-									tiltify: { type: "boolean" },
-									streamlabs_charity: { type: "boolean" },
-									twitch_charity: { type: "boolean" },
-								},
-							},
+							platforms: { $ref: "#/definitions/tipPlatforms" },
 						},
 					},
 				},

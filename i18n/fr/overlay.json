@@ -657,6 +657,34 @@
 				"message": "Êtes-vous sûr de vouloir supprimer cette entrée ?"
 			}
 		},
+		"bidWar": {
+			"search_terms": ["bid war", "guerre des dons", "versus", "dons", "tips", "duel"],
+			"header": "Les viewers votent pour un camp ou l'autre en écrivant un mot-clé dans le message de leur don.",
+			"add_bt": "Créer une bid war",
+			"default_title": "Bid war",
+			"premium_limit": "Vous avez atteint le nombre maximum de bid wars que vous pouvez créer.",
+			"non_premium_limit": "Vous avez atteint le nombre maximum de {MAX} bid war que vous pouvez créer.\nDevenez premium pour en créer jusqu'à {MAX_PREMIUM}.",
+			"install_title": "Installer l'overlay",
+			"param_platforms": "Plateformes desquelles accepter les dons",
+			"side_title": "Côté {INDEX}",
+			"param_keyword": "Mot-clé",
+			"param_keyword_placeholder": "mot clé...",
+			"param_amount": "Montant courant",
+			"param_color": "Couleur",
+			"reset_bt": "Réinitialiser les montants",
+			"reset_confirm": {
+				"title": "Réinitialiser les montants",
+				"message": "Vous perdrez les progressions"
+			},
+			"delete_confirm": {
+				"title": "Supprimer la bid war",
+				"message": "Êtes-vous sûr de vouloir supprimer cette bid war ?"
+			}
+		},
+		"tipPlatforms": {
+			"connect_tt": "Cette plateforme n'est pas connectée",
+			"connect_twitchCharity_tt": "Vous n'avez lié aucune campagne caritative à votre compte Twitch"
+		},
 		"customTrain": {
 			"search_terms": [
 				"train de la hype personnalisé",
@@ -673,8 +701,6 @@
 			"simulate_bt": "Simuler un faux train",
 			"state_cooldown_tt": "Le train est en cooldown\nCliquez pour réinitialiser.",
 			"state_expire_tt": "Le train se termine dans...",
-			"connectPlatform_tt": "Cette plateforme n'a pas été connectée",
-			"connectPlatform_twitchCharity_tt": "Vous n'avez lié aucune campagne caritative à votre compte Twitch",
 			"delete_confirm": {
 				"title": "Supprimer l'entrée",
 				"message": "Êtes-vous sûr de vouloir supprimer cette entrée ?"

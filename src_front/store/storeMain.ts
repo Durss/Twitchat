@@ -103,6 +103,8 @@ export const storeMain = defineStore("main", {
 					Config.instance.MAX_TIMERS ||
 				StoreProxy.animatedText.animatedTextList.filter((v) => v.enabled).length >
 					Config.instance.MAX_ANIMATED_TEXT ||
+				StoreProxy.bidWar.bidWarList.filter((v) => v.enabled).length >
+					Config.instance.MAX_BID_WAR ||
 				StoreProxy.customTrain.customTrainList.filter((v) => v.enabled).length >
 					Config.instance.MAX_CUSTOM_TRAIN ||
 				StoreProxy.quiz.quizList.filter((v) => v.enabled).length >
@@ -867,6 +869,7 @@ export const storeMain = defineStore("main", {
 			void StoreProxy.bluesky.populateData();
 			StoreProxy.streamSocket.populateData();
 			StoreProxy.animatedText.populateData();
+			StoreProxy.bidWar.populateData();
 			void StoreProxy.mixitup.populateData();
 			StoreProxy.chatCommands.populateData();
 			StoreProxy.endingCredits.populateData();

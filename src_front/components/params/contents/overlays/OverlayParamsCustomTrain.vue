@@ -130,180 +130,11 @@
 						>
 					</div>
 
-					<div class="card-item platforms">
-						<strong>{{ t("overlay.customTrain.param_platforms") }}</strong>
-						<div class="platformsList">
-							<TTButton
-								class="platform"
-								small
-								v-tooltip="
-									!storeStreamlabs.connected
-										? t('overlay.customTrain.connectPlatform_tt')
-										: ''
-								"
-								:disabled="!storeStreamlabs.connected"
-								:primary="storeStreamlabs.connected && entry.platforms.streamlabs"
-								@click.capture="
-									!storeStreamlabs.connected
-										? openConnections('streamlabs')
-										: (entry.platforms.streamlabs = !entry.platforms.streamlabs)
-								"
-								icon="streamlabs"
-								>Streamlabs</TTButton
-							>
-
-							<TTButton
-								class="platform"
-								small
-								v-tooltip="
-									!storeStreamelements.connected
-										? t('overlay.customTrain.connectPlatform_tt')
-										: ''
-								"
-								:disabled="!storeStreamelements.connected"
-								:primary="
-									storeStreamelements.connected && entry.platforms.streamelements
-								"
-								@click.capture="
-									!storeStreamelements.connected
-										? openConnections('streamelements')
-										: (entry.platforms.streamelements =
-												!entry.platforms.streamelements)
-								"
-								icon="streamelements"
-								>Stream<br />Elements</TTButton
-							>
-
-							<TTButton
-								class="platform"
-								small
-								v-tooltip="
-									!storeTipeee.connected
-										? t('overlay.customTrain.connectPlatform_tt')
-										: ''
-								"
-								:disabled="!storeTipeee.connected"
-								:primary="storeTipeee.connected && entry.platforms.tipeee"
-								@click.capture="
-									!storeTipeee.connected
-										? openConnections('tipeee')
-										: (entry.platforms.tipeee = !entry.platforms.tipeee)
-								"
-								icon="tipeee"
-								>Tipeee</TTButton
-							>
-
-							<TTButton
-								class="platform"
-								small
-								v-tooltip="
-									!storeKofi.connected
-										? t('overlay.customTrain.connectPlatform_tt')
-										: ''
-								"
-								:disabled="!storeKofi.connected"
-								:primary="storeKofi.connected && entry.platforms.kofi"
-								@click.capture="
-									!storeKofi.connected
-										? openConnections('kofi')
-										: (entry.platforms.kofi = !entry.platforms.kofi)
-								"
-								icon="kofi"
-								>Ko-Fi</TTButton
-							>
-
-							<TTButton
-								class="platform"
-								small
-								v-tooltip="
-									!storePatreon.connected
-										? t('overlay.customTrain.connectPlatform_tt')
-										: ''
-								"
-								:disabled="!storePatreon.connected"
-								:primary="storePatreon.connected && entry.platforms.patreon"
-								@click.capture="
-									!storePatreon.connected
-										? openConnections('patreon')
-										: (entry.platforms.patreon = !entry.platforms.patreon)
-								"
-								icon="patreon"
-								>Patreon</TTButton
-							>
-
-							<TTButton
-								class="platform"
-								small
-								v-tooltip="
-									!storeTiltify.connected
-										? t('overlay.customTrain.connectPlatform_tt')
-										: ''
-								"
-								:disabled="!storeTiltify.connected"
-								:primary="storeTiltify.connected && entry.platforms.tiltify"
-								@click.capture="
-									!storeTiltify.connected
-										? openConnections('tiltify')
-										: (entry.platforms.tiltify = !entry.platforms.tiltify)
-								"
-								icon="tiltify"
-								>Tiltify</TTButton
-							>
-
-							<TTButton
-								class="platform"
-								small
-								v-tooltip="
-									!storeStreamlabs.charityTeam
-										? t('overlay.customTrain.connectPlatform_tt')
-										: ''
-								"
-								:disabled="!storeStreamlabs.charityTeam"
-								:primary="
-									storeStreamlabs.charityTeam != null &&
-									entry.platforms.streamlabs_charity
-								"
-								@click.capture="
-									!storeStreamlabs.charityTeam
-										? openConnections('streamlabs')
-										: (entry.platforms.streamlabs_charity =
-												!entry.platforms.streamlabs_charity)
-								"
-								icon="streamlabs"
-								>Streamlabs<br />charity</TTButton
-							>
-
-							<TTButton
-								class="platform"
-								small
-								target="_blank"
-								v-tooltip="
-									!storeTwitchCharity.currentCharity
-										? t('overlay.customTrain.connectPlatform_twitchCharity_tt')
-										: ''
-								"
-								:class="{ disabled: !storeTwitchCharity.currentCharity }"
-								:primary="
-									storeTwitchCharity.currentCharity != null &&
-									entry.platforms.twitch_charity
-								"
-								:type="!storeTwitchCharity.currentCharity ? 'link' : 'button'"
-								:href="
-									!storeTwitchCharity.currentCharity
-										? 'https://dashboard.twitch.tv/charity/'
-										: null
-								"
-								@click.capture="
-									!storeTwitchCharity.currentCharity
-										? null
-										: (entry.platforms.twitch_charity =
-												!entry.platforms.twitch_charity)
-								"
-								icon="twitch_charity"
-								>Twitch Charity</TTButton
-							>
-						</div>
-					</div>
+					<TipPlatformSelector
+						v-model="entry.platforms"
+						:label="t('overlay.customTrain.param_platforms')"
+						@change="onChange(entry)"
+					/>
 
 					<div class="themeBlock">
 						<div class="font">
@@ -630,14 +461,7 @@ import EmoteSelector from "@/components/chatform/EmoteSelector.vue";
 import OverlayCustomTrainRenderer from "@/components/overlays/custom_train/OverlayCustomTrainRenderer.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeCustomTrain as useStoreCustomTrain } from "@/store/customtrain/storeCustomTrain";
-import { storeKofi as useStoreKofi } from "@/store/kofi/storeKofi";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
-import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
-import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
-import { storeStreamlabs as useStoreStreamlabs } from "@/store/streamlabs/storeStreamlabs";
-import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
-import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
-import { storeTwitchCharity as useStoreTwitchCharity } from "@/store/twitch_charity/storeTwitchCharity";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
@@ -659,18 +483,12 @@ import ParamItem from "../../ParamItem.vue";
 import LimitCounter from "../../LimitCounter.vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
+import TipPlatformSelector from "./TipPlatformSelector.vue";
 
 const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeParams = useStoreParams();
 const storeCustomTrain = useStoreCustomTrain();
-const storeStreamlabs = useStoreStreamlabs();
-const storeStreamelements = useStoreStreamelements();
-const storeTipeee = useStoreTipeee();
-const storeKofi = useStoreKofi();
-const storePatreon = useStorePatreon();
-const storeTiltify = useStoreTiltify();
-const storeTwitchCharity = useStoreTwitchCharity();
 
 const emoteSelector = useTemplateRef<ComponentPublicInstance>("emoteSelector");
 
@@ -916,13 +734,6 @@ function addEntry(): void {
  */
 function simulateTrain(overlayId: string): void {
 	storeCustomTrain.simulateTrain(overlayId);
-}
-
-/**
- * Opens connections params
- */
-function openConnections(subSection: TwitchatDataTypes.ParamDeepSectionsStringType): void {
-	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, subSection);
 }
 
 /**
@@ -1187,28 +998,6 @@ watch(
 				}
 				:deep(.inputHolder) {
 					width: 50px;
-				}
-			}
-		}
-	}
-
-	.platforms {
-		gap: 0.5em;
-		display: flex;
-		flex-direction: column;
-		.platformsList {
-			gap: 0.5em;
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			justify-content: center;
-
-			.platform {
-				min-width: 7em;
-				flex-direction: column;
-				gap: 0.5em;
-				:deep(.icon) {
-					font-size: 4em;
 				}
 			}
 		}

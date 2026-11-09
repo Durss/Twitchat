@@ -87,13 +87,14 @@ watch([prefix, suffix], () => {
 	}
 
 	.form {
+		gap: 0.25em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		.input {
 			min-width: 20px;
 			padding: 0 0.25em;
-			border-radius: var(--border-radius);
+			border-radius: 0.25em;
 			background: none;
 			border: 1px dashed var(--color-text);
 			font-weight: bold;

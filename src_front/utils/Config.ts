@@ -265,6 +265,14 @@ export default class Config {
 	 */
 	public MAX_ANIMATED_TEXT_PREMIUM = 10;
 	/**
+	 * Maximum number of bid wars
+	 */
+	public MAX_BID_WAR = 1;
+	/**
+	 * Maximum number of bid wars for premium users
+	 */
+	public MAX_BID_WAR_PREMIUM = 10;
+	/**
 	 * Maximum number of custom trains
 	 */
 	public MAX_CUSTOM_TRAIN = 1;

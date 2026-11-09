@@ -208,6 +208,7 @@ function answer(confirm = false): void {
 			margin-top: 1em;
 			text-align: center;
 			white-space: pre-line;
+			text-wrap: balance;
 		}
 
 		.buttons {
