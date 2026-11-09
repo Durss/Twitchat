@@ -255,7 +255,7 @@
 					/>
 				</ParamItem>
 				<ParamItem
-					:paramData="param_tip_streamlements"
+					:paramData="param_tip_streamelements"
 					v-model="localData.tip_streamelements"
 				>
 					<ParamItem
@@ -267,7 +267,7 @@
 					<ParamItem
 						class="child"
 						noBackground
-						:paramData="param_tip_streamlements_ponderate"
+						:paramData="param_tip_streamelements_ponderate"
 						v-model="localData.tip_streamelements_ponderate"
 					/>
 				</ParamItem>
@@ -793,7 +793,7 @@ const param_tip_streamlabsCharity = ref<TwitchatDataTypes.ParameterData<boolean>
 	labelKey: "raffle.params.tip_streamlabsCharity",
 	icon: "charity",
 });
-const param_tip_streamlements = ref<TwitchatDataTypes.ParameterData<boolean>>({
+const param_tip_streamelements = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	value: false,
 	type: "boolean",
 	labelKey: "raffle.params.tip_streamelements",
@@ -887,7 +887,7 @@ const param_tip_streamlabsCharity_ponderate = ref<TwitchatDataTypes.ParameterDat
 	max: 999999,
 	labelKey: "raffle.params.tip_ponderate",
 });
-const param_tip_streamlements_ponderate = ref<TwitchatDataTypes.ParameterData<number>>({
+const param_tip_streamelements_ponderate = ref<TwitchatDataTypes.ParameterData<number>>({
 	value: 1,
 	type: "number",
 	min: 0,
@@ -1569,7 +1569,7 @@ async function submitForm(): Promise<void> {
 			pickingEntry.value = false;
 		};
 	} else //Patreon mode specifics
-	 if (localData.value.mode == "patreon") {
+	if (localData.value.mode == "patreon") {
 		// The following just does a random animation
 		if (patreonMembersFiltered.value.length == 0) return;
 		let interval = window.setInterval(() => {

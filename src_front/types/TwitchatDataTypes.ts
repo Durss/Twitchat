@@ -1204,7 +1204,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Source to link this donation goal to
 		 */
-		dataSource: TipPlatform;
+		dataSource: TipPlatform | "twitch_subs" | "counter" | "twitch_followers";
 		/**
 		 * Optional campaign ID.
 		 * Not used by "streamlabs_charity" as the campaign

@@ -56,8 +56,8 @@ class ChatRaffleResult extends AbstractChatMessage {
 			case "streamlabs_charity":
 				this.tipPlatform = "Streamlabs Charity";
 				break;
-			case "streamlements":
-				this.tipPlatform = "Streamlements";
+			case "streamelements":
+				this.tipPlatform = "Streamelements";
 				break;
 			case "tipeee":
 				this.tipPlatform = "Tipeee";

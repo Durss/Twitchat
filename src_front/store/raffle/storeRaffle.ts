@@ -315,8 +315,8 @@ export const storeRaffle = defineStore("raffle", {
 							case "streamlabs_charity":
 								platform = "Streamlabs Charity";
 								break;
-							case "streamlements":
-								platform = "Streamlements";
+							case "streamelements":
+								platform = "Streamelements";
 								break;
 							case "tipeee":
 								platform = "Tipeee";
@@ -456,7 +456,7 @@ export const storeRaffle = defineStore("raffle", {
 							break;
 						}
 						case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
-							tipPlatform = "streamlements";
+							tipPlatform = "streamelements";
 							joinRatio = raffle.tip_streamelements_ponderate || 0;
 							break;
 						}
