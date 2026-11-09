@@ -269,7 +269,9 @@
 				"action_animated_text": "Animate text",
 				"action_animated_text_tt": "You first need to create an animated text overlay to use this action",
 				"action_custom_train": "Custom train",
-				"action_custom_train_tt": "You first need to create a custom train overlay to use this action"
+				"action_custom_train_tt": "You first need to create a custom train overlay to use this action",
+				"action_bid_war": "Bid war",
+				"action_bid_war_tt": "You first need to create a bid war overlay to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -868,6 +870,18 @@
 					"add": "Add amount",
 					"del": "Remove amount"
 				}
+			},
+			"bid_war": {
+				"param_bidWarId": "Bid war",
+				"param_side": "Side",
+				"param_action": "Action",
+				"param_value": "Value",
+				"actions": {
+					"add": "Add amount",
+					"del": "Remove amount",
+					"set": "Set amount"
+				},
+				"noBidwar": "You must first create a bid war"
 			},
 			"sfxr": {
 				"preset_pickupCoin": "Pickup coin",

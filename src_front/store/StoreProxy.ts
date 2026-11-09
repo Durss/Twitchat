@@ -4364,6 +4364,13 @@ export interface IBidWarActions {
 	 */
 	addAmount(id: string, sideIndex: number, amount: number): void;
 	/**
+	 * Sets the amount of a side of a bid war
+	 * @param id bid war ID
+	 * @param sideIndex 0 or 1
+	 * @param amount new amount
+	 */
+	setAmount(id: string, sideIndex: number, amount: number): void;
+	/**
 	 * Resets both sides amounts of a bid war
 	 */
 	resetAmounts(id: string): void;

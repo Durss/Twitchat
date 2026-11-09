@@ -146,6 +146,15 @@ export const storeBidWar = defineStore("bidwar", {
 			this.broadcastStates(id);
 		},
 
+		setAmount(id: string, sideIndex: number, amount: number): void {
+			const entry = this.bidWarList.find((v) => v.id === id);
+			const side = entry?.sides[sideIndex];
+			if (!entry || !side || isNaN(amount)) return;
+			side.amount = Math.round(amount * 100) / 100;
+			this.saveData();
+			this.broadcastStates(id);
+		},
+
 		resetAmounts(id: string): void {
 			const entry = this.bidWarList.find((v) => v.id === id);
 			if (!entry) return;

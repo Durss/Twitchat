@@ -133,6 +133,12 @@ const props = defineProps<{
 	triggerData: TriggerData;
 }>();
 
+//Init counter's action if necessary
+if (!props.action.action) props.action.action = "ADD";
+//Init counter's list if necessary
+if (!props.action.counters) props.action.counters = [];
+if (!props.action.addValue) props.action.addValue = "";
+
 const { t } = useI18n();
 const { place: placeDropdown } = usePlaceDropdown();
 const storeCounters = useStoreCounters();
@@ -318,12 +324,6 @@ onBeforeMount(() => {
 		.filter((v) => {
 			return v.value != props.triggerData.counterId;
 		});
-
-	//Init counter's action if necessary
-	if (!props.action.action) props.action.action = "ADD";
-	//Init counter's list if necessary
-	if (!props.action.counters) props.action.counters = [];
-	if (!props.action.addValue) props.action.addValue = "";
 
 	//Check if selected counter still exists
 	for (let i = 0; i < props.action.counters.length; i++) {

@@ -548,6 +548,21 @@
 
 					<TTButton
 						class="button"
+						@click.capture="selectActionType('bid_war')"
+						:disabled="!canControlBidWar"
+						v-newflag="{
+							date: Config.instance.NEW_FLAGS_DATE_V17,
+							id: 'params_triggerAction_bidWar',
+						}"
+						v-tooltip="
+							canControlBidWar ? '' : $t('triggers.actions.common.action_bid_war_tt')
+						"
+						icon="bidwar"
+						>{{ $t("triggers.actions.common.action_bid_war") }}</TTButton
+					>
+
+					<TTButton
+						class="button"
 						@click="selectActionType('trigger')"
 						icon="broadcast"
 						>{{ $t("triggers.actions.common.action_trigger") }}</TTButton
@@ -837,6 +852,11 @@
 				:action="action"
 				:triggerData="triggerData"
 			/>
+			<TriggerActionBidWarEntry
+				v-else-if="action.type == 'bid_war'"
+				:action="action"
+				:triggerData="triggerData"
+			/>
 			<TriggerActionSFXREntry
 				v-else-if="action.type == 'sfxr'"
 				:action="action"
@@ -912,6 +932,7 @@ import PollForm from "@/components/poll/PollForm.vue";
 import PredictionForm from "@/components/prediction/PredictionForm.vue";
 import { storeAnimatedText as useStoreAnimatedText } from "@/store/animated_text/storeAnimatedText";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeBidWar as useStoreBidWar } from "@/store/bid_war/storeBidWar";
 import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
 import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
 import { storeCustomTrain as useStoreCustomTrain } from "@/store/customtrain/storeCustomTrain";
@@ -930,6 +951,7 @@ import {
 	TriggerEventPlaceholders,
 	TriggerEventUserIdPlaceholder,
 	type TriggerActionAnimatedTextData,
+	type TriggerActionBidWarData,
 	type TriggerActionBingoGridData,
 	type TriggerActionCustomTrainData,
 	type TriggerActionObsData,
@@ -958,6 +980,7 @@ import BingoForm from "../../../bingo/BingoForm.vue";
 import RaffleForm from "../../../raffle/RaffleForm.vue";
 import TriggerConditionList from "./TriggerConditionList.vue";
 import TriggerActionAnimateTextEntry from "./entries/TriggerActionAnimateTextEntry.vue";
+import TriggerActionBidWarEntry from "./entries/TriggerActionBidWarEntry.vue";
 import TriggerActionBingoGridEntry from "./entries/TriggerActionBingoGridEntry.vue";
 import TriggerActionBlueskyEntry from "./entries/TriggerActionBlueskyEntry.vue";
 import TriggerActionChatEntry from "./entries/TriggerActionChatEntry.vue";
@@ -1040,6 +1063,7 @@ const storeDiscord = useStoreDiscord();
 const storeHeat = useStoreHeat();
 const storeAnimatedText = useStoreAnimatedText();
 const storeCustomTrain = useStoreCustomTrain();
+const storeBidWar = useStoreBidWar();
 const storeStreamerbot = useStoreStreamerbot();
 const storeSammi = useStoreSammi();
 const storeMixitup = useStoreMixitup();
@@ -1069,6 +1093,7 @@ const wsConnected = computed(() => WebsocketTrigger.instance.connected.value);
 const heatClickEnabled = computed(() => (storeHeat.distortionList || []).length > 0);
 const canAnimateText = computed(() => storeAnimatedText.animatedTextList.length > 0);
 const canControlCustomTrain = computed(() => storeCustomTrain.customTrainList.length > 0);
+const canControlBidWar = computed(() => storeBidWar.bidWarList.length > 0);
 const isAffiliate = computed(
 	() => storeAuth.twitch.user.is_affiliate || storeAuth.twitch.user.is_partner,
 );
@@ -1197,6 +1222,7 @@ const icons = computed(() => {
 	else if (props.action.type == "timer") icons.push("timer");
 	else if (props.action.type == "animated_text") icons.push("animate");
 	else if (props.action.type == "custom_train") icons.push("train");
+	else if (props.action.type == "bid_war") icons.push("bidwar");
 	else if (props.action.type == "sfxr") icons.push("unmute");
 	else if (props.action.type == "prompt") icons.push("prompt");
 	return icons;
@@ -1224,6 +1250,10 @@ const isError = computed(() => {
 		return !storeCustomTrain.customTrainList.some(
 			(entry) => entry.id == action.customTrainData.trainId,
 		);
+	}
+	if (props.action.type === "bid_war" && props.action.bidWarData) {
+		const action = props.action as TriggerActionBidWarData;
+		return !storeBidWar.bidWarList.some((entry) => entry.id == action.bidWarData.bidWarId);
 	}
 	if (props.action.type === "reward" && props.action.rewardAction) {
 		const action = props.action as TriggerActionRewardData;
@@ -1278,6 +1308,13 @@ function selectActionType(type: TriggerActionStringTypes): void {
 					TwitchatDataTypes.ParameterPages.OVERLAYS,
 					"customtrain",
 				);
+				return;
+			}
+			break;
+		}
+		case "bid_war": {
+			if (!canControlBidWar.value) {
+				storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "bidwar");
 				return;
 			}
 			break;

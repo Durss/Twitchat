@@ -116,6 +116,7 @@ export namespace TwitchatDataTypes {
 		LUMIA: "lumia",
 		SAMMI: "sammi",
 		TIPEEE: "tipeee",
+		BIDWAR: "bidwar",
 		TIKTOK: "tiktok",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",

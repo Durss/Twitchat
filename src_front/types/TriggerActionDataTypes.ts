@@ -115,6 +115,7 @@ export type TriggerActionTypes =
 	| TriggerActionChatPollData
 	| TriggerActionAnimatedTextData
 	| TriggerActionCustomTrainData
+	| TriggerActionBidWarData
 	| TriggerActionSFXRData
 	| TriggerActionJSONExtractData
 	| TriggerActionBlueskyData
@@ -1850,6 +1851,33 @@ export interface TriggerActionCustomTrainData extends TriggerActionData {
 	};
 }
 export const TriggerActionCustomTrainData_ActionList = ["add", "del"] as const;
+
+/**
+ * Contains actions to perform on a bid war
+ */
+export interface TriggerActionBidWarData extends TriggerActionData {
+	type: "bid_war";
+	bidWarData: {
+		/**
+		 * Bid war ID to control
+		 */
+		bidWarId: string;
+		/**
+		 * Index of the side to update (0:left, 1:right)
+		 */
+		sideIndex: 0 | 1;
+		/**
+		 * Action to perform
+		 */
+		action: (typeof TriggerActionBidWarData_ActionList)[number];
+		/**
+		 * Value to add/remove/set
+		 * It's a string because it can contain placeholders and math operations
+		 */
+		value: string;
+	};
+}
+export const TriggerActionBidWarData_ActionList = ["add", "del", "set"] as const;
 
 /**
  * Beep action details
