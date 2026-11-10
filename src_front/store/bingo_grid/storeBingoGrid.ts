@@ -1022,7 +1022,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 						};
 						newVerticalBingos.forEach((index) => {
 							const message = buildMessage();
-							message.col = index;
+							message.colIndex = index;
 							void StoreProxy.chat.addMessage(message);
 						});
 						newHorizontalBingos.forEach((index) => {
@@ -1037,10 +1037,11 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 						});
 
 						//All cells ticked?
-						if (
-							grid.entries.filter((v) => v.check === true).length ===
-							grid.entries.length
-						) {
+						// Make sure it's only executed once by checking if
+						// prev and next states are different
+						const isFull = (states: boolean[]): boolean =>
+							states.length > 0 && states.every((v) => v === true);
+						if (isFull(newStates) && !isFull(prevStates)) {
 							const message = buildMessage();
 							message.complete = true;
 							void StoreProxy.chat.addMessage(message);
