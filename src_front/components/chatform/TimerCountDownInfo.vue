@@ -9,7 +9,7 @@
 			class="timer"
 			v-if="activeTimers.length > 0"
 			:timer="activeTimers[0]!"
-			:label="idToLabel[activeTimers[0]!.id]!"
+			:label="idToLabel[activeTimers[0]!.id] ?? ''"
 		>
 			<div v-if="activeTimers.length > 1" class="more">
 				<div class="arrow">▲</div>
@@ -23,7 +23,7 @@
 				v-for="(timer, index) in activeTimers.concat().splice(1)"
 				:key="timer.id"
 				:timer="timer"
-				:label="idToLabel[timer.id]!"
+				:label="idToLabel[timer.id] ?? ''"
 			/>
 		</div>
 	</div>
@@ -37,7 +37,7 @@ import TimerCountDownInfoEntry from "./TimerCountDownInfoEntry.vue";
 
 const storeTimer = useStoreTimer();
 
-const idToLabel = ref<Record<string, string>>({});
+const idToLabel = ref<Record<string, string | undefined>>({});
 const mainHover = ref(false);
 
 let interval: number = -1;
