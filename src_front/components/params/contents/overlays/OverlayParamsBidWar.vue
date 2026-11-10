@@ -358,8 +358,7 @@ function onToggleEnabled(entry: TwitchatDataTypes.BidWarData, enabled: boolean):
 		storeBidWar.disableBidWar(entry.id);
 		return;
 	}
-	entry.enabled = true;
-	onChange(entry);
+	storeBidWar.enableBidWar(entry.id);
 }
 
 /**

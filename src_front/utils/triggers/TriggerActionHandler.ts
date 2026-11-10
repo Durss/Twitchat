@@ -1730,6 +1730,42 @@ export default class TriggerActionHandler {
 				break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.BID_WAR_START: {
+				this.executeTriggersByType(
+					TriggerTypes.BID_WAR_START,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.BID_WAR_AMOUNT_ADDED: {
+				this.executeTriggersByType(
+					TriggerTypes.BID_WAR_AMOUNT_ADDED,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.BID_WAR_RESULT: {
+				this.executeTriggersByType(
+					TriggerTypes.BID_WAR_END,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
+				break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.STREAMSOCKET_ACTION: {
 				this.executeTriggersByType(
 					TriggerTypes.STREAMSOCKET_ACTION,
@@ -8366,7 +8402,13 @@ export default class TriggerActionHandler {
 						} else {
 							switch (step.bidWarData.action) {
 								case "add": {
-									StoreProxy.bidWar.addAmount(bidWar.id, sideIndex, amountNum);
+									StoreProxy.bidWar.addAmount(
+										bidWar.id,
+										sideIndex,
+										amountNum,
+										// Don't let an "amount added" trigger execute itself indefinitely
+										trigger.type != TriggerTypes.BID_WAR_AMOUNT_ADDED,
+									);
 									break;
 								}
 								case "del": {

@@ -2374,7 +2374,38 @@ export const storeDebug = defineStore("debug", {
 							amountFormatted: Utils.formatCurrency(amount, currency),
 						};
 					};
+					const sideA = getSide(bidWar?.sides[0].keyword || "cats");
+					const sideB = getSide(bidWar?.sides[1].keyword || "dogs");
+					const winner = sideA.amount >= sideB.amount ? sideA : sideB;
 					const m: TwitchatDataTypes.MessageBidWarResultData = {
+						id: Utils.getUUID(),
+						type,
+						date: Date.now(),
+						channel_id: uid,
+						platform: "twitchat",
+						bidWarId: bidWar?.id || Utils.getUUID(),
+						title: bidWar?.title || "My bid war",
+						sides: [sideA, sideB],
+						winner,
+						loser: winner === sideA ? sideB : sideA,
+						isTie: sideA.amount === sideB.amount,
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.BID_WAR_START: {
+					const bidWar = StoreProxy.bidWar.bidWarList[0];
+					const currency = bidWar?.currency || "$" + Utils.CURRENCY_AMOUNT_TOKEN;
+					const getSide = (
+						keyword: string,
+					): TwitchatDataTypes.MessageBidWarResultData["sides"][number] => ({
+						keyword,
+						amount: 0,
+						amountFormatted: Utils.formatCurrency(0, currency),
+					});
+					const m: TwitchatDataTypes.MessageBidWarStartData = {
 						id: Utils.getUUID(),
 						type,
 						date: Date.now(),
@@ -2386,6 +2417,40 @@ export const storeDebug = defineStore("debug", {
 							getSide(bidWar?.sides[0].keyword || "cats"),
 							getSide(bidWar?.sides[1].keyword || "dogs"),
 						],
+						duration_s: bidWar?.autoDisable ? bidWar.autoDisableDuration_s : 0,
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.BID_WAR_AMOUNT_ADDED: {
+					const bidWar = StoreProxy.bidWar.bidWarList[0];
+					const currency = bidWar?.currency || "$" + Utils.CURRENCY_AMOUNT_TOKEN;
+					const getSide = (
+						keyword: string,
+					): TwitchatDataTypes.MessageBidWarResultData["sides"][number] => {
+						const amount = Math.round(Math.random() * 1000);
+						return {
+							keyword,
+							amount,
+							amountFormatted: Utils.formatCurrency(amount, currency),
+						};
+					};
+					const added = Math.ceil(Math.random() * 50);
+					const m: TwitchatDataTypes.MessageBidWarAmountAddedData = {
+						id: Utils.getUUID(),
+						type,
+						date: Date.now(),
+						channel_id: uid,
+						platform: "twitchat",
+						bidWarId: bidWar?.id || Utils.getUUID(),
+						title: bidWar?.title || "My bid war",
+						sideNumber: 1,
+						added,
+						addedFormatted: Utils.formatCurrency(added, currency),
+						side: getSide(bidWar?.sides[0].keyword || "cats"),
+						otherSide: getSide(bidWar?.sides[1].keyword || "dogs"),
 					};
 
 					data = m;

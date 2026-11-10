@@ -89,6 +89,20 @@ function getMatchingSide(bidWar: TwitchatDataTypes.BidWarData, message: string):
 }
 
 /**
+ * Gets give side's data for trigger placeholders
+ */
+function getSideTriggerData(
+	side: TwitchatDataTypes.BidWarData["sides"][number],
+	currency: string,
+): TwitchatDataTypes.MessageBidWarResultData["sides"][number] {
+	return {
+		keyword: side.keyword,
+		amount: side.amount,
+		amountFormatted: Utils.formatCurrency(side.amount, currency),
+	};
+}
+
+/**
  * Starts a timeout for every bid war that requested to automatically
  * close after a certain duration. Cancels any previous timeouts.
  * @returns true if any bid war data was updated
@@ -189,9 +203,7 @@ export const storeBidWar = defineStore("bidwar", {
 						) {
 							break;
 						}
-						entry.enabled = true;
-						this.saveData();
-						this.broadcastStates(entry.id);
+						this.enableBidWar(entry.id);
 						break;
 					}
 					case "reset":
@@ -268,6 +280,31 @@ export const storeBidWar = defineStore("bidwar", {
 				.catch(() => {});
 		},
 
+		enableBidWar(id: string): void {
+			const entry = this.bidWarList.find((v) => v.id === id);
+			if (!entry || entry.enabled) return;
+			entry.enabled = true;
+			this.saveData();
+			this.broadcastStates(id);
+
+			const currency = entry.currency || Utils.CURRENCY_AMOUNT_TOKEN;
+			const message: TwitchatDataTypes.MessageBidWarStartData = {
+				id: Utils.getUUID(),
+				date: Date.now(),
+				platform: "twitchat",
+				type: TwitchatDataTypes.TwitchatMessageType.BID_WAR_START,
+				channel_id: StoreProxy.auth.twitch.user.id,
+				bidWarId: entry.id,
+				title: entry.title || StoreProxy.i18n.t("overlay.bidWar.default_title"),
+				sides: [
+					getSideTriggerData(entry.sides[0], currency),
+					getSideTriggerData(entry.sides[1], currency),
+				],
+				duration_s: entry.autoDisable ? entry.autoDisableDuration_s : 0,
+			};
+			void StoreProxy.chat.addMessage(message);
+		},
+
 		disableBidWar(id: string): void {
 			const entry = this.bidWarList.find((v) => v.id === id);
 			if (!entry || !entry.enabled) return;
@@ -275,47 +312,42 @@ export const storeBidWar = defineStore("bidwar", {
 			this.saveData();
 			this.broadcastStates(id);
 
-			// Send result notifcation
-			if (!entry.sides.every((side) => side.amount === 0)) {
-				const currency = entry.currency || Utils.CURRENCY_AMOUNT_TOKEN;
-				const getSide = (
-					side: TwitchatDataTypes.BidWarData["sides"][number],
-				): TwitchatDataTypes.MessageBidWarResultData["sides"][number] => ({
-					keyword: side.keyword,
-					amount: side.amount,
-					amountFormatted: Utils.formatCurrency(side.amount, currency),
-				});
-				const message: TwitchatDataTypes.MessageBidWarResultData = {
-					id: Utils.getUUID(),
-					date: Date.now(),
-					platform: "twitchat",
-					type: TwitchatDataTypes.TwitchatMessageType.BID_WAR_RESULT,
-					channel_id: StoreProxy.auth.twitch.user.id,
-					bidWarId: entry.id,
-					title: entry.title || StoreProxy.i18n.t("overlay.bidWar.default_title"),
-					sides: [getSide(entry.sides[0]), getSide(entry.sides[1])],
-				};
-				void StoreProxy.chat.addMessage(message);
-			}
+			// Send result notification
+			const currency = entry.currency || Utils.CURRENCY_AMOUNT_TOKEN;
+			const sideA = getSideTriggerData(entry.sides[0], currency);
+			const sideB = getSideTriggerData(entry.sides[1], currency);
+			const winner = sideA.amount >= sideB.amount ? sideA : sideB;
+			const loser = winner === sideA ? sideB : sideA;
+			const result: TwitchatDataTypes.MessageBidWarResultData = {
+				id: Utils.getUUID(),
+				date: Date.now(),
+				platform: "twitchat",
+				type: TwitchatDataTypes.TwitchatMessageType.BID_WAR_RESULT,
+				channel_id: StoreProxy.auth.twitch.user.id,
+				bidWarId: entry.id,
+				title: entry.title || StoreProxy.i18n.t("overlay.bidWar.default_title"),
+				sides: [sideA, sideB],
+				winner,
+				loser,
+				isTie: sideA.amount === sideB.amount,
+			};
+			void StoreProxy.chat.addMessage(result);
 
 			// Send chat message if requested
 			if (entry.postResultOnChat) {
-				const [sideA, sideB] = entry.sides;
-				const isTie = sideA.amount === sideB.amount;
-				const template = isTie ? entry.postTieChatMessage : entry.postResultChatMessage;
+				const template = result.isTie
+					? entry.postTieChatMessage
+					: entry.postResultChatMessage;
 				if (!template?.trim()) return;
-				const winner = sideA.amount >= sideB.amount ? sideA : sideB;
-				const loser = winner === sideA ? sideB : sideA;
-				const currency = entry.currency || Utils.CURRENCY_AMOUNT_TOKEN;
 				const message = replacePlaceholders(template, {
-					TITLE: entry.title || StoreProxy.i18n.t("overlay.bidWar.default_title"),
+					TITLE: result.title,
 					WINNER: winner.keyword,
-					WINNER_AMOUNT: Utils.formatCurrency(winner.amount, currency),
+					WINNER_AMOUNT: winner.amountFormatted,
 					LOSER: loser.keyword,
-					LOSER_AMOUNT: Utils.formatCurrency(loser.amount, currency),
+					LOSER_AMOUNT: loser.amountFormatted,
 					SIDE1: sideA.keyword,
 					SIDE2: sideB.keyword,
-					AMOUNT: Utils.formatCurrency(sideA.amount, currency),
+					AMOUNT: sideA.amountFormatted,
 				});
 				MessengerProxy.instance.sendMessage(message);
 			}
@@ -336,13 +368,41 @@ export const storeBidWar = defineStore("bidwar", {
 			PublicAPI.instance.broadcastGlobalStates();
 		},
 
-		addAmount(id: string, sideIndex: number, amount: number): void {
+		addAmount(
+			id: string,
+			sideIndex: number,
+			amount: number,
+			executeTriggers: boolean = true,
+		): void {
 			const entry = this.bidWarList.find((v) => v.id === id);
 			const side = entry?.sides[sideIndex];
-			if (!entry || !side || isNaN(amount)) return;
+			const otherSide = entry?.sides[sideIndex === 0 ? 1 : 0];
+			if (!entry || !side || !otherSide || isNaN(amount)) return;
+			const previousAmount = side.amount;
 			side.amount = Math.round((side.amount + amount) * 100) / 100;
 			this.saveData();
 			this.broadcastStates(id);
+
+			// Execute triggers
+			if (executeTriggers) {
+				const added = Math.round((side.amount - previousAmount) * 100) / 100;
+				const currency = entry.currency || Utils.CURRENCY_AMOUNT_TOKEN;
+				const message: TwitchatDataTypes.MessageBidWarAmountAddedData = {
+					id: Utils.getUUID(),
+					date: Date.now(),
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.BID_WAR_AMOUNT_ADDED,
+					channel_id: StoreProxy.auth.twitch.user.id,
+					bidWarId: entry.id,
+					title: entry.title || StoreProxy.i18n.t("overlay.bidWar.default_title"),
+					sideNumber: sideIndex + 1,
+					added,
+					addedFormatted: Utils.formatCurrency(added, currency),
+					side: getSideTriggerData(side, currency),
+					otherSide: getSideTriggerData(otherSide, currency),
+				};
+				void StoreProxy.chat.addMessage(message);
+			}
 		},
 
 		setAmount(id: string, sideIndex: number, amount: number): void {

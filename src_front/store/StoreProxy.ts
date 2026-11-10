@@ -4353,6 +4353,11 @@ export interface IBidWarActions {
 	 */
 	deleteBidWar(id: string): void;
 	/**
+	 * Enables given bid war
+	 * @param id bid war ID
+	 */
+	enableBidWar(id: string): void;
+	/**
 	 * Disables given bid war and adds its result to the message feed
 	 * @param id bid war ID
 	 */
@@ -4366,8 +4371,9 @@ export interface IBidWarActions {
 	 * @param id bid war ID
 	 * @param sideIndex 0 or 1
 	 * @param amount amount to add
+	 * @param executeTriggers set to false to not execute the "amount added" triggers. Avoids looping trigger exec
 	 */
-	addAmount(id: string, sideIndex: number, amount: number): void;
+	addAmount(id: string, sideIndex: number, amount: number, executeTriggers?: boolean): void;
 	/**
 	 * Sets the amount of a side of a bid war
 	 * @param id bid war ID

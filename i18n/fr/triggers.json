@@ -957,6 +957,7 @@
 			"twitchat": "Twitchat",
 			"hypetrain": "Train de la hype",
 			"custom_train": "Train de la hype personnalisés",
+			"bid_war": "Bid war",
 			"games": "Jeux",
 			"music": "Spotify",
 			"timer": "Évènements temporels",
@@ -1322,6 +1323,27 @@
 			"custom_train_amountLeft": "Montant restant pour atteindre le niveau suivant",
 			"custom_train_amountLeftFormatted": "Montant restant formaté pour atteindre le niveau suivant",
 			"custom_train_record": "Est-ce un record du train ?",
+			"bid_war_id": "ID de la bid war",
+			"bid_war_title": "Titre de la bid war",
+			"bid_war_side1_keyword": "Mot-clé du premier côté",
+			"bid_war_side2_keyword": "Mot-clé du second côté",
+			"bid_war_duration": "Durée de la bid war en secondes (0 si elle n'a pas de timer)",
+			"bid_war_side_number": "Numéro du côté (1 ou 2)",
+			"bid_war_side_keyword": "Mot-clé du côté",
+			"bid_war_added": "Montant ajouté",
+			"bid_war_addedFormatted": "Montant ajouté formaté",
+			"bid_war_side_amount": "Montant du côté",
+			"bid_war_side_amountFormatted": "Montant du côté formaté",
+			"bid_war_other_side_keyword": "Mot-clé de l'autre côté",
+			"bid_war_other_side_amount": "Montant de l'autre côté",
+			"bid_war_other_side_amountFormatted": "Montant de l'autre côté formaté",
+			"bid_war_is_tie": "Y a-t-il une égalité ?",
+			"bid_war_winner_keyword": "Mot-clé du côté gagnant (premier côté en cas d'égalité)",
+			"bid_war_winner_amount": "Montant du côté gagnant",
+			"bid_war_winner_amountFormatted": "Montant du côté gagnant formaté",
+			"bid_war_loser_keyword": "Mot-clé du côté perdant (second côté en cas d'égalité)",
+			"bid_war_loser_amount": "Montant du côté perdant",
+			"bid_war_loser_amountFormatted": "Montant du côté perdant formaté",
 			"streamsocket_action_id": "ID de l'action",
 			"streamsocket_action_name": "Nom de l'action",
 			"streamsocket_action_bits": "Prix de l'action en bits",
@@ -2130,6 +2152,18 @@
 			"CUSTOM_TRAIN_COOLDOWN": {
 				"label": "Cooldown d'un train de la hype personnalisé écoulé",
 				"description": "Actions à exécuter lorsque le cooldown d'un train de la hype personnalisé est écoulé"
+			},
+			"BID_WAR_START": {
+				"label": "Bid war démarrée",
+				"description": "Actions à exécuter lorsqu'une bid war est activée, que ce soit via le Stream Deck ou manuellement"
+			},
+			"BID_WAR_AMOUNT_ADDED": {
+				"label": "Montant ajouté à une bid war",
+				"description": "Actions à exécuter lorsqu'un montant est ajouté à un côté d'une bid war"
+			},
+			"BID_WAR_END": {
+				"label": "Bid war terminée",
+				"description": "Actions à exécuter lorsqu'une bid war se termine, que ce soit via son timer, le Stream Deck ou manuellement"
 			},
 			"STREAMSOCKET_ACTION": {
 				"label": "Action StreamSocket déclenchée",

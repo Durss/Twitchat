@@ -5285,6 +5285,7 @@ export namespace TwitchatDataTypes {
 		AUTOBAN_JOIN: "autoban_join",
 		WARN_CHATTER: "warn_chatter",
 		QUIZ_COMPLETE: "quiz_complete",
+		BID_WAR_START: "bid_war_start",
 		SUPER_STICKER: "super_sticker",
 		UNBAN_REQUEST: "unban_request",
 		SCOPE_REQUEST: "scope_request",
@@ -5340,6 +5341,7 @@ export namespace TwitchatDataTypes {
 		SHARED_CHAT_SESSION: "shared_chat_session",
 		CHAT_COMMAND_UPDATE: "chat_command_update",
 		CUSTOM_TRAIN_SUMMARY: "custom_train_summary",
+		BID_WAR_AMOUNT_ADDED: "bid_war_amount_added",
 		STREAMLOOTS_PURCHASE: "streamloots_purchase",
 		STREAMLOOTS_REACTION: "streamloots_reaction",
 		CHAT_HIGHLIGHT_CLOSE: "chat_highlight_close",
@@ -5428,6 +5430,7 @@ export namespace TwitchatDataTypes {
 		many_replies: true,
 		raffle_join: false,
 		quiz_complete: true,
+		bid_war_start: false,
 		super_sticker: true,
 		value_update: false,
 		unban_request: true,
@@ -5483,6 +5486,7 @@ export namespace TwitchatDataTypes {
 		custom_train_start: false,
 		streamsocket_action: true,
 		custom_train_summary: true,
+		bid_war_amount_added: false,
 		streamloots_purchase: true,
 		streamloots_reaction: true,
 		obs_recording_start: false,
@@ -5676,6 +5680,8 @@ export namespace TwitchatDataTypes {
 		| MessageCustomTrainSummaryData
 		| MessageCustomTrainFailData
 		| MessageBidWarResultData
+		| MessageBidWarAmountAddedData
+		| MessageBidWarStartData
 		| MessageStreamSocketActionData
 		| MessageStreamlootsCardData
 		| MessageStreamlootsPurchaseData
@@ -7343,6 +7349,79 @@ export namespace TwitchatDataTypes {
 			 */
 			amountFormatted: string;
 		}[];
+		/**
+		 * Winning side. First side on a tie.
+		 */
+		winner: MessageBidWarResultData["sides"][number];
+		/**
+		 * Losing side. Second side on a tie.
+		 */
+		loser: MessageBidWarResultData["sides"][number];
+		/**
+		 * Did both sides end with the same amount?
+		 */
+		isTie: boolean;
+	}
+
+	/**
+	 * Represents a starting bid war
+	 */
+	export interface MessageBidWarStartData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type: "bid_war_start";
+		/**
+		 * Bid war ID
+		 */
+		bidWarId: string;
+		/**
+		 * Bid war title
+		 */
+		title: string;
+		/**
+		 * Sides data
+		 */
+		sides: MessageBidWarResultData["sides"];
+		/**
+		 * Duration before the bid war ends automatically.
+		 * 0 if it has no timer.
+		 */
+		duration_s: number;
+	}
+
+	/**
+	 * Represents an amount added to a side of a bid war
+	 */
+	export interface MessageBidWarAmountAddedData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type: "bid_war_amount_added";
+		/**
+		 * Bid war ID
+		 */
+		bidWarId: string;
+		/**
+		 * Bid war title
+		 */
+		title: string;
+		/**
+		 * Number of the side the amount has been added to (1 or 2)
+		 */
+		sideNumber: number;
+		/**
+		 * Amount added
+		 */
+		added: number;
+		/**
+		 * Formatted amount added
+		 */
+		addedFormatted: string;
+		/**
+		 * State of the side the amount has been added to
+		 */
+		side: MessageBidWarResultData["sides"][number];
+		/**
+		 * State of the other side
+		 */
+		otherSide: MessageBidWarResultData["sides"][number];
 	}
 
 	/**
