@@ -3859,6 +3859,32 @@ export namespace TwitchatDataTypes {
 		 * Tip platforms allowed to update the bid war
 		 */
 		platforms: Record<Exclude<TipPlatform, "patreon" | "twitch_charity">, boolean>;
+		/**
+		 * Automatically disable the bid war after some time?
+		 */
+		autoDisable: boolean;
+		/**
+		 * Duration in seconds after which the bid war is disabled.
+		 * Countdown starts when the bid war is enabled.
+		 */
+		autoDisableDuration_s: number;
+		/**
+		 * Date at which bid war will be disabled
+		 * 0 if no countdown is running.
+		 */
+		autoDisable_at: number;
+		/**
+		 * Post the result on chat when the bid war is disabled?
+		 */
+		postResultOnChat: boolean;
+		/**
+		 * Message to post on chat wehn bid war is disabled
+		 */
+		postResultChatMessage: string;
+		/**
+		 * Message to post on chat when bid war is disabled but no side won
+		 */
+		postTieChatMessage: string;
 	}
 
 	/**
@@ -5272,6 +5298,7 @@ export namespace TwitchatDataTypes {
 		FOLLOWBOT_LIST: "followbot_list",
 		COUNTER_UPDATE: "counter_update",
 		AD_BREAK_START: "ad_break_start",
+		BID_WAR_RESULT: "bid_war_result",
 		CUSTOM_POWER_UP: "custom_power_up",
 		WEBSOCKET_TOPIC: "websocket_topic",
 		OBS_STOP_STREAM: "obs_stop_stream",
@@ -5414,6 +5441,7 @@ export namespace TwitchatDataTypes {
 		streamelements: true,
 		stream_offline: true,
 		ad_break_start: false,
+		bid_war_result: true,
 		chat_highlight: false,
 		counter_update: false,
 		goxlr_fx_state: false,
@@ -5647,6 +5675,7 @@ export namespace TwitchatDataTypes {
 		| MessageCustomTrainLevelUpData
 		| MessageCustomTrainSummaryData
 		| MessageCustomTrainFailData
+		| MessageBidWarResultData
 		| MessageStreamSocketActionData
 		| MessageStreamlootsCardData
 		| MessageStreamlootsPurchaseData
@@ -7281,6 +7310,39 @@ export namespace TwitchatDataTypes {
 		 * Is new record?
 		 */
 		isRecord: boolean;
+	}
+
+	/**
+	 * Represents a bid war result.
+	 */
+	export interface MessageBidWarResultData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type: "bid_war_result";
+		/**
+		 * Bid war ID
+		 */
+		bidWarId: string;
+		/**
+		 * Bid war title
+		 */
+		title: string;
+		/**
+		 * Sides states
+		 */
+		sides: {
+			/**
+			 * Side's keyword
+			 */
+			keyword: string;
+			/**
+			 * Final amount
+			 */
+			amount: number;
+			/**
+			 * Formatted amount
+			 */
+			amountFormatted: string;
+		}[];
 	}
 
 	/**

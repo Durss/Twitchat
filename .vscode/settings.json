@@ -38,5 +38,12 @@
 	},
 	"[html]": {
 		"editor.defaultFormatter": "oxc.oxc-vscode"
-	}
+	},
+	"json.schemas": [
+		{
+			"fileMatch": ["/i18n/*/overlay.json"],
+			"url": "https://www.schemastore.org/openapi-overlay-1.X.json",
+			"schema": {}
+		}
+	]
 }

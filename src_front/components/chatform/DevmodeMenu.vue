@@ -273,6 +273,9 @@
 			<TTButton small @click="simulateEvent($event, 'chat_poll')" icon="chatPoll"
 				>Chat poll result</TTButton
 			>
+			<TTButton small @click="simulateEvent($event, 'bid_war_result')" icon="bidwar"
+				>Bid war result</TTButton
+			>
 			<TTButton small @click="simulateEvent($event, 'bingo')" icon="bingo"
 				>Bingo result</TTButton
 			>

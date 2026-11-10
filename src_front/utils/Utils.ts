@@ -280,7 +280,8 @@ export default class Utils {
 		let res = this.toDigits(s);
 		if (m > 0 || h > 0 || forceMinutes) res = this.toDigits(m) + ":" + res;
 		if (h > 0) res = this.toDigits(h) + ":" + res;
-		if (d > 0) res = d + (daysLabel || StoreProxy.i18n.t("global.date_days")) + " " + res;
+		if (d > 0)
+			res = d + (daysLabel || StoreProxy.i18n?.t("global.date_days") || "d") + " " + res;
 		return res;
 	}
 

@@ -41,8 +41,8 @@
 
 				<template #left_actions>
 					<ToggleButton
-						v-model="entry.enabled"
-						@change="onChange(entry)"
+						:modelValue="entry.enabled"
+						@change="onToggleEnabled(entry, $event)"
 						@click.stop
 						v-if="
 							storeAuth.isPremium ||
@@ -51,6 +51,10 @@
 								$config.MAX_BID_WAR
 						"
 					/>
+					<Icon name="countdown" class="timerTypeIcon" />
+					<div class="timerValue" v-if="entry.autoDisable_at > 0">
+						{{ Utils.formatDuration(Math.max(0, entry.autoDisable_at - now), true) }}
+					</div>
 				</template>
 
 				<div class="content">
@@ -104,6 +108,49 @@
 
 					<CurrencyPatternInput v-model="entry.currency" @change="onChange(entry)" />
 
+					<div class="card-item">
+						<ParamItem
+							:paramData="param_autoDisable[entry.id]!"
+							v-model="entry.autoDisable"
+							@change="onChange(entry)"
+							noBackground
+						>
+							<ParamItem
+								:paramData="param_autoDisableDuration[entry.id]!"
+								v-model="entry.autoDisableDuration_s"
+								@change="onDurationChange(entry)"
+								:childLevel="1"
+								noBackground
+							/>
+						</ParamItem>
+					</div>
+
+					<div class="card-item">
+						<ParamItem
+							:paramData="param_postResultOnChat[entry.id]!"
+							v-model="entry.postResultOnChat"
+							@change="onChange(entry)"
+							noBackground
+						>
+							<ParamItem
+								:paramData="param_postResultMessage[entry.id]!"
+								v-model="entry.postResultChatMessage"
+								@change="onChange(entry)"
+								:childLevel="1"
+								noBackground
+								chatPreview
+							/>
+							<ParamItem
+								:paramData="param_postTieMessage[entry.id]!"
+								v-model="entry.postTieChatMessage"
+								@change="onChange(entry)"
+								:childLevel="1"
+								noBackground
+								chatPreview
+							/>
+						</ParamItem>
+					</div>
+
 					<TTButton class="resetBt" icon="refresh" alert @click="onReset(entry.id)">{{
 						t("overlay.bidWar.reset_bt")
 					}}</TTButton>
@@ -136,7 +183,8 @@ import { storeBidWar as useStoreBidWar } from "@/store/bid_war/storeBidWar";
 import { storeMain as useStoreMain } from "@/store/storeMain";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
-import { computed, onBeforeMount, ref } from "vue";
+import Utils from "@/utils/Utils";
+import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { useI18n } from "vue-i18n";
 import ToggleBlock from "../../../ToggleBlock.vue";
@@ -167,6 +215,19 @@ const platformList: (keyof TwitchatDataTypes.BidWarData["platforms"])[] = [
 const param_keyword = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
 const param_amount = ref<{ [key: string]: TwitchatDataTypes.ParameterData<number> }>({});
 const param_color = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_autoDisable = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
+const param_autoDisableDuration = ref<{ [key: string]: TwitchatDataTypes.ParameterData<number> }>(
+	{},
+);
+const param_postResultOnChat = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
+const param_postResultMessage = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_postTieMessage = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+
+/**
+ * Current time, refreshed every second for the auto-disable countdowns
+ */
+const now = ref(Date.now());
+let nowInterval = -1;
 
 const maxReached = computed(() => {
 	const count = storeBidWar.bidWarList.length;
@@ -178,6 +239,11 @@ const maxReached = computed(() => {
 
 onBeforeMount(() => {
 	initParams();
+	nowInterval = window.setInterval(() => (now.value = Date.now()), 1000);
+});
+
+onBeforeUnmount(() => {
+	clearInterval(nowInterval);
 });
 
 /**
@@ -213,7 +279,87 @@ function initParams(): void {
 				icon: "color",
 			};
 		});
+		param_autoDisable.value[id] = {
+			type: "boolean",
+			value: false,
+			labelKey: "overlay.bidWar.param_autoDisable",
+			icon: "timer",
+		};
+		param_autoDisableDuration.value[id] = {
+			type: "duration",
+			value: 0,
+			min: 1,
+			max: 30 * 24 * 3600,
+			labelKey: "overlay.bidWar.param_autoDisableDuration",
+			icon: "countdown",
+		};
+		param_postResultOnChat.value[id] = {
+			type: "boolean",
+			value: false,
+			labelKey: "overlay.bidWar.param_postResultOnChat",
+			icon: "whispers",
+		};
+		const placeholders: TwitchatDataTypes.PlaceholderEntry[] = [
+			{
+				tag: "TITLE",
+				descKey: "overlay.bidWar.placeholders.title",
+				example: "Pizza vs Burger",
+			},
+		];
+		param_postResultMessage.value[id] = {
+			type: "string",
+			value: "",
+			longText: true,
+			maxLength: 500,
+			labelKey: "overlay.bidWar.param_postResultChatMessage",
+			placeholderList: placeholders.concat([
+				{ tag: "WINNER", descKey: "overlay.bidWar.placeholders.winner", example: "pizza" },
+				{
+					tag: "WINNER_AMOUNT",
+					descKey: "overlay.bidWar.placeholders.winner_amount",
+					example: "$120",
+				},
+				{ tag: "LOSER", descKey: "overlay.bidWar.placeholders.loser", example: "burger" },
+				{
+					tag: "LOSER_AMOUNT",
+					descKey: "overlay.bidWar.placeholders.loser_amount",
+					example: "$80",
+				},
+			]),
+		};
+		param_postTieMessage.value[id] = {
+			type: "string",
+			value: "",
+			longText: true,
+			maxLength: 500,
+			labelKey: "overlay.bidWar.param_postTieChatMessage",
+			placeholderList: placeholders.concat([
+				{ tag: "SIDE1", descKey: "overlay.bidWar.placeholders.side1", example: "pizza" },
+				{ tag: "SIDE2", descKey: "overlay.bidWar.placeholders.side2", example: "burger" },
+				{ tag: "AMOUNT", descKey: "overlay.bidWar.placeholders.amount", example: "$100" },
+			]),
+		};
 	});
+}
+
+/**
+ * Restarts the running countdown with the new duration
+ */
+function onDurationChange(entry: TwitchatDataTypes.BidWarData): void {
+	entry.autoDisable_at = 0;
+	onChange(entry);
+}
+
+/**
+ * Enables or disables a bid war.
+ */
+function onToggleEnabled(entry: TwitchatDataTypes.BidWarData, enabled: boolean): void {
+	if (!enabled) {
+		storeBidWar.disableBidWar(entry.id);
+		return;
+	}
+	entry.enabled = true;
+	onChange(entry);
 }
 
 /**
@@ -283,6 +429,34 @@ function onReset(id: string): void {
 
 	.resetBt {
 		align-self: center;
+	}
+
+	.togglebutton {
+		z-index: 1;
+	}
+
+	.timerTypeIcon {
+		width: 1em;
+		z-index: 1;
+	}
+
+	.timerValue {
+		display: flex;
+		text-align: center;
+		font-variant-numeric: tabular-nums;
+		background-color: var(--color-primary-fade);
+		border-radius: 0;
+		align-self: stretch;
+		align-items: center;
+		margin-left: -6.5em;
+		padding: 0 0.5em;
+		padding-left: 6.25em;
+		z-index: 0;
+		font-size: 0.75em;
+
+		&.paused {
+			background-color: var(--color-secondary-fader);
+		}
 	}
 }
 </style>

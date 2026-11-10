@@ -2361,6 +2361,37 @@ export const storeDebug = defineStore("debug", {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.BID_WAR_RESULT: {
+					const bidWar = StoreProxy.bidWar.bidWarList[0];
+					const currency = bidWar?.currency || "$" + Utils.CURRENCY_AMOUNT_TOKEN;
+					const getSide = (
+						keyword: string,
+					): TwitchatDataTypes.MessageBidWarResultData["sides"][number] => {
+						const amount = Math.round(Math.random() * 1000);
+						return {
+							keyword,
+							amount,
+							amountFormatted: Utils.formatCurrency(amount, currency),
+						};
+					};
+					const m: TwitchatDataTypes.MessageBidWarResultData = {
+						id: Utils.getUUID(),
+						type,
+						date: Date.now(),
+						channel_id: uid,
+						platform: "twitchat",
+						bidWarId: bidWar?.id || Utils.getUUID(),
+						title: bidWar?.title || "My bid war",
+						sides: [
+							getSide(bidWar?.sides[0].keyword || "cats"),
+							getSide(bidWar?.sides[1].keyword || "dogs"),
+						],
+					};
+
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_FAIL: {
 					const m: TwitchatDataTypes.MessageCustomTrainFailData = {
 						id: Utils.getUUID(),

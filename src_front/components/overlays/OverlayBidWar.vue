@@ -8,8 +8,10 @@
 			'--split': splitPercent,
 		}"
 	>
-		<div class="title" id="bidwar_title" v-if="params.title">{{ params.title }}</div>
-		<div class="bar" id="bidwar_bar">
+		<div class="title" id="bidwar_title" ref="title" v-if="params.title">
+			<div class="text" id="bidwar_title_text" ref="titleText">{{ params.title }}</div>
+		</div>
+		<div class="bar" id="bidwar_bar" ref="bar">
 			<div class="fill" id="bidwar_bar_fill"></div>
 			<div class="separator" id="bidwar_bar_separator"></div>
 			<div
@@ -26,6 +28,9 @@
 				}}</span>
 			</div>
 		</div>
+		<div class="timer" id="bidwar_timer" ref="timer" v-if="timeLeft">
+			<span id="bidwar_timer_value">{{ timeLeft }}</span>
+		</div>
 	</div>
 </template>
 
@@ -34,17 +39,41 @@ import { useOverlayConnector } from "@/composables/useOverlayConnector";
 import type TwitchatEvent from "@/events/TwitchatEvent";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
+import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import Utils from "@/utils/Utils";
-import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
+import { gsap } from "gsap/gsap-core";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	onBeforeUnmount,
+	ref,
+	useTemplateRef,
+	watch,
+} from "vue";
 import { useRoute } from "vue-router";
 
 const params = ref<TwitchatDataTypes.BidWarData>();
+/**
+ * Current time, refreshed while a countdown is running
+ */
+const now = ref(Date.now());
 
 let id: string = "";
+let tickInterval: string = "";
 
 const route = useRoute();
+const titleText = useTemplateRef("titleText");
+const titleRef = useTemplateRef("title");
+const barRef = useTemplateRef("bar");
+const timerRef = useTemplateRef("timer");
+let daysLabel: string = "d";
 
-useOverlayConnector(requestInfo);
+useOverlayConnector((): void => {
+	PublicAPI.instance.broadcast("GET_BID_WAR_CONFIGS", { id });
+});
+
+watch(() => params.value?.title, fitTitle, { flush: "post" });
 
 /**
  * Position of the separation between the 2 choices
@@ -58,36 +87,128 @@ const splitPercent = computed<string>(() => {
 	return ratio * 100 + "%";
 });
 
+/**
+ * Formatted time left before the bid war ends automatically.
+ * Empty if there's no running countdown.
+ */
+const timeLeft = computed<string>(() => {
+	const p = params.value;
+	if (!p?.enabled || !p.autoDisable || !p.autoDisable_at) return "";
+	const remaining = p.autoDisable_at - now.value;
+	if (remaining <= 0) return "";
+	// Round up so the countdown starts at the full duration and ends on 00:01
+	return Utils.formatDuration(Math.ceil(remaining / 1000) * 1000, true, daysLabel);
+});
+
 onBeforeMount(() => {
 	id = (route.query.twitchat_overlay_id as string) ?? "";
 	PublicAPI.instance.addEventListener("ON_BID_WAR_CONFIGS", onConfig);
+	window.addEventListener("resize", fitTitle);
+	document.fonts.addEventListener("loadingdone", fitTitle);
+	tickInterval = SetIntervalWorker.instance.create(() => {
+		if (params.value?.autoDisable_at) now.value = Date.now();
+	}, 250);
 });
 
 onBeforeUnmount(() => {
 	PublicAPI.instance.removeEventListener("ON_BID_WAR_CONFIGS", onConfig);
+	window.removeEventListener("resize", fitTitle);
+	document.fonts.removeEventListener("loadingdone", fitTitle);
+	SetIntervalWorker.instance.delete(tickInterval);
 });
 
-function requestInfo(): void {
-	PublicAPI.instance.broadcast("GET_BID_WAR_CONFIGS", { id });
+async function open() {
+	fitTitle();
+	await nextTick();
+	gsap.killTweensOf([titleRef.value, barRef.value, timerRef.value]);
+	gsap.from(titleRef.value, {
+		delay: 0.25,
+		height: 0,
+		padding: 0,
+		duration: 0.5,
+		ease: "back.out",
+		clearProps: "all",
+	});
+	gsap.from(barRef.value, {
+		width: 0,
+		padding: 0,
+		duration: 0.5,
+		ease: "back.out",
+		clearProps: "all",
+	});
+	gsap.from(timerRef.value, {
+		delay: 0.75,
+		height: 0,
+		padding: 0,
+		duration: 0.5,
+		ease: "back.out",
+		clearProps: "all",
+	});
+}
+
+async function close() {
+	gsap.killTweensOf([titleRef.value, barRef.value, timerRef.value]);
+	gsap.to(titleRef.value, {
+		delay: 0.25,
+		height: 0,
+		padding: 0,
+		duration: 0.5,
+		ease: "back.in",
+	});
+	gsap.to(barRef.value, {
+		delay: 0.5,
+		width: 0,
+		padding: 0,
+		duration: 0.5,
+		ease: "back.in",
+		onComplete: () => {
+			params.value = undefined;
+		},
+	});
+	gsap.to(timerRef.value, {
+		height: 0,
+		padding: 0,
+		duration: 0.5,
+		ease: "back.in",
+	});
 }
 
 /**
  * Called when receiving overlay configs
  */
-function onConfig(e: TwitchatEvent<"ON_BID_WAR_CONFIGS">): void {
-	if (!e.data || e.data.id != id) return;
-	params.value = e.data;
+async function onConfig(e: TwitchatEvent<"ON_BID_WAR_CONFIGS">): Promise<void> {
+	if (!e.data || e.data.bidwar.id != id) return;
+	if (!e.data.bidwar.enabled) {
+		if (params.value) close();
+		return;
+	}
+	now.value = Date.now();
+	let wasOpen = !!params.value;
+	params.value = e.data.bidwar;
+	if (e.data.daysLabel) daysLabel = e.data.daysLabel;
+	await nextTick();
+	if (!wasOpen) open();
 }
 
 /**
- * Formats amount with the currency pattern.
- * Displays decimals only if necessary.
+ * Select text content of the title to measure the width, then set the title width to this value.
+ * Without this, because of "text-wrap: balance", the title width is set to the width of the
+ * longest line, which shows empty space on its sides.
+ */
+function fitTitle(): void {
+	const el = titleText.value;
+	if (!el) return;
+	el.style.width = "";
+	const range = document.createRange();
+	range.selectNodeContents(el);
+	el.style.width = Math.ceil(range.getBoundingClientRect().width) + "px";
+}
+
+/**
+ * Formats amount with the currency pattern
  */
 function formatAmount(amount: number): string {
-	const value = Number.isInteger(amount) ? amount.toString() : amount.toFixed(2);
-	const pattern = params.value?.currency || Utils.CURRENCY_AMOUNT_TOKEN;
-	if (!pattern.includes(Utils.CURRENCY_AMOUNT_TOKEN)) return value + pattern;
-	return pattern.replace(Utils.CURRENCY_AMOUNT_TOKEN, value);
+	return Utils.formatCurrency(amount, params.value?.currency || Utils.CURRENCY_AMOUNT_TOKEN);
 }
 </script>
 
@@ -97,12 +218,14 @@ function formatAmount(amount: number): string {
 	top: 0;
 	left: 0;
 	width: 100%;
-	padding: 1em;
+	padding: 1em 3em;
 	display: flex;
 	flex-direction: column;
 	color: #ffffff;
+	align-items: center;
 
 	.title {
+		z-index: 2;
 		font-size: 1.5em;
 		font-weight: 800;
 		text-align: center;
@@ -111,10 +234,17 @@ function formatAmount(amount: number): string {
 		color: #000000;
 		background-color: #ffffff;
 		max-width: calc(100% - 2em);
-		align-self: center;
 		padding: 0.25em 1em;
 		border-top-left-radius: 0.5em;
 		border-top-right-radius: 0.5em;
+		border-radius: 0.5em;
+		margin-bottom: -0.25em;
+		overflow: hidden;
+
+		.text {
+			max-width: 100%;
+			text-wrap: balance;
+		}
 	}
 
 	.bar {
@@ -123,6 +253,9 @@ function formatAmount(amount: number): string {
 		border-radius: 2em;
 		overflow: hidden;
 		background-color: var(--color-b);
+		z-index: 1;
+		overflow: hidden;
+		width: 100%;
 
 		.fill {
 			position: absolute;
@@ -188,6 +321,23 @@ function formatAmount(amount: number): string {
 				white-space: nowrap;
 			}
 		}
+	}
+
+	.timer {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 0.35em;
+		font-size: 1.1em;
+		font-weight: bold;
+		font-variant-numeric: tabular-nums;
+		line-height: 1em;
+		color: #000000;
+		background-color: #ffffff;
+		padding: 0.2em 0.5em 0.25em 0.5em;
+		border-bottom-left-radius: 0.5em;
+		border-bottom-right-radius: 0.5em;
+		overflow: hidden;
 	}
 }
 </style>

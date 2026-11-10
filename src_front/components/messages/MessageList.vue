@@ -981,7 +981,8 @@ function computeShouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolea
 		}
 
 		case TwitchatDataTypes.TwitchatMessageType.POLL:
-		case TwitchatDataTypes.TwitchatMessageType.CHAT_POLL: {
+		case TwitchatDataTypes.TwitchatMessageType.CHAT_POLL:
+		case TwitchatDataTypes.TwitchatMessageType.BID_WAR_RESULT: {
 			return props.config.filters.poll === true;
 		}
 

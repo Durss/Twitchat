@@ -128,6 +128,8 @@ Events fired by Twitchat that you can listen to.
 - [ON_ANIMATED_TEXT_HIDE_COMPLETE](#on_animated_text_hide_complete)
 - [ON_ANIMATED_TEXT_SHOW_COMPLETE](#on_animated_text_show_complete)
 - [ON_AUTOMOD_MESSAGE_HELD](#on_automod_message_held)
+- [ON_BID_WAR_CONFIGS](#on_bid_war_configs)
+- [ON_BID_WAR_UPDATE](#on_bid_war_update)
 - [ON_BINGO_GRID_CONFIGS](#on_bingo_grid_configs)
 - [ON_BINGO_GRID_LEADER_BOARD](#on_bingo_grid_leader_board)
 - [ON_BINGO_GRID_VIEWER_EVENT](#on_bingo_grid_viewer_event)
@@ -194,7 +196,6 @@ Events fired by Twitchat that you can listen to.
 #### ON_AD_BREAK_OVERLAY_CONFIGS
 
 Receive ad break overlay configuration
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -268,7 +269,6 @@ type ON_AD_BREAK_OVERLAY_CONFIGS = {
 #### ON_AD_BREAK_OVERLAY_DATA
 
 Triggered when an ad break occurs
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -306,7 +306,6 @@ Advertise for ad break overlay presence
 #### ON_ANIMATED_TEXT_CLOSE
 
 Triggered when an animated text overlay close animation completes
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -328,7 +327,6 @@ type ON_ANIMATED_TEXT_CLOSE = {
 #### ON_ANIMATED_TEXT_CONFIGS
 
 Receive animated text overlay configuration
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -388,7 +386,6 @@ type ON_ANIMATED_TEXT_CONFIGS = {
 #### ON_ANIMATED_TEXT_HIDE_COMPLETE
 
 Triggered when an animated text hide animation completes
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -406,7 +403,6 @@ type ON_ANIMATED_TEXT_HIDE_COMPLETE = {
 #### ON_ANIMATED_TEXT_SHOW_COMPLETE
 
 Triggered when an animated text show animation completes
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -424,7 +420,6 @@ type ON_ANIMATED_TEXT_SHOW_COMPLETE = {
 #### ON_AUTOMOD_MESSAGE_HELD
 
 Triggered when a message is held by automod
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -451,10 +446,512 @@ type ON_AUTOMOD_MESSAGE_HELD = null | {
 
 </details>
 
+#### ON_BID_WAR_CONFIGS
+
+Receive bid war overlay configuration and amounts
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type ON_BID_WAR_CONFIGS = {
+	bidwar: {
+		id: string;
+		enabled: boolean;
+		/**
+		 * Bid war's title
+		 */
+		title: string;
+		/**
+		 * Currency pattern
+		 */
+		currency: string;
+		/**
+		 * Sides users can vote for
+		 */
+		sides: {
+			0: {
+				/**
+				 * Keyword viewers must put in their tip message to tip for this side
+				 */
+				keyword: string;
+				/**
+				 * Amount raised so far
+				 */
+				amount: number;
+				/**
+				 * Side's color
+				 */
+				color: string;
+			};
+			1: {
+				/**
+				 * Keyword viewers must put in their tip message to tip for this side
+				 */
+				keyword: string;
+				/**
+				 * Amount raised so far
+				 */
+				amount: number;
+				/**
+				 * Side's color
+				 */
+				color: string;
+			};
+			length: 2;
+			/**
+			 * Returns a string representation of an array.
+			 */
+			toString: {};
+			/**
+			 * Returns a string representation of an array. The elements are converted to string using their toLocaleString methods.
+			 */
+			toLocaleString: {};
+			/**
+			 * Removes the last element from an array and returns it.
+			 * If the array is empty, undefined is returned and the array is not modified.
+			 */
+			pop: {};
+			/**
+			 * Appends new elements to the end of an array, and returns the new length of the array.
+			 */
+			push: {};
+			/**
+			 * Combines two or more arrays.
+			 * This method returns a new array without modifying any existing arrays.
+			 */
+			concat: {};
+			/**
+			 * Adds all the elements of an array into a string, separated by the specified separator string.
+			 */
+			join: {};
+			/**
+			 * Reverses the elements in an array in place.
+			 * This method mutates the array and returns a reference to the same array.
+			 */
+			reverse: {};
+			/**
+			 * Removes the first element from an array and returns it.
+			 * If the array is empty, undefined is returned and the array is not modified.
+			 */
+			shift: {};
+			/**
+			 * Returns a copy of a section of an array.
+			 * For both start and end, a negative index can be used to indicate an offset from the end of the array.
+			 * For example, -2 refers to the second to last element of the array.
+			 */
+			slice: {};
+			/**
+			 * Sorts an array in place.
+			 * This method mutates the array and returns a reference to the same array.
+			 */
+			sort: {};
+			/**
+			 * Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements.
+			 */
+			splice: {};
+			/**
+			 * Inserts new elements at the start of an array, and returns the new length of the array.
+			 */
+			unshift: {};
+			/**
+			 * Returns the index of the first occurrence of a value in an array, or -1 if it is not present.
+			 */
+			indexOf: {};
+			/**
+			 * Returns the index of the last occurrence of a specified value in an array, or -1 if it is not present.
+			 */
+			lastIndexOf: {};
+			/**
+			 * Determines whether all the members of an array satisfy the specified test.
+			 */
+			every: {};
+			/**
+			 * Determines whether the specified callback function returns true for any element of an array.
+			 */
+			some: {};
+			/**
+			 * Performs the specified action for each element in an array.
+			 */
+			forEach: {};
+			/**
+			 * Calls a defined callback function on each element of an array, and returns an array that contains the results.
+			 */
+			map: {};
+			/**
+			 * Returns the elements of an array that meet the condition specified in a callback function.
+			 */
+			filter: {};
+			/**
+			 * Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
+			 */
+			reduce: {};
+			/**
+			 * Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
+			 */
+			reduceRight: {};
+			/**
+			 * Returns the value of the first element in the array where predicate is true, and undefined
+			 * otherwise.
+			 */
+			find: {};
+			/**
+			 * Returns the index of the first element in the array where predicate is true, and -1
+			 * otherwise.
+			 */
+			findIndex: {};
+			/**
+			 * Changes all array elements from `start` to `end` index to a static `value` and returns the modified array
+			 */
+			fill: {};
+			/**
+			 * Returns the this object after copying a section of the array identified by start and end
+			 * to the same array starting at position target
+			 */
+			copyWithin: {};
+			/**
+			 * Returns an iterable of key, value pairs for every entry in the array
+			 */
+			entries: {};
+			/**
+			 * Returns an iterable of keys in the array
+			 */
+			keys: {};
+			/**
+			 * Returns an iterable of values in the array
+			 */
+			values: {};
+			/**
+			 * Determines whether an array includes a certain element, returning true or false as appropriate.
+			 */
+			includes: {};
+			/**
+			 * Calls a defined callback function on each element of an array. Then, flattens the result into
+			 * a new array.
+			 * This is identical to a map followed by flat with depth 1.
+			 */
+			flatMap: {};
+			/**
+			 * Returns a new array with all sub-array elements concatenated into it recursively up to the
+			 * specified depth.
+			 */
+			flat: {};
+			/**
+			 * Returns the item located at the specified index.
+			 */
+			at: {};
+			/**
+			 * Returns the value of the last element in the array where predicate is true, and undefined
+			 * otherwise.
+			 */
+			findLast: {};
+			/**
+			 * Returns the index of the last element in the array where predicate is true, and -1
+			 * otherwise.
+			 */
+			findLastIndex: {};
+			/**
+			 * Returns a copy of an array with its elements reversed.
+			 */
+			toReversed: {};
+			/**
+			 * Returns a copy of an array with its elements sorted.
+			 */
+			toSorted: {};
+			/**
+			 * Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.
+			 * Copies an array and removes elements while returning the remaining elements.
+			 */
+			toSpliced: {};
+			/**
+			 * Copies an array, then overwrites the value at the provided index with the
+			 * given value. If the index is negative, then it replaces from the end
+			 * of the array.
+			 */
+			with: {};
+			/**
+			 * Iterator
+			 */
+			__@iterator@457: {};
+			/**
+			 * Is an object whose properties have the value 'true'
+			 * when they will be absent when used in a 'with' statement.
+			 */
+			__@unscopables@459: {
+				/**
+				 * Gets or sets the length of the array. This is a number one higher than the highest index in the array.
+				 */
+				length?: boolean;
+				/**
+				 * Returns a string representation of an array.
+				 */
+				toString?: boolean;
+				/**
+				 * Returns a string representation of an array. The elements are converted to string using their toLocaleString methods.
+				 */
+				toLocaleString?: boolean;
+				/**
+				 * Removes the last element from an array and returns it.
+				 * If the array is empty, undefined is returned and the array is not modified.
+				 */
+				pop?: boolean;
+				/**
+				 * Appends new elements to the end of an array, and returns the new length of the array.
+				 */
+				push?: boolean;
+				/**
+				 * Combines two or more arrays.
+				 * This method returns a new array without modifying any existing arrays.
+				 */
+				concat?: boolean;
+				/**
+				 * Adds all the elements of an array into a string, separated by the specified separator string.
+				 */
+				join?: boolean;
+				/**
+				 * Reverses the elements in an array in place.
+				 * This method mutates the array and returns a reference to the same array.
+				 */
+				reverse?: boolean;
+				/**
+				 * Removes the first element from an array and returns it.
+				 * If the array is empty, undefined is returned and the array is not modified.
+				 */
+				shift?: boolean;
+				/**
+				 * Returns a copy of a section of an array.
+				 * For both start and end, a negative index can be used to indicate an offset from the end of the array.
+				 * For example, -2 refers to the second to last element of the array.
+				 */
+				slice?: boolean;
+				/**
+				 * Sorts an array in place.
+				 * This method mutates the array and returns a reference to the same array.
+				 */
+				sort?: boolean;
+				/**
+				 * Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements.
+				 */
+				splice?: boolean;
+				/**
+				 * Inserts new elements at the start of an array, and returns the new length of the array.
+				 */
+				unshift?: boolean;
+				/**
+				 * Returns the index of the first occurrence of a value in an array, or -1 if it is not present.
+				 */
+				indexOf?: boolean;
+				/**
+				 * Returns the index of the last occurrence of a specified value in an array, or -1 if it is not present.
+				 */
+				lastIndexOf?: boolean;
+				/**
+				 * Determines whether all the members of an array satisfy the specified test.
+				 */
+				every?: boolean;
+				/**
+				 * Determines whether the specified callback function returns true for any element of an array.
+				 */
+				some?: boolean;
+				/**
+				 * Performs the specified action for each element in an array.
+				 */
+				forEach?: boolean;
+				/**
+				 * Calls a defined callback function on each element of an array, and returns an array that contains the results.
+				 */
+				map?: boolean;
+				/**
+				 * Returns the elements of an array that meet the condition specified in a callback function.
+				 */
+				filter?: boolean;
+				/**
+				 * Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
+				 */
+				reduce?: boolean;
+				/**
+				 * Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
+				 */
+				reduceRight?: boolean;
+				/**
+				 * Returns the value of the first element in the array where predicate is true, and undefined
+				 * otherwise.
+				 */
+				find?: boolean;
+				/**
+				 * Returns the index of the first element in the array where predicate is true, and -1
+				 * otherwise.
+				 */
+				findIndex?: boolean;
+				/**
+				 * Changes all array elements from `start` to `end` index to a static `value` and returns the modified array
+				 */
+				fill?: boolean;
+				/**
+				 * Returns the this object after copying a section of the array identified by start and end
+				 * to the same array starting at position target
+				 */
+				copyWithin?: boolean;
+				/**
+				 * Returns an iterable of key, value pairs for every entry in the array
+				 */
+				entries?: boolean;
+				/**
+				 * Returns an iterable of keys in the array
+				 */
+				keys?: boolean;
+				/**
+				 * Returns an iterable of values in the array
+				 */
+				values?: boolean;
+				/**
+				 * Determines whether an array includes a certain element, returning true or false as appropriate.
+				 */
+				includes?: boolean;
+				/**
+				 * Calls a defined callback function on each element of an array. Then, flattens the result into
+				 * a new array.
+				 * This is identical to a map followed by flat with depth 1.
+				 */
+				flatMap?: boolean;
+				/**
+				 * Returns a new array with all sub-array elements concatenated into it recursively up to the
+				 * specified depth.
+				 */
+				flat?: boolean;
+				/**
+				 * Returns the item located at the specified index.
+				 */
+				at?: boolean;
+				/**
+				 * Returns the value of the last element in the array where predicate is true, and undefined
+				 * otherwise.
+				 */
+				findLast?: boolean;
+				/**
+				 * Returns the index of the last element in the array where predicate is true, and -1
+				 * otherwise.
+				 */
+				findLastIndex?: boolean;
+				/**
+				 * Returns a copy of an array with its elements reversed.
+				 */
+				toReversed?: boolean;
+				/**
+				 * Returns a copy of an array with its elements sorted.
+				 */
+				toSorted?: boolean;
+				/**
+				 * Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.
+				 * Copies an array and removes elements while returning the remaining elements.
+				 */
+				toSpliced?: boolean;
+				/**
+				 * Copies an array, then overwrites the value at the provided index with the
+				 * given value. If the index is negative, then it replaces from the end
+				 * of the array.
+				 */
+				with?: boolean;
+				/**
+				 * Iterator
+				 */
+				__@iterator@457?: any;
+				/**
+				 * Is an object whose properties have the value 'true'
+				 * when they will be absent when used in a 'with' statement.
+				 */
+				__@unscopables@459?: any;
+				[key: number]: boolean;
+			};
+			[key: number]: {
+				/**
+				 * Keyword viewers must put in their tip message to tip for this side
+				 */
+				keyword: string;
+				/**
+				 * Amount raised so far
+				 */
+				amount: number;
+				/**
+				 * Side's color
+				 */
+				color: string;
+			};
+		};
+		/**
+		 * Tip platforms allowed to update the bid war
+		 */
+		platforms: {
+			kofi: boolean;
+			streamlabs: boolean;
+			streamelements: boolean;
+			tipeee: boolean;
+			tiltify: boolean;
+			streamlabs_charity: boolean;
+		};
+		/**
+		 * Automatically disable the bid war after some time?
+		 */
+		autoDisable: boolean;
+		/**
+		 * Duration in seconds after which the bid war is disabled.
+		 * Countdown starts when the bid war is enabled.
+		 */
+		autoDisableDuration_s: number;
+		/**
+		 * Date at which bid war will be disabled
+		 * 0 if no countdown is running.
+		 */
+		autoDisable_at: number;
+		/**
+		 * Post the result on chat when the bid war is disabled?
+		 */
+		postResultOnChat: boolean;
+		/**
+		 * Message to post on chat wehn bid war is disabled
+		 */
+		postResultChatMessage: string;
+		/**
+		 * Message to post on chat when bid war is disabled but no side won
+		 */
+		postTieChatMessage: string;
+	};
+	daysLabel: string;
+}
+```
+
+</details>
+
+#### ON_BID_WAR_UPDATE
+
+Updates given bid war
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type ON_BID_WAR_UPDATE = {
+	/**
+	 * Bid war ID to edit
+	 */
+	id: string;
+	/**
+	 * Action to perform
+	 */
+	action: "toggle" | "enable" | "disable" | "reset" | "add1" | "add2" | "set1" | "set2";
+	/**
+	 * Action's value.
+	 * Must be a boolean for "enable" and "disable" actions.
+	 * Must be a number for "add1", "add2", "set1" and "set2" actions.
+	 * Not needed for "toggle" and "reset" actions.
+	 */
+	value?: undefined | number | false | true;
+};
+```
+
+</details>
+
 #### ON_BINGO_GRID_CONFIGS
 
 Receive a bingo grid configuration
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -734,7 +1231,6 @@ type ON_BINGO_GRID_CONFIGS = {
 #### ON_BINGO_GRID_LEADER_BOARD
 
 Receive bingo grid leaderboard
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -759,7 +1255,6 @@ type ON_BINGO_GRID_LEADER_BOARD = {
 #### ON_BINGO_GRID_VIEWER_EVENT
 
 Triggered when a viewer completes a bingo
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -785,7 +1280,6 @@ type ON_BINGO_GRID_VIEWER_EVENT = {
 #### ON_BITS
 
 Triggered when a user sends bits (cheers)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -874,7 +1368,6 @@ type ON_BITS = {
 #### ON_BITSWALL_OVERLAY_CONFIGS
 
 Receive bitswall overlay configuration
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -918,7 +1411,6 @@ Advertise for bitswall overlay presence
 #### ON_CHAT_COLUMNS_COUNT
 
 Receive number of chat columns
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -942,7 +1434,6 @@ request main app to close the highlight
 
 Receive current chat poll info.
 Call GET_CHAT_POLL_INFO to get this data
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -977,7 +1468,6 @@ type ON_CHAT_POLL_INFO = {
 #### ON_CHAT_POLL_OVERLAY_CONFIGS
 
 Receive chat poll overlay configuration
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1039,7 +1529,6 @@ Advertise for chat poll overlay presence
 #### ON_CHAT_POLL_PROGRESS
 
 Triggered when chat poll progress updates
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1162,7 +1651,6 @@ type ON_CHAT_POLL_PROGRESS = {
 #### ON_CHAT_POLL_RESULT
 
 Triggerd when a chat poll ends
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1193,7 +1681,6 @@ type ON_CHAT_POLL_RESULT = {
 #### ON_COUNTDOWN_COMPLETE
 
 Triggered when a countdown completes
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1301,7 +1788,6 @@ type ON_COUNTDOWN_COMPLETE = {
 #### ON_COUNTDOWN_START
 
 Triggered when a countdown starts
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1409,7 +1895,6 @@ type ON_COUNTDOWN_START = {
 #### ON_COUNTER_LIST
 
 Receive the list of all counters
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1428,7 +1913,6 @@ type ON_COUNTER_LIST = {
 #### ON_COUNTER_UPDATE
 
 Receive counter update
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1550,7 +2034,6 @@ type ON_COUNTER_UPDATE = {
 #### ON_CURRENT_TRACK
 
 Receive current track information
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1626,7 +2109,6 @@ type ON_CURRENT_TRACK = {
 #### ON_CUSTOM_TRAIN_DATA
 
 Receive custom train configuration and state
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1788,10 +2270,10 @@ type ON_CUSTOM_TRAIN_DATA = {
 		 */
 		platforms: {
 			kofi: boolean;
-			streamelements: boolean;
-			patreon: boolean;
 			streamlabs: boolean;
+			streamelements: boolean;
 			tipeee: boolean;
+			patreon: boolean;
 			tiltify: boolean;
 			streamlabs_charity: boolean;
 			twitch_charity: boolean;
@@ -1854,7 +2336,6 @@ type ON_CUSTOM_TRAIN_DATA = {
 #### ON_DISTORT_OVERLAY_CONFIGS
 
 Receive a distortion overlay configuration data
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1969,7 +2450,6 @@ type ON_DISTORT_OVERLAY_CONFIGS = {
 #### ON_DONATION_EVENT
 
 Triggered when a donation event occurs
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -1995,7 +2475,6 @@ type ON_DONATION_EVENT = {
 #### ON_DONATION_GOALS_OVERLAY_CONFIGS
 
 Receive a donation goals overlay configurations
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -2045,11 +2524,16 @@ type ON_DONATION_GOALS_OVERLAY_CONFIGS = {
 		 * Source to link this donation goal to
 		 */
 		dataSource:
+			| "kofi"
+			| "streamlabs"
+			| "streamelements"
+			| "tipeee"
+			| "patreon"
 			| "tiltify"
 			| "streamlabs_charity"
 			| "twitch_charity"
-			| "counter"
 			| "twitch_subs"
+			| "counter"
 			| "twitch_followers";
 		/**
 		 * Optional campaign ID.
@@ -2140,7 +2624,6 @@ Triggered when ending credits animation completes
 #### ON_ENDING_CREDITS_CONFIGS
 
 Receive ending credits configuration data
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -2489,7 +2972,6 @@ type ON_ENDING_CREDITS_CONFIGS = {
 #### ON_FOLLOW
 
 Triggered when a user follows the channel
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -2515,7 +2997,6 @@ type ON_FOLLOW = {
 #### ON_GLOBAL_STATES
 
 Response to GET_GLOBAL_STATES
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -2831,6 +3312,10 @@ type ON_GLOBAL_STATES = {
 		 */
 		timerStartedAt: string;
 		/**
+		 * Has current question been revealed
+		 */
+		currentQuestionRevealed: boolean;
+		/**
 		 * Current question duration
 		 */
 		questionDuration_ms: number;
@@ -2891,6 +3376,23 @@ type ON_GLOBAL_STATES = {
 		id: string;
 	};
 	/**
+	 * Details about the prompt window currently displayed if any
+	 */
+	currentPrompt: null | {
+		/**
+		 * Prompt's unique ID
+		 */
+		id: string;
+		/**
+		 * Prompt's title
+		 */
+		title: string;
+		/**
+		 * Prompt's description displayed under the title
+		 */
+		header: string;
+	};
+	/**
 	 * Available clickable areas grouped by screens
 	 */
 	clickableAreas: {
@@ -2930,6 +3432,36 @@ type ON_GLOBAL_STATES = {
 			}[];
 		}[];
 	}[];
+	/**
+	 * Available bidwar list
+	 */
+	bidwars: {
+		/**
+		 * Bid war ID
+		 */
+		id: string;
+		/**
+		 * Bid war title
+		 */
+		title: string;
+		/**
+		 * Bid war enabled?
+		 */
+		enabled: boolean;
+		/**
+		 * Sides users can vote for
+		 */
+		sides: {
+			/**
+			 * Side title
+			 */
+			title: string;
+			/**
+			 * Current side amount
+			 */
+			amount: number;
+		}[];
+	}[];
 };
 ```
 
@@ -2938,7 +3470,6 @@ type ON_GLOBAL_STATES = {
 #### ON_LABEL_OVERLAY_CONFIGS
 
 Receive label overlay configuration
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3075,6 +3606,11 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 			| "POWER_UP_CUSTOM_AVATAR"
 			| "POWER_UP_CUSTOM_TITLE"
 			| "POWER_UP_CUSTOM_COST"
+			| "GIF_ID"
+			| "GIF_NAME"
+			| "GIF_AVATAR"
+			| "GIF_IMAGE"
+			| "GIF_DESCRIPTION"
 			| "KOFI_TIP_NAME"
 			| "KOFI_TIP_AMOUNT"
 			| "KOFI_MERCH_USER"
@@ -3212,7 +3748,6 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 #### ON_LABEL_OVERLAY_PLACEHOLDERS
 
 Advertise for label overlay placeholders
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3249,7 +3784,6 @@ type ON_LABEL_OVERLAY_PLACEHOLDERS = {
 #### ON_MENTION
 
 Triggered when the streamer is mentioned in a message
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3279,7 +3813,6 @@ type ON_MENTION = {
 #### ON_MESSAGE_DELETED
 
 A chat message has been deleted
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3309,7 +3842,6 @@ type ON_MESSAGE_DELETED = {
 #### ON_MESSAGE_FIRST_ALL_TIME
 
 Triggered when a user sends their first message ever in the channel
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3339,7 +3871,6 @@ type ON_MESSAGE_FIRST_ALL_TIME = {
 #### ON_MESSAGE_FIRST_TODAY
 
 Triggered when a user sends their first message of the day
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3369,7 +3900,6 @@ type ON_MESSAGE_FIRST_TODAY = {
 #### ON_MESSAGE_FROM_NON_FOLLOWER
 
 Triggered when a message is received from a non-follower
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3399,7 +3929,6 @@ type ON_MESSAGE_FROM_NON_FOLLOWER = {
 #### ON_MESSAGE_MARKED_AS_READ
 
 Triggered when a message is marked or unmarked as read
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3437,7 +3966,6 @@ type ON_MESSAGE_MARKED_AS_READ = {
 #### ON_MESSAGE_WHISPER
 
 Triggered when a whisper message is received
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3467,7 +3995,6 @@ type ON_MESSAGE_WHISPER = {
 #### ON_MUSIC_PLAYER_HEAT_CLICK
 
 Triggered when a heat click occurs on the music player
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3582,7 +4109,6 @@ OBS Websocket connection lost
 #### ON_POLL_OVERLAY_CONFIGS
 
 Receive poll overlay configuration
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3641,7 +4167,6 @@ type ON_POLL_OVERLAY_CONFIGS = {
 
 Triggered when poll progress updates.
 If no active poll, body is undefined
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -3793,10 +4318,20 @@ type ON_POLL_PROGRESS = {
 					 * User badges for this channel
 					 */
 					badges: {
+						/**
+						 * bitmap icon
+						 */
 						icon: {
 							sd: string;
 							hd?: string;
 						};
+						/**
+						 * SVG icon name from twitchat's icons
+						 */
+						iconName?: string;
+						/**
+						 * Badge ID
+						 */
 						id:
 							| "predictions"
 							| "subscriber"
@@ -3809,7 +4344,13 @@ type ON_POLL_PROGRESS = {
 							| "partner"
 							| "founder"
 							| "ambassador";
+						/**
+						 * Badge's title
+						 */
 						title?: string;
+						/**
+						 * Badge's version used for twitch prediction (pink/blue)
+						 */
 						version?: string;
 					}[];
 					/**
@@ -3944,6 +4485,12 @@ type ON_POLL_PROGRESS = {
 		 */
 		twitchSharedChat?: boolean;
 		/**
+		 * ID of the channel the message originates from when coming from a
+		 * shared chat session.
+		 * Only set if different from the channel the message has been received on.
+		 */
+		twitchSharedChatSourceId?: string;
+		/**
 		 * true if message has been deleted
 		 */
 		deleted?: boolean;
@@ -3974,7 +4521,6 @@ Advertise for polls overlay presence
 #### ON_PREDICTION_OVERLAY_CONFIGS
 
 Receive prediction overlay configuration
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -4006,7 +4552,6 @@ type ON_PREDICTION_OVERLAY_CONFIGS = {
 
 Triggered when prediction progress updates
 If no active prediction, body is undefined
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -4158,10 +4703,20 @@ type ON_PREDICTION_PROGRESS = {
 					 * User badges for this channel
 					 */
 					badges: {
+						/**
+						 * bitmap icon
+						 */
 						icon: {
 							sd: string;
 							hd?: string;
 						};
+						/**
+						 * SVG icon name from twitchat's icons
+						 */
+						iconName?: string;
+						/**
+						 * Badge ID
+						 */
 						id:
 							| "predictions"
 							| "subscriber"
@@ -4174,7 +4729,13 @@ type ON_PREDICTION_PROGRESS = {
 							| "partner"
 							| "founder"
 							| "ambassador";
+						/**
+						 * Badge's title
+						 */
 						title?: string;
+						/**
+						 * Badge's version used for twitch prediction (pink/blue)
+						 */
 						version?: string;
 					}[];
 					/**
@@ -4329,6 +4890,12 @@ type ON_PREDICTION_PROGRESS = {
 		 */
 		twitchSharedChat?: boolean;
 		/**
+		 * ID of the channel the message originates from when coming from a
+		 * shared chat session.
+		 * Only set if different from the channel the message has been received on.
+		 */
+		twitchSharedChatSourceId?: string;
+		/**
 		 * true if message has been deleted
 		 */
 		deleted?: boolean;
@@ -4359,7 +4926,6 @@ Advertise for predictions overlay presence
 #### ON_QNA_SESSION_LIST
 
 Receive list of all Q&A sessions
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -4390,7 +4956,6 @@ type ON_QNA_SESSION_LIST = {
 #### ON_QUIZ_LEADERBOARD
 
 Receive quiz overlay leaderboard
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -4437,7 +5002,6 @@ type ON_QUIZ_LEADERBOARD = {
 #### ON_QUIZ_OVERLAY_PRESENCE
 
 Advertise for quiz overlay presence
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -4450,7 +5014,6 @@ type ON_QUIZ_OVERLAY_PRESENCE = void;
 #### ON_QUIZ_STATE
 
 Receive quiz overlay configuration
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -4760,7 +5323,6 @@ type ON_QUIZ_STATE = {
 #### ON_REWARD_REDEEM
 
 Triggered when a channel point reward is redeemed
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -4845,7 +5407,6 @@ type ON_REWARD_REDEEM = {
 #### ON_SUBSCRIPTION
 
 Triggered when a subscription event occurs (new sub, resub, gift, etc.)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -4965,7 +5526,6 @@ type ON_SUBSCRIPTION = {
 #### ON_TIMER_LIST
 
 Receive list of all timers and countdowns
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5039,7 +5599,6 @@ Advertise for timer overlay presence
 #### ON_TIMER_START
 
 Triggered when a timer starts
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5147,7 +5706,6 @@ type ON_TIMER_START = {
 #### ON_TIMER_STOP
 
 Triggered when a timer stops
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5255,7 +5813,6 @@ type ON_TIMER_STOP = {
 #### ON_TRACK_ADDED_TO_QUEUE
 
 Triggered when a track is added to the music queue
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5297,7 +5854,6 @@ type ON_TRACK_ADDED_TO_QUEUE = {
 #### ON_TRIGGER_LIST
 
 Receive list of all triggers
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5336,7 +5892,6 @@ type ON_TRIGGER_LIST = {
 #### ON_TWITCHAT_READY
 
 Twitchat completed initialization and is ready.
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5344,8 +5899,8 @@ Twitchat completed initialization and is ready.
 type ON_TWITCHAT_READY = {
 	/**
 	 * Twitchat version (ex: "17.0.0").
-	 * Overlays from older major versions reload themselves when this is a
-	 * higher major than theirs. Do not rename.
+	 * Overlays reload if this version has a higher major version than
+	 * what the overlay has.
 	 */
 	appVersion: string;
 };
@@ -5356,7 +5911,6 @@ type ON_TWITCHAT_READY = {
 #### ON_VOICE_CONTROL_STATE_CHANGE
 
 Triggered when voice control state is updated
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5374,7 +5928,6 @@ type ON_VOICE_CONTROL_STATE_CHANGE = {
 #### ON_VOICEMOD_VOICE_CHANGE
 
 Triggered when the user changes Voicemod voice
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5392,7 +5945,6 @@ type ON_VOICEMOD_VOICE_CHANGE = {
 #### ON_WHEEL_OVERLAY_ANIMATION_COMPLETE
 
 Triggered when wheel overlay animation completes
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5474,6 +6026,8 @@ Actions you can request Twitchat to perform.
 - [SET_PLAY_SFXR](#set_play_sfxr)
 - [SET_POLL_TOGGLE](#set_poll_toggle)
 - [SET_PREDICTION_TOGGLE](#set_prediction_toggle)
+- [SET_PROMPT_PARAMS_ACCEPT](#set_prompt_params_accept)
+- [SET_PROMPT_PARAMS_REJECT](#set_prompt_params_reject)
 - [SET_QNA_HIGHLIGHT](#set_qna_highlight)
 - [SET_QNA_SKIP](#set_qna_skip)
 - [SET_QUIZ_NEXT_QUESTION](#set_quiz_next_question)
@@ -5497,7 +6051,6 @@ Actions you can request Twitchat to perform.
 #### SET_ANIMATED_TEXT_CONTENT
 
 Set text content for an animated text overlay
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5542,7 +6095,6 @@ Reject latest message held by automod
 #### SET_BINGO_GRID_OVERLAY_PRESENCE
 
 Advertise bingo grid overlay presence
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5555,7 +6107,6 @@ type SET_BINGO_GRID_OVERLAY_PRESENCE = void;
 #### SET_BINGO_GRID_STATE
 
 Enable or disable a specific bingo grid
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5581,7 +6132,6 @@ type SET_BINGO_GRID_STATE = {
 #### SET_BINGO_GRID_VISIBILITY
 
 Set bingo grid visibility
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5608,7 +6158,6 @@ Toggle censorship of deleted messages
 #### SET_CHAT_FEED_PAUSE_STATE
 
 Pause auto-scrolling in a chat feed
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5631,7 +6180,6 @@ type SET_CHAT_FEED_PAUSE_STATE = {
 #### SET_CHAT_FEED_READ
 
 Move read marker in chat feed
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5653,7 +6201,6 @@ type SET_CHAT_FEED_READ = {
 #### SET_CHAT_FEED_READ_ALL
 
 Mark all messages as read in a chat feed
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5671,7 +6218,6 @@ type SET_CHAT_FEED_READ_ALL = {
 #### SET_CHAT_FEED_SCROLL
 
 Scroll a chat feed by a specific amount
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5699,7 +6245,6 @@ type SET_CHAT_FEED_SCROLL = {
 #### SET_CHAT_FEED_SCROLL_BOTTOM
 
 Scroll a chat feed to the bottom
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5717,7 +6262,6 @@ type SET_CHAT_FEED_SCROLL_BOTTOM = {
 #### SET_CHAT_FEED_SELECT
 
 Move message selection in a chat feed
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5743,7 +6287,6 @@ type SET_CHAT_FEED_SELECT = {
 
 Ban the user of the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5766,7 +6309,6 @@ type SET_CHAT_FEED_SELECT_ACTION_BAN = {
 #### SET_CHAT_FEED_SELECT_ACTION_CANCEL
 
 Cancel the action selection for the currently selected message in a chat feed
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5785,7 +6327,6 @@ type SET_CHAT_FEED_SELECT_ACTION_CANCEL = {
 
 Delete the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5804,7 +6345,6 @@ type SET_CHAT_FEED_SELECT_ACTION_DELETE = {
 
 Highlight the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5823,7 +6363,6 @@ type SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT = {
 
 Save the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5842,7 +6381,6 @@ type SET_CHAT_FEED_SELECT_ACTION_SAVE = {
 
 Shoutout the user of the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5861,7 +6399,6 @@ type SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT = {
 
 Open action chooser for the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -5879,7 +6416,6 @@ type SET_CHAT_FEED_SELECT_CHOOSING_ACTION = {
 #### SET_CHAT_HIGHLIGHT_OVERLAY_CLIP
 
 Send a clip to the chat highlight overlay
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -6024,10 +6560,20 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 				 * User badges for this channel
 				 */
 				badges: {
+					/**
+					 * bitmap icon
+					 */
 					icon: {
 						sd: string;
 						hd?: string;
 					};
+					/**
+					 * SVG icon name from twitchat's icons
+					 */
+					iconName?: string;
+					/**
+					 * Badge ID
+					 */
 					id:
 						| "predictions"
 						| "subscriber"
@@ -6040,7 +6586,13 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 						| "partner"
 						| "founder"
 						| "ambassador";
+					/**
+					 * Badge's title
+					 */
 					title?: string;
+					/**
+					 * Badge's version used for twitch prediction (pink/blue)
+					 */
 					version?: string;
 				}[];
 				/**
@@ -6115,7 +6667,6 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 #### SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE
 
 Send a message to the chat highlight overlay
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -6260,10 +6811,20 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 				 * User badges for this channel
 				 */
 				badges: {
+					/**
+					 * bitmap icon
+					 */
 					icon: {
 						sd: string;
 						hd?: string;
 					};
+					/**
+					 * SVG icon name from twitchat's icons
+					 */
+					iconName?: string;
+					/**
+					 * Badge ID
+					 */
 					id:
 						| "predictions"
 						| "subscriber"
@@ -6276,7 +6837,13 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 						| "partner"
 						| "founder"
 						| "ambassador";
+					/**
+					 * Badge's title
+					 */
 					title?: string;
+					/**
+					 * Badge's version used for twitch prediction (pink/blue)
+					 */
 					version?: string;
 				}[];
 				/**
@@ -6355,7 +6922,6 @@ Advertise for highlight overlay presence
 #### SET_CHAT_POLL_START
 
 Start a chat poll
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -6393,7 +6959,6 @@ Clear any current message or clip displayed in chat highlight overlay
 #### SET_CLICKABLE_AREA_STATE
 
 Change the enabled state of a clickable area
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -6415,7 +6980,6 @@ type SET_CLICKABLE_AREA_STATE = {
 #### SET_COUNTDOWN_ADD
 
 Add time to a countdown
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -6439,7 +7003,6 @@ type SET_COUNTDOWN_ADD = {
 #### SET_COUNTER_ADD
 
 Add a value to a counter
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -6452,7 +7015,7 @@ type SET_COUNTER_ADD = {
 	/**
 	 * Action to perform
 	 */
-	action: "ADD" | "DEL" | "SET";
+	action: "ADD" | "DEL" | "SET" | "EDIT";
 	/**
 	 * Value to add to the counter.
 	 * Typed as string cause it can be an arithmetic expression or
@@ -6469,7 +7032,6 @@ type SET_COUNTER_ADD = {
 Enable/disable/toggle emergency mode
 Either give an object with "enabled" boolean to force a specific
 state, or don't give any parameter to toggle current state
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -6492,7 +7054,6 @@ type SET_EMERGENCY_MODE = {
 #### SET_ENDING_CREDITS_CONTROL
 
 Control ending credits playback
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -6522,7 +7083,6 @@ type SET_ENDING_CREDITS_CONTROL = {
 #### SET_ENDING_CREDITS_DATA
 
 Response with ending credits data
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7503,7 +8063,6 @@ Response with current ending credits overlay presence
 #### SET_EXECUTE_TRIGGER
 
 Execute a specific trigger manually
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7521,7 +8080,6 @@ type SET_EXECUTE_TRIGGER = {
 #### SET_GREET_FEED_READ
 
 Mark messages as read in the greet them feed
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7557,7 +8115,6 @@ Toggle moderation tools display
 #### SET_PLAY_SFXR
 
 Play an SFXR sound
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7586,10 +8143,33 @@ Toggle current poll display
 
 Toggle current prediction display
 
+#### SET_PROMPT_PARAMS_ACCEPT
+
+Accept current prompt window
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_PROMPT_PARAMS_ACCEPT = void;
+```
+
+</details>
+
+#### SET_PROMPT_PARAMS_REJECT
+
+Reject current prompt window
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_PROMPT_PARAMS_REJECT = void;
+```
+
+</details>
+
 #### SET_QNA_HIGHLIGHT
 
 Highlights the top most message of given Q&A session
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7607,7 +8187,6 @@ type SET_QNA_HIGHLIGHT = {
 #### SET_QNA_SKIP
 
 Skips the top most message of given Q&A session
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7625,7 +8204,6 @@ type SET_QNA_SKIP = {
 #### SET_QUIZ_NEXT_QUESTION
 
 Moves to the next question in the current quiz
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7638,7 +8216,6 @@ type SET_QUIZ_NEXT_QUESTION = void;
 #### SET_QUIZ_REVEAL
 
 Reveals the answer for current quiz question
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7651,7 +8228,6 @@ type SET_QUIZ_REVEAL = void;
 #### SET_QUIZ_TOGGLE_LEADERBOARD
 
 Toggle quiz leaderboard display
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7673,7 +8249,6 @@ Toggle current raffle display
 #### SET_SEND_CUSTOM_CHAT_MESSAGE
 
 Send a custom message to the chat feed with optional styling and actions
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7948,7 +8523,6 @@ type SET_SEND_CUSTOM_CHAT_MESSAGE = {
 #### SET_SEND_MESSAGE
 
 Send a message to chat
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -7982,7 +8556,6 @@ Stop any Twitch prediction currently running
 #### SET_TIMER_ADD
 
 Add time to a timer
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8006,7 +8579,6 @@ type SET_TIMER_ADD = {
 #### SET_TRIGGER_STATE
 
 Enable or disable a specific trigger
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8032,7 +8604,6 @@ type SET_TRIGGER_STATE = {
 #### SET_UNPIN_TWITCH_MESSAGE
 
 Request to unpin currently pinned message on Twitch
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8049,7 +8620,6 @@ Toggle viewers count display
 #### SET_VOICE_CONTROL_STATE
 
 Set voice bot enabled/disabled state
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8068,7 +8638,6 @@ type SET_VOICE_CONTROL_STATE = {
 #### SET_WHEEL_OVERLAY_START
 
 Triggered when wheel overlay animation starts
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8107,6 +8676,7 @@ Data you can request from Twitchat.
 - [GET_AD_BREAK_OVERLAY_PRESENCE](#get_ad_break_overlay_presence)
 - [GET_ALL_COUNTERS](#get_all_counters)
 - [GET_ANIMATED_TEXT_CONFIGS](#get_animated_text_configs)
+- [GET_BID_WAR_CONFIGS](#get_bid_war_configs)
 - [GET_BINGO_GRID_CONFIGS](#get_bingo_grid_configs)
 - [GET_BITSWALL_OVERLAY_CONFIGS](#get_bitswall_overlay_configs)
 - [GET_BITSWALL_OVERLAY_PRESENCE](#get_bitswall_overlay_presence)
@@ -8157,7 +8727,6 @@ Receive answer with: [ON_COUNTER_LIST](#on_counter_list)
 
 Request animated text overlay configuration  
 Receive answer with: [ON_ANIMATED_TEXT_CONFIGS](#on_animated_text_configs)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8172,11 +8741,28 @@ type GET_ANIMATED_TEXT_CONFIGS = {
 
 </details>
 
+#### GET_BID_WAR_CONFIGS
+
+Request bid war overlay configuration  
+Receive answer with: [ON_BID_WAR_CONFIGS](#on_bid_war_configs)
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type GET_BID_WAR_CONFIGS = {
+	/**
+	 * Bid war overlay ID
+	 */
+	id: string;
+};
+```
+
+</details>
+
 #### GET_BINGO_GRID_CONFIGS
 
 Request bingo grid configuration  
 Receive answer with: [ON_BINGO_GRID_CONFIGS](#on_bingo_grid_configs)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8225,7 +8811,6 @@ Receive answer with: [ON_CHAT_POLL_OVERLAY_PRESENCE](#on_chat_poll_overlay_prese
 
 Request a specific counter entity  
 Receive answer with: [ON_COUNTER_UPDATE](#on_counter_update)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8249,7 +8834,6 @@ Receive answer with: [ON_CURRENT_TRACK](#on_current_track)
 
 Request custom train data and state  
 Receive answer with: [ON_CUSTOM_TRAIN_DATA](#on_custom_train_data)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8268,7 +8852,6 @@ type GET_CUSTOM_TRAIN_DATA = {
 
 Request distortion overlay configuration  
 Receive answer with: [ON_DISTORT_OVERLAY_CONFIGS](#on_distort_overlay_configs)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8287,7 +8870,6 @@ type GET_DISTORT_OVERLAY_CONFIGS = {
 
 Request donation goals overlay configuration  
 Receive answer with: [ON_DONATION_GOALS_OVERLAY_CONFIGS](#on_donation_goals_overlay_configs)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8306,7 +8888,6 @@ type GET_DONATION_GOALS_OVERLAY_CONFIGS = {
 
 Request for ending credits data  
 Receive answer with: [SET_ENDING_CREDITS_DATA](#set_ending_credits_data)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8339,7 +8920,6 @@ Receive answer with: [ON_GLOBAL_STATES](#on_global_states)
 
 Request label overlay configuration  
 Receive answer with: [ON_LABEL_OVERLAY_CONFIGS](#on_label_overlay_configs)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8388,7 +8968,6 @@ Receive answer with: [ON_QNA_SESSION_LIST](#on_qna_session_list)
 
 Request quiz overlay configuration  
 Receive answer with: [ON_QUIZ_STATE](#on_quiz_state)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8402,7 +8981,6 @@ type GET_QUIZ_CONFIGS = void;
 
 Request quiz overlay presence  
 Receive answer with: [ON_QUIZ_OVERLAY_PRESENCE](#on_quiz_overlay_presence)
-
 <details>
 <summary>JSON parameters</summary>
 
@@ -8416,7 +8994,6 @@ type GET_QUIZ_OVERLAY_PRESENCE = void;
 
 Request specific timer configuration  
 Receive answer with: [ON_TIMER_START](#on_timer_start)
-
 <details>
 <summary>JSON parameters</summary>
 

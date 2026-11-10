@@ -260,6 +260,15 @@ export default class PublicAPI extends EventDispatcher {
 					points: a.points,
 				})),
 			})),
+			bidwars: StoreProxy.bidWar.bidWarList.map((b) => ({
+				id: b.id,
+				title: b.title,
+				enabled: b.enabled,
+				sides: b.sides.map((a) => ({
+					title: a.keyword,
+					amount: a.amount,
+				})),
+			})),
 		};
 		PublicAPI.instance.broadcast("ON_GLOBAL_STATES", states);
 	}

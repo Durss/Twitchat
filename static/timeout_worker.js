@@ -5,7 +5,7 @@ function startTimeout(timeout, id) {
 	const timeoutId = setTimeout(() => {
 		delete timeoutIdsToCallback[id];
 		postMessage({ type: "timeoutMessage", data: id });
-	}, timeout);
+	}, Math.min(2147483647, timeout));
 
 	timeoutIdsToCallback[id] = timeoutId;
 }

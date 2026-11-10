@@ -4,7 +4,7 @@ let intervalIdsToCallback = {};
 function startInterval(interval, id) {
 	const intervalId = setInterval(() => {
 		postMessage({ type: "intervalMessage", data: id });
-	}, interval);
+	}, Math.min(2147483647, interval));
 
 	intervalIdsToCallback[id] = intervalId;
 }

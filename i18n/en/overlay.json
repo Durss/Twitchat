@@ -719,6 +719,23 @@
 			"param_keyword_placeholder": "keyword...",
 			"param_amount": "Current amount",
 			"param_color": "Color",
+			"param_autoDisable": "End the bid war automatically",
+			"param_autoDisableDuration": "Duration (starts when the bid war is enabled)",
+			"param_postResultOnChat": "Post the result on chat when the bid war is closed",
+			"param_postResultChatMessage": "Message",
+			"param_postResultChatMessage_default": "\"\\{TITLE\\}\" is over! \"\\{WINNER\\}\" wins with \\{WINNER_AMOUNT\\} against \\{LOSER_AMOUNT\\} for \"\\{LOSER\\}\"",
+			"param_postTieChatMessage": "Message on a tie",
+			"param_postTieChatMessage_default": "\"\\{TITLE\\}\" is over! It's a tie between \"\\{SIDE1\\}\" and \"\\{SIDE2\\}\" with \\{AMOUNT\\} each",
+			"placeholders": {
+				"title": "Bid war's title",
+				"winner": "Keyword of the winning side",
+				"winner_amount": "Amount of the winning side",
+				"loser": "Keyword of the losing side",
+				"loser_amount": "Amount of the losing side",
+				"side1": "Keyword of side 1",
+				"side2": "Keyword of side 2",
+				"amount": "Amount of each side"
+			},
 			"reset_bt": "Reset amounts",
 			"reset_confirm": {
 				"title": "Reset amounts",

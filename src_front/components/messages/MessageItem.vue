@@ -68,6 +68,7 @@ import ChatAutobanJoin from "./ChatAutobanJoin.vue";
 import ChatAutomodTermsUpdate from "./ChatAutomodTermsUpdate.vue";
 import ChatBan from "./ChatBan.vue";
 import ChatBingoResult from "./ChatBingoResult.vue";
+import ChatBidWarResult from "./ChatBidWarResult.vue";
 import ChatBits from "./ChatBits.vue";
 import ChatCelebration from "./ChatCelebration.vue";
 import ChatChatCommandUpdate from "./ChatChatCommandUpdate.vue";
@@ -254,6 +255,7 @@ const componentRef = computed<VueComponent | null>(() => {
 		disconnect: ChatConnect,
 		gigantified_emote: ChatGiantEmote,
 		custom_train_summary: ChatCustomTrainSummary,
+		bid_war_result: ChatBidWarResult,
 		streamsocket_action: ChatStreamSocketAction,
 		streamloots_card: ChatStreamlootsCard,
 		streamloots_purchase: ChatStreamlootsEvent,

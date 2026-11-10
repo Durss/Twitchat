@@ -4353,6 +4353,11 @@ export interface IBidWarActions {
 	 */
 	deleteBidWar(id: string): void;
 	/**
+	 * Disables given bid war and adds its result to the message feed
+	 * @param id bid war ID
+	 */
+	disableBidWar(id: string): void;
+	/**
 	 * Saves data to server
 	 */
 	saveData(): void;

@@ -671,6 +671,23 @@
 			"param_keyword_placeholder": "mot clé...",
 			"param_amount": "Montant courant",
 			"param_color": "Couleur",
+			"param_autoDisable": "Terminer la bid war automatiquement",
+			"param_autoDisableDuration": "Durée (démarre à l'activation de la bid war)",
+			"param_postResultOnChat": "Poster le résultat sur le chat quand la bid war est fermée",
+			"param_postResultChatMessage": "Message",
+			"param_postResultChatMessage_default": "Bid war \"\\{TITLE\\}\" terminée ! \"\\{WINNER\\}\" l'emporte avec \\{WINNER_AMOUNT\\} contre \\{LOSER_AMOUNT\\} pour \"\\{LOSER\\}\"",
+			"param_postTieChatMessage": "Message en cas d'égalité",
+			"param_postTieChatMessage_default": "Bid war \"\\{TITLE\\}\" terminée ! Égalité entre \"\\{SIDE1\\}\" et \"\\{SIDE2\\}\" avec \\{AMOUNT\\}",
+			"placeholders": {
+				"title": "Titre de la bid war",
+				"winner": "Mot-clé du côté gagnant",
+				"winner_amount": "Montant du côté gagnant",
+				"loser": "Mot-clé du côté perdant",
+				"loser_amount": "Montant du côté perdant",
+				"side1": "Mot-clé du côté 1",
+				"side2": "Mot-clé du côté 2",
+				"amount": "Montant de chaque côté"
+			},
 			"reset_bt": "Réinitialiser les montants",
 			"reset_confirm": {
 				"title": "Réinitialiser les montants",
