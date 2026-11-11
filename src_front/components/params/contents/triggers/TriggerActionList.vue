@@ -53,7 +53,6 @@
 				:paramData="param_enableForRemoteChans"
 				v-if="allowedOnRemoteChans"
 				v-model="triggerData.enableForRemoteChans"
-				v-tooltip="{ content: t('triggers.enableForRemoteChans_tt'), placement: 'bottom' }"
 				class="premiumOption"
 			/>
 			<ParamItem

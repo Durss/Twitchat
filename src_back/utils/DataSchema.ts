@@ -3119,6 +3119,7 @@ const UserDataSchema = {
 					properties: {
 						manageEnabled: { type: "boolean" },
 						managePermissions: { $ref: "defs.json#/definitions/permissions" },
+						listPermissions: { $ref: "defs.json#/definitions/permissions" },
 					},
 				},
 			},

@@ -178,7 +178,7 @@ export namespace TwitchatDataTypes {
 		PREMIUM: "premium",
 		TIMERS: "timers",
 		EXPORTER: "exporter",
-		CHAT_COMMANDS: "chatCommands",
+		CHAT_COMMANDS: "chatcommands",
 	} as const;
 	export type ParameterPagesStringType = (typeof ParameterPages)[keyof typeof ParameterPages];
 
@@ -1863,6 +1863,10 @@ export namespace TwitchatDataTypes {
 		 * Who's allowed to manage commands from chat
 		 */
 		managePermissions: PermissionsData;
+		/**
+		 * Who's allowed to list commands from chat.
+		 */
+		listPermissions: PermissionsData;
 	}
 
 	/**

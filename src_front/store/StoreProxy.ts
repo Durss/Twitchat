@@ -4980,6 +4980,11 @@ export interface IChatCommandsActions {
 	 */
 	deleteEntry(id: string, keepForUndo?: boolean): void;
 	/**
+	 * Duplicates given entry
+	 * @param entry
+	 */
+	duplicateEntry(entry: TwitchatDataTypes.ChatCommandData): void;
+	/**
 	 * Restores an entry previously deleted
 	 * Returns false if restoration failed
 	 * @param id

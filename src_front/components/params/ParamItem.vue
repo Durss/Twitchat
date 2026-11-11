@@ -2091,10 +2091,12 @@ watch(
 	:deep(.parameter-child) {
 		margin-left: auto;
 		margin-right: 0;
-		margin-top: 5px;
 		@padding: 1.5em;
 		width: calc(100% - @padding);
 		position: relative;
+		&:first-child {
+			margin-top: 5px;
+		}
 		.holder {
 			// font-size: .9em;
 			&::before {

@@ -14,19 +14,18 @@
 			"desc": "Cette action est irréversible."
 		},
 		"manage": {
-			"title": "Gérer les commandes depuis le tchat",
-			"enabled": "Autoriser la gestion des commandes depuis le tchat",
-			"allowed_users": "Utilisateurices autorisé·es à gérer les commandes",
-			"usage_title": "Utilisation :",
+			"enabled": "Gérer les commandes depuis le tchat",
+			"usage_create": "Créer une commande :",
+			"usage_edit": "Editer une commande :",
+			"usage_delete": "Supprimer une commande :",
 			"usage_message": "message à envoyer",
-			"usage_list": "liste les commandes que le viewer peut utiliser"
+			"usage_list": "commandes utilisables par la personne"
 		},
 		"form": {
 			"message": "Réponse",
 			"command": "@:triggers.actions.chat.param_cmd",
 			"automatic": "Envoyer automatiquement",
 			"aliases": "@:triggers.actions.chat.param_cmd_alias",
-			"allowed_users": "@:triggers.actions.chat.allowed_users",
 			"interval": "Envoyer automatiquement toutes les (minutes)",
 			"min_messages": "Envoyer automatiquement si au moins {VALUE} message a été reçu|Envoyer automatiquement si au moins {VALUE} messages ont été reçus",
 			"conflict": "\"{CMD}\" est déjà utilisé par une autre commande",

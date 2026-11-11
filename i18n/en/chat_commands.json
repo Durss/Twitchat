@@ -14,10 +14,10 @@
 			"desc": "This cannot be undone."
 		},
 		"manage": {
-			"title": "Manage commands from chat",
-			"enabled": "Allow managing commands from chat",
-			"allowed_users": "Users allowed to manage commands",
-			"usage_title": "Usage:",
+			"enabled": "Manage commands from chat",
+			"usage_create": "Create a command:",
+			"usage_edit": "Edit a command:",
+			"usage_delete": "Delete a command:",
 			"usage_message": "message to send",
 			"usage_list": "lists the commands the viewer can use"
 		},
@@ -26,7 +26,6 @@
 			"command": "@:triggers.actions.chat.param_cmd",
 			"automatic": "Send automatically",
 			"aliases": "@:triggers.actions.chat.param_cmd_alias",
-			"allowed_users": "@:triggers.actions.chat.allowed_users",
 			"interval": "Automatically send every (minutes)",
 			"min_messages": "Automatically send if at least {VALUE} chat message was received|Automatically send if at least {VALUE} chat messages were received",
 			"conflict": "\"{CMD}\" is already used by another command",

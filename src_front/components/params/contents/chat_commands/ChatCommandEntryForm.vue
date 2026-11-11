@@ -6,13 +6,123 @@
 			:error="conflict != null"
 			:errorMessage="t('chat_commands.form.conflict', { CMD: conflict })"
 			@change="onChangeCommand()"
-		/>
+		>
+			<template #composite>
+				<PermissionsForm
+					class="permissionBt"
+					popoutMode
+					v-model="entry.command.permissions"
+					@change="emit('change')"
+				/>
+			</template>
+			<template #default>
+				<ToggleBlock
+					v-if="hasCommand || entry.schedule.enabled"
+					:open="false"
+					:title="t('global.advanced_params')"
+					:icons="['params']"
+					small
+				>
+					<div class="children">
+						<ParamItem
+							:childLevel="1"
+							noBackground
+							premium
+							:paramData="param_remoteChans"
+							v-model="entry.command.remoteChans"
+							@change="emit('change')"
+							class="premiumOption"
+						/>
+
+						<ParamItem
+							:childLevel="1"
+							noBackground
+							class="aliases"
+							:paramData="param_aliases"
+							v-model="entry.command.aliases"
+							@change="onChangeCommand()"
+						/>
+
+						<ParamItem
+							:childLevel="1"
+							noBackground
+							class="cooldown"
+							:paramData="param_globalCD"
+							v-model="entry.command.cooldown.global"
+							@change="emit('change')"
+						>
+							<template #composite>
+								<TTButton
+									class="resetBt"
+									icon="refresh"
+									v-tooltip="t('triggers.actions.chat.reset_cooldown_tt')"
+									@click="resetCooldowns(true)"
+									transparent
+									light
+								/>
+							</template>
+						</ParamItem>
+						<ParamItem
+							:childLevel="1"
+							noBackground
+							class="cooldown"
+							:paramData="param_userCD"
+							v-model="entry.command.cooldown.user"
+							@change="emit('change')"
+						>
+							<template #composite>
+								<TTButton
+									class="resetBt"
+									icon="refresh"
+									v-tooltip="t('triggers.actions.chat.reset_cooldown_tt')"
+									@click="resetCooldowns(false)"
+									transparent
+									light
+								/>
+							</template>
+						</ParamItem>
+						<ParamItem
+							:childLevel="1"
+							noBackground
+							:paramData="param_alertCD"
+							v-model="entry.command.cooldown.alert"
+							@change="emit('change')"
+						/>
+					</div>
+				</ToggleBlock>
+			</template>
+		</ParamItem>
 
 		<ParamItem
 			:paramData="param_automatic"
 			v-model="entry.schedule.enabled"
 			@change="emit('change')"
-		/>
+		>
+			<ToggleBlock
+				v-if="hasCommand || entry.schedule.enabled"
+				:open="false"
+				:title="t('global.advanced_params')"
+				:icons="['params']"
+				small
+			>
+				<div class="children">
+					<ParamItem
+						:childLevel="1"
+						noBackground
+						:paramData="param_interval"
+						v-model="intervalMinutes"
+						@change="emit('change')"
+					/>
+					<ParamItem
+						:childLevel="1"
+						noBackground
+						:paramData="param_minMessages"
+						v-model="entry.schedule.repeatMinMessages"
+						@change="emit('change')"
+					/>
+				</div>
+			</ToggleBlock>
+		</ParamItem>
 
 		<ParamItem
 			:paramData="param_message"
@@ -20,106 +130,6 @@
 			chatPreview
 			@change="emit('change')"
 		/>
-
-		<ToggleBlock
-			v-if="hasCommand || entry.schedule.enabled"
-			:open="false"
-			:title="t('global.advanced_params')"
-			:icons="['params']"
-			medium
-			primary
-		>
-			<div class="children">
-				<template v-if="hasCommand">
-					<ParamItem
-						noBackground
-						class="aliases"
-						:paramData="param_aliases"
-						v-model="entry.command.aliases"
-						@change="onChangeCommand()"
-					/>
-
-					<ParamItem
-						noBackground
-						premium
-						:paramData="param_remoteChans"
-						v-model="entry.command.remoteChans"
-						@change="emit('change')"
-						class="premiumOption"
-					/>
-
-					<ToggleBlock
-						:open="false"
-						:title="t('chat_commands.form.allowed_users')"
-						:icons="['user']"
-						medium
-					>
-						<PermissionsForm
-							v-model="entry.command.permissions"
-							@change="emit('change')"
-						/>
-					</ToggleBlock>
-
-					<ParamItem
-						noBackground
-						class="cooldown"
-						:paramData="param_globalCD"
-						v-model="entry.command.cooldown.global"
-						@change="emit('change')"
-					>
-						<template #composite>
-							<TTButton
-								class="resetBt"
-								icon="refresh"
-								v-tooltip="t('triggers.actions.chat.reset_cooldown_tt')"
-								@click="resetCooldowns(true)"
-								transparent
-								light
-							/>
-						</template>
-					</ParamItem>
-					<ParamItem
-						noBackground
-						class="cooldown"
-						:paramData="param_userCD"
-						v-model="entry.command.cooldown.user"
-						@change="emit('change')"
-					>
-						<template #composite>
-							<TTButton
-								class="resetBt"
-								icon="refresh"
-								v-tooltip="t('triggers.actions.chat.reset_cooldown_tt')"
-								@click="resetCooldowns(false)"
-								transparent
-								light
-							/>
-						</template>
-					</ParamItem>
-					<ParamItem
-						noBackground
-						:paramData="param_alertCD"
-						v-model="entry.command.cooldown.alert"
-						@change="emit('change')"
-					/>
-				</template>
-
-				<template v-if="entry.schedule.enabled">
-					<ParamItem
-						noBackground
-						:paramData="param_interval"
-						v-model="intervalMinutes"
-						@change="emit('change')"
-					/>
-					<ParamItem
-						noBackground
-						:paramData="param_minMessages"
-						v-model="entry.schedule.repeatMinMessages"
-						@change="emit('change')"
-					/>
-				</template>
-			</div>
-		</ToggleBlock>
 
 		<div class="updatedBy" v-if="entry.updatedBy">
 			{{
@@ -222,7 +232,6 @@ const param_remoteChans = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	value: false,
 	icon: "sharedChat",
 	labelKey: "triggers.enableForRemoteChans",
-	tooltipKey: "triggers.enableForRemoteChans_tt",
 });
 const param_interval = ref<TwitchatDataTypes.ParameterData<number>>({
 	type: "number",
@@ -341,6 +350,10 @@ function resetCooldowns(global: boolean): void {
 		outline: 4px solid var(--color-premium-fader);
 		background-color: var(--color-premium-fader);
 		border-radius: var(--border-radius);
+	}
+
+	.permissionBt {
+		margin-left: 0.5em;
 	}
 }
 </style>

@@ -10,62 +10,67 @@
 			</i18n-t>
 		</div>
 
-		<ToggleBlock
-			class="manage"
-			:open="false"
-			:title="t('chat_commands.manage.title')"
-			:icons="['mod']"
-			medium
-			primary
+		<div
+			class="card-item manage"
+			:class="{ disabled: !storeChatCommands.params.manageEnabled }"
 		>
-			<div class="manageForm">
-				<ParamItem
-					:paramData="param_manageEnabled"
-					v-model="storeChatCommands.params.manageEnabled"
-					:error="storeChatCommands.params.manageEnabled && manageConflict != null"
-					:errorMessage="t('chat_commands.form.conflict', { CMD: manageConflict })"
-					@change="save()"
-				>
-					<div class="children">
-						<ToggleBlock
-							:open="false"
-							:title="t('chat_commands.manage.allowed_users')"
-							:icons="['user']"
-							small
+			<ParamItem
+				noBackground
+				:paramData="param_manageEnabled"
+				v-model="storeChatCommands.params.manageEnabled"
+				@change="save()"
+			>
+				<template #composite>
+					<PermissionsForm
+						class="permissionsBt"
+						popoutMode
+						v-model="storeChatCommands.params.managePermissions"
+						@change="save()"
+					/>
+				</template>
+			</ParamItem>
+			<div class="usage">
+				<ul>
+					<li>
+						<span>{{ t("chat_commands.manage.usage_create") }}</span>
+						<mark
+							><strong>{{ MANAGE_CMD }} add</strong> !socials
+							{{ t("chat_commands.manage.usage_message") }}</mark
 						>
-							<PermissionsForm
-								v-model="storeChatCommands.params.managePermissions"
-								@change="save()"
-							/>
-						</ToggleBlock>
-						<div class="card-item usage">
-							<p><Icon name="info" />{{ t("chat_commands.manage.usage_title") }}</p>
-							<ul>
-								<li>
-									<mark
-										>{{ MANAGE_CMD }} add !socials
-										{{ t("chat_commands.manage.usage_message") }}</mark
-									>
-								</li>
-								<li>
-									<mark
-										>{{ MANAGE_CMD }} edit !socials
-										{{ t("chat_commands.manage.usage_message") }}</mark
-									>
-								</li>
-								<li>
-									<mark>{{ MANAGE_CMD }} remove !socials</mark>
-								</li>
-								<li>
-									<mark>{{ MANAGE_CMD }} list</mark>
-									{{ t("chat_commands.manage.usage_list") }}
-								</li>
-							</ul>
-						</div>
-					</div>
-				</ParamItem>
+					</li>
+					<li>
+						<span>{{ t("chat_commands.manage.usage_edit") }}</span>
+						<mark
+							><strong>{{ MANAGE_CMD }} edit</strong> !socials
+							{{ t("chat_commands.manage.usage_message") }}</mark
+						>
+					</li>
+					<li>
+						<span>{{ t("chat_commands.manage.usage_delete") }}</span>
+						<mark
+							><strong>{{ MANAGE_CMD }} remove</strong> !socials</mark
+						>
+					</li>
+				</ul>
 			</div>
-		</ToggleBlock>
+		</div>
+
+		<div class="card-item listCmd">
+			<div class="content">
+				<p>
+					<Icon name="info" /><mark
+						><strong>{{ MANAGE_CMD }} list</strong></mark
+					>
+					{{ t("chat_commands.manage.usage_list") }}
+				</p>
+			</div>
+			<PermissionsForm
+				class="permissionsBt"
+				popoutMode
+				v-model="storeChatCommands.params.listPermissions"
+				@change="save()"
+			/>
+		</div>
 
 		<section>
 			<TTButton icon="add" @click="addEntry()" v-if="!maxReached">{{
@@ -81,9 +86,8 @@
 			/>
 		</section>
 
-		<section>
+		<section v-if="storeChatCommands.entryList.length > 5">
 			<SearchForm
-				v-if="storeChatCommands.entryList.length > 5"
 				v-model="search"
 				:debounce-delay="storeChatCommands.entryList.length > 50 ? 0.33 : 0"
 			/>
@@ -128,6 +132,7 @@
 				</template>
 
 				<template #right_actions>
+					<TTButton icon="copy" @click.stop="duplicate(entry)" v-if="!maxReached" />
 					<TTButton alert icon="trash" @click.stop="deleteEntry(entry)" />
 				</template>
 
@@ -200,10 +205,6 @@ const maxReached = computed(() => {
 		!canEnableMore.value ||
 		storeChatCommands.entryList.length >= Config.instance.MAX_CHAT_COMMANDS_PREMIUM
 	);
-});
-
-const manageConflict = computed(() => {
-	return storeChatCommands.getConflict([MANAGE_CMD], undefined, true);
 });
 
 const isFiltering = computed(() => search.value.trim() != "");
@@ -282,7 +283,11 @@ function onTitleChange(entry: TwitchatDataTypes.ChatCommandData, title: string):
  */
 function getDefaultTitle(entry: TwitchatDataTypes.ChatCommandData): string {
 	if (entry.command.enabled && entry.command.name) return entry.command.name;
-	return getExcerpt(entry.message) || t("chat_commands.untitled");
+	let label = entry.message.trim();
+	if (label.length > 50) {
+		return label.substring(0, 50) + "…";
+	}
+	return label || t("chat_commands.untitled");
 }
 
 function getIcons(entry: TwitchatDataTypes.ChatCommandData): string[] {
@@ -292,9 +297,8 @@ function getIcons(entry: TwitchatDataTypes.ChatCommandData): string[] {
 	return res;
 }
 
-function getExcerpt(message: string): string {
-	const text = message.trim();
-	return text.length > 50 ? text.substring(0, 50) + "…" : text;
+function duplicate(entry: TwitchatDataTypes.ChatCommandData): void {
+	storeChatCommands.duplicateEntry(entry);
 }
 </script>
 
@@ -309,36 +313,77 @@ function getExcerpt(message: string): string {
 		width: calc(100% - 2em);
 	}
 
+	mark {
+		font-weight: normal;
+	}
+
 	.manage,
 	.entry {
 		width: calc(100% - 2em);
 		margin: auto;
 	}
 
-	.manageForm {
-		.children {
-			display: flex;
-			flex-direction: column;
-			gap: 0.25em;
-			margin-top: 0.25em;
+	.manage {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25em;
+		.icon {
+			height: 1em;
+			margin-right: 0.25em;
+			vertical-align: middle;
 		}
 		.usage {
 			font-size: 0.9em;
+			padding-left: 1.5em;
 			ul {
 				margin-top: 0.25em;
-				padding-left: 1.5em;
 				line-height: 1.5em;
 				li {
 					margin-bottom: 0.25em;
+					display: flex;
+					flex-direction: column;
+					mark {
+						margin-left: 1em;
+					}
 				}
 			}
-			.icon {
-				margin-right: 0.25em;
-				vertical-align: middle;
+		}
+
+		.permissionsBt {
+			align-self: flex-start;
+			margin-left: 0.5em;
+		}
+
+		&.disabled {
+			@c1: rgba(128, 128, 128, 0);
+			@c2: rgba(128, 128, 128, 0.1);
+			background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
+			.usage {
+				opacity: 0.5;
 			}
 		}
 	}
 
+	.listCmd {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 0.5em;
+		font-size: 0.9em;
+		margin: auto;
+		.icon {
+			height: 1em;
+			margin-right: 0.25em;
+			vertical-align: middle;
+		}
+		.content {
+			flex-grow: 1;
+			line-height: 1.5em;
+		}
+		.error {
+			font-weight: bold;
+		}
+	}
 	.entryList {
 		gap: 0.5em;
 		display: flex;

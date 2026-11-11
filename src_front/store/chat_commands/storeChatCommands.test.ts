@@ -190,9 +190,15 @@ describe("chat management", () => {
 	it("ignores management commands when disabled", async () => {
 		storeChatCommands().params.manageEnabled = false;
 		await send("!command add !discord hello");
-		await send("!command list");
 		expect(storeChatCommands().entryList).toHaveLength(0);
 		expect(mocks.sentMessages).toHaveLength(0);
+	});
+
+	it("still lists commands when management is disabled", async () => {
+		storeChatCommands().params.manageEnabled = false;
+		addCommand("!public");
+		await send("!command list", false);
+		expect(mocks.sentMessages).toEqual(["chat_commands.chat.list_prefix !public"]);
 	});
 
 	it("only handles Twitch messages", async () => {
@@ -348,6 +354,16 @@ describe("commands list", () => {
 
 		await send("!command list", false);
 		expect(mocks.sentMessages).toEqual(["chat_commands.chat.list_prefix !public"]);
+	});
+
+	it("ignores users that aren't allowed to list commands", async () => {
+		addCommand("!public");
+		storeChatCommands().params.listPermissions.all = false;
+		await send("!command list", false);
+		expect(mocks.sentMessages).toHaveLength(0);
+		//Refused user must not trigger the cooldown
+		await send("!command list", true);
+		expect(mocks.sentMessages).toHaveLength(1);
 	});
 
 	it("ignores the legacy list command", async () => {

@@ -30,6 +30,7 @@ const getDefaultParams = (): TwitchatDataTypes.ChatCommandsParams => {
 	return {
 		manageEnabled: true,
 		managePermissions: Utils.getDefaultPermissions(true, true, false, false, false, false),
+		listPermissions: Utils.getDefaultPermissions(),
 	};
 };
 
@@ -94,6 +95,22 @@ export const storeChatCommands = defineStore("chatCommands", {
 				this.trash.unshift(entry);
 				if (this.trash.length > MAX_TRASH_SIZE) this.trash.length = MAX_TRASH_SIZE;
 			}
+			this.saveData();
+		},
+
+		duplicateEntry(entry: TwitchatDataTypes.ChatCommandData): void {
+			const newEntry = JSON.parse(JSON.stringify(entry)) as TwitchatDataTypes.ChatCommandData;
+			newEntry.id = Utils.getUUID();
+			newEntry.created_at = newEntry.updated_at = Date.now();
+			delete newEntry.updatedBy;
+			//Commands must be unique, a new one has to be defined on the copy
+			newEntry.command.name = "";
+			newEntry.command.aliases = [];
+			newEntry.command.enabled = false;
+			if (!canAddEntry(this, newEntry)) return;
+			//Insert right after the original
+			const index = this.entryList.findIndex((v) => v.id == entry.id);
+			this.entryList.splice(index + 1, 0, newEntry);
 			this.saveData();
 		},
 
@@ -165,12 +182,8 @@ export const storeChatCommands = defineStore("chatCommands", {
 				const res = isTaken([trigger.chatCommand, ...(trigger.chatCommandAliases || [])]);
 				if (res) return res;
 			}
-
-			if (this.params.manageEnabled && !ignoreManageCommands) {
-				const res = isTaken([MANAGE_CMD]);
-				if (res) return res;
-			}
-
+			const res = isTaken([MANAGE_CMD]);
+			if (res) return res;
 			return null;
 		},
 
@@ -178,22 +191,27 @@ export const storeChatCommands = defineStore("chatCommands", {
 			source: TwitchatDataTypes.TranslatableMessage,
 			cmd: string,
 		): Promise<void> {
-			if (!this.params.manageEnabled) return;
+			if (cmd != MANAGE_CMD) return;
 			if (source.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return;
 			const message = source as TwitchatDataTypes.MessageChatData;
 			if (message.platform != "twitch") return;
-			if (cmd != MANAGE_CMD) return;
 
 			//Remove invisible chars some chat clients add to bypass duplicate message protection
 			const text = (message.message || "").replace(/\u{E0000}|͏/gu, "").trim();
 			const chunks = text.match(/^\S+\s+(\S+)(?:\s+(\S+))?(?:\s+([\s\S]*))?$/);
 			const action = (chunks?.[1] || "").toLowerCase();
 
-			//Anyone can list commands
 			if (action == "list") {
-				await sendCommandList(this, message);
+				const allowed = await Utils.checkPermissions(
+					this.params.listPermissions,
+					message.user,
+					message.channel_id,
+				);
+				if (allowed) await sendCommandList(this, message);
 				return;
 			}
+
+			if (!this.params.manageEnabled) return;
 
 			const allowed = await Utils.checkPermissions(
 				this.params.managePermissions,

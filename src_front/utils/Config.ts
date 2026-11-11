@@ -195,7 +195,7 @@ export default class Config {
 	/**
 	 * Maxium number of simple chat commands that can be created without being premium
 	 */
-	public MAX_CHAT_COMMANDS = 20;
+	public MAX_CHAT_COMMANDS = 10;
 	/**
 	 * Maxium number of simple chat commands that can be created when premium
 	 */
