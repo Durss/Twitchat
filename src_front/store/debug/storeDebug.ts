@@ -913,6 +913,7 @@ export const storeDebug = defineStore("debug", {
 							y: Math.round(Math.random() * grid.rows),
 						},
 						cellLabel: label,
+						bingoCount: Math.round(Math.random() * 5 + 1),
 						diagonal: Math.random() > 0.5 ? 1 : 0,
 						reset: Math.random() > 0.5,
 					};
@@ -931,6 +932,7 @@ export const storeDebug = defineStore("debug", {
 						bingoGridName: grid?.title || "My awesome grid",
 						channel_id: uid,
 						bingoCount: Math.round(Math.random() * 5 + 1),
+						complete: false,
 						user: fakeUser,
 					};
 					data = m;

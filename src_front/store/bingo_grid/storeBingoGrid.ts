@@ -378,6 +378,10 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 							bingoGridId: grid.id,
 							bingoGridName: grid.title,
 							bingoCount: entry.count,
+							// chec if grid is full
+							complete:
+								entry.count >=
+								grid.cols + grid.rows + (grid.cols == grid.rows ? 2 : 0),
 							user,
 						};
 						TriggerActionHandler.instance.execute(message);
@@ -1015,6 +1019,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 								diagonal: -1,
 								coords: { x, y },
 								cellLabel: label,
+								bingoCount: streamerTotalBingos,
 								complete: false,
 								reset: false,
 								user: StoreProxy.auth.twitch.user,

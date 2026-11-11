@@ -1690,32 +1690,8 @@ export const storeUsers = defineStore("users", {
 				storage: v,
 				image: v.img,
 			}));
-			[
-				TriggerTypes.ANY_MESSAGE,
-				TriggerTypes.FIRST_TODAY,
-				TriggerTypes.FIRST_ALL_TIME,
-				TriggerTypes.RETURNING_USER,
-				TriggerTypes.ANNOUNCEMENTS,
-				TriggerTypes.CHAT_COMMAND,
-				TriggerTypes.USER_WATCH_STREAK,
-				TriggerTypes.CHEER,
-				TriggerTypes.SUB,
-				TriggerTypes.SUBGIFT,
-				TriggerTypes.POWER_UP_GIANT_EMOTE,
-				TriggerTypes.POWER_UP_MESSAGE,
-				TriggerTypes.TWITCH_GIF,
-				TriggerTypes.POWER_UP_CELEBRATION,
-				TriggerTypes.PIN_MESSAGE,
-				TriggerTypes.UNPIN_MESSAGE,
-				TriggerTypes.RAID,
-				TriggerTypes.SHOUTOUT_IN,
-				TriggerTypes.SHOUTOUT_OUT,
-				TriggerTypes.FOLLOWED_STREAM_ONLINE,
-				TriggerTypes.FOLLOWED_STREAM_OFFLINE,
-				TriggerTypes.HEAT_CLICK,
-				TriggerTypes.BINGO_GRID_VIEWER_LINE,
-				TriggerTypes.REWARD_REDEEM,
-			].forEach((v) => {
+			//Triggers that don't have this placeholder are ignored
+			Object.values(TriggerTypes).forEach((v) => {
 				setTriggerEventPlaceholderValues(v, USER_CUSTOM_BADGES, values);
 			});
 		},

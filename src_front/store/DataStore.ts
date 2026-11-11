@@ -1,17 +1,16 @@
 import type * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
-import { TriggerTypeDefinitionFromType, type TriggerData } from "@/types/TriggerActionDataTypes";
+import { USER_ROLE_BROADCASTER, type TriggerData } from "@/types/TriggerActionDataTypes";
+import { TriggerTypes } from "@/types/TriggerTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import TriggerUtils from "@/utils/TriggerUtils";
-import ChatCommandCaptureUtils from "@/utils/triggers/ChatCommandCaptureUtils";
-import { getTriggerEventKeys } from "@/utils/triggers/TriggerEventKeys";
 import Utils from "@/utils/Utils";
+import ChatCommandCaptureUtils from "@/utils/triggers/ChatCommandCaptureUtils";
 import type { JsonValue } from "type-fest";
 import DataStoreCommon from "./DataStoreCommon";
 import StoreProxy from "./StoreProxy";
 import type { CustomTrainStoreData } from "./customtrain/storeCustomTrain";
-import { TriggerTypes } from "@/types/TriggerTypes";
 
 /**
  * Used to check if local changes should be uploaded at startup.
@@ -312,7 +311,7 @@ export default class DataStore extends DataStoreCommon {
 	 */
 	static override async migrateData(data: any): Promise<any> {
 		let v = parseFloat(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 72;
+		const latestVersion = 73;
 
 		if (v < 44) {
 			const res: { [key: string]: unknown } = {};
@@ -448,6 +447,10 @@ export default class DataStore extends DataStoreCommon {
 		}
 		if (v == 71) {
 			this.migrateTranslateLangCodes(data);
+			v = 72;
+		}
+		if (v == 72) {
+			this.migrateBingoGridViewerTriggers(data);
 			v = latestVersion;
 		}
 
@@ -1307,6 +1310,45 @@ export default class DataStore extends DataStoreCommon {
 			delete data["p:autoTranslateFirst"];
 			delete data["p:autoTranslateFirstLang"];
 			delete data["p:autoTranslateFirstSpoken"];
+		}
+	}
+
+	/**
+	 * BINGO_GRID_LINE and BINGO_GRID_ALL triggers now execute for viewers as well.
+	 * Here we migrate BINGO_GRID_VIEWER_LINE to BINGO_GRID_LINE.
+	 * Previously existing BINGO_GRID_LINE and BINGO_GRID_ALL are given conditions to only
+	 * execute if the broadcaster is the one triggering them.
+	 * @param data
+	 */
+	private static migrateBingoGridViewerTriggers(data: any): void {
+		const triggers: TriggerData[] = data[DataStore.TRIGGERS];
+		if (!triggers || !Array.isArray(triggers)) return;
+
+		for (const trigger of triggers) {
+			const isViewerLine = (trigger.type as string) == "120";
+			if (
+				!isViewerLine &&
+				trigger.type != TriggerTypes.BINGO_GRID_LINE &&
+				trigger.type != TriggerTypes.BINGO_GRID_ALL
+			) {
+				continue;
+			}
+			if (isViewerLine) trigger.type = TriggerTypes.BINGO_GRID_LINE;
+
+			const userFilter: TriggerActionDataTypes.TriggerCondition = {
+				id: Utils.getUUID(),
+				type: "condition",
+				placeholder: USER_ROLE_BROADCASTER,
+				operator: "=",
+				value: isViewerLine ? "false" : "true",
+			};
+			const previous = trigger.conditions?.conditions.length ? [trigger.conditions] : [];
+			trigger.conditions = {
+				id: Utils.getUUID(),
+				type: "group",
+				operator: "AND",
+				conditions: [userFilter, ...previous],
+			};
 		}
 	}
 

@@ -1440,14 +1440,26 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID_VIEWER: {
 				if (!StoreProxy.auth.featureFlags.includes("bingo_grid")) return;
+				//Anonymous viewers can't execute bingo triggers
+				if (message.user.anonymous && !testMode) return;
 				this.executeTriggersByType(
-					TriggerTypes.BINGO_GRID_VIEWER_LINE,
+					TriggerTypes.BINGO_GRID_LINE,
 					message,
 					testMode,
 					undefined,
 					undefined,
 					forcedTriggerId,
 				);
+				if (message.complete) {
+					this.executeTriggersByType(
+						TriggerTypes.BINGO_GRID_ALL,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					);
+				}
 				break;
 			}
 

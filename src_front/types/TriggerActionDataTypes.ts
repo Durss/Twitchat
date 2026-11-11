@@ -6794,91 +6794,7 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 	];
 
-	map[TriggerTypes.BINGO_GRID_VIEWER_LINE] = [
-		{
-			tag: USER_NAME,
-			descKey: "triggers.placeholders.user",
-			pointer: "user.displayNameOriginal",
-			numberParsable: false,
-			isUserID: false,
-			example: "Durss",
-		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
-		{
-			tag: USER_LOGIN,
-			descKey: "triggers.placeholders.user_login",
-			pointer: "user.login",
-			numberParsable: false,
-			isUserID: false,
-			example: "durss",
-		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
-		{
-			tag: USER_DISPLAY_NAME,
-			descKey: "triggers.placeholders.user_customName",
-			pointer: "user.displayName",
-			numberParsable: false,
-			isUserID: false,
-			example: "Durss",
-		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
-		{
-			tag: USER_ID,
-			descKey: "triggers.placeholders.user_id",
-			pointer: "user.id",
-			numberParsable: false,
-			isUserID: true,
-			example: "29961813",
-		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
-		{
-			tag: USER_FOLLOWAGE,
-			descKey: "triggers.placeholders.followage",
-			pointer: "user",
-			numberParsable: false,
-			isUserID: false,
-			example: "12/03/2021 18h42",
-		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
-		{
-			tag: USER_FOLLOWAGE_MS,
-			descKey: "triggers.placeholders.followage_ms",
-			pointer: "user",
-			numberParsable: true,
-			isUserID: false,
-			example: "1615570920000",
-		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
-		{
-			tag: USER_AVATAR,
-			descKey: "triggers.placeholders.user_avatar",
-			pointer: "user.avatarPath",
-			numberParsable: false,
-			isUserID: false,
-			example: StoreProxy.asset("img/musicExampleCover.jpg"),
-		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
-		...commonUserTags,
-		{
-			tag: "GRID_ID",
-			descKey: "triggers.placeholders.bingo_grid_id",
-			pointer: "bingoGridId",
-			numberParsable: true,
-			isUserID: false,
-			example: "a1b2c3d4",
-		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
-		{
-			tag: "GRID_NAME",
-			descKey: "triggers.placeholders.bingo_grid_name",
-			pointer: "bingoGridName",
-			numberParsable: true,
-			isUserID: false,
-			example: "Stream bingo",
-		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
-		{
-			tag: "BINGO_COUNT",
-			descKey: "triggers.placeholders.bingo_grid_count",
-			pointer: "bingoCount",
-			numberParsable: true,
-			isUserID: false,
-			example: "3",
-		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
-	];
-
-	map[TriggerTypes.BINGO_GRID_LINE] = map[TriggerTypes.BINGO_GRID_ALL] = [
+	const bingoGridTags = [
 		{
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
@@ -6993,8 +6909,21 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 	];
 
+	map[TriggerTypes.BINGO_GRID_LINE] = map[TriggerTypes.BINGO_GRID_ALL] = [
+		...bingoGridTags,
+		...commonUserTags,
+		{
+			tag: "BINGO_COUNT",
+			descKey: "triggers.placeholders.bingo_grid_count",
+			pointer: "bingoCount",
+			numberParsable: true,
+			isUserID: false,
+			example: "3",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+	];
+
 	map[TriggerTypes.BINGO_GRID_CELL] = [
-		...map[TriggerTypes.BINGO_GRID_ALL]!,
+		...bingoGridTags,
 		{
 			tag: "CELL_LABEL",
 			descKey: "triggers.placeholders.bingo_grid_cell_label",
@@ -10234,15 +10163,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			value: TriggerTypes.BINGO_RESULT,
 			descriptionKey: "triggers.events.BINGO_RESULT.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.BINGO,
-		},
-		{
-			category: TriggerEventTypeCategories.GAMES,
-			icon: "bingo_grid",
-			labelKey: "triggers.events.BINGO_GRID_VIEWER_LINE.label",
-			value: TriggerTypes.BINGO_GRID_VIEWER_LINE,
-			descriptionKey: "triggers.events.BINGO_GRID_VIEWER_LINE.description",
-			featureFlag: "bingo_grid",
-			testMessageType: TwitchatDataTypes.TwitchatMessageType.BINGO_GRID_VIEWER,
 		},
 		{
 			category: TriggerEventTypeCategories.GAMES,

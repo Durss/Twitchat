@@ -1262,12 +1262,12 @@
 			"bingo_grid_id": "Grid ID",
 			"bingo_grid_name": "Grid name",
 			"bingo_grid_count": "Bingo count",
-			"bingo_grid_cell_x": "X coordinates of the ticked cell",
-			"bingo_grid_cell_y": "Y coordinates of the ticked cell",
+			"bingo_grid_cell_x": "X coordinates of the ticked cell (empty for viewers)",
+			"bingo_grid_cell_y": "Y coordinates of the ticked cell (empty for viewers)",
 			"bingo_grid_cell_label": "Label of the ticked cell",
-			"bingo_grid_col": "Index of the filled column",
-			"bingo_grid_row": "Index of the filled row",
-			"bingo_grid_diag": "Index of the filled diagonal",
+			"bingo_grid_col": "Index of the filled column (empty for viewers)",
+			"bingo_grid_row": "Index of the filled row (empty for viewers)",
+			"bingo_grid_diag": "Index of the filled diagonal (empty for viewers)",
 			"warn_reason": "Warning reason",
 			"power_up_emote": "Gigantified emote code",
 			"power_up_emote_url": "Gigantified emote URL",
@@ -1986,11 +1986,11 @@
 			},
 			"BINGO_GRID_LINE": {
 				"label": "Bingo grid line complete",
-				"description": "Actions to execute when you fill a bingo grid's line"
+				"description": "Actions to execute when you or a viewer fill a bingo grid's line"
 			},
 			"BINGO_GRID_ALL": {
 				"label": "Bingo grid complete",
-				"description": "Actions to execute when you fill an entire bingo grid"
+				"description": "Actions to execute when you or a viewer fill an entire bingo grid"
 			},
 			"BINGO_GRID_CELL": {
 				"label": "Bingo grid cell ticked",
@@ -1999,10 +1999,6 @@
 			"BINGO_GRID_RESET": {
 				"label": "Bingo grid is reset",
 				"description": "Actions to execute when you reset a bingo grid"
-			},
-			"BINGO_GRID_VIEWER_LINE": {
-				"label": "A viewer completed one or more bingo grid lines",
-				"description": "Actions to execute when a user fills a bingo grid line"
 			},
 			"WARN_CHATTER": {
 				"label": "Warning sent to a viewer",

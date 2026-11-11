@@ -9190,6 +9190,10 @@ export namespace TwitchatDataTypes {
 		 */
 		diagonal: number;
 		/**
+		 * Number of lines currently filled.
+		 */
+		bingoCount?: number;
+		/**
 		 * All cells ticked ?
 		 */
 		complete: boolean;
@@ -9220,6 +9224,10 @@ export namespace TwitchatDataTypes {
 		 * Number of lines filled
 		 */
 		bingoCount: number;
+		/**
+		 * Has the viewer filled their whole grid?
+		 */
+		complete: boolean;
 		/**
 		 * User that clicked.
 		 */
