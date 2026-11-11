@@ -1009,6 +1009,7 @@ function updateBadges(): void {
 
 <style scoped lang="less">
 .chatmessageholder {
+	@itemsGap: 0.15em;
 	&.highlighted {
 		.message {
 			background-color: var(--color-primary);
@@ -1223,30 +1224,24 @@ function updateBadges(): void {
 	.icon {
 		height: 1em;
 		vertical-align: middle;
-
-		&:not(:last-child) {
-			margin-right: 0.25em;
-		}
 	}
 
 	.convBt {
 		cursor: pointer;
-		margin-right: 0.25em;
 		:deep(svg) {
 			height: 1em;
 		}
 	}
 	.mod {
+		gap: @itemsGap;
 		display: inline-flex;
 		vertical-align: middle;
 	}
 
 	.infoBadges,
 	.noAutospoilBt {
-		margin-right: 0.25em;
 		font-size: 1em;
 		max-height: 1em;
-		padding: 0 0.15em;
 		border-radius: 0.25em;
 		vertical-align: middle;
 	}
@@ -1261,8 +1256,8 @@ function updateBadges(): void {
 		}
 	}
 
-	.userBadges {
-		margin-right: 0.25em;
+	& > *:has(~ .login) {
+		margin-right: @itemsGap;
 	}
 
 	.login {
@@ -1290,7 +1285,6 @@ function updateBadges(): void {
 		display: inline-block;
 		background: var(--color-primary);
 		padding: 0.2em 0.4em;
-		margin-right: 0.25em;
 		font-weight: bold;
 		border-radius: 10px;
 		color: var(--color-light);
@@ -1301,13 +1295,11 @@ function updateBadges(): void {
 		color: var(--color-text);
 		border: 1px solid var(--color-text-fade);
 		padding: 0 2px;
-		margin-right: 0.25em;
 	}
 
 	.sharedBan {
 		color: var(--color-secondary);
 		font-weight: bold;
-		margin-right: 0.25em;
 	}
 
 	.messageChild {

@@ -457,6 +457,7 @@ async function unflagUser(): Promise<void> {
 .maskIcon(@url) {
 	-webkit-mask-image: url(@url);
 	mask-image: url(@url);
+	mask-position: center;
 }
 
 .chatmodtools {
@@ -470,6 +471,8 @@ async function unflagUser(): Promise<void> {
 	.action {
 		height: 1em;
 		width: 1em;
+
+		background-color: blue;
 		cursor: pointer;
 	}
 
@@ -511,6 +514,7 @@ async function unflagUser(): Promise<void> {
 		}
 		&.trash {
 			.maskIcon("../../../assets/icons/trash.svg");
+			width: 0.7em;
 		}
 		&.block {
 			.maskIcon("../../../assets/icons/block.svg");
