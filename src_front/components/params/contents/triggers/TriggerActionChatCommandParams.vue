@@ -14,28 +14,19 @@
 						: 'triggers.actions.chat.conflict',
 				)
 			"
-		/>
+		>
+			<template #composite>
+				<PermissionsForm v-model="triggerData.permissions!" popoutMode />
+			</template>
+		</ParamItem>
 
 		<div class="moreOptions">
 			<ToggleBlock
-				class="block permissions"
-				:open="false"
-				:title="$t('triggers.actions.chat.allowed_users')"
-				:icons="['user']"
-				medium
-				primary
-			>
-				<PermissionsForm v-model="triggerData.permissions!" />
-			</ToggleBlock>
-
-			<ToggleBlock
 				class="block"
-				secondary
 				:icons="['params']"
 				:open="false"
 				:title="$t('triggers.actions.chat.advanced_params')"
-				primary
-				medium
+				small
 			>
 				<div class="advancedParams">
 					<ParamItem
@@ -283,9 +274,7 @@ function resetCooldowns(global: boolean): void {
 		justify-content: center;
 
 		.block {
-			&:not(.closed) {
-				width: 100%;
-			}
+			width: 100%;
 		}
 	}
 	.advancedParams {

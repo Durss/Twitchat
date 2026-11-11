@@ -5,8 +5,7 @@
 			:open="false"
 			:title="$t('triggers.actions.chat.allowed_users')"
 			:icons="['user']"
-			medium
-			primary
+			small
 		>
 			<PermissionsForm v-model="triggerData.permissions!" />
 		</ToggleBlock>
@@ -36,6 +35,5 @@ onBeforeMount(() => {
 	display: flex;
 	flex-direction: column;
 	gap: 0.5em;
-	align-items: center;
 }
 </style>
