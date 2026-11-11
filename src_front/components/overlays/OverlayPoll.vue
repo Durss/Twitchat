@@ -114,13 +114,27 @@ class OverlayPoll extends AbstractOverlay {
 		}
 
 		const poll = e.data?.poll;
+		if (poll && this.poll && poll.id != this.poll.id) {
+			// New poll started while the previous one is still displayed
+			// first hide current poll, the show the new one
+			this.showWinner = false;
+			this.show = false;
+			await Utils.promisedTimeout(1000);
+		}
 		if (!poll) {
 			// No poll given when a poll was displayed, request close
 			if (this.poll) {
+				const closingId = this.poll.id;
 				this.showWinner = this.parameters.resultDuration_s > 0;
 				this.show = true;
 				await Utils.promisedTimeout(this.parameters.resultDuration_s * 1000);
+				// A new poll started during the result display, leave it open
+				if (this.poll?.id !== closingId) return;
 				this.show = false;
+				// Wait for close animation, then forget the poll so it's not
+				// displayed back the next time configs are received
+				await Utils.promisedTimeout(1000);
+				if (this.poll?.id === closingId) this.poll = null;
 			}
 		} else {
 			this.show = this.parameters.showOnlyResult !== true;
@@ -135,7 +149,7 @@ class OverlayPoll extends AbstractOverlay {
 		if (this.pendingData) {
 			this.onUpdatePoll(this.pendingData);
 			this.pendingData = null;
-		} else {
+		} else if (this.poll && !this.showWinner) {
 			this.show = this.parameters.showOnlyResult !== true;
 		}
 	}

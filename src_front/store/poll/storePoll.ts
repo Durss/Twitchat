@@ -6,6 +6,12 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import StoreProxy, { type IPollActions, type IPollGetters, type IPollState } from "../StoreProxy";
 
+/**
+ * IDs of the polls that ended.
+ */
+const endedPollIds = new Set<string>();
+let isFirstPopulate = true;
+
 export const storePoll = defineStore("poll", {
 	state: (): IPollState => ({
 		data: null,
@@ -27,6 +33,16 @@ export const storePoll = defineStore("poll", {
 
 	actions: {
 		populateData(params?: PollOverlayParamStoreData): void {
+			if (!isFirstPopulate) {
+				isFirstPopulate = false;
+				/**
+				 * Called when poll overlay request for its configs
+				 */
+				PublicAPI.instance.addEventListener("GET_POLLS_OVERLAY_CONFIGS", () => {
+					this.broadcastState();
+				});
+			}
+
 			if (!params) {
 				//Init poll overlay params
 				const pollParams = DataStore.get(DataStore.POLL_OVERLAY_PARAMS);
@@ -45,17 +61,11 @@ export const storePoll = defineStore("poll", {
 			this.overlayParams.showOnlyResult = params.showOnlyResult !== false;
 			this.overlayParams.resultDuration_s = params.resultDuration_s || 5;
 			this.overlayParams.placement = params.placement || "bl";
-
-			/**
-			 * Called when poll overlay request for its configs
-			 */
-			PublicAPI.instance.addEventListener("GET_POLLS_OVERLAY_CONFIGS", () => {
-				this.broadcastState();
-			});
 		},
 
 		setCurrentPoll(data: TwitchatDataTypes.MessagePollData | null, postOnChat?: boolean) {
 			if (data != null) {
+				if (endedPollIds.has(data.id)) return;
 				//Executes the start poll trigger if there was no poll data before
 				if (!this.data) {
 					data.isStart = true;
@@ -69,6 +79,7 @@ export const storePoll = defineStore("poll", {
 
 				PublicAPI.instance.broadcast("ON_POLL_PROGRESS", { poll: data });
 			} else if (this.data) {
+				endedPollIds.add(this.data.id);
 				PublicAPI.instance.broadcast("ON_POLL_PROGRESS", undefined);
 			}
 

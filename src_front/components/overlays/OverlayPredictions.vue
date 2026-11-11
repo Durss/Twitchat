@@ -136,10 +136,17 @@ class OverlayPredictions extends AbstractOverlay {
 		if (!prediction) {
 			// Empty prediction received. Hide current prediction if any
 			if (this.prediction) {
+				const closingId = this.prediction.id;
 				this.showWinner = this.parameters.resultDuration_s > 0;
 				this.show = true;
 				await Utils.promisedTimeout(this.parameters.resultDuration_s * 1000);
+				// A new prediction started during the result display, leave it open
+				if (this.prediction?.id !== closingId) return;
 				this.show = false;
+				// Wait for close animation, then forget the prediction so it's not
+				// displayed back the next time configs are received
+				await Utils.promisedTimeout(1000);
+				if (this.prediction?.id === closingId) this.prediction = null;
 			}
 		} else {
 			this.show =
@@ -157,11 +164,11 @@ class OverlayPredictions extends AbstractOverlay {
 		if (this.pendingData) {
 			this.onUpdatePrediction(this.pendingData);
 			this.pendingData = null;
-		} else {
+		} else if (this.prediction && !this.showWinner) {
 			this.show =
 				this.parameters.showOnlyResult !== true &&
-				(!this.prediction?.pendingAnswer ||
-					(this.prediction?.pendingAnswer &&
+				(!this.prediction.pendingAnswer ||
+					(this.prediction.pendingAnswer &&
 						this.parameters.hideUntilResolved === false));
 		}
 	}

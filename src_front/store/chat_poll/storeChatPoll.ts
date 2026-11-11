@@ -14,6 +14,7 @@ import StoreProxy, {
 } from "../StoreProxy";
 
 let timeoutEnd = "";
+let isFirstPopulate = true;
 export const storeChatPoll = defineStore("chatPoll", {
 	state: (): IChatPollState => ({
 		data: null,
@@ -50,7 +51,8 @@ export const storeChatPoll = defineStore("chatPoll", {
 				if (pollPresets) {
 					this.presets = JSON.parse(pollPresets) as TwitchatDataTypes.ChatPollPresets;
 				}
-			} else if (params) {
+			}
+			if (params) {
 				this.overlayParams.showTitle = params.showTitle !== false;
 				this.overlayParams.listMode = params.listMode !== false;
 				this.overlayParams.listModeOnlyMore2 = params.listModeOnlyMore2 !== false;
@@ -62,6 +64,9 @@ export const storeChatPoll = defineStore("chatPoll", {
 				this.overlayParams.resultDuration_s = params.resultDuration_s || 5;
 				this.overlayParams.placement = params.placement || "bl";
 			}
+
+			if (!isFirstPopulate) return;
+			isFirstPopulate = false;
 
 			/**
 			 * Called when poll overlay request for its configs

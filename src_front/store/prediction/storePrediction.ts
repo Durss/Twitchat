@@ -10,6 +10,8 @@ import StoreProxy, {
 	type IPredictionState,
 } from "../StoreProxy";
 
+let isFirstPopulate = true;
+
 export const storePrediction = defineStore("prediction", {
 	state: (): IPredictionState => ({
 		data: null,
@@ -33,6 +35,16 @@ export const storePrediction = defineStore("prediction", {
 
 	actions: {
 		populateData(params?: PredictionOverlayParamStoreData): void {
+			if (isFirstPopulate) {
+				isFirstPopulate = false;
+				/**
+				 * Called when prediction overlay request for its configs
+				 */
+				PublicAPI.instance.addEventListener("GET_PREDICTIONS_OVERLAY_CONFIGS", () => {
+					this.broadcastState();
+				});
+			}
+
 			if (!params) {
 				//Init prediction overlay params
 				const predictionParams = DataStore.get(DataStore.PREDICTION_OVERLAY_PARAMS);
@@ -55,13 +67,6 @@ export const storePrediction = defineStore("prediction", {
 			this.overlayParams.hideUntilResolved = params.hideUntilResolved !== false;
 			this.overlayParams.resultDuration_s = params.resultDuration_s || 5;
 			this.overlayParams.placement = params.placement || "br";
-
-			/**
-			 * Called when prediction overlay request for its configs
-			 */
-			PublicAPI.instance.addEventListener("GET_PREDICTIONS_OVERLAY_CONFIGS", () => {
-				this.broadcastState();
-			});
 		},
 
 		setPrediction(data: TwitchatDataTypes.MessagePredictionData | null, postOnChat?: boolean) {
