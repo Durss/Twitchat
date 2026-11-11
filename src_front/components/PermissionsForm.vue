@@ -1,5 +1,36 @@
 <template>
-	<div class="permissionsform">
+	<tooltip
+		v-if="props.popoutMode"
+		class="permissionsformPopout"
+		:open="false"
+		:inlinePositioning="false"
+		:maxWidth="600"
+		:maxHeight="200"
+		interactive
+		:interactiveDebounce="500"
+		:theme="storeCommon.theme"
+		:appendTo="tooltipTarget"
+		trigger="click"
+		:onMount="onTooltipMount"
+		:onHidden="onTooltipHidden"
+	>
+		<template #default>
+			<TTButton class="tooltipTrigger" icon="lock_fit" secondary small />
+		</template>
+		<template #content>
+			<div class="title">
+				<Icon name="lock_fit" />{{ t("triggers.actions.chat.allowed_users") }}
+			</div>
+			<PermissionsForm
+				class="popoutForm"
+				v-bind="props"
+				:popoutMode="false"
+				@change="emitChange()"
+			/>
+		</template>
+	</tooltip>
+
+	<div v-else class="permissionsform">
 		<ParamItem
 			v-if="props.hasBroadcasterFilter"
 			noBackground
@@ -76,15 +107,25 @@
 			@change="emitChange()"
 		/>
 
-		<div v-if="noSelection" class="card-item alert">{{ $t("global.permissions.nobody") }}</div>
+		<div v-if="noSelection" class="card-item alert">
+			{{ $t("global.permissions.nobody") }}
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon.js";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
-import { watch, reactive, computed, onBeforeMount, onMounted } from "vue";
+import type { Instance } from "tippy.js";
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import Icon from "./Icon.vue";
 import ParamItem from "./params/ParamItem.vue";
+import TTButton from "./TTButton.vue";
+
+const { t } = useI18n();
+const storeCommon = useStoreCommon();
 
 const props = withDefaults(
 	defineProps<{
@@ -97,6 +138,7 @@ const props = withDefaults(
 		hasFollowerFilter?: boolean;
 		hasBroadcasterFilter?: boolean;
 		hasFollowerDurationFilter?: boolean;
+		popoutMode?: boolean;
 	}>(),
 	{
 		hasAllFilter: true,
@@ -107,8 +149,12 @@ const props = withDefaults(
 		hasFollowerFilter: true,
 		hasBroadcasterFilter: true,
 		hasFollowerDurationFilter: true,
+		popoutMode: false,
 	},
 );
+
+const tooltipTarget = document.body;
+let tooltipResizeObserver: ResizeObserver | null = null;
 
 const emit = defineEmits<{
 	change: [value: TwitchatDataTypes.PermissionsData];
@@ -223,6 +269,26 @@ watch(
 	},
 );
 
+onBeforeUnmount(() => {
+	onTooltipHidden();
+});
+
+/**
+ * Detect content change to replace the tooltip otherwise it may overflow out of sreen
+ */
+function onTooltipMount(instance: Instance): void {
+	tooltipResizeObserver?.disconnect();
+	tooltipResizeObserver = new ResizeObserver(() => {
+		void instance.popperInstance?.update();
+	});
+	tooltipResizeObserver.observe(instance.popper);
+}
+
+function onTooltipHidden(): void {
+	tooltipResizeObserver?.disconnect();
+	tooltipResizeObserver = null;
+}
+
 function emitChange() {
 	emit("update:modelValue", props.modelValue);
 	emit("change", props.modelValue);
@@ -272,5 +338,25 @@ param_followers.value = props.modelValue.follower !== false;
 		width: 100%;
 		text-align: center;
 	}
+}
+
+.title {
+	font-weight: bold;
+	margin-bottom: 0.5em;
+	text-align: center;
+	color: var(--color-text);
+	.icon {
+		height: 1em;
+		margin-right: 0.25em;
+	}
+}
+.tooltipTrigger {
+	position: relative;
+	width: 1.25rem;
+	height: 1.25rem;
+	flex-shrink: 0;
+}
+.popoutForm {
+	color: var(--color-text);
 }
 </style>
