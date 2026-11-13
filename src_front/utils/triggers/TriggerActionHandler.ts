@@ -7127,7 +7127,7 @@ export default class TriggerActionHandler {
 								}
 							});
 							step.customBadgeDel.forEach((badgeId) => {
-								StoreProxy.users.removeCustomBadge(user.id, badgeId, channel_id);
+								StoreProxy.users.removeCustomBadge(user.id, badgeId);
 								logStep.messages.push({
 									date: Date.now(),
 									value: '➖ Removed badge "' + badgeId + '" from ' + user.id,

@@ -317,7 +317,7 @@ export default class Utils {
 		limit: number,
 		task: (item: T, index: number) => Promise<R>,
 	): Promise<R[]> {
-		const results = new Array<R>(items.length);
+		const results = Array.from<R>({ length: items.length });
 		let cursor = 0;
 		const workerCount = Math.min(Math.max(1, limit), items.length);
 		const workers: Promise<void>[] = [];

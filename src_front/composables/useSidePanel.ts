@@ -1,12 +1,5 @@
 import { gsap } from "gsap";
-import {
-	onMounted,
-	onBeforeUnmount,
-	type Ref,
-	getCurrentInstance,
-	type MaybeRefOrGetter,
-	toValue,
-} from "vue";
+import { onMounted, onBeforeUnmount, type Ref, type MaybeRefOrGetter, toValue } from "vue";
 import Utils from "@/utils/Utils";
 
 /**

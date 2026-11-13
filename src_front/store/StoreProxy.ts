@@ -2497,7 +2497,7 @@ export interface IUsersActions {
 	/**
 	 * Removes a custom badge from the given user
 	 */
-	removeCustomBadge(userId: string, badgeId: string, channelId: string): void;
+	removeCustomBadge(userId: string, badgeId: string): void;
 	/**
 	 * Saves custom badges and their attributions to users
 	 */
@@ -4994,13 +4994,8 @@ export interface IChatCommandsActions {
 	 * Returns the first command conflicting with the given commands, if any
 	 * @param commands command and aliases to check
 	 * @param ignoreEntryId entry to ignore from the check
-	 * @param ignoreManageCommands ignore chat management commands from the check
 	 */
-	getConflict(
-		commands: string[],
-		ignoreEntryId?: string,
-		ignoreManageCommands?: boolean,
-	): string | null;
+	getConflict(commands: string[], ignoreEntryId?: string): string | null;
 	/**
 	 * Handles chat commands management from chat
 	 * @param message

@@ -1657,7 +1657,7 @@ export const storeUsers = defineStore("users", {
 			return true;
 		},
 
-		removeCustomBadge(userId: string, badgeId: string, channelId: string): void {
+		removeCustomBadge(userId: string, badgeId: string): void {
 			if (!this.customUserBadges[userId]) return;
 
 			const index = this.customUserBadges[userId].findIndex((badge) => badge.id == badgeId);

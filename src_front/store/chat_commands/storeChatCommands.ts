@@ -148,11 +148,7 @@ export const storeChatCommands = defineStore("chatCommands", {
 			return true;
 		},
 
-		getConflict(
-			commands: string[],
-			ignoreEntryId?: string,
-			ignoreManageCommands: boolean = false,
-		): string | null {
+		getConflict(commands: string[], ignoreEntryId?: string): string | null {
 			const done = new Set<string>();
 			const toCheck: string[] = [];
 			for (const cmd of commands) {
