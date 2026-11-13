@@ -3,67 +3,75 @@
 		<Icon name="coin" />
 		<span class="label">{{ $t("global.currency_pattern") }}</span>
 		<div class="form input-field">
-			<contenteditable tag="div" class="input"
+			<ContentEditable
+				tag="div"
+				class="input"
 				v-model="prefix"
 				:contenteditable="true"
 				:no-nl="true"
 				:no-html="true"
-				@input="onChange" />
+				:maxLength="10"
+			/>
 
 			<span class="label">42</span>
 
-			<contenteditable tag="div" class="input"
+			<ContentEditable
+				tag="div"
+				class="input"
 				v-model="suffix"
 				:contenteditable="true"
 				:no-nl="true"
 				:no-html="true"
-				@input="onChange" />
+				:maxLength="10"
+			/>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
-import Icon from './Icon.vue';
-import contenteditable from 'vue-contenteditable';
-import Utils from '@/utils/Utils';
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import Icon from "./Icon.vue";
+import Utils from "@/utils/Utils";
+import ContentEditable from "@/components/ContentEditable.vue";
+import { watch } from "vue";
 
-@Component({
-	components:{
-		Icon,
-		contenteditable,
+const props = withDefaults(
+	defineProps<{
+		modelValue?: string;
+	}>(),
+	{
+		modelValue: "",
 	},
-	emits:["update:modelValue", "change"],
-})
-class CurrencyPatternInput extends Vue {
+);
 
-	@Prop({type:String, default:''})
-	public modelValue!: string;
+const emit = defineEmits<{
+	"update:modelValue": [value: string];
+	change: [value: string];
+}>();
 
-	public prefix: string = '';
-	public suffix: string = '';
+const prefix = ref("");
+const suffix = ref("");
 
-	public mounted(){
-		const match = this.modelValue.trim().match(new RegExp(`^(.*?)${Utils.CURRENCY_AMOUNT_TOKEN}(.*?)$`));
-		if(match){
-			this.prefix = match[1]!;
-			this.suffix = match[2]!;
-		}
+onMounted(() => {
+	const match = props.modelValue
+		.trim()
+		.match(new RegExp(`^(.*?)${Utils.CURRENCY_AMOUNT_TOKEN}(.*?)$`));
+	if (match) {
+		prefix.value = match[1]!;
+		suffix.value = match[2]!;
 	}
+});
 
-	public onChange(){
-		const pattern = this.prefix + Utils.CURRENCY_AMOUNT_TOKEN + this.suffix;
-		this.$emit('update:modelValue', pattern);
-		this.$emit('change', pattern);
-	}
-
-}
-export default toNative(CurrencyPatternInput);
+watch([prefix, suffix], () => {
+	const pattern = prefix.value + Utils.CURRENCY_AMOUNT_TOKEN + suffix.value;
+	emit("update:modelValue", pattern);
+	emit("change", pattern);
+});
 </script>
 
 <style scoped lang="less">
-.currencypatterninput{
-	gap: .5em;
+.currencypatterninput {
+	gap: 0.5em;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -79,13 +87,14 @@ export default toNative(CurrencyPatternInput);
 	}
 
 	.form {
+		gap: 0.25em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		.input {
 			min-width: 20px;
-			padding: 0 .25em;
-			border-radius: var(--border-radius);
+			padding: 0 0.25em;
+			border-radius: 0.25em;
 			background: none;
 			border: 1px dashed var(--color-text);
 			font-weight: bold;

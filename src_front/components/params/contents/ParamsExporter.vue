@@ -4,32 +4,45 @@
 
 		<div class="head">
 			<p>Export any kind of parameter and share them</p>
-			<p class="card-item secondary"><Icon name="alert" class="icon" />This is a very experimental feature that may not work as expected.</p>
+			<p class="card-item secondary">
+				<Icon name="alert" class="icon" />This is a very experimental feature that may not
+				work as expected.
+			</p>
 		</div>
 
 		<SettingsExportForm />
 
 		<Splitter class="splitter">👇 Select items to export 👇</Splitter>
-		
-		<ToggleBlock :icons="['broadcast']" :title="$t('params.categories.triggers')" :open="false">
+
+		<ToggleBlock :icons="['broadcast']" :title="t('params.categories.triggers')" :open="false">
 			<template #right_actions>
-				<p class="count">x{{ $store.exporter.selectedTriggerIDs.length }}</p>
+				<p class="count">x{{ storeExporter.selectedTriggerIDs.length }}</p>
 			</template>
 			<div class="itemList">
 				<TriggerListFolderItem
 					v-model:items="folderTriggerList"
 					:noEdit="true"
-					:selectMode="true" />
+					:selectMode="true"
+				/>
 			</div>
 		</ToggleBlock>
 
-		<ToggleBlock :icons="['count']" :title="$t('params.categories.counters')" :open="false"
-		v-if="$store.counters.counterList.length > 0">
+		<ToggleBlock
+			:icons="['count']"
+			:title="t('params.categories.counters')"
+			:open="false"
+			v-if="storeCounters.counterList.length > 0"
+		>
 			<template #right_actions>
-				<p class="count">x{{ $store.exporter.selectedCounterIDs.length }}</p>
+				<p class="count">x{{ storeExporter.selectedCounterIDs.length }}</p>
 			</template>
 			<div class="itemList">
-				<div class="rowItem" v-for="item in $store.counters.counterList" @click="toggleCounter(item.id)" :key="item.id">
+				<div
+					class="rowItem"
+					v-for="item in storeCounters.counterList"
+					@click="toggleCounter(item.id)"
+					:key="item.id"
+				>
 					<span class="label"><Icon name="count" />{{ item.name }}</span>
 					<div class="toggle">
 						<ToggleButton v-model="counterStates[item.id]" />
@@ -38,13 +51,22 @@
 			</div>
 		</ToggleBlock>
 
-		<ToggleBlock :icons="['placeholder']" :title="$t('params.categories.values')" :open="false"
-		v-if="$store.values.valueList.length > 0">
+		<ToggleBlock
+			:icons="['placeholder']"
+			:title="t('params.categories.values')"
+			:open="false"
+			v-if="storeValues.valueList.length > 0"
+		>
 			<template #right_actions>
-				<p class="count">x{{ $store.exporter.selectedValueIDs.length }}</p>
+				<p class="count">x{{ storeExporter.selectedValueIDs.length }}</p>
 			</template>
 			<div class="itemList">
-				<div class="rowItem" v-for="item in $store.values.valueList" @click="toggleValue(item.id)" :key="item.id">
+				<div
+					class="rowItem"
+					v-for="item in storeValues.valueList"
+					@click="toggleValue(item.id)"
+					:key="item.id"
+				>
 					<span class="label"><Icon name="placeholder" />{{ item.name }}</span>
 					<div class="toggle">
 						<ToggleButton v-model="valueStates[item.id]" />
@@ -53,13 +75,22 @@
 			</div>
 		</ToggleBlock>
 
-		<ToggleBlock :icons="['label']" title="Label Overlays" :open="false"
-		v-if="$store.labels.labelList.length > 0">
+		<ToggleBlock
+			:icons="['label']"
+			title="Label Overlays"
+			:open="false"
+			v-if="storeLabels.labelList.length > 0"
+		>
 			<template #right_actions>
-				<p class="count">x{{ $store.exporter.selectedLabelIDs.length }}</p>
+				<p class="count">x{{ storeExporter.selectedLabelIDs.length }}</p>
 			</template>
 			<div class="itemList">
-				<div class="rowItem" v-for="item in $store.labels.labelList" @click="toggleLabel(item.id)" :key="item.id">
+				<div
+					class="rowItem"
+					v-for="item in storeLabels.labelList"
+					@click="toggleLabel(item.id)"
+					:key="item.id"
+				>
 					<span class="label"><Icon name="label" />{{ item.title }}</span>
 					<div class="toggle">
 						<ToggleButton v-model="labelStates[item.id]" />
@@ -68,13 +99,22 @@
 			</div>
 		</ToggleBlock>
 
-		<ToggleBlock :icons="['easing']" title="Animated texts" :open="false"
-		v-if="$store.animatedText.animatedTextList.length > 0">
+		<ToggleBlock
+			:icons="['easing']"
+			title="Animated texts"
+			:open="false"
+			v-if="storeAnimatedText.animatedTextList.length > 0"
+		>
 			<template #right_actions>
-				<p class="count">x{{ $store.exporter.selectedAnimatedTextIDs.length }}</p>
+				<p class="count">x{{ storeExporter.selectedAnimatedTextIDs.length }}</p>
 			</template>
 			<div class="itemList">
-				<div class="rowItem" v-for="item in $store.animatedText.animatedTextList" @click="toggleAnimatedText(item.id)" :key="item.id">
+				<div
+					class="rowItem"
+					v-for="item in storeAnimatedText.animatedTextList"
+					@click="toggleAnimatedText(item.id)"
+					:key="item.id"
+				>
 					<span class="label"><Icon name="easing" />{{ item.title }}</span>
 					<div class="toggle">
 						<ToggleButton v-model="animatedTextStates[item.id]" />
@@ -83,13 +123,22 @@
 			</div>
 		</ToggleBlock>
 
-		<ToggleBlock :icons="['train']" title="Custom Hype Trains" :open="false"
-		v-if="$store.customTrain.customTrainList.length > 0">
+		<ToggleBlock
+			:icons="['train']"
+			title="Custom Hype Trains"
+			:open="false"
+			v-if="storeCustomTrain.customTrainList.length > 0"
+		>
 			<template #right_actions>
-				<p class="count">x{{ $store.exporter.selectedCustomTrainIDs.length }}</p>
+				<p class="count">x{{ storeExporter.selectedCustomTrainIDs.length }}</p>
 			</template>
 			<div class="itemList">
-				<div class="rowItem" v-for="item in $store.customTrain.customTrainList" @click="toggleCustomTrain(item.id)" :key="item.id">
+				<div
+					class="rowItem"
+					v-for="item in storeCustomTrain.customTrainList"
+					@click="toggleCustomTrain(item.id)"
+					:key="item.id"
+				>
 					<span class="label"><Icon name="train" />{{ item.title }}</span>
 					<div class="toggle">
 						<ToggleButton v-model="customTrainStates[item.id]" />
@@ -98,16 +147,25 @@
 			</div>
 		</ToggleBlock>
 
-		<ToggleBlock :icons="['timer']" title="Timers and Countdowns" :open="false"
-		v-if="filteredTimers.length > 0">
+		<ToggleBlock
+			:icons="['timer']"
+			title="Timers and Countdowns"
+			:open="false"
+			v-if="filteredTimers.length > 0"
+		>
 			<template #right_actions>
-				<p class="count">x{{ $store.exporter.selectedTimerIDs.length }}</p>
+				<p class="count">x{{ storeExporter.selectedTimerIDs.length }}</p>
 			</template>
 			<div class="itemList">
-				<div class="rowItem" v-for="item in filteredTimers" @click="toggleTimer(item.id)" :key="item.id">
+				<div
+					class="rowItem"
+					v-for="item in filteredTimers"
+					@click="toggleTimer(item.id)"
+					:key="item.id"
+				>
 					<span class="label">
 						<Icon name="timer" v-if="item.type == 'timer'" />
-						<Icon name="countdown" v-if="item.type == 'countdown'" />	
+						<Icon name="countdown" v-if="item.type == 'countdown'" />
 						{{ item.title }}
 					</span>
 					<div class="toggle">
@@ -117,13 +175,22 @@
 			</div>
 		</ToggleBlock>
 
-		<ToggleBlock :icons="['credits']" title="Ending credits overlay" :open="false"
-		v-if="endingCreditsSlots.length > 0">
+		<ToggleBlock
+			:icons="['credits']"
+			title="Ending credits overlay"
+			:open="false"
+			v-if="endingCreditsSlots.length > 0"
+		>
 			<template #right_actions>
-				<p class="count">x{{ $store.exporter.selectedEndingCreditsSlotIDs.length }}</p>
+				<p class="count">x{{ storeExporter.selectedEndingCreditsSlotIDs.length }}</p>
 			</template>
 			<div class="itemList">
-				<div class="rowItem" v-for="item in endingCreditsSlots" @click="toggleEndingCreditsSlot(item.id)" :key="item.id">
+				<div
+					class="rowItem"
+					v-for="item in endingCreditsSlots"
+					@click="toggleEndingCreditsSlot(item.id)"
+					:key="item.id"
+				>
 					<span class="label"><Icon :name="item.icon" />{{ item.title }}</span>
 					<div class="toggle">
 						<ToggleButton v-model="endingCreditSlotStates[item.id]" />
@@ -132,13 +199,22 @@
 			</div>
 		</ToggleBlock>
 
-		<ToggleBlock :icons="['timer']" title="Bingo Grids" :open="false"
-		v-if="$store.bingoGrid.gridList.length > 0">
+		<ToggleBlock
+			:icons="['timer']"
+			title="Bingo Grids"
+			:open="false"
+			v-if="storeBingoGrid.gridList.length > 0"
+		>
 			<template #right_actions>
-				<p class="count">x{{ $store.exporter.selectedBingoGridIDs.length }}</p>
+				<p class="count">x{{ storeExporter.selectedBingoGridIDs.length }}</p>
 			</template>
 			<div class="itemList">
-				<div class="rowItem" v-for="item in $store.bingoGrid.gridList" @click="toggleBingoGrid(item.id)" :key="item.id">
+				<div
+					class="rowItem"
+					v-for="item in storeBingoGrid.gridList"
+					@click="toggleBingoGrid(item.id)"
+					:key="item.id"
+				>
 					<span class="label"><Icon name="bingo" />{{ item.title }}</span>
 					<div class="toggle">
 						<ToggleButton v-model="bingoGridStates[item.id]" />
@@ -149,195 +225,249 @@
 	</div>
 </template>
 
-<script lang="ts">
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import SettingsExportForm from './exporter/SettingsExportForm.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import TriggerListFolderItem from './triggers/TriggerListFolderItem.vue';
-import type { TriggerListEntry, TriggerListFolderEntry } from './triggers/TriggerList.vue';
-import type { TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
-import TriggerUtils from '@/utils/TriggerUtils';
-import ToggleButton from '@/components/ToggleButton.vue';
-import Icon from '@/components/Icon.vue';
-import DataStore from '@/store/DataStore';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '@/store/StoreProxy';
-import Splitter from '@/components/Splitter.vue';
+<script setup lang="ts">
+import SettingsExportForm from "./exporter/SettingsExportForm.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import TriggerListFolderItem from "./triggers/TriggerListFolderItem.vue";
+import type { TriggerListEntry, TriggerListFolderEntry } from "./triggers/TriggerList.vue";
+import type { TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
+import ToggleButton from "@/components/ToggleButton.vue";
+import Icon from "@/components/Icon.vue";
+import DataStore from "@/store/DataStore";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import StoreProxy from "@/store/StoreProxy";
+import Splitter from "@/components/Splitter.vue";
+import { computed, onMounted, ref } from "vue";
+import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
+import { storeValues as useStoreValues } from "@/store/values/storeValues";
+import { storeLabels as useStoreLabels } from "@/store/labels/storeLabels";
+import { storeAnimatedText as useStoreAnimatedText } from "@/store/animated_text/storeAnimatedText";
+import { storeCustomTrain as useStoreCustomTrain } from "@/store/customtrain/storeCustomTrain";
+import { storeTimer as useStoreTimer } from "@/store/timer/storeTimer";
+import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
+import { storeExporter as useStoreExporter } from "@/store/exporter/storeExporter";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{
-		Icon,
-		Splitter,
-		ToggleBlock,
-		ToggleButton,
-		SettingsExportForm,
-		TriggerListFolderItem,
-	},
-	emits:[],
-})
-class ParamsExporter extends Vue {
+const { t } = useI18n();
+const storeCounters = useStoreCounters();
+const storeValues = useStoreValues();
+const storeLabels = useStoreLabels();
+const storeAnimatedText = useStoreAnimatedText();
+const storeCustomTrain = useStoreCustomTrain();
+const storeTimer = useStoreTimer();
+const storeBingoGrid = useStoreBingoGrid();
+const storeExporter = useStoreExporter();
+const storeTriggers = useStoreTriggers();
 
-	public folderTriggerList:(TriggerListEntry|TriggerListFolderEntry)[] = [];
-	public endingCreditsSlots:{id:string, title:string, slotType:TwitchatDataTypes.EndingCreditsSlotStringTypes, icon:string}[] = [];
+const folderTriggerList = ref<(TriggerListEntry | TriggerListFolderEntry)[]>([]);
+const endingCreditsSlots = ref<
+	{
+		id: string;
+		title: string;
+		slotType: TwitchatDataTypes.EndingCreditsSlotStringTypes;
+		icon: string;
+	}[]
+>([]);
 
-	public counterStates:{[key:string]:boolean} = {};
-	public valueStates:{[key:string]:boolean} = {};
-	public labelStates:{[key:string]:boolean} = {};
-	public animatedTextStates:{[key:string]:boolean} = {};
-	public customTrainStates:{[key:string]:boolean} = {};
-	public timerStates:{[key:string]:boolean} = {};
-	public endingCreditSlotStates:{[key:string]:boolean} = {};
-	public bingoGridStates:{[key:string]:boolean} = {};
+const counterStates = ref<{ [key: string]: boolean }>({});
+const valueStates = ref<{ [key: string]: boolean }>({});
+const labelStates = ref<{ [key: string]: boolean }>({});
+const animatedTextStates = ref<{ [key: string]: boolean }>({});
+const customTrainStates = ref<{ [key: string]: boolean }>({});
+const timerStates = ref<{ [key: string]: boolean }>({});
+const endingCreditSlotStates = ref<{ [key: string]: boolean }>({});
+const bingoGridStates = ref<{ [key: string]: boolean }>({});
 
-	public get filteredTimers() {
-		return this.$store.timers.timerList.filter(v=> !v.isDefault);
-	}
+const filteredTimers = computed(() => {
+	return storeTimer.timerList.filter((v) => !v.isDefault);
+});
 
-	public get triggerList():TriggerListEntry[] {
-		const triggers = this.$store.triggers.triggerList;
-		const entries = triggers.map((trigger, index) => {
-			const info = TriggerUtils.getTriggerDisplayInfo(trigger);
-			const entry:TriggerListEntry = { type:"trigger", id:trigger.id, index, label:info.label, trigger, icon:info.icon, iconURL:info.iconURL, canTest:false };
-			return entry;
-		})
-		return entries;
-	}
+const triggerList = computed<TriggerListEntry[]>(() => {
+	const triggers = storeTriggers.triggerList;
+	const entries = triggers.map((trigger, index) => {
+		const info = TriggerUtils.getTriggerDisplayInfo(trigger);
+		const entry: TriggerListEntry = {
+			type: "trigger",
+			id: trigger.id,
+			index,
+			label: info.label,
+			trigger,
+			icon: info.icon,
+			iconURL: info.iconURL,
+			canTest: false,
+		};
+		return entry;
+	});
+	return entries;
+});
 
-	public mounted(){
-		this.loadTriggers();
+async function loadTriggers() {
+	const list = storeTriggers.triggerList;
+	const idToHasFolder: { [key: string]: boolean } = {};
 
-		this.$store.counters.counterList.forEach(item => {
-			this.counterStates[item.id] = this.$store.exporter.selectedCounterIDs.includes(item.id);
-		});
-
-		this.$store.values.valueList.forEach(item => {
-			this.valueStates[item.id] = this.$store.exporter.selectedValueIDs.includes(item.id);
-		});
-
-		this.$store.labels.labelList.forEach(item => {
-			this.labelStates[item.id] = this.$store.exporter.selectedLabelIDs.includes(item.id);
-		});
-
-		this.$store.animatedText.animatedTextList.forEach(item => {
-			this.animatedTextStates[item.id] = this.$store.exporter.selectedAnimatedTextIDs.includes(item.id);
-		});
-
-		this.$store.customTrain.customTrainList.forEach(item => {
-			this.customTrainStates[item.id] = this.$store.exporter.selectedCustomTrainIDs.includes(item.id);
-		});
-
-		this.filteredTimers.forEach(item => {
-			this.timerStates[item.id] = this.$store.exporter.selectedTimerIDs.includes(item.id);
-		});
-
-		this.$store.bingoGrid.gridList.forEach(item => {
-			this.bingoGridStates[item.id] = this.$store.exporter.selectedBingoGridIDs.includes(item.id);
-		});
-
-		const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
-		if(json) {
-			const creditsData = StoreProxy.endingCredits.overlayData
-			this.endingCreditsSlots = creditsData?.slots.map(v=> {
-				const def = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(d=>d.id == v.slotType)!
-				this.endingCreditSlotStates[v.id] = this.$store.exporter.selectedEndingCreditsSlotIDs.includes(v.id);
-				return {id:v.id, title:v.label, slotType:v.slotType, icon:def.icon}
-			}) || [];
-		}
-	}
-
-	public async loadTriggers(){
-		const triggerList = this.$store.triggers.triggerList;
-		const idToHasFolder:{[key:string]:boolean} = {};
-
-		const flatList = triggerList.map<TriggerListEntry>(v=> {
-			const info = TriggerUtils.getTriggerDisplayInfo(v);
-			return { type:"trigger", index:0, label:info.label, id:v.id, trigger:v, icon:info.icon, iconURL:info.iconURL, canTest:false }
-		})
-		function buildItem(items:TriggerTreeItemData[]):(TriggerListEntry|TriggerListFolderEntry)[] {
-			const res:(TriggerListEntry|TriggerListFolderEntry)[] = [];
-			for (const item of items) {
-				if(item.type == "folder") {
-					const children = buildItem(item.children || []);
-					res.push({type:"folder",
-							id:item.id,
-							label:item.name!,
-							items:children,
-							color:{type:"color", value:item.color || "#60606c"},
-							expand:item.expand == true,
-							enabled:item.enabled !== false});
-				}else{
-					const entry = flatList.find(v=> v.trigger.id == item.triggerId);
-					if(entry && !idToHasFolder[entry.id]) {
-						idToHasFolder[entry.id] = true;
-						res.push(entry);
-					}
+	const flatList = list.map<TriggerListEntry>((v) => {
+		const info = TriggerUtils.getTriggerDisplayInfo(v);
+		return {
+			type: "trigger",
+			index: 0,
+			label: info.label,
+			id: v.id,
+			trigger: v,
+			icon: info.icon,
+			iconURL: info.iconURL,
+			canTest: false,
+		};
+	});
+	function buildItem(
+		items: TriggerTreeItemData[],
+	): (TriggerListEntry | TriggerListFolderEntry)[] {
+		const res: (TriggerListEntry | TriggerListFolderEntry)[] = [];
+		for (const item of items) {
+			if (item.type == "folder") {
+				const children = buildItem(item.children || []);
+				res.push({
+					type: "folder",
+					id: item.id,
+					label: item.name!,
+					items: children,
+					color: { type: "color", value: item.color || "#60606c" },
+					expand: item.expand == true,
+					enabled: item.enabled !== false,
+				});
+			} else {
+				const entry = flatList.find((v) => v.trigger.id == item.triggerId);
+				if (entry && !idToHasFolder[entry.id]) {
+					idToHasFolder[entry.id] = true;
+					res.push(entry);
 				}
 			}
-			return res;
 		}
-		this.folderTriggerList = buildItem(this.$store.triggers.triggerTree);
-		for (const t of this.triggerList) {
-			if(!idToHasFolder[t.id]) {
-				idToHasFolder[t.id] = true;
-				this.folderTriggerList.push(t);
-			}
+		return res;
+	}
+	folderTriggerList.value = buildItem(storeTriggers.triggerTree);
+	for (const t of triggerList.value) {
+		if (!idToHasFolder[t.id]) {
+			idToHasFolder[t.id] = true;
+			folderTriggerList.value.push(t);
 		}
 	}
-
-	public toggleCounter(id:string){
-		this.counterStates[id] = !this.counterStates[id];
-		if(this.counterStates[id]) this.$store.exporter.selectedCounterIDs.push(id);
-		else this.$store.exporter.selectedCounterIDs.splice(this.$store.exporter.selectedCounterIDs.indexOf(id), 1);
-	}
-
-	public toggleValue(id:string){
-		this.valueStates[id] = !this.valueStates[id];
-		if(this.valueStates[id]) this.$store.exporter.selectedValueIDs.push(id);
-		else this.$store.exporter.selectedValueIDs.splice(this.$store.exporter.selectedValueIDs.indexOf(id), 1);
-	}
-
-	public toggleLabel(id:string){
-		this.labelStates[id] = !this.labelStates[id];
-		if(this.labelStates[id]) this.$store.exporter.selectedLabelIDs.push(id);
-		else this.$store.exporter.selectedLabelIDs.splice(this.$store.exporter.selectedLabelIDs.indexOf(id), 1);
-	}
-	
-	public toggleAnimatedText(id:string){
-		this.animatedTextStates[id] = !this.animatedTextStates[id];
-		if(this.animatedTextStates[id]) this.$store.exporter.selectedAnimatedTextIDs.push(id);
-		else this.$store.exporter.selectedAnimatedTextIDs.splice(this.$store.exporter.selectedAnimatedTextIDs.indexOf(id), 1);
-	}
-
-	public toggleCustomTrain(id:string){
-		this.customTrainStates[id] = !this.customTrainStates[id];
-		if(this.customTrainStates[id]) this.$store.exporter.selectedCustomTrainIDs.push(id);
-		else this.$store.exporter.selectedCustomTrainIDs.splice(this.$store.exporter.selectedCustomTrainIDs.indexOf(id), 1);
-	}
-
-	public toggleTimer(id:string){
-		this.timerStates[id] = !this.timerStates[id];
-		if(this.timerStates[id]) this.$store.exporter.selectedTimerIDs.push(id);
-		else this.$store.exporter.selectedTimerIDs.splice(this.$store.exporter.selectedTimerIDs.indexOf(id), 1);
-	}
-
-	public toggleEndingCreditsSlot(id:string){
-		this.endingCreditSlotStates[id] = !this.endingCreditSlotStates[id];
-		if(this.endingCreditSlotStates[id]) this.$store.exporter.selectedEndingCreditsSlotIDs.push(id);
-		else this.$store.exporter.selectedEndingCreditsSlotIDs.splice(this.$store.exporter.selectedEndingCreditsSlotIDs.indexOf(id), 1);
-	}
-	
-	public toggleBingoGrid(id:string){
-		this.bingoGridStates[id] = !this.bingoGridStates[id];
-		if(this.bingoGridStates[id]) this.$store.exporter.selectedBingoGridIDs.push(id);
-		else this.$store.exporter.selectedBingoGridIDs.splice(this.$store.exporter.selectedBingoGridIDs.indexOf(id), 1);
-	}
-
 }
-export default toNative(ParamsExporter);
+
+function toggleCounter(id: string) {
+	counterStates.value[id] = !counterStates.value[id];
+	if (counterStates.value[id]) storeExporter.selectedCounterIDs.push(id);
+	else storeExporter.selectedCounterIDs.splice(storeExporter.selectedCounterIDs.indexOf(id), 1);
+}
+
+function toggleValue(id: string) {
+	valueStates.value[id] = !valueStates.value[id];
+	if (valueStates.value[id]) storeExporter.selectedValueIDs.push(id);
+	else storeExporter.selectedValueIDs.splice(storeExporter.selectedValueIDs.indexOf(id), 1);
+}
+
+function toggleLabel(id: string) {
+	labelStates.value[id] = !labelStates.value[id];
+	if (labelStates.value[id]) storeExporter.selectedLabelIDs.push(id);
+	else storeExporter.selectedLabelIDs.splice(storeExporter.selectedLabelIDs.indexOf(id), 1);
+}
+
+function toggleAnimatedText(id: string) {
+	animatedTextStates.value[id] = !animatedTextStates.value[id];
+	if (animatedTextStates.value[id]) storeExporter.selectedAnimatedTextIDs.push(id);
+	else
+		storeExporter.selectedAnimatedTextIDs.splice(
+			storeExporter.selectedAnimatedTextIDs.indexOf(id),
+			1,
+		);
+}
+
+function toggleCustomTrain(id: string) {
+	customTrainStates.value[id] = !customTrainStates.value[id];
+	if (customTrainStates.value[id]) storeExporter.selectedCustomTrainIDs.push(id);
+	else
+		storeExporter.selectedCustomTrainIDs.splice(
+			storeExporter.selectedCustomTrainIDs.indexOf(id),
+			1,
+		);
+}
+
+function toggleTimer(id: string) {
+	timerStates.value[id] = !timerStates.value[id];
+	if (timerStates.value[id]) storeExporter.selectedTimerIDs.push(id);
+	else storeExporter.selectedTimerIDs.splice(storeExporter.selectedTimerIDs.indexOf(id), 1);
+}
+
+function toggleEndingCreditsSlot(id: string) {
+	endingCreditSlotStates.value[id] = !endingCreditSlotStates.value[id];
+	if (endingCreditSlotStates.value[id]) storeExporter.selectedEndingCreditsSlotIDs.push(id);
+	else
+		storeExporter.selectedEndingCreditsSlotIDs.splice(
+			storeExporter.selectedEndingCreditsSlotIDs.indexOf(id),
+			1,
+		);
+}
+
+function toggleBingoGrid(id: string) {
+	bingoGridStates.value[id] = !bingoGridStates.value[id];
+	if (bingoGridStates.value[id]) storeExporter.selectedBingoGridIDs.push(id);
+	else
+		storeExporter.selectedBingoGridIDs.splice(
+			storeExporter.selectedBingoGridIDs.indexOf(id),
+			1,
+		);
+}
+
+onMounted(() => {
+	loadTriggers();
+
+	storeCounters.counterList.forEach((item) => {
+		counterStates.value[item.id] = storeExporter.selectedCounterIDs.includes(item.id);
+	});
+
+	storeValues.valueList.forEach((item) => {
+		valueStates.value[item.id] = storeExporter.selectedValueIDs.includes(item.id);
+	});
+
+	storeLabels.labelList.forEach((item) => {
+		labelStates.value[item.id] = storeExporter.selectedLabelIDs.includes(item.id);
+	});
+
+	storeAnimatedText.animatedTextList.forEach((item) => {
+		animatedTextStates.value[item.id] = storeExporter.selectedAnimatedTextIDs.includes(item.id);
+	});
+
+	storeCustomTrain.customTrainList.forEach((item) => {
+		customTrainStates.value[item.id] = storeExporter.selectedCustomTrainIDs.includes(item.id);
+	});
+
+	filteredTimers.value.forEach((item) => {
+		timerStates.value[item.id] = storeExporter.selectedTimerIDs.includes(item.id);
+	});
+
+	storeBingoGrid.gridList.forEach((item) => {
+		bingoGridStates.value[item.id] = storeExporter.selectedBingoGridIDs.includes(item.id);
+	});
+
+	const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
+	if (json) {
+		const creditsData = StoreProxy.endingCredits.overlayData;
+		endingCreditsSlots.value =
+			creditsData?.slots.map((v) => {
+				const def = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(
+					(d) => d.id == v.slotType,
+				)!;
+				endingCreditSlotStates.value[v.id] =
+					storeExporter.selectedEndingCreditsSlotIDs.includes(v.id);
+				return { id: v.id, title: v.label, slotType: v.slotType, icon: def.icon };
+			}) || [];
+	}
+});
 </script>
 
 <style scoped lang="less">
-.paramsexporter{
+.paramsexporter {
 	gap: 1em;
 	display: flex;
 	flex-direction: column;
@@ -351,16 +481,16 @@ export default toNative(ParamsExporter);
 		display: flex;
 		flex-direction: column;
 		.rowItem {
-			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+			box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
 			background-color: var(--background-color-fadest);
-			border-radius: .5em;
+			border-radius: 0.5em;
 			padding: 0;
-			gap: .5em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: row;
 			min-height: 1.5em;
 			position: relative;
-			transition: background-color .1s;
+			transition: background-color 0.1s;
 			cursor: pointer;
 
 			&:hover {
@@ -368,36 +498,36 @@ export default toNative(ParamsExporter);
 			}
 			.label {
 				flex-grow: 1;
-				gap: .5em;
+				gap: 0.5em;
 				display: flex;
 				flex-direction: row;
 				align-items: center;
 				color: var(--color-text);
 				padding: 0;
-				margin-left: .5em;
+				margin-left: 0.5em;
 				.icon {
 					height: 1.5em;
 					width: 1.5em;
 					padding: 0.25em;
 					object-fit: fill;
-					margin-right: .5em;
+					margin-right: 0.5em;
 				}
 
 				.username {
-					padding-left: .5em;
+					padding-left: 0.5em;
 				}
 
 				.small {
 					font-style: italic;
-					font-size: .9em;
-					margin-left: -.5em;
+					font-size: 0.9em;
+					margin-left: -0.5em;
 				}
 				.badgeList {
-					gap: .5em;
+					gap: 0.5em;
 					display: flex;
 					flex-direction: row;
 					.badge {
-						padding: .25em;
+						padding: 0.25em;
 						height: 2em;
 					}
 				}
@@ -410,8 +540,10 @@ export default toNative(ParamsExporter);
 				pointer-events: none;
 				flex-grow: 1;
 			}
-			.toggle, .deleteBt, .badgeList {
-				padding: 0 .5em;
+			.toggle,
+			.deleteBt,
+			.badgeList {
+				padding: 0 0.5em;
 				border-left: 1px solid var(--color-dark-light);
 			}
 			.deleteBt {
@@ -419,7 +551,9 @@ export default toNative(ParamsExporter);
 				align-items: center;
 			}
 		}
-		&.heat, &.badges, &.users {
+		&.heat,
+		&.badges,
+		&.users {
 			gap: 1em;
 			width: 100%;
 			flex-direction: row;
@@ -441,7 +575,7 @@ export default toNative(ParamsExporter);
 
 		&.users {
 			.rowItem {
-				padding: .5em;
+				padding: 0.5em;
 				max-width: fit-content;
 			}
 		}

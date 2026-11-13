@@ -1,15 +1,15 @@
 {
-	"greet":{
-		"title":"Greet them",
-		"never":"never",
-		"clearBt":"Mark all messages as read",
-		"resetBt":"Reset greet history",
-		"reset_confirm_title":"Reset",
-		"reset_confirm_description":"This will reset the greetings history. Next messages of all users will be considered as their first message today.",
-		"auto_scroll_on_aria":"Enable auto scroll down",
-		"auto_scroll_off_aria":"Disable auto scroll down",
-		"auto_scroll_down":"Auto scroll down",
-		"auto_scroll_up":"Auto scroll up",
-		"auto_delete":"Auto delete after"
+	"greet": {
+		"title": "Greet them",
+		"never": "never",
+		"clearBt": "Mark all messages as read",
+		"resetBt": "Reset greet history",
+		"reset_confirm_title": "Reset",
+		"reset_confirm_description": "This will reset the greetings history. Next messages of all users will be considered as their first message today.",
+		"auto_scroll_on_aria": "Enable auto scroll down",
+		"auto_scroll_off_aria": "Disable auto scroll down",
+		"auto_scroll_down": "Auto scroll down",
+		"auto_scroll_up": "Auto scroll up",
+		"auto_delete": "Auto delete after"
 	}
 }

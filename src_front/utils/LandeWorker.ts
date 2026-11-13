@@ -3,57 +3,62 @@ import Utils from "./Utils";
 
 /**
  * Executes Lande lib in a worker to avoid blocking main thread
-* Created : 01/03/2024 
-*/
+ * Created : 01/03/2024
+ */
 export default class LandeWorker {
+	private static _instance: LandeWorker;
 
-	private static _instance:LandeWorker;
-	
-	private _worker!:Worker;
-	private _idToCallback:{[key:string]:(result:[Language, number][])=>void} = {};
-	
-	constructor() {
-	
-	}
-	
+	private _worker: Worker | null = null;
+	private _idToCallback: { [key: string]: (result: [Language, number][]) => void } = {};
+
+	constructor() {}
+
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	static get instance():LandeWorker {
-		if(!LandeWorker._instance) {
+	 * GETTER / SETTERS *
+	 ********************/
+	static get instance(): LandeWorker {
+		if (!LandeWorker._instance) {
 			LandeWorker._instance = new LandeWorker();
-			LandeWorker._instance.initialize();
 		}
 		return LandeWorker._instance;
 	}
-	
-	
-	
+
 	/******************
-	* PUBLIC METHODS *
-	******************/
+	 * PUBLIC METHODS *
+	 ******************/
 	/**
 	 * Starts an interval
 	 */
-	public lande(text:string, callback:(result:[Language, number][])=>void):string {
+	public lande(text: string, callback: (result: [Language, number][]) => void): string {
 		const id = Utils.getUUID();
 		this._idToCallback[id] = callback;
+		this._worker ??= this.start();
 		this._worker.postMessage({ text, id });
 		return id;
 	}
-	
-	
-	
+
+	/**
+	 * Frees the worker from memory and drops pending detections.
+	 * It's started back on next detection.
+	 */
+	public stop(): void {
+		this._worker?.terminate();
+		this._worker = null;
+		this._idToCallback = {};
+	}
+
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
-	private initialize():void {
-		this._worker = new Worker("/lande_worker.js");
-		this._worker.onmessage = (event) => {
+	 * PRIVATE METHODS *
+	 *******************/
+	private start(): Worker {
+		const worker = new Worker("/lande_worker.js");
+		worker.onmessage = (event) => {
 			const message = event.data;
-			if(!this._idToCallback[message.id]) return;
-			this._idToCallback[message.id]!(message.result as [Language, number][]);
+			const callback = this._idToCallback[message.id];
+			if (!callback) return;
+			delete this._idToCallback[message.id];
+			callback(message.result as [Language, number][]);
 		};
-		
+		return worker;
 	}
 }

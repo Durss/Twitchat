@@ -1,92 +1,115 @@
 <template>
-	<div class="triggeractionttsentry triggerActionForm" v-if="!$store.tts.params.enabled">
+	<div class="triggeractionttsentry triggerActionForm" v-if="!storeTTS.params.enabled">
 		<div class="info warn">
 			<Icon name="info" alt="info" theme="light" />
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.tts.header">
 				<template #LINK>
-					<a @click="$store.params.openParamsPage(contentTTS)">{{ $t("triggers.actions.tts.header_link") }}</a>
+					<a @click="storeParams.openParamsPage(contentTTS)">{{
+						t("triggers.actions.tts.header_link")
+					}}</a>
 				</template>
 			</i18n-t>
 		</div>
 	</div>
 
 	<div v-else class="triggeractionttsentry">
-		<ParamItem :paramData="param_message" v-model="action.text" />
-		<ParamItem :paramData="param_customVoice" v-model="param_customVoice.value" @change="onToggleCustomVoice()">
-			<TTSVoiceParams class="parameter-child" v-model="action.voiceParams" />
+		<ParamItem :paramData="param_message" v-model="props.action.text" />
+		<ParamItem
+			:paramData="param_customVoice"
+			v-model="param_customVoice.value"
+			@change="onToggleCustomVoice()"
+		>
+			<TTSVoiceParams
+				v-if="props.action.voiceParams"
+				class="parameter-child"
+				v-model="props.action.voiceParams"
+			/>
 		</ParamItem>
 	</div>
 </template>
 
-<script lang="ts">
-import TTSVoiceParams from '@/components/voice/TTSVoiceParams.vue';
-import type { ITriggerPlaceholder, TriggerActionTTSData, TriggerData } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import ParamItem from '../../../ParamItem.vue';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import Icon from '@/components/Icon.vue';
+<script setup lang="ts">
+import Icon from "@/components/Icon.vue";
+import TTSVoiceParams from "@/components/voice/TTSVoiceParams.vue";
+import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
+import type {
+	ITriggerPlaceholder,
+	TriggerActionTTSData,
+	TriggerData,
+} from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import ParamItem from "../../../ParamItem.vue";
 
-@Component({
-	components:{
-		Icon,
-		ParamItem,
-		TTSVoiceParams,
-	},
-	emits:["update"]
-})
-class TriggerActionTTSEntry extends AbstractTriggerActionEntry {
-	
-	@Prop
-	declare action:TriggerActionTTSData;
-	
-	@Prop
-	declare triggerData:TriggerData;
+const props = defineProps<{
+	action: TriggerActionTTSData;
+	triggerData: TriggerData;
+}>();
 
-	public param_message:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500, labelKey:"triggers.actions.tts.param_message" };
-	public param_customVoice:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"voice", labelKey:"triggers.actions.tts.param_customVoice" };
-	
-	public get contentTTS():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; }
+const { t } = useI18n();
+const storeTTS = useStoreTTS();
+const storeParams = useStoreParams();
 
-	public beforeMount():void {
-		this.param_customVoice.value = !!this.action.voiceParams;
-	}
+const param_message = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	longText: true,
+	value: "",
+	icon: "whispers",
+	maxLength: 500,
+	labelKey: "triggers.actions.tts.param_message",
+});
+const param_customVoice = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "voice",
+	labelKey: "triggers.actions.tts.param_customVoice",
+});
 
-	/**
-	 * Called when the available placeholder list is updated
-	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.param_message.placeholderList = list;
-		if(!this.action.text) this.action.text = "";
-	}
+const contentTTS = computed<TwitchatDataTypes.ParameterPagesStringType>(() => {
+	return TwitchatDataTypes.ParameterPages.TTS;
+});
 
-	public onToggleCustomVoice():void {
-		if(this.param_customVoice.value) {
-			if(!this.action.voiceParams) {
-				this.action.voiceParams = {
-					voice:"",
-					volume:1,
-					rate:1,
-					pitch:1,
-					elevenlabs_lang:"",
-					elevenlabs_model:"eleven_turbo_v2_5",
-					elevenlabs_stability:.5,
-					elevenlabs_similarity:.5,
-					elevenlabs_style:0,
-				};
-			}
-		}else{
-			delete this.action.voiceParams;
-		}
-	}
+onBeforeMount(() => {
+	param_customVoice.value.value = !!props.action.voiceParams;
+});
 
+/**
+ * Called when the available placeholder list is updated
+ */
+function onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
+	param_message.value.placeholderList = list;
+	if (!props.action.text) props.action.text = "";
 }
-export default toNative(TriggerActionTTSEntry);
+
+function onToggleCustomVoice(): void {
+	if (param_customVoice.value.value) {
+		if (!props.action.voiceParams) {
+			props.action.voiceParams = {
+				voice: "",
+				volume: 1,
+				rate: 1,
+				pitch: 1,
+				elevenlabs_lang: "",
+				elevenlabs_model: "eleven_turbo_v2_5",
+				elevenlabs_stability: 0.5,
+				elevenlabs_similarity: 0.5,
+				elevenlabs_style: 0,
+			};
+		}
+	} else {
+		delete props.action.voiceParams;
+	}
+}
+
+useTriggerActionPlaceholders(props.action, props.triggerData, onPlaceholderUpdate);
 </script>
 
 <style scoped lang="less">
-.triggeractionttsentry{
-	gap: .5em;
+.triggeractionttsentry {
+	gap: 0.5em;
 	display: flex;
 	flex-direction: column;
 }

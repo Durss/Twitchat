@@ -1,14 +1,11 @@
 {
-	"donate":{
+	"donate": {
 		"header": "Aidez à rendre Twitchat meilleur",
-		"infos":[
-			"Twitchat a nécessité +3 ans de travail à temps plein non rémunéré."
-		],
-		"amount":"Montant",
-		"success":"Merci pour votre don de {AMOUNT}€ 💝",
-		"success_details":"Si vous le souhaitez, vous pouvez désormais désactiver le message automatique envoyé toutes les 2h dans votre tchat.",
-		"automatic_message":"Continuer à envoyer le message automatique",
-		"paypal_error":"Une erreur est survenue lors de l'initialisation du formulaire PayPal",
+		"amount": "Montant",
+		"success": "Merci pour votre don de {AMOUNT}€ 💝",
+		"success_details": "Si vous le souhaitez, vous pouvez désormais désactiver le message automatique envoyé toutes les 2h dans votre tchat.",
+		"automatic_message": "Continuer à envoyer le message automatique",
+		"paypal_error": "Une erreur est survenue lors de l'initialisation du formulaire PayPal",
 		"donors": "Donatrices et donateurs",
 		"lifetime_premium": "Premium à vie",
 		"ttc": "Je reçois {AMOUNT}€ TTC",

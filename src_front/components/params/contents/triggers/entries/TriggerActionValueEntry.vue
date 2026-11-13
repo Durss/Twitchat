@@ -3,207 +3,269 @@
 		<div class="card-item list">
 			<label class="listLabel">
 				<Icon name="placeholder" />
-				<span>{{ $t(param_values.labelKey as string) }}</span>
+				<span>{{ t(param_values.labelKey as string) }}</span>
 			</label>
-			<vue-select class="itemSelector"
+			<vue-select
+				class="itemSelector"
 				label="label"
-				:placeholder="$t('triggers.actions.value.select_placeholder')"
-				v-model="action.values"
+				:placeholder="t('triggers.actions.value.select_placeholder')"
+				v-model="props.action.values"
 				:options="param_values.listValues"
-				:calculate-position="$placeDropdown"
-				:reduce="(v:TwitchatDataTypes.ParameterDataListValue<string>) => v.value"
-				:selectable="(v:TwitchatDataTypes.ParameterDataListValue<string>) => action.values.indexOf(v.value) == -1"
+				:calculate-position="placeDropdown"
+				:reduce="(v: TwitchatDataTypes.ParameterDataListValue<string>) => v.value"
+				:selectable="
+					(v: TwitchatDataTypes.ParameterDataListValue<string>) =>
+						props.action.values.indexOf(v.value) == -1
+				"
 				appendToBody
 				multiple
 			></vue-select>
 		</div>
 
-		<div class="card-item valueList" v-if="selectedPerUserValue.length > 0 && userSourceOptions.length > 1">
+		<div
+			class="card-item valueList"
+			v-if="selectedPerUserValue.length > 0 && userSourceOptions.length > 1"
+		>
 			<div class="head">
 				<Icon name="user" class="icon" />
-				<span>{{ $t("triggers.actions.value.user_source_title", selectedPerUserValue.length) }}</span>
+				<span>{{
+					t("triggers.actions.value.user_source_title", selectedPerUserValue.length)
+				}}</span>
 			</div>
 
 			<div class="card-item dark" v-for="item in selectedPerUserValue" :key="item.id">
-				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
-				<select :id="'select_'+item.id" v-model="action.valueUserSources[item.id]">
-					<option v-for="opt in userSourceOptions" :value="opt.key">{{ $t(opt.labelKey, {PLACEHOLDER:opt.key.toUpperCase()}) }}</option>
+				<label :for="'select_' + item.id" class="name">{{ item.name }}</label>
+				<SearchableSelect
+					:inputId="'select_' + item.id"
+					:options="userSourceOptions"
+					v-model="props.action.valueUserSources[item.id]"
+				/>
+			</div>
+		</div>
+
+		<div
+			class="card-item valueList"
+			v-if="selectedPerUserValue.length > 0 && userSourceOptions.length > 1"
+		>
+			<div class="head">
+				<Icon name="user" class="icon" />
+				<span>{{
+					t("triggers.actions.value.user_action_title", selectedPerUserValue.length)
+				}}</span>
+			</div>
+
+			<div class="card-item dark" v-for="item in selectedPerUserValue" :key="item.id">
+				<label :for="'select_' + item.id" class="name">{{ item.name }}</label>
+				<select :id="'select_' + item.id" v-model="props.action.userAction![item.id]">
+					<option v-for="opt in param_userAction.listValues" :value="opt.value">
+						{{ t(opt.labelKey!) }}
+					</option>
 				</select>
 			</div>
 		</div>
 
-		<div class="card-item valueList" v-if="selectedPerUserValue.length > 0 && userSourceOptions.length > 1">
-			<div class="head">
-				<Icon name="user" class="icon" />
-				<span>{{ $t("triggers.actions.value.user_action_title", selectedPerUserValue.length) }}</span>
-			</div>
-
-			<div class="card-item dark" v-for="item in selectedPerUserValue" :key="item.id">
-				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
-				<select :id="'select_'+item.id" v-model="action.userAction![item.id]">
-					<option v-for="opt in param_userAction.listValues" :value="opt.value">{{ $t(opt.labelKey!) }}</option>
-				</select>
-			</div>
-		</div>
-
-		<ParamItem v-if="showAction" :paramData="param_value" v-model="action.newValue" key="value" forceChildDisplay>
-			<ParamItem :childLevel="1" :paramData="param_maths" v-model="action.interpretMaths" key="maths" noBackground />
+		<ParamItem
+			v-if="showAction"
+			:paramData="param_value"
+			v-model="props.action.newValue"
+			key="value"
+			forceChildDisplay
+		>
+			<ParamItem
+				:childLevel="1"
+				:paramData="param_maths"
+				v-model="props.action.interpretMaths"
+				key="maths"
+				noBackground
+			/>
 		</ParamItem>
-
 	</div>
 </template>
 
-<script lang="ts">
-import Icon from '@/components/Icon.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
-import { VALUE_EDIT_SOURCE_CHATTERS, VALUE_EDIT_SOURCE_EVERYONE, VALUE_EDIT_SOURCE_SENDER, VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder, type TriggerActionValueData, type TriggerData } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { watch } from 'vue';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+<script setup lang="ts">
+import Icon from "@/components/Icon.vue";
+import ParamItem from "@/components/params/ParamItem.vue";
+import SearchableSelect from "@/components/params/SearchableSelect.vue";
+import { usePlaceDropdown } from "@/composables/usePlaceDropDown";
+import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
+import { storeValues as useStoreValues } from "@/store/values/storeValues";
+import {
+	VALUE_EDIT_SOURCE_CHATTERS,
+	VALUE_EDIT_SOURCE_EVERYONE,
+	VALUE_EDIT_SOURCE_SENDER,
+	VALUE_PLACEHOLDER_PREFIX,
+	type ITriggerPlaceholder,
+	type TriggerActionValueData,
+	type TriggerData,
+} from "@/types/TriggerActionDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
+import { computed, onBeforeMount, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{
-		Icon,
-		ParamItem,
-	},
-})
-class TriggerActionValueEntry extends AbstractTriggerActionEntry {
+const props = defineProps<{
+	action: TriggerActionValueData;
+	triggerData: TriggerData;
+}>();
 
-	@Prop
-	declare action:TriggerActionValueData;
+//Init action's data if necessary.
+//Done first as the "selectedPerUserValue" watcher below reads them right away
+if (props.action.interpretMaths === undefined) props.action.interpretMaths = true;
+if (!props.action.values) props.action.values = [];
+if (!props.action.newValue) props.action.newValue = "";
 
-	@Prop
-	declare triggerData:TriggerData;
+const { t } = useI18n();
+const { place: placeDropdown } = usePlaceDropdown();
+const storeValues = useStoreValues();
 
-	private userPLaceholders:ITriggerPlaceholder<any>[] = [];
+const userPLaceholders = ref<ITriggerPlaceholder<any>[]>([]);
 
-	public param_values:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.value.select_label", value:[], listValues:[]};
-	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.value.value_label", value:""};
-	public param_maths:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.value.interpret_arithmetic", value:true};
-	public param_userAction:TwitchatDataTypes.ParameterData<NonNullable<TriggerActionValueData["userAction"]>[string], NonNullable<TriggerActionValueData["userAction"]>[string]> = {type:"list", labelKey:"triggers.actions.value.param_action", value:"update"};
+const param_values = ref<TwitchatDataTypes.ParameterData<string[], string>>({
+	type: "list",
+	labelKey: "triggers.actions.value.select_label",
+	value: [],
+	listValues: [],
+});
+const param_value = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	labelKey: "triggers.actions.value.value_label",
+	value: "",
+});
+const param_maths = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	labelKey: "triggers.actions.value.interpret_arithmetic",
+	value: true,
+});
+const param_userAction = ref<
+	TwitchatDataTypes.ParameterData<
+		NonNullable<TriggerActionValueData["userAction"]>[string],
+		NonNullable<TriggerActionValueData["userAction"]>[string]
+	>
+>({ type: "list", labelKey: "triggers.actions.value.param_action", value: "update" });
 
-	/**
-	 * Define if global actions should be displayed.
-	 * If only per-user delete actions are selected, we should not display the global action
-	 */
-	public get showAction():boolean {
-		if(this.action.values.length === 0) return true;
-		let deleteBatchActions = 0;
-		for (const cid of this.action.values) {
-			if(this.action.userAction
-			&& this.action.userAction[cid] === "delete") deleteBatchActions ++;
-		}
-
-		return deleteBatchActions < this.action.values.length;
+/**
+ * Define if global actions should be displayed.
+ * If only per-user delete actions are selected, we should not display the global action
+ */
+const showAction = computed((): boolean => {
+	if (props.action.values.length === 0) return true;
+	let deleteBatchActions = 0;
+	for (const cid of props.action.values) {
+		if (props.action.userAction && props.action.userAction[cid] === "delete")
+			deleteBatchActions++;
 	}
 
-	/**
-	 * Build user trigger source list
-	 */
-	public get userSourceOptions():{key:string, labelKey:string}[] {
-		const res:{key:string, labelKey:string}[] = [
-			//Add static sources "sender" and "everyone"
-			{labelKey:"triggers.actions.value.user_source_sender", key:VALUE_EDIT_SOURCE_SENDER},
-			{labelKey:"triggers.actions.value.user_source_everyone", key:VALUE_EDIT_SOURCE_EVERYONE},
-			{labelKey:"triggers.actions.value.user_source_chatters", key:VALUE_EDIT_SOURCE_CHATTERS},
-		];
+	return deleteBatchActions < props.action.values.length;
+});
 
-		//Add command's placeholders
-		if(this.triggerData.chatCommandParams) {
-			this.triggerData.chatCommandParams.forEach(v=> {
-				res.push({labelKey:"triggers.actions.value.user_source_placeholder", key:v.tag});
-			});
-		}
+/**
+ * Build user trigger source list
+ */
+const userSourceOptions = computed((): TwitchatDataTypes.ParameterDataListValue<string>[] => {
+	const res: TwitchatDataTypes.ParameterDataListValue<string>[] = [
+		//Add static sources "sender" and "everyone"
+		{
+			label: t("triggers.actions.value.user_source_sender"),
+			value: VALUE_EDIT_SOURCE_SENDER,
+		},
+		{
+			label: t("triggers.actions.value.user_source_everyone"),
+			value: VALUE_EDIT_SOURCE_EVERYONE,
+		},
+		{
+			label: t("triggers.actions.value.user_source_chatters"),
+			value: VALUE_EDIT_SOURCE_CHATTERS,
+		},
+	];
 
-		//Add global placeholders that may contain a user name
-		this.userPLaceholders.filter(v=>v.tag.indexOf(VALUE_PLACEHOLDER_PREFIX)==-1).forEach(v=> {
-			res.push({labelKey:"triggers.actions.value.user_source_placeholder", key:v.tag});
+	//Add placeholders that may contain a user name (chat command params included)
+	res.push(
+		...TriggerUtils.getPlaceholderGroupedListValues(
+			userPLaceholders.value.filter((v) => v.tag.indexOf(VALUE_PLACEHOLDER_PREFIX) == -1),
+		),
+	);
+	return res;
+});
+
+/**
+ * Get value data of any per-user value added to the selection
+ */
+const selectedPerUserValue = computed((): TwitchatDataTypes.ValueData[] => {
+	return storeValues.valueList.filter(
+		(v) => v.perUser === true && props.action.values.findIndex((v2) => v2 === v.id) > -1,
+	);
+});
+
+useTriggerActionPlaceholders(props.action, props.triggerData, onPlaceholderUpdate);
+
+onBeforeMount(() => {
+	param_userAction.value.listValues = [
+		{ value: "update", labelKey: "triggers.actions.value.action_update" },
+		{ value: "delete", labelKey: "triggers.actions.value.action_delete" },
+	];
+	//If trigger is related to a value event (looped, maxed, mined) remove it
+	//from the editable value to avoid infinite loop
+	const values: TwitchatDataTypes.ParameterDataListValue<string>[] = storeValues.valueList
+		.map((v) => {
+			return { value: v.id, label: v.name };
 		})
-		return res;
-	}
-
-	/**
-	 * Get value data of any per-user value added to the selection
-	 */
-	public get selectedPerUserValue():TwitchatDataTypes.ValueData[] {
-		return this.$store.values.valueList
-		.filter(v=>v.perUser === true && this.action.values.findIndex(v2=>v2 === v.id) > -1);
-	}
-
-
-	public beforeMount(): void {
-		if(this.action.interpretMaths === undefined) this.action.interpretMaths = true;
-
-		typeof this.action["userAction"]
-		this.param_userAction.listValues = [
-			{value:"update", labelKey:"triggers.actions.value.action_update"},
-			{value:"delete", labelKey:"triggers.actions.value.action_delete"},
-		];
-		//If trigger is related to a value event (looped, maxed, mined) remove it
-		//from the editable value to avoid infinite loop
-		const values:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store.values.valueList.map(v=>{
-			return {value:v.id, label:v.name};
-		}).filter(v=> {
-			return v.value != this.triggerData.valueId
+		.filter((v) => {
+			return v.value != props.triggerData.valueId;
 		});
 
-		//Init value's list if necessary
-		if(!this.action.values) this.action.values = [];
-		if(!this.action.newValue) this.action.newValue = "";
-
-		//Check if selected values still exists
-		for (let i = 0; i < this.action.values.length; i++) {
-			const cid = this.action.values[i];
-			if(values.findIndex(v=>v.value == cid) === -1) {
-				//Value not found, user probably remove it
-				this.action.values.splice(i,1);
-				i--;
-			}
-		}
-
-		this.param_values.listValues = values;
-
-		watch(()=>this.selectedPerUserValue, ()=> this.updatePerUserValueSources());
-		this.updatePerUserValueSources();
-	}
-
-	/**
-	 * Initialize the "valueUserSources" data property if not
-	 * existing yet and set "SENDER" default value
-	 */
-	private updatePerUserValueSources():void {
-		//Init per-user value sources if necessary
-		for (const c of this.selectedPerUserValue) {
-			if(!this.action.valueUserSources) {
-				this.action.valueUserSources = {};
-			}
-			if(!this.action.userAction) {
-				this.action.userAction = {};
-			}
-			if(!this.action.valueUserSources[c.id]) {
-				this.action.valueUserSources[c.id] = VALUE_EDIT_SOURCE_SENDER;
-			}
-			if(!this.action.userAction[c.id]) {
-				this.action.userAction[c.id] = "update";
-			}
+	//Check if selected values still exists
+	for (let i = 0; i < props.action.values.length; i++) {
+		const cid = props.action.values[i];
+		if (values.findIndex((v) => v.value == cid) === -1) {
+			//Value not found, user probably remove it
+			props.action.values.splice(i, 1);
+			i--;
 		}
 	}
 
-	/**
-	 * Called when the available placeholder list is updated
-	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.userPLaceholders = list;
-		this.param_value.placeholderList = list;
-	}
+	param_values.value.listValues = values;
 
+	updatePerUserValueSources();
+});
+
+/**
+ * Initialize the "valueUserSources" data property if not
+ * existing yet and set "SENDER" default value
+ */
+function updatePerUserValueSources(): void {
+	//Init per-user value sources if necessary
+	for (const c of selectedPerUserValue.value) {
+		if (!props.action.valueUserSources) {
+			props.action.valueUserSources = {};
+		}
+		if (!props.action.userAction) {
+			props.action.userAction = {};
+		}
+		if (!props.action.valueUserSources[c.id]) {
+			props.action.valueUserSources[c.id] = VALUE_EDIT_SOURCE_SENDER;
+		}
+		if (!props.action.userAction[c.id]) {
+			props.action.userAction[c.id] = "update";
+		}
+	}
 }
-export default toNative(TriggerActionValueEntry);
+
+/**
+ * Called when the available placeholder list is updated
+ */
+function onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
+	userPLaceholders.value = list;
+	param_value.value.placeholderList = list;
+}
+
+watch(
+	() => selectedPerUserValue.value,
+	() => updatePerUserValueSources(),
+);
 </script>
 
 <style scoped lang="less">
-.triggeractionvalueentry{
+.triggeractionvalueentry {
 	.itemSelector {
 		flex-grow: 1;
 		flex-basis: 300px;
@@ -228,14 +290,14 @@ export default toNative(TriggerActionValueEntry);
 	}
 
 	.valueList {
-		gap: .25em;
+		gap: 0.25em;
 		display: flex;
 		flex-direction: column;
 		.head {
-			margin-bottom: .25em;
+			margin-bottom: 0.25em;
 			.icon {
 				height: 1em;
-				margin-right: .5em;
+				margin-right: 0.5em;
 			}
 		}
 		.card-item {
@@ -243,13 +305,14 @@ export default toNative(TriggerActionValueEntry);
 			flex-direction: row;
 			align-items: center;
 			flex-wrap: wrap;
-			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+			box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
 			.name {
 				font-weight: bold;
 				flex-grow: 1;
 			}
-			select{
-				width: 100%;//Allows proper auto size
+			select,
+			.searchableselect {
+				width: 100%; //Allows proper auto size
 				flex-grow: 1;
 				max-width: 300px;
 				flex-basis: 300px;

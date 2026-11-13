@@ -1,34 +1,30 @@
 import { JSFXRSoundPreset } from "@/types/jsfxr";
 import SetTimeoutWorker from "./SetTimeoutWorker";
+import type { AutocompletableString } from "@/typeUtils";
 
 /**
-* Created : 31/07/2025 
-*/
+ * Created : 31/07/2025
+ */
 export default class SFXRUtils {
-
-	private static _instance:SFXRUtils;
+	private static _instance: SFXRUtils;
 	private static _scriptsLoaded: boolean = false;
 	private static _loadingPromise: Promise<void> | null = null;
-	
-	constructor() {
-	
-	}
-	
+
+	constructor() {}
+
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	static get instance():SFXRUtils {
-		if(!SFXRUtils._instance) {
+	 * GETTER / SETTERS *
+	 ********************/
+	static get instance(): SFXRUtils {
+		if (!SFXRUtils._instance) {
 			SFXRUtils._instance = new SFXRUtils();
 		}
 		return SFXRUtils._instance;
 	}
-	
-	
-	
+
 	/******************
-	* PUBLIC METHODS *
-	******************/
+	 * PUBLIC METHODS *
+	 ******************/
 
 	/**
 	 * Dynamically loads the required JSFXR and RiffWave scripts
@@ -44,7 +40,7 @@ export default class SFXRUtils {
 		}
 
 		SFXRUtils._loadingPromise = new Promise<void>((resolve, reject) => {
-			const scriptsToLoad = ['/riffwave.js', '/jsfxr.js'];
+			const scriptsToLoad = ["/riffwave.js", "/jsfxr.js"];
 			let loadedCount = 0;
 			let hasError = false;
 
@@ -65,16 +61,16 @@ export default class SFXRUtils {
 				}
 			};
 
-			scriptsToLoad.forEach(src => {
+			scriptsToLoad.forEach((src) => {
 				// Check if script is already loaded
 				if (document.querySelector(`script[src="${src}"]`)) {
 					onScriptLoad();
 					return;
 				}
 
-				const script = document.createElement('script');
+				const script = document.createElement("script");
 				script.src = src;
-				script.type = 'text/javascript';
+				script.type = "text/javascript";
 				script.onload = onScriptLoad;
 				script.onerror = onScriptError;
 				document.head.appendChild(script);
@@ -86,46 +82,47 @@ export default class SFXRUtils {
 
 	/**
 	 * Plays a SFXR sound from a stringified JSON object or encoded string
-	 * @param data 
+	 * @param data
 	 * @param volume 0-100
-	 * @returns 
+	 * @returns
 	 */
-	public static async playSFXRFromString(data:Exclude<typeof JSFXRSoundPreset[number], "custom"> | string, volume:number = 100, autoLoadScripts:boolean = true): Promise<{completePromise:Promise<boolean>, audio:AudioBufferSourceNode | null}> {
-		if(autoLoadScripts) {
-			console.log("Preloading JSFXR scripts before playing sound");
+	public static async playSFXRFromString(
+		data: Exclude<(typeof JSFXRSoundPreset)[number], "custom"> | AutocompletableString,
+		volume: number = 100,
+		autoLoadScripts: boolean = true,
+	): Promise<{ completePromise: Promise<boolean>; audio: AudioBufferSourceNode | null }> {
+		if (autoLoadScripts) {
 			try {
 				// Ensure scripts are loaded before proceeding
 				await SFXRUtils.loadScripts();
 			} catch (error) {
-				console.error('Failed to load JSFXR scripts:', error);
-				return { 
-					completePromise: Promise.resolve(false), 
-					audio: null 
+				console.error("Failed to load JSFXR scripts:", error);
+				return {
+					completePromise: Promise.resolve(false),
+					audio: null,
 				};
 			}
 		}
 
 		let duration_s = 0;
-		let audio!: AudioBufferSourceNode
+		let audio!: AudioBufferSourceNode;
 
-		if(JSFXRSoundPreset.includes(data as typeof JSFXRSoundPreset[number])) {
-			console.log("Playing SFXR sound from preset:", data);
-			const params = window.jsfxr.sfxr.generate(data as typeof JSFXRSoundPreset[number]);
-			params.sound_vol = (params.sound_vol ||.25) * volume / 100;
+		if (JSFXRSoundPreset.includes(data as (typeof JSFXRSoundPreset)[number])) {
+			const params = window.jsfxr.sfxr.generate(data as (typeof JSFXRSoundPreset)[number]);
+			params.sound_vol = ((params.sound_vol || 0.25) * volume) / 100;
 			audio = window.jsfxr.sfxr.play(params);
 			duration_s = audio.buffer?.duration || 0.1;
-		}else{
-			console.log("Playing SFXR sound from string data:", data);
+		} else {
 			let parsed = "";
 			// If a sharable URL is given, extract the sound data
-			if(data.indexOf("http") === 0) {
+			if (data.indexOf("http") === 0) {
 				parsed = data.split("#")[1]!;
 			}
-			if(!parsed) {
+			if (!parsed) {
 				// Check if it's a JSON string and parse it
 				try {
 					parsed = JSON.parse(data);
-				}catch(e) {
+				} catch (_e) {
 					// Not a JSON string, assume it's an encoded string
 					parsed = data;
 				}
@@ -135,13 +132,16 @@ export default class SFXRUtils {
 				sound.setVolume(volume / 100);
 				audio = sound.play();
 				duration_s = audio.buffer?.duration || 0.1;
-			}catch(e) {
+			} catch (e) {
 				console.error(e);
 			}
 		}
-		const promise = duration_s == 0? Promise.resolve<boolean>(false) : new Promise<boolean>((resolve, reject)=>{
-			SetTimeoutWorker.instance.create(()=>resolve(true), duration_s * 1000);
-		});
+		const promise =
+			duration_s == 0
+				? Promise.resolve<boolean>(false)
+				: new Promise<boolean>((resolve, _reject) => {
+						SetTimeoutWorker.instance.create(() => resolve(true), duration_s * 1000);
+					});
 
 		return { completePromise: promise, audio };
 	}
@@ -154,9 +154,8 @@ export default class SFXRUtils {
 	public static async preloadScripts(): Promise<void> {
 		return SFXRUtils.loadScripts();
 	}
-	
-	
+
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 }
