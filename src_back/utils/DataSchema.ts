@@ -661,6 +661,7 @@ const UserDataSchema = {
 								recordChapterName: { type: "string", maxLength: 100 },
 								sendAsBody: { type: "boolean" },
 								customHeaders: { type: "boolean" },
+								stopOnError: { type: "boolean" },
 								interpretMaths: { type: "boolean" },
 								hotKeyAction: { type: "string", maxLength: 100 },
 								screenshotImgMode: { enum: ["save", "get"] },

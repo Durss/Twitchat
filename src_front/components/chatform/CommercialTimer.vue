@@ -100,7 +100,7 @@ function refreshTimer(): void {
 		isAdRunning.value = true;
 		startDate = infos.nextAdStart_at + infos.currentAdDuration_ms;
 	} else //Check if an ad is coming in less than "maxSchedule"" minutes
-	 if (infos.nextAdStart_at > 0 && infos.nextAdStart_at - Date.now() < maxSchedule) {
+	if (infos.nextAdStart_at > 0 && infos.nextAdStart_at - Date.now() < maxSchedule) {
 		isAdComing.value = true;
 		startDate = infos.nextAdStart_at;
 	}

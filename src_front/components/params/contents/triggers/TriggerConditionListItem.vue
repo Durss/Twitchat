@@ -155,6 +155,7 @@ import {
 	COUNTDOWN_PLACEHOLDER_PREFIX,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
 import Utils from "@/utils/Utils";
 import {
 	computed,
@@ -207,7 +208,7 @@ const param_placeholder = ref<TwitchatDataTypes.ParameterData<string, string>>({
 });
 const param_placeholder_list = ref<
 	TwitchatDataTypes.ParameterData<string, string, void, void, ITriggerPlaceholder<string>>
->({ type: "list", value: "" });
+>({ type: "list", value: "", searchable: true });
 const param_operator = ref<
 	TwitchatDataTypes.ParameterData<TriggerConditionOperator, TriggerConditionOperator>
 >({ type: "list", value: ">" });
@@ -267,10 +268,10 @@ const showCaseSensitiveToggle = computed((): boolean => {
 const selectedPlaceholder = computed(
 	(): ConditionListValues<string, ITriggerPlaceholder<string>> | undefined => {
 		if (forceCustomPlaceholder.value) return undefined;
-		const list = param_placeholder_list.value.listValues as
-			| ConditionListValues<string, ITriggerPlaceholder<string>>[]
-			| undefined;
-		return list?.find((v) => v.value === props.condition.placeholder);
+		const list = (param_placeholder_list.value.listValues || []).flatMap(
+			(v) => v.group ?? [v],
+		) as ConditionListValues<string, ITriggerPlaceholder<string>>[];
+		return list.find((v) => v.value === props.condition.placeholder);
 	},
 );
 
@@ -415,6 +416,7 @@ function buildSourceList(): void {
 					label: t("triggers.condition.placeholder_cmd_param", {
 						NAME: "{" + v.tag.toUpperCase() + "}",
 					}),
+					secondaryLabel: "{" + v.tag.toUpperCase() + "}",
 				});
 			});
 		}
@@ -455,6 +457,7 @@ function buildSourceList(): void {
 				}
 				return {
 					label: t(v.descKey, { NAME: name ? '"' + name + '"' : "" }),
+					secondaryLabel: "{" + v.tag.toUpperCase() + "}",
 					value: v.tag.toUpperCase(),
 					fixedValues: v.values,
 					storage: v,
@@ -466,6 +469,7 @@ function buildSourceList(): void {
 		placeholderListLocal = placeholders.map((v) => {
 			return {
 				label: t(v.descKey, v.descReplacedValues ?? {}),
+				secondaryLabel: "{" + v.tag.toUpperCase() + "}",
 				value: v.tag.toUpperCase(),
 				fixedValues: v.values,
 				storage: v,
@@ -473,8 +477,14 @@ function buildSourceList(): void {
 		});
 	}
 
+	//Group entries by category. Chat command params have no placeholder data,
+	//they're related to the trigger
+	const listValues = TriggerUtils.groupListValuesByCategory(placeholderListLocal, (v) =>
+		v.storage ? TriggerUtils.getPlaceholderCategory(v.storage) : "_trigger_",
+	);
+
 	//Add custom placeholder for devs
-	placeholderListLocal.push({
+	listValues.push({
 		labelKey: "triggers.condition.custom_value",
 		value: CUSTOM_CONDITION_PLACEHOLDER,
 	});
@@ -483,15 +493,16 @@ function buildSourceList(): void {
 	//random one in case it's been deleted or I fuck up something in the futur
 	if (
 		props.condition.placeholder != "" &&
+		props.condition.placeholder != CUSTOM_CONDITION_PLACEHOLDER &&
 		placeholderListLocal.findIndex((v) => v.value == props.condition.placeholder) == -1
 	) {
-		placeholderListLocal.push({
+		listValues.push({
 			label: props.condition.placeholder,
 			value: props.condition.placeholder,
 		});
 	}
 
-	param_placeholder_list.value.listValues = placeholderListLocal;
+	param_placeholder_list.value.listValues = listValues;
 	param_placeholder.value.placeholderList = placeholders.concat();
 	param_value.value.placeholderList = placeholders.concat();
 	//Wait for list to render and update its internal "selectedListValue" value.

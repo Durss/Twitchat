@@ -43,9 +43,7 @@
 			<Icon name="bingo" alt="bingo" class="icon" theme="light" />
 			<h1>{{ t("tips.bingo.title") }}</h1>
 			<div>{{ t("tips.bingo.info_1") }}</div>
-			<TTButton primary light @click="openModal('bingo')">{{
-				t("tips.tryBt")
-			}}</TTButton>
+			<TTButton primary light @click="openModal('bingo')">{{ t("tips.tryBt") }}</TTButton>
 		</div>
 
 		<div v-if="tipIndex === 4" class="entry">
@@ -53,9 +51,7 @@
 			<h1>{{ t("tips.raffle.title") }}</h1>
 			<div>{{ t("tips.raffle.info_1") }}</div>
 			<div>{{ t("tips.raffle.info_2") }}</div>
-			<TTButton primary light @click="openModal('raffle')">{{
-				t("tips.tryBt")
-			}}</TTButton>
+			<TTButton primary light @click="openModal('raffle')">{{ t("tips.tryBt") }}</TTButton>
 		</div>
 
 		<div v-if="tipIndex === 5" class="entry">
@@ -278,4 +274,3 @@ function onRightClick(e: MouseEvent): void {
 	}
 }
 </style>
-

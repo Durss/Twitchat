@@ -183,14 +183,9 @@ export const storeTiltify = defineStore("tiltify", {
 		},
 
 		async loadInfos(): Promise<{ user: TiltifyUser; campaigns: TiltifyCampaign[] }> {
-			const infos = await ApiHelper.call(
-				"tiltify/info",
-				"GET",
-				undefined,
-				false,
-				0,
-				{ "X-Tiltify-Token": this.token!.access_token },
-			);
+			const infos = await ApiHelper.call("tiltify/info", "GET", undefined, false, 0, {
+				"X-Tiltify-Token": this.token!.access_token,
+			});
 			this.campaignList = infos.json.campaigns;
 			this.user = infos.json.user;
 			StoreProxy.donationGoals.broadcastData();

@@ -352,7 +352,14 @@
 				<slot name="composite" />
 			</div>
 
-			<div v-if="paramData.type == 'list' && paramData.multiple !== true" class="holder list">
+			<div
+				v-if="
+					paramData.type == 'list' &&
+					paramData.multiple !== true &&
+					paramData.searchable !== true
+				"
+				class="holder list"
+			>
 				<Icon
 					theme="secondary"
 					class="helpIcon"
@@ -394,6 +401,42 @@
 						</component>
 					</template>
 				</select>
+				<slot name="composite" />
+			</div>
+
+			<div
+				v-if="
+					paramData.type == 'list' &&
+					paramData.multiple !== true &&
+					paramData.searchable === true
+				"
+				class="holder list"
+			>
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
+				/>
+
+				<label :for="'searchablelist' + key" v-html="label" v-tooltip="tooltip"></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
+				<SearchableSelect
+					v-else-if="!paramData.noInput"
+					class="listField"
+					:inputId="'searchablelist' + key"
+					:placeholder="placeholder"
+					:options="paramData.listValues || []"
+					:disabled="readonly"
+					v-model="paramData.value"
+					@update:modelValue="onEdit()"
+				/>
 				<slot name="composite" />
 			</div>
 
@@ -738,6 +781,7 @@ import Slider from "../Slider.vue";
 import TTButton from "../TTButton.vue";
 import ToggleButton from "../ToggleButton.vue";
 import PlaceholderSelector from "./PlaceholderSelector.vue";
+import SearchableSelect from "./SearchableSelect.vue";
 import Config from "@/utils/Config";
 import PlaceholderField from "../PlaceholderField.vue";
 import TextInputWithHighlights from "../TextInputWithHighlights.vue";
@@ -1561,7 +1605,9 @@ onMounted(() => {
 			}
 		}
 		if (!found) {
-			props.paramData.value = props.paramData.listValues[0]!.value;
+			//If the first entry is a group, take its first entry
+			const first = props.paramData.listValues[0]!;
+			props.paramData.value = (first.group?.[0] ?? first).value;
 		}
 		updateSelectedListValue();
 	}

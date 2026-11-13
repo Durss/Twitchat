@@ -3014,6 +3014,7 @@ export default class TriggerActionHandler {
 						});
 						log.error = true;
 						logStep.error = true;
+						this.emptyActionOutputPlaceholders(step, dynamicPlaceholders, logStep);
 					} else {
 						let sourceName = step.sourceName;
 						if (
@@ -3797,6 +3798,11 @@ export default class TriggerActionHandler {
 								});
 								log.error = true;
 								logStep.error = true;
+								this.emptyActionOutputPlaceholders(
+									step,
+									dynamicPlaceholders,
+									logStep,
+								);
 							} else {
 								const size: { imageWidth?: number; imageHeight?: number } = {};
 								if (step.screenshotImgCustomSize) {
@@ -4374,7 +4380,6 @@ export default class TriggerActionHandler {
 						value: '✔ Starting "' + data.mode + '" raffle',
 					});
 					void StoreProxy.raffle.startRaffle(data);
-					console.log(step.raffleData.triggerWaitForWinner);
 					if (step.raffleData.triggerWaitForWinner === true) {
 						logStep.messages.push({
 							date: Date.now(),
@@ -4898,6 +4903,8 @@ export default class TriggerActionHandler {
 					}
 				} else //Handle http call trigger action
 				if (step.type == "http") {
+					let queryFailed = false;
+					let outputPopulated = false;
 					const headers: { [key: string]: string } = {};
 					const options: RequestInit = { method: step.method, headers };
 					let body: { [key: string]: string } = {};
@@ -4929,6 +4936,7 @@ export default class TriggerActionHandler {
 
 					let urlSrc = step.url;
 					if ((urlSrc || "").trim().length <= 2) {
+						queryFailed = true;
 						log.error = true;
 						logStep.error = true;
 						logStep.messages.push({
@@ -5008,6 +5016,7 @@ export default class TriggerActionHandler {
 									dynamicPlaceholders[step.outputPlaceholder] = text;
 								}
 							} else {
+								queryFailed = true;
 								log.error = true;
 								logStep.error = true;
 								logStep.messages.push({
@@ -5027,10 +5036,12 @@ export default class TriggerActionHandler {
 									});
 									dynamicPlaceholders[step.outputPlaceholder] =
 										"⚠️HTTP ERROR " + res.status + "⚠️";
+									outputPopulated = true;
 								}
 							}
 						} catch (error) {
 							console.error(error);
+							queryFailed = true;
 							log.error = true;
 							logStep.error = true;
 							logStep.messages.push({
@@ -5039,8 +5050,32 @@ export default class TriggerActionHandler {
 							});
 						}
 					}
+
+					//Populate output placeholder with an empty string so it's not
+					//displayed as is (ex: "{PLACEHOLDER}") on the next actions
+					if (queryFailed && !outputPopulated && step.outputPlaceholder) {
+						logStep.messages.push({
+							date: Date.now(),
+							value: "Store empty string to placeholder: " + step.outputPlaceholder,
+						});
+						dynamicPlaceholders[step.outputPlaceholder] = "";
+					}
+
+					if (queryFailed && step.stopOnError !== false) {
+						logStep.messages.push({
+							date: Date.now(),
+							value: "Stop trigger execution because the HTTP call failed",
+						});
+						logStep.messages.push({
+							date: Date.now(),
+							value: "✔ Step execution complete",
+						});
+						break;
+					}
 				} else //Handle JSON extract trigger action
 				if (step.type == "json_extract") {
+					let parseFailed = false;
+					const populatedPlaceholders = new Set<string>();
 					if (
 						!step.jsonExtractData.sourcePlaceholder ||
 						step.jsonExtractData.sourcePlaceholder.trim().length === 0
@@ -5076,6 +5111,7 @@ export default class TriggerActionHandler {
 							try {
 								json = JSON.parse(jsonContent);
 							} catch (error) {
+								parseFailed = true;
 								log.error = true;
 								logStep.error = true;
 								logStep.messages.push({
@@ -5133,6 +5169,7 @@ export default class TriggerActionHandler {
 													result,
 											});
 											dynamicPlaceholders[ph.placeholder] = result;
+											populatedPlaceholders.add(ph.placeholder);
 										}
 									}
 								}
@@ -5146,6 +5183,30 @@ export default class TriggerActionHandler {
 								value: "JSON extract failed. Error: " + error,
 							});
 						}
+					}
+
+					//Populate placeholders that couldn't be extracted with an empty string
+					//so they're not displayed as is (ex: "{PLACEHOLDER}") on the next actions
+					for (const ph of step.jsonExtractData.outputPlaceholderList || []) {
+						if (!ph?.placeholder || populatedPlaceholders.has(ph.placeholder)) continue;
+						logStep.messages.push({
+							date: Date.now(),
+							value: "Store empty string to placeholder {" + ph.placeholder + "}",
+						});
+						dynamicPlaceholders[ph.placeholder] = "";
+						populatedPlaceholders.add(ph.placeholder);
+					}
+
+					if (parseFailed && step.stopOnError !== false) {
+						logStep.messages.push({
+							date: Date.now(),
+							value: "Stop trigger execution because JSON parsing failed",
+						});
+						logStep.messages.push({
+							date: Date.now(),
+							value: "✔ Step execution complete",
+						});
+						break;
 					}
 				} else //Handle WS message trigger action
 				if (step.type == "ws") {
@@ -6055,7 +6116,6 @@ export default class TriggerActionHandler {
 								src: min,
 								subEvent,
 							});
-							console.log("min", min, parsedMin);
 							min = parseFloat(parsedMin.replace(/,/g, "."));
 							logStep.messages.push({
 								date: Date.now(),
@@ -6071,7 +6131,6 @@ export default class TriggerActionHandler {
 								src: max,
 								subEvent,
 							});
-							console.log("max", max, parsedMax);
 							max = parseFloat(parsedMax.replace(/,/g, "."));
 							logStep.messages.push({
 								date: Date.now(),
@@ -6340,6 +6399,7 @@ export default class TriggerActionHandler {
 							logStep.messages.push({ date: Date.now(), value: logMessage });
 							log.error = true;
 							logStep.error = true;
+							this.emptyActionOutputPlaceholders(step, dynamicPlaceholders, logStep);
 						}
 					}
 				} else //Handle stream info update trigger action
@@ -7954,6 +8014,7 @@ export default class TriggerActionHandler {
 						});
 						log.error = true;
 						logStep.error = true;
+						this.emptyActionOutputPlaceholders(step, dynamicPlaceholders, logStep);
 					} else if (!step.groqData) {
 						logStep.messages.push({
 							date: Date.now(),
@@ -7992,6 +8053,7 @@ export default class TriggerActionHandler {
 							});
 							log.error = true;
 							logStep.error = true;
+							this.emptyActionOutputPlaceholders(step, dynamicPlaceholders, logStep);
 						} else {
 							if (step.groqData?.outputPlaceholder) {
 								logStep.messages.push({
@@ -8565,6 +8627,11 @@ export default class TriggerActionHandler {
 									});
 									log.error = true;
 									logStep.error = true;
+									this.emptyActionOutputPlaceholders(
+										step,
+										dynamicPlaceholders,
+										logStep,
+									);
 								} else {
 									const postList = await StoreProxy.bluesky.getLatestPosts();
 									if (postList === false) {
@@ -8574,6 +8641,11 @@ export default class TriggerActionHandler {
 										});
 										log.error = true;
 										logStep.error = true;
+										this.emptyActionOutputPlaceholders(
+											step,
+											dynamicPlaceholders,
+											logStep,
+										);
 									} else if (postList.length == 0) {
 										logStep.messages.push({
 											date: Date.now(),
@@ -8775,12 +8847,44 @@ export default class TriggerActionHandler {
 				});
 				log.criticalError = true;
 				logStep.error = true;
+				this.emptyActionOutputPlaceholders(step, dynamicPlaceholders, logStep);
 			}
 			logStep.messages.push({ date: Date.now(), value: "✔ Step execution complete" });
 		}
 
 		// console.log("Steps parsed", actions);
 		return true;
+	}
+
+	/**
+	 * Fills all the placeholders the action can create to empty to avoid showing
+	 * the placeholder's name in plain text (i.e "{PLACEHOLDER}").
+	 * Call when an action failed.
+	 * Placeholders already filled are not emptied
+	 */
+	private emptyActionOutputPlaceholders(
+		step: TriggerActionDataTypes.TriggerActionTypes,
+		dynamicPlaceholders: { [key: string]: string | number },
+		logStep: LogTriggerStep,
+	): void {
+		const outputs = TriggerUtils.getActionOutputPlaceholders(step);
+		if (outputs.length === 0) return;
+
+		const alreadySet = new Set<string>();
+		for (const key in dynamicPlaceholders) {
+			if (dynamicPlaceholders[key] !== undefined) alreadySet.add(key.toUpperCase());
+		}
+
+		for (const placeholder of outputs) {
+			const tag = placeholder.tag.toUpperCase();
+			if (alreadySet.has(tag)) continue;
+			alreadySet.add(tag);
+			dynamicPlaceholders[tag] = "";
+			logStep.messages.push({
+				date: Date.now(),
+				value: "Store empty string to placeholder {" + tag + "}",
+			});
+		}
 	}
 
 	/**

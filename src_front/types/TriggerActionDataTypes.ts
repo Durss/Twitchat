@@ -1286,6 +1286,11 @@ export interface TriggerActionHTTPCallData extends TriggerActionData {
 	 * Custom body value
 	 */
 	customBody?: string;
+	/**
+	 * If true, the trigger stops if query fails
+	 * undefined = true
+	 */
+	stopOnError?: boolean;
 }
 
 export interface TriggerActionWSData extends TriggerActionData {
@@ -1928,6 +1933,11 @@ export interface TriggerActionJSONExtractData extends TriggerActionData {
 		 */
 		outputPlaceholderList?: IHttpPlaceholder[];
 	};
+	/**
+	 * If true, the trigger stops if JSON parsing fails
+	 * undefined = true
+	 */
+	stopOnError?: boolean;
 }
 
 /**

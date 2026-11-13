@@ -49,10 +49,7 @@
 
 			<div v-if="isTip" class="card-item primary tip">
 				<div class="header">
-					<ClearButton
-						:aria-label="t('chat.closeBt_aria')"
-						@click="deleteMessage()"
-					/>
+					<ClearButton :aria-label="t('chat.closeBt_aria')" @click="deleteMessage()" />
 					<div class="title">{{ t("tips.title") }}</div>
 				</div>
 				<ChatTipAndTrickAd class="content" />
@@ -60,10 +57,7 @@
 
 			<div v-if="isDiscord" class="card-item primary discord">
 				<div class="header">
-					<ClearButton
-						:aria-label="t('chat.closeBt_aria')"
-						@click="deleteMessage()"
-					/>
+					<ClearButton :aria-label="t('chat.closeBt_aria')" @click="deleteMessage()" />
 					<div class="title">{{ t("chat.discord.title") }}</div>
 				</div>
 				<div class="content">
@@ -117,10 +111,7 @@
 
 			<div v-if="isSponsorPublicPrompt" class="card-item primary sponsorPrompt">
 				<div class="header">
-					<ClearButton
-						:aria-label="t('chat.closeBt_aria')"
-						@click="deleteMessage()"
-					/>
+					<ClearButton :aria-label="t('chat.closeBt_aria')" @click="deleteMessage()" />
 					<div class="title">{{ t("chat.donor.title") }}</div>
 				</div>
 				<div class="content">

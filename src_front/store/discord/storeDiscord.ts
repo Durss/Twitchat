@@ -199,11 +199,7 @@ export const storeDiscord = defineStore("discord", {
 			const now = Date.now();
 			const t = StoreProxy.i18n.t;
 			let message = "";
-			for (
-				let i = messages.length - 1;
-				i >= Math.max(0, messages.length - 5000);
-				i--
-			) {
+			for (let i = messages.length - 1; i >= Math.max(0, messages.length - 5000); i--) {
 				const m = messages[i]!;
 				if (now - m.date > 2 * 60 * 60_000) break;
 				let labelCode = "";
@@ -226,10 +222,7 @@ export const storeDiscord = defineStore("discord", {
 						params.MESSAGE_ANSWERED = m.directlyAnswersTo.message;
 					}
 				}
-				if (
-					m.type == TwitchatDataTypes.TwitchatMessageType.REWARD &&
-					m.user.id == uid
-				) {
+				if (m.type == TwitchatDataTypes.TwitchatMessageType.REWARD && m.user.id == uid) {
 					labelCode = "redeem";
 					params.REWARD = m.reward.title;
 					if (m.message) {
@@ -237,16 +230,10 @@ export const storeDiscord = defineStore("discord", {
 						params.MESSAGE = m.message;
 					}
 				}
-				if (
-					m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING &&
-					m.user.id == uid
-				) {
+				if (m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING && m.user.id == uid) {
 					labelCode = "follow";
 				}
-				if (
-					m.type == TwitchatDataTypes.TwitchatMessageType.CHEER &&
-					m.user.id == uid
-				) {
+				if (m.type == TwitchatDataTypes.TwitchatMessageType.CHEER && m.user.id == uid) {
 					labelCode = "cheer";
 					params.BITS = m.bits.toString();
 					if (m.message) {

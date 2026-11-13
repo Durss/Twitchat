@@ -87,8 +87,7 @@
 								onChangeListItem(index);
 							"
 							v-model="action.list[index]"
-							>{{ item }}</textarea
-						>
+							>{{ item }}</textarea>
 					</div>
 				</div>
 			</div>

@@ -532,20 +532,22 @@
 				"protocol_error": "Due to browser security restrictions, only 127.0.0.1 or localhost domains can be called with HTTP protocol. Use HTTPS for other domains.",
 				"send_as_body": "Send parameters selected below in the body as JSON\n(otherwise they're sent as query URL)",
 				"custom_headers": "Custom headers",
+				"stop_on_error": "Stop the trigger if the query fails",
+				"stop_on_error_tt": "If disabled, the next actions are executed and the output placeholder contains \"⚠️HTTP ERROR xxx⚠️\" if the server responded with an error (xxx being the response status code), or is empty otherwise",
 				"add_headerBt": "Add header",
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect to a websocket server",
 				"topic_description": "Custom value",
 				"payload_description": "Custom JSON body",
 				"extract_data": "Extract query result data to placeholders",
-				"extract_data_type_text": "Text",
-				"extract_data_type_json": "JSON",
 				"extract_data_jsonpath": "JSON path (ex: $)",
 				"extract_data_placeholder": "Placeholder name...",
 				"add_placeholder_bt": "Add placeholder"
 			},
 			"json_extract": {
-				"source_placeholder": "Source placeholder containing JSON data"
+				"source_placeholder": "Source placeholder containing JSON data",
+				"stop_on_error": "Stop the trigger if JSON parsing fails",
+				"stop_on_error_tt": "If disabled, the next actions are executed but the placeholders to extract are left empty"
 			},
 			"prompt": {
 				"info": "This action will open a window asking you to fill the values you defined below. The trigger's execution is put on hold until you submit them.",
@@ -599,8 +601,7 @@
 				"user_action_title": "Select action to perform for this per-user counter: | Select action to perform for those per-user counters:",
 				"user_source_sender": "User calling the trigger",
 				"user_source_everyone": "All entries",
-				"user_source_chatters": "All users on chat",
-				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
+				"user_source_chatters": "All users on chat"
 			},
 			"value": {
 				"value_label": "New value",
@@ -614,8 +615,7 @@
 				"user_action_title": "Select action to perform for this per-user Value: | Select action to perform for those per-user Values:",
 				"user_source_sender": "User calling the trigger",
 				"user_source_everyone": "All entries",
-				"user_source_chatters": "All users on chat",
-				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
+				"user_source_chatters": "All users on chat"
 			},
 			"label": {
 				"info": "Update the content of a Label overlay. Only labels associated with value \"@:overlay.labels.placeholders.TRIGGER{''}\" or set in HTML mode can be controlled. Manage your labels on the {LABELS} section.",
@@ -1157,16 +1157,16 @@
 			"companion_keys_list": "All keys typed by the viewer (JSON array)",
 			"companion_keys_anonymous": "Is the viewer anonymous?",
 			"clip_url": "Clip URL",
-			"timer_id": "{NAME} Timer ID",
-			"timer_paused": "{NAME} Timer paused ?",
-			"timer_duration_ms": "{NAME} Timer duration in milliseconds",
-			"timer_duration_formatted": "{NAME} Timer duration formatted",
-			"countdown_remaining_ms": "{NAME} Countdown remaining time in milliseconds",
-			"countdown_remaining_formatted": "{NAME} Countdown remaining time formatted",
-			"countdown_duration_ms": "{NAME} Countdown duration in milliseconds",
-			"countdown_duration_formatted": "{NAME} Countdown duration formatted",
-			"countdown_realDuration_ms": "{NAME} Elapsed duration in milliseconds",
-			"countdown_realDuration_formatted": "{NAME} Elapsed duration formatted",
+			"timer_id": "{NAME} - Timer ID",
+			"timer_paused": "{NAME} - Timer paused ?",
+			"timer_duration_ms": "{NAME} - Timer duration in milliseconds",
+			"timer_duration_formatted": "{NAME} - Timer duration formatted",
+			"countdown_remaining_ms": "{NAME} - Countdown remaining time in milliseconds",
+			"countdown_remaining_formatted": "{NAME} - Countdown remaining time formatted",
+			"countdown_duration_ms": "{NAME} - Countdown duration in milliseconds",
+			"countdown_duration_formatted": "{NAME} - Countdown duration formatted",
+			"countdown_realDuration_ms": "{NAME} - Elapsed duration in milliseconds",
+			"countdown_realDuration_formatted": "{NAME} - Elapsed duration formatted",
 			"goxlr_button_id": "Id of the button",
 			"goxlr_fader_index": "Fader index (1 -> 4)",
 			"goxlr_preset_index": "Preset index (1 -> 6)",

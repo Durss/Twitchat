@@ -211,4 +211,3 @@ export default class SSEHelper extends EventDispatcher {
 		}
 	}
 }
-

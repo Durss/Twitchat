@@ -472,12 +472,12 @@ type Key2ParamMap = Omit<
 	}
 	.iconField {
 		:deep(.listField) {
-			max-width: 100px;
+			max-width: 80px;
 		}
 	}
 	.colField {
 		:deep(select) {
-			max-width: 100px;
+			max-width: 80px;
 		}
 	}
 	.addBt {

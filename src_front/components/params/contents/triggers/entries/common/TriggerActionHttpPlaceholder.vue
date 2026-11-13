@@ -1,18 +1,14 @@
 <template>
 	<div class="triggeractionhttpplaceholder">
 		<div class="card-item placeholderList">
-			<p icon="add">{{ $t("triggers.actions.http_ws.extract_data") }}</p>
-			<div v-for="(item, index) in placeholderList" class="item">
-				<!-- <select v-model="item.type">
-					<option value="text">{{ $t("triggers.actions.http_ws.extract_data_type_text") }}</option>
-					<option value="json">{{ $t("triggers.actions.http_ws.extract_data_type_json") }}</option>
-				</select> -->
+			<p icon="add">{{ t("triggers.actions.http_ws.extract_data") }}</p>
+			<div v-for="(item, index) in props.placeholderList" class="item">
 				<div class="jsonpath" v-if="item.type == 'json'">
 					<input
 						type="text"
 						maxlength="500"
 						v-model="item.path"
-						:placeholder="$t('triggers.actions.http_ws.extract_data_jsonpath')"
+						:placeholder="t('triggers.actions.http_ws.extract_data_jsonpath')"
 					/>
 					<TTButton
 						class="helpBt"
@@ -39,8 +35,8 @@
 			<TTButton
 				icon="add"
 				@click="addOutputPlaceholder"
-				v-if="(placeholderList || []).length < 50"
-				>{{ $t("triggers.actions.http_ws.add_placeholder_bt") }}</TTButton
+				v-if="(props.placeholderList || []).length < 50"
+				>{{ t("triggers.actions.http_ws.add_placeholder_bt") }}</TTButton
 			>
 		</div>
 
@@ -49,13 +45,13 @@
 			class="card-item info"
 			tag="div"
 			keypath="triggers.actions.common.custom_placeholder_example"
-			v-if="placeholderList && placeholderList.length > 0"
+			v-if="props.placeholderList && props.placeholderList.length > 0"
 		>
 			<template #PLACEHOLDER>
-				<template v-for="(p, index) in placeholderList">
+				<template v-for="(p, index) in props.placeholderList">
 					<mark v-click2Select>{{ "{" + p.placeholder.toUpperCase() + "}" }}</mark>
-					<template v-if="index < placeholderList.length - 1">{{
-						$t("global.or")
+					<template v-if="index < props.placeholderList.length - 1">{{
+						t("global.or")
 					}}</template>
 				</template>
 			</template>
@@ -63,58 +59,49 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import PlaceholderField from "@/components/PlaceholderField.vue";
 import TTButton from "@/components/TTButton.vue";
 import type { IHttpPlaceholder } from "@/types/TriggerActionDataTypes";
-import { toNative, Component, Vue, Prop } from "vue-facing-decorator";
-import ContentEditable from "@/components/ContentEditable.vue";
-import PlaceholderField from "@/components/PlaceholderField.vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		TTButton,
-		ContentEditable,
-		PlaceholderField,
-	},
-	emits: [],
-})
-class TriggerActionHttpPlaceholder extends Vue {
-	@Prop({ required: true, type: Object, default: [] })
-	public placeholderList: IHttpPlaceholder[] = [];
+const props = defineProps<{
+	placeholderList: IHttpPlaceholder[];
+}>();
 
-	/**
-	 * Check if given item has a duplicate placeholder
-	 * @param item
-	 */
-	public isDuplicate(item: IHttpPlaceholder): boolean {
-		for (const entry of this.placeholderList) {
-			if (entry === item) continue;
-			if (entry.placeholder.toUpperCase().trim() === item.placeholder.toUpperCase().trim())
-				return true;
-		}
+const { t } = useI18n();
 
-		return false;
+/**
+ * Check if given item has a duplicate placeholder
+ * @param item
+ */
+function isDuplicate(item: IHttpPlaceholder): boolean {
+	for (const entry of props.placeholderList) {
+		if (entry === item) continue;
+		if (entry.placeholder.toUpperCase().trim() === item.placeholder.toUpperCase().trim())
+			return true;
 	}
 
-	/**
-	 * Creates an output placeholder
-	 */
-	public addOutputPlaceholder(): void {
-		this.placeholderList.push({
-			type: "json",
-			path: "",
-			placeholder: "",
-		});
-	}
-
-	/**
-	 * Deletes an output placeholder
-	 */
-	public removeOutputPlacholder(index: number): void {
-		this.placeholderList.splice(index, 1);
-	}
+	return false;
 }
-export default toNative(TriggerActionHttpPlaceholder);
+
+/**
+ * Creates an output placeholder
+ */
+function addOutputPlaceholder(): void {
+	props.placeholderList.push({
+		type: "json",
+		path: "",
+		placeholder: "",
+	});
+}
+
+/**
+ * Deletes an output placeholder
+ */
+function removeOutputPlacholder(index: number): void {
+	props.placeholderList.splice(index, 1);
+}
 </script>
 
 <style scoped lang="less">

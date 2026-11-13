@@ -1199,4 +1199,3 @@ function updateEmoji(): void {
 	}
 }
 </style>
-

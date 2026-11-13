@@ -1,6 +1,10 @@
 <template>
 	<div class="triggeractioncustombadge triggerActionForm">
-		<ParamItem :paramData="param_userSource" v-model="props.action.customBadgeUserSource" />
+		<ParamItem
+			class="sourceField"
+			:paramData="param_userSource"
+			v-model="props.action.customBadgeUserSource"
+		/>
 
 		<div class="card-item">
 			<div class="list" v-if="storeUsers.customBadgeList.length > 0">
@@ -132,6 +136,7 @@ import {
 	type TriggerData,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import draggable from "vuedraggable";
@@ -147,6 +152,7 @@ const storeUsers = useStoreUsers();
 const param_userSource = ref<TwitchatDataTypes.ParameterData<string, string>>({
 	type: "list",
 	value: "",
+	searchable: true,
 	labelKey: "triggers.actions.customBadge.param_user",
 });
 const badgesAdd = ref<TwitchatDataTypes.TwitchatCustomUserBadge[]>([]);
@@ -174,29 +180,13 @@ const userSourceOptions = computed((): TwitchatDataTypes.ParameterDataListValue<
 		},
 	];
 
-	//Add command's placeholders
-	if (props.triggerData.chatCommandParams) {
-		props.triggerData.chatCommandParams.forEach((v) => {
-			res.push({
-				label: t("triggers.actions.count.user_source_placeholder", {
-					PLACEHOLDER: v.tag.toUpperCase(),
-				}),
-				value: v.tag,
-			});
-		});
-	}
-
-	//Add global placeholders that may contain a user name
-	userPLaceholders.value
-		.filter((v) => v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) == -1)
-		.forEach((v) => {
-			res.push({
-				label: t("triggers.actions.count.user_source_placeholder", {
-					PLACEHOLDER: v.tag.toUpperCase(),
-				}),
-				value: v.tag,
-			});
-		});
+	res.push(
+		...TriggerUtils.getPlaceholderGroupedListValues(
+			userPLaceholders.value.filter(
+				(v) => v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) == -1,
+			),
+		),
+	);
 	return res;
 });
 
@@ -274,6 +264,14 @@ function onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
 
 <style scoped lang="less">
 .triggeractioncustombadge {
+	.sourceField {
+		:deep(.holder) {
+			flex-direction: column;
+			.listField {
+				flex-basis: auto;
+			}
+		}
+	}
 	.list,
 	.group {
 		gap: 0.5em;

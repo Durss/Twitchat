@@ -532,20 +532,22 @@
 				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour toute autre adresse.",
 				"send_as_body": "Envoyer les paramètres sélectionnés plus bas, en JSON dans le body (sinon ils seront envoyés en paramètres d'URL)",
 				"custom_headers": "Headers personnalisés",
+				"stop_on_error": "Arrêter l'exécution du trigger si la requête échoue",
+				"stop_on_error_tt": "Si désactivé, les actions suivantes sont exécutées et le placeholder de résultat contient \"⚠️HTTP ERROR xxx⚠️\" si le serveur a répondu une erreur (xxx étant le code de statut de la réponse), ou est vide sinon",
 				"add_headerBt": "Ajouter un header",
 				"need_to_connect": "Cette action nécessite de vous {LINK}",
 				"need_to_connect_link": "connecter à un serveur websocket",
 				"topic_description": "Valeur personnalisée",
 				"payload_description": "Body JSON personnalisé",
 				"extract_data": "Extraire des données du résultat de la requête dans des placeholders",
-				"extract_data_type_text": "Texte",
-				"extract_data_type_json": "JSON",
 				"extract_data_jsonpath": "JSON path (ex: $)",
 				"extract_data_placeholder": "Placeholder...",
 				"add_placeholder_bt": "Ajouter un placeholder"
 			},
 			"json_extract": {
-				"source_placeholder": "Placeholder source contenant les données JSON"
+				"source_placeholder": "Placeholder source contenant les données JSON",
+				"stop_on_error": "Arrêter l'exécution du trigger si le JSON est invalide",
+				"stop_on_error_tt": "Si désactivé, les actions suivantes sont exécutées et les placeholders à extraire sont vides"
 			},
 			"prompt": {
 				"info": "Cette action ouvrira une fenêtre pour vous demander de remplir les valeurs définies ci-dessous. L'exécution du trigger est mise en pause jusqu'à ce que vous les validiez.",
@@ -599,8 +601,7 @@
 				"user_action_title": "Sélectionnez l'action à effectuer pour cette personne : | Sélectionnez l'action à effectuer pour ces personnes :",
 				"user_source_sender": "Personne déclenchant le trigger",
 				"user_source_everyone": "Toutes les personnes de ce compteur",
-				"user_source_chatters": "Toutes les personnes connectées au tchat",
-				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
+				"user_source_chatters": "Toutes les personnes connectées au tchat"
 			},
 			"value": {
 				"value_label": "Nouvelle valeur",
@@ -614,8 +615,7 @@
 				"user_action_title": "Sélectionnez l'action à effectuer pour cette personne : | Sélectionnez l'action à effectuer pour ces personnes :",
 				"user_source_sender": "Personne déclenchant le trigger",
 				"user_source_everyone": "Toutes les Valeurs existantes",
-				"user_source_chatters": "Toutes les personnes connectées au tchat",
-				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
+				"user_source_chatters": "Toutes les personnes connectées au tchat"
 			},
 			"label": {
 				"info": "Met à jour le contenu d'un Label. Seuls les labels liés à la valeur \"@:overlay.labels.placeholders.TRIGGER{''}\" ou en mode HTML peuvent être contrôlés. Gérez vos labels dans la section {LABELS}.",
@@ -1159,16 +1159,16 @@
 			"companion_keys_list": "Toutes les touches saisies par le viewer (tableau JSON)",
 			"companion_keys_anonymous": "Le·a viewer est anonyme ?",
 			"clip_url": "URL du clip",
-			"timer_id": "{NAME} ID du minuteur",
-			"timer_paused": "{NAME} Chronomètre mis en pause ?",
-			"timer_duration_ms": "{NAME} Durée du chronomètre en millisecondes",
-			"timer_duration_formatted": "{NAME} Durée du chronomètre formatée",
-			"countdown_remaining_ms": "{NAME} Durée restante du compte à rebours en millisecondes",
-			"countdown_remaining_formatted": "{NAME} Durée restante du compte à rebours formatée",
-			"countdown_duration_ms": "{NAME} Durée du compte à rebours en millisecondes",
-			"countdown_duration_formatted": "{NAME} Durée du compte à rebours formatée",
-			"countdown_realDuration_ms": "{NAME} Durée écoulée en millisecondes",
-			"countdown_realDuration_formatted": "{NAME} Durée écoulée formatée",
+			"timer_id": "{NAME} - ID du minuteur",
+			"timer_paused": "{NAME} - Chronomètre mis en pause ?",
+			"timer_duration_ms": "{NAME} - Durée du chronomètre en millisecondes",
+			"timer_duration_formatted": "{NAME} - Durée du chronomètre formatée",
+			"countdown_remaining_ms": "{NAME} - Durée restante du compte à rebours en millisecondes",
+			"countdown_remaining_formatted": "{NAME} - Durée restante du compte à rebours formatée",
+			"countdown_duration_ms": "{NAME} - Durée du compte à rebours en millisecondes",
+			"countdown_duration_formatted": "{NAME} - Durée du compte à rebours formatée",
+			"countdown_realDuration_ms": "{NAME} - Durée écoulée en millisecondes",
+			"countdown_realDuration_formatted": "{NAME} - Durée écoulée formatée",
 			"goxlr_button_id": "Id du boutton",
 			"goxlr_fader_index": "Index du fader (1 -> 4)",
 			"goxlr_preset_index": "Index du preset actif (0 -> 5)",

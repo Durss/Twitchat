@@ -764,6 +764,10 @@ export namespace TwitchatDataTypes {
 		 */
 		multiple?: boolean;
 		/**
+		 * Render the single entry "list" type as a searchable dropdown.
+		 */
+		searchable?: boolean;
+		/**
 		 * Disable input to only keep title (used for shoutout param)
 		 */
 		noInput?: boolean;
@@ -938,7 +942,10 @@ export namespace TwitchatDataTypes {
 		 * Optional group containing sub entries
 		 */
 		group?: ParameterDataListValue<ValueType, StorageType>[];
-		// [parameter: string]: unknown;
+		/**
+		 * Secondary text displayed small and faded after the label.
+		 */
+		secondaryLabel?: string;
 	}
 
 	/**

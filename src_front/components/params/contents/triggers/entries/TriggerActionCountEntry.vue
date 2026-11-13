@@ -31,14 +31,11 @@
 			</div>
 			<div class="card-item dark" v-for="item in selectedPerUserCounters" :key="item.id">
 				<label :for="'select_' + item.id" class="name">{{ item.name }}</label>
-				<select
-					:id="'select_' + item.id"
+				<SearchableSelect
+					:inputId="'select_' + item.id"
+					:options="userSourceOptions"
 					v-model="props.action.counterUserSources[item.id]"
-				>
-					<option v-for="opt in userSourceOptions" :value="opt.key">
-						{{ t(opt.labelKey, { PLACEHOLDER: opt.key.toUpperCase() }) }}
-					</option>
-				</select>
+				/>
 			</div>
 		</div>
 
@@ -111,6 +108,7 @@
 <script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import ParamItem from "@/components/params/ParamItem.vue";
+import SearchableSelect from "@/components/params/SearchableSelect.vue";
 import { usePlaceDropdown } from "@/composables/usePlaceDropDown";
 import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
 import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
@@ -125,6 +123,7 @@ import {
 	type TriggerData,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
 import { computed, onBeforeMount, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -219,42 +218,30 @@ const selectedPerUserCounters = computed((): TwitchatDataTypes.CounterData[] => 
 /**
  * Build user trigger source list
  */
-const userSourceOptions = computed((): { key: string; labelKey: string }[] => {
-	const res: { key: string; labelKey: string }[] = [
+const userSourceOptions = computed((): TwitchatDataTypes.ParameterDataListValue<string>[] => {
+	const res: TwitchatDataTypes.ParameterDataListValue<string>[] = [
 		//Add static sources "sender" and "everyone"
 		{
-			labelKey: "triggers.actions.count.user_source_sender",
-			key: COUNTER_EDIT_SOURCE_SENDER,
+			label: t("triggers.actions.count.user_source_sender"),
+			value: COUNTER_EDIT_SOURCE_SENDER,
 		},
 		{
-			labelKey: "triggers.actions.count.user_source_everyone",
-			key: COUNTER_EDIT_SOURCE_EVERYONE,
+			label: t("triggers.actions.count.user_source_everyone"),
+			value: COUNTER_EDIT_SOURCE_EVERYONE,
 		},
 		{
-			labelKey: "triggers.actions.count.user_source_chatters",
-			key: COUNTER_EDIT_SOURCE_CHATTERS,
+			label: t("triggers.actions.count.user_source_chatters"),
+			value: COUNTER_EDIT_SOURCE_CHATTERS,
 		},
 	];
 
-	//Add command's placeholders
-	if (props.triggerData.chatCommandParams) {
-		props.triggerData.chatCommandParams.forEach((v) => {
-			res.push({
-				labelKey: "triggers.actions.count.user_source_placeholder",
-				key: v.tag,
-			});
-		});
-	}
-
-	//Add global placeholders that may contain a user name
-	userPLaceholders.value
-		.filter((v) => v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) == -1)
-		.forEach((v) => {
-			res.push({
-				labelKey: "triggers.actions.count.user_source_placeholder",
-				key: v.tag,
-			});
-		});
+	res.push(
+		...TriggerUtils.getPlaceholderGroupedListValues(
+			userPLaceholders.value.filter(
+				(v) => v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) == -1,
+			),
+		),
+	);
 	return res;
 });
 
@@ -408,16 +395,10 @@ watch(
 
 <style scoped lang="less">
 .triggeractioncountentry {
-	.itemSelector {
-		flex-grow: 1;
-		flex-basis: 300px;
-	}
-
 	.list {
 		display: flex;
-		flex-direction: row;
+		flex-direction: column;
 		justify-content: space-between;
-		align-items: center;
 		flex-wrap: wrap;
 		.itemSelector {
 			margin-left: 1.5em;
@@ -460,7 +441,8 @@ watch(
 				font-weight: bold;
 				flex-grow: 1;
 			}
-			select {
+			select,
+			.searchableselect {
 				width: 100%; //Allows proper auto size
 				flex-grow: 1;
 				max-width: 300px;

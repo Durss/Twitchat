@@ -168,8 +168,7 @@ class OverlayPredictions extends AbstractOverlay {
 			this.show =
 				this.parameters.showOnlyResult !== true &&
 				(!this.prediction.pendingAnswer ||
-					(this.prediction.pendingAnswer &&
-						this.parameters.hideUntilResolved === false));
+					(this.prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
 		}
 	}
 }

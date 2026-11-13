@@ -145,6 +145,16 @@ button {
 	}
 }
 
+.v-select:not(.vs--open) {
+	input:not(:first-child) {
+		// Do not just "display:none" it would break "click outside to close" behavior
+		position: absolute;
+		width: 0;
+		opacity: 0;
+		pointer-events: none;
+	}
+}
+
 .vs__dropdown-toggle {
 	.bevel();
 	border: none;
@@ -165,6 +175,9 @@ button {
 		.text:not(:first-child) {
 			margin-left: 0.5em;
 		}
+		.labelSmall {
+			display: none;
+		}
 	}
 	.vs__search {
 		font-size: 1em !important;
@@ -183,57 +196,100 @@ button {
 	color: var(--color-text) !important;
 }
 .vs__dropdown-menu {
-	border-top: 1px solid rgba(0, 0, 0, 0.2) !important;
+	min-width: 80px !important;
+	border-radius: var(--border-radius) !important;
 
 	&::-webkit-scrollbar-thumb {
-		background-color: var(--color-dark);
+		background-color: var(--color-text);
 	}
-}
 
-.vs__selected-options > .vs__search {
-	&::placeholder {
-		font-style: italic;
-		color: var(--color-text-fade);
-	}
-}
-
-.vs__dropdown-option {
-	&.vs__dropdown-option--highlight {
-		background-color: var(--color-secondary);
-		.listIcon {
-			filter: brightness(10);
-		}
-		&.vs__dropdown-option--disabled {
+	body.dark & {
+		background-color: var(--background-color-secondary);
+		.vs__dropdown-option {
 			color: var(--color-light);
 		}
 	}
-	& > .category {
-		font-weight: bold;
-		font-size: 1.2em;
-		color: var(--color-primary);
+
+	.vs__dropdown-option {
+		white-space: normal;
+
+		&.vs__dropdown-option--disabled {
+			background-color: transparent;
+		}
+		&.vs__dropdown-option--selected {
+			background-color: var(--color-secondary-fade);
+		}
+		&.vs__dropdown-option--highlight {
+			background-color: var(--color-secondary);
+			&.vs__dropdown-option--disabled {
+				color: var(--color-light);
+			}
+			.listIcon {
+				filter: brightness(10);
+			}
+			.labelSmall {
+				opacity: 1;
+			}
+		}
+		//Group header (see SearchableSelect)
+		&:has(> .category) {
+			cursor: default;
+			background-color: var(--color-primary);
+		}
+		& > .category {
+			font-size: 0.7em;
+			font-weight: bold;
+			letter-spacing: 0.1em;
+			text-transform: uppercase;
+			color: var(--color-light);
+		}
+		& > .subItem {
+			padding-left: 0.5em;
+			line-height: 0.9em;
+		}
+		.listIcon {
+			height: 1.5em;
+			max-width: 1.5em;
+			padding: 0.25em;
+			margin-right: 0.25em;
+			vertical-align: middle;
+			border-radius: 0.25em;
+		}
+		.image {
+			height: 2.5em;
+			max-width: 2.5em;
+			vertical-align: middle;
+		}
+		.text {
+			font-size: 0.9em;
+			line-height: 0.9em;
+			overflow-wrap: break-word;
+			&:not(:first-child) {
+				margin-left: 0.5em;
+			}
+		}
+		.labelSmall {
+			//Inline-block, the ellipsis doesn't apply to inline elements
+			display: inline-block;
+			max-width: 100%;
+			vertical-align: bottom;
+			margin-left: 0.5em;
+			font-size: 0.7em;
+			opacity: 0.5;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
 	}
-	& > .subItem {
-		padding-left: 1em;
-	}
-	.listIcon {
-		height: 1.5em;
-		max-width: 1.5em;
-		padding: 0.25em;
-		margin-right: 0.25em;
-		vertical-align: middle;
-		border-radius: 0.25em;
-	}
-	.image {
-		height: 2.5em;
-		max-width: 2.5em;
-		vertical-align: middle;
-	}
-	.labelSmall {
-		font-size: 0.8em;
-		font-style: italic;
-		margin-left: 0.5em;
-	}
-	.text:not(:first-child) {
-		margin-left: 0.5em;
+}
+
+.vs__selected-options {
+	overflow: hidden;
+	text-wrap: nowrap;
+	& > .vs__search {
+		&::placeholder {
+			font-style: italic;
+			color: var(--color-text-fade);
+		}
 	}
 }

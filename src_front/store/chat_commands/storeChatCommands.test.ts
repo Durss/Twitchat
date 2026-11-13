@@ -97,7 +97,9 @@ vi.mock("@/utils/Config", () => ({
 	default: { instance: { MAX_CHAT_COMMANDS: 20, MAX_CHAT_COMMANDS_PREMIUM: 500 } },
 }));
 vi.mock("@/utils/toast/toast", () => ({ toast: mocks.toast }));
-vi.mock("@/types/TriggerActionDataTypes", () => ({ TriggerScheduleTypes: { REGULAR_REPEAT: "1" } }));
+vi.mock("@/types/TriggerActionDataTypes", () => ({
+	TriggerScheduleTypes: { REGULAR_REPEAT: "1" },
+}));
 vi.mock("@/types/TwitchatDataTypes", () => ({
 	TwitchatDataTypes: {
 		TwitchatMessageType: { MESSAGE: "message", CHAT_COMMAND_UPDATE: "chat_command_update" },
@@ -231,7 +233,9 @@ describe("chat management", () => {
 	});
 
 	it("refuses a command conflicting with a trigger", async () => {
-		mocks.triggerList = [{ id: "t", type: "7", chatCommand: "!Discord", chatCommandAliases: [] }];
+		mocks.triggerList = [
+			{ id: "t", type: "7", chatCommand: "!Discord", chatCommandAliases: [] },
+		];
 		await send("!command add !discord hello");
 		expect(storeChatCommands().entryList).toHaveLength(0);
 		expect(mocks.sentMessages[0]).toContain("chat_commands.chat.conflict");

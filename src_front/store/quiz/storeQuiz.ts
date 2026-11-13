@@ -1270,4 +1270,3 @@ interface IStoreData {
 	quizList: TwitchatDataTypes.QuizParams[];
 	ephemeralQuiz: TwitchatDataTypes.QuizParams | null;
 }
-

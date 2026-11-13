@@ -262,7 +262,9 @@
 												class="value"
 												noBackground
 												:paramData="item.param"
-												:modelValue="entry.value.users?.[item.user.id]?.value"
+												:modelValue="
+													entry.value.users?.[item.user.id]?.value
+												"
 												@input="onChangeValue(entry, item)"
 											/>
 										</div>
@@ -466,9 +468,7 @@ function onChangeValue(entry: ValueEntry, userEntry?: UserEntry): void {
 	clearTimeout(timeoutEdit);
 	timeoutEdit = window.setTimeout(() => {
 		const param = userEntry ? userEntry.param : entry.param;
-		const value = userEntry
-			? entry.value.users?.[userEntry.user.id]?.value
-			: entry.value.value;
+		const value = userEntry ? entry.value.users?.[userEntry.user.id]?.value : entry.value.value;
 		//Nothing changed, or user has been deleted meanwhile
 		if (value === undefined || param.value === value) return;
 		storeValues.updateValue(entry.value.id, param.value, undefined, userEntry?.user.id);
