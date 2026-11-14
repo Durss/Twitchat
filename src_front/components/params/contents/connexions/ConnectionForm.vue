@@ -8,13 +8,15 @@
 		</div>
 
 		<ParamItem
-			v-if="enableToggle"
+			v-if="enableToggle && !locked"
 			class="enableBt"
 			:paramData="enableParam"
 			v-model="enableParam.value"
 		/>
 
-		<div class="fadeHolder" :style="holderStyles">
+		<slot v-if="locked" name="locked" />
+
+		<div v-else class="fadeHolder" :style="holderStyles">
 			<template v-if="!connected">
 				<div class="card-item form" v-if="$slots.mandatoryFields">
 					<slot name="mandatoryFields" />
@@ -79,6 +81,8 @@
 				<slot name="connected" />
 			</template>
 		</div>
+
+		<slot name="footer" />
 	</div>
 </template>
 
@@ -107,6 +111,11 @@ const props = withDefaults(
 		advancedOpen?: boolean;
 		showIcon?: boolean;
 		showHeader?: boolean;
+		/**
+		 * Hides the enable toggle and the connection form, renders the "locked" slot instead.
+		 * (ex: feature reserved to premium users)
+		 */
+		locked?: boolean;
 	}>(),
 	{
 		connecting: false,
@@ -120,6 +129,7 @@ const props = withDefaults(
 		advancedOpen: false,
 		showIcon: true,
 		showHeader: true,
+		locked: false,
 	},
 );
 

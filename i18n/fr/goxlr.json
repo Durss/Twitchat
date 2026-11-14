@@ -2,10 +2,11 @@
 	"goxlr": {
 		"header": "Contrôlez votre GoXLR depuis Twitchat.\nNécessite {LINK}.",
 		"header_link": "GoXLR-Utility",
+		"download_bt": "Télécharger @:goxlr.header_link",
 		"donate": "🎁 {LINK} pour son énorme travail open-source sur GoXLR-Utility",
 		"donate_link": "Soutenez FrostyCoolSlug",
-		"connecting": "connexion à GoXLR-Utility...",
 		"connect_failed": "Impossible de se connecter à GoXLR-Utility",
+		"connect_failed_hint": "Vérifiez qu'il est installé et lancé.",
 		"no_device": "Aucun périphérique GoXLR n'est détecté par GoXLR-Utility",
 		"triggersBt": "Créer des triggers",
 		"param_chat_col": "Colonne de tchat",
@@ -21,7 +22,6 @@
 			"Vous pourrez aussi faire défiler vos colonnes de tchat et déplacer le marque page depuis les encodeurs."
 		],
 		"connect_form": {
-			"title": "Identifiants de connexion",
 			"ip_security": "Dû à des restrictions de sécurité de la part des navigateurs web, utiliser une IP autre que \"127.0.0.1\" ou \"localhost\" nécessite une connexion sécurisée.\nSi vous souhaitez vous connecter à un PC distant vous devrez utiliser un tunnel https (ex: Ngrok).\n Venez demander de l'aide sur {LINK} si vous ne savez pas comment faire.\n\nSi votre GoXLR est sur cet ordinateur, mettez 127.0.0.1 comme IP.",
 			"ip_security_link": "Discord"
 		}
