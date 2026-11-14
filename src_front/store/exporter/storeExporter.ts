@@ -1,7 +1,8 @@
 import type { StoreActions } from "@/types/pinia-helpers";
-import type { SettingsExportData } from "@/types/TriggerActionDataTypes";
+import { rebuildPlaceholdersCache, type SettingsExportData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
+import { indexUserLogins } from "@/utils/CounterValueUserIndex";
 import Utils from "@/utils/Utils";
 import * as Sentry from "@sentry/vue";
 import { acceptHMRUpdate, defineStore } from "pinia";
@@ -239,8 +240,11 @@ export const storeExporter = defineStore("Exporter", {
 							//Add the new counter
 							counterList.push(c);
 						}
+						indexUserLogins(c.users);
 					});
 					StoreProxy.counters.saveCounters();
+					//Refresh counter overlays, labels and donation goals using them
+					data.counters.forEach((c) => StoreProxy.counters.broadcastCounterValue(c.id));
 				}
 
 				// Import Values
@@ -255,8 +259,11 @@ export const storeExporter = defineStore("Exporter", {
 							//Add the new value
 							valueList.push(v);
 						}
+						indexUserLogins(v.users);
 					});
 					StoreProxy.values.saveValues();
+					//Refresh labels using them
+					StoreProxy.labels.broadcastPlaceholders();
 				}
 
 				// Import Labels
@@ -328,6 +335,8 @@ export const storeExporter = defineStore("Exporter", {
 					attachments: [{ filename: "imported_data.json", data: JSON.stringify(data) }],
 				});
 			}
+
+			rebuildPlaceholdersCache();
 		},
 	} satisfies StoreActions<"Exporter", IExporterState, IExporterGetters, IExporterActions>,
 });
