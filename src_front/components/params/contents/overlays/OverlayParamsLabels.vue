@@ -318,6 +318,7 @@ function initParams(): void {
 			value: "",
 			labelKey: "overlay.labels.param_labelValue",
 			icon: "label",
+			searchable: true,
 		};
 		param_labelValueFont.value[id] = {
 			type: "font",

@@ -207,7 +207,7 @@ onBeforeMount(() => {
 	//from the editable value to avoid infinite loop
 	const values: TwitchatDataTypes.ParameterDataListValue<string>[] = storeValues.valueList
 		.map((v) => {
-			return { value: v.id, label: v.name };
+			return { value: v.id, label: v.name.trim() || v.placeholderKey };
 		})
 		.filter((v) => {
 			return v.value != props.triggerData.valueId;

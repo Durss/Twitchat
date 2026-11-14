@@ -306,7 +306,7 @@ onBeforeMount(() => {
 	//from the editable counter to avoid infinite loop
 	const counters: TwitchatDataTypes.ParameterDataListValue<string>[] = storeCounters.counterList
 		.map((v) => {
-			return { value: v.id, label: `${v.name} {${v.placeholderKey}}` };
+			return { value: v.id, label: v.name.trim() || v.placeholderKey };
 		})
 		.filter((v) => {
 			return v.value != props.triggerData.counterId;
