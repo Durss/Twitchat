@@ -350,7 +350,10 @@ function renderValue(): void {
 		} else {
 			const phRef = placeholders[parameters.placeholder]!;
 			if (phRef.type == "image") {
-				html = '<img src="' + parsePlaceholders("{" + value + "}") + '">';
+				html =
+					'<img src="' +
+					parsePlaceholders("{" + value + "}") +
+					'" style="max-height:100vh; max-width:100vw; object-fit: contain;">';
 			} else {
 				html = parsePlaceholders("{" + value + "}" || "");
 			}
