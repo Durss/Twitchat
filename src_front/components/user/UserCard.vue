@@ -1048,7 +1048,7 @@ function submitCustomLogin(): void {
  * @param badgeId
  */
 function removeCustomBadge(badgeId: string): void {
-	storeUsers.removeCustomBadge(user.value!.id, badgeId, channel.value!.id);
+	storeUsers.removeCustomBadge(user.value!.id, badgeId);
 }
 
 /**

@@ -385,7 +385,7 @@ function deleteBadge(badgeId: string): void {
  */
 function removeBadgeFromUser(badgeId: string, user: TwitchatDataTypes.TwitchatUser): void {
 	const channelId = storeAuth.twitch.user.id;
-	storeUsers.removeCustomBadge(user.id, badgeId, channelId);
+	storeUsers.removeCustomBadge(user.id, badgeId);
 }
 
 /**
