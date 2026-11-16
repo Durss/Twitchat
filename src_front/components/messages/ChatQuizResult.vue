@@ -79,6 +79,7 @@ import { useChatMessage } from "@/composables/useChatMessage";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { escapeHTML } from "@/utils/PlaceholderModifiers";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { computed, nextTick, reactive, ref, useTemplateRef, watch } from "vue";
@@ -213,18 +214,24 @@ async function onExpandLeaderboard() {
 	}, 500);
 }
 
+/**
+ * Highlight search terms in given username.
+ * Escapes HTML to avoid injection
+ */
 function highlightName(name: string | undefined): string | undefined {
 	if (!name) return name;
 	let search = userSearch.value.trim();
-	if (!search) return name;
+	if (!search) return escapeHTML(name);
 	if (RegExp.escape) {
 		search = RegExp.escape(search);
 	} else {
 		// Fallback escape function if RegExp.escape is not available
 		search = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 	}
-	const regex = new RegExp(`(${search})`, "gi");
-	return name.replace(regex, "<mark>$1</mark>");
+	return name
+		.split(new RegExp(`(${search})`, "gi"))
+		.map((part, i) => (i % 2 ? "<mark>" + escapeHTML(part) + "</mark>" : escapeHTML(part)))
+		.join("");
 }
 
 function nextSearchResult() {
