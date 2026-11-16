@@ -74,7 +74,7 @@ export default class TwitchExtensionController extends AbstractController {
 		);
 		this.server.post(
 			"/api/twitch/extension/bingo/states",
-			ebsRoute,
+			{ ...ebsRoute, bodyLimit: BingoGridController.MAX_BODY_SIZE },
 			async (request, response) => await this.postBingoStates(request, response),
 		);
 		this.server.post(

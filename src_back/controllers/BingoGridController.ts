@@ -17,12 +17,30 @@ import TwitchExtensionController from "./TwitchExtensionController.js";
  */
 export default class BingoGridController extends AbstractController {
 	/**
+	 * Body size limit of the bingo routes, instead of the 20MB global one.
+	 * A full 10x10 grid is ~15KB so 100KB should be more than enough.
+	 */
+	public static readonly MAX_BODY_SIZE = 100 * 1024;
+
+	/**
 	 * LRU cache for channel grids with automatic eviction
 	 * Key format: "[channelId]/[gridId]"
 	 */
 	private channelGridsCache = new LRUCache<string, IStreamerGridsCacheData>({
 		max: 500,
 		ttl: 1000 * 60 * 5, // 5 minutes TTL
+		maxSize: 50 * 1024 * 1024,
+		sizeCalculation: (value) => {
+			return value.data.reduce((sum, grid) => {
+				let weight = 200 + (grid.title?.length ?? 0);
+				for (const entry of grid.entries)
+					weight += 100 + entry.id.length + entry.label.length;
+				for (const entry of grid.additionalEntries ?? []) {
+					weight += 100 + entry.id.length + entry.label.length;
+				}
+				return sum + weight;
+			}, 100);
+		},
 	});
 
 	/**
@@ -1056,8 +1074,10 @@ export default class BingoGridController extends AbstractController {
 			"/api/bingogrid",
 			async (request, response) => await this.getBingoGrid(request, response),
 		);
+		const bodyLimit = { bodyLimit: BingoGridController.MAX_BODY_SIZE };
 		this.server.put(
 			"/api/bingogrid",
+			bodyLimit,
 			async (request, response) => await this.streamerGridUpdate(request, response),
 		);
 		this.server.delete(
@@ -1066,6 +1086,7 @@ export default class BingoGridController extends AbstractController {
 		);
 		this.server.post(
 			"/api/bingogrid/tickStates",
+			bodyLimit,
 			async (request, response) => await this.updateTickStates(request, response),
 		);
 		this.server.post(
@@ -1074,6 +1095,7 @@ export default class BingoGridController extends AbstractController {
 		);
 		this.server.post(
 			"/api/bingogrid/shuffle",
+			bodyLimit,
 			async (request, response) => await this.shuffleEntries(request, response),
 		);
 		this.server.post(
@@ -1086,6 +1108,7 @@ export default class BingoGridController extends AbstractController {
 		);
 		this.server.post(
 			"/api/bingogrid/share/tick",
+			bodyLimit,
 			async (request, response) => await this.shareTick(request, response),
 		);
 		this.server.post(
@@ -1367,27 +1390,10 @@ export default class BingoGridController extends AbstractController {
 		const user = await super.twitchUserGuard(request, response, false);
 		if (!user) return;
 
-		const body = request.body as {
-			grid: Omit<IStreamerGridsCacheData["data"][number], "id">;
-			gridid: string;
-		};
-		const gridId: string = body.gridid;
-		const gridRef: IStreamerGridsCacheData["data"][number] = { id: gridId, ...body.grid };
+		const body = (request.body || {}) as { grid?: unknown; gridid?: unknown };
+		const gridId = body.gridid;
 
-		if (!gridRef) {
-			response.header("Content-Type", "application/json");
-			response.status(400);
-			response.send(
-				JSON.stringify({
-					success: false,
-					error: "No grid data provided",
-					errorCode: "NO_DATA",
-				}),
-			);
-			return;
-		}
-
-		if (!gridId || !/^[a-zA-Z0-9_-]+$/.test(gridId)) {
+		if (typeof gridId !== "string" || !/^[a-zA-Z0-9_-]+$/.test(gridId)) {
 			response.header("Content-Type", "application/json");
 			response.status(400);
 			response.send(
@@ -1395,6 +1401,20 @@ export default class BingoGridController extends AbstractController {
 					success: false,
 					error: "Invalid grid ID",
 					errorCode: "INVALID_GRID_ID",
+				}),
+			);
+			return;
+		}
+
+		const gridRef = BingoGridController.sanitizeGrid(body.grid, gridId);
+		if (!gridRef) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Missing or invalid grid data",
+					errorCode: "INVALID_GRID",
 				}),
 			);
 			return;
@@ -1806,6 +1826,61 @@ export default class BingoGridController extends AbstractController {
 		await this.streamerGridUpdate(request, response, true);
 	}
 	/**
+	 * Checks a grid sent by a client and returns a clean copy of it.
+	 * Only the fields the server needs are kept.
+	 * Returns null if the grid is invalid.
+	 * The ID in the grid is ignored, gridId is used instead.
+	 */
+	private static sanitizeGrid(raw: unknown, gridId: string): IGrid | null {
+		if (!raw || typeof raw !== "object") return null;
+		const grid = raw as { [K in keyof IGrid]?: unknown };
+		const max = 10;
+		const isSize = (v: unknown): v is number =>
+			Number.isInteger(v) && (v as number) >= 1 && (v as number) <= max;
+		if (!isSize(grid.cols) || !isSize(grid.rows)) return null;
+
+		const entries = BingoGridController.sanitizeEntries(grid.entries, max * max);
+		if (!entries) return null;
+
+		let additionalEntries: IGrid["entries"] | undefined;
+		if (grid.additionalEntries != undefined) {
+			const sanitized = BingoGridController.sanitizeEntries(grid.additionalEntries);
+			if (!sanitized) return null;
+			additionalEntries = sanitized;
+		}
+
+		return {
+			id: gridId,
+			enabled: grid.enabled === true,
+			title: typeof grid.title === "string" ? grid.title : "",
+			cols: grid.cols,
+			rows: grid.rows,
+			entries,
+			additionalEntries,
+		};
+	}
+
+	private static sanitizeEntries(raw: unknown, maxCount?: number): IGrid["entries"] | null {
+		if (!Array.isArray(raw)) return null;
+		if (maxCount != undefined && raw.length > maxCount) return null;
+		const entries: IGrid["entries"] = [];
+		for (const item of raw) {
+			if (!item || typeof item !== "object") return null;
+			const { id, label, lock, check } = item as {
+				[K in keyof IGrid["entries"][number]]?: unknown;
+			};
+			if (typeof id !== "string" || id.length == 0 || id.length > 100) return null;
+			entries.push({
+				id,
+				label: typeof label === "string" ? label : "",
+				lock: lock === true,
+				check: check === true,
+			});
+		}
+		return entries;
+	}
+
+	/**
 	 * Shuffles a grid items
 	 * @param grid
 	 */
@@ -1839,14 +1914,11 @@ export default class BingoGridController extends AbstractController {
 	 * and additional). Shared by every cache layer that has to mirror a tick.
 	 */
 	private applyStates(grid: IGrid, states: { [cellId: string]: boolean }): void {
-		for (const cellId in states) {
-			const state = states[cellId]!;
-			let entry = grid.entries.find((v) => v.id === cellId);
-			if (entry) entry.check = state;
-			if (grid.additionalEntries) {
-				entry = grid.additionalEntries.find((v) => v.id === cellId);
-				if (entry) entry.check = state;
-			}
+		for (const entry of grid.entries) {
+			if (Object.hasOwn(states, entry.id)) entry.check = states[entry.id]!;
+		}
+		for (const entry of grid.additionalEntries ?? []) {
+			if (Object.hasOwn(states, entry.id)) entry.check = states[entry.id]!;
 		}
 	}
 
@@ -1861,6 +1933,15 @@ export default class BingoGridController extends AbstractController {
 		gridId: string,
 		states: { [cellId: string]: boolean },
 	): Promise<void> {
+		// Validate given data
+		if (!gridId || !/^[a-zA-Z0-9_-]+$/.test(gridId)) throw new Error("Invalid grid ID");
+		if (!states || typeof states !== "object" || Array.isArray(states))
+			throw new Error("Invalid tick states");
+		for (const key in states) {
+			if (typeof (states as Record<string, unknown>)[key] !== "boolean")
+				throw new Error("Invalid tick states");
+		}
+
 		const cache = await this.getChannelGrids(streamerId, gridId);
 		if (!cache) return;
 
