@@ -79,7 +79,7 @@
 		</div>
 
 		<!-- Connected to Patreon -->
-		<template v-else-if="(connected || $store.auth.premiumType == 'patreon') && false">
+		<template v-else-if="connected || $store.auth.premiumType == 'patreon'">
 			<!-- Active Patreon member = Premium -->
 			<template v-if="$store.auth.premiumType == 'patreon'">
 				<div class="card-item premium statusCard">
