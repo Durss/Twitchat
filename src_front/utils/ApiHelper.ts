@@ -517,6 +517,7 @@ type ApiEndpoints = {
 					lifetimePercent: number;
 					discordLinked: boolean;
 					patreonLinked: string;
+					patreonLinkPending?: boolean;
 					dataSharing: string[];
 					dataOwner?: string;
 					has_api_key: boolean;
@@ -641,6 +642,7 @@ type ApiEndpoints = {
 				message?: string;
 				data?: {
 					isMember: boolean;
+					linked?: boolean;
 					memberName: string;
 					memberAvatar: string;
 					memberUrl: string;

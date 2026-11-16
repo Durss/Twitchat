@@ -365,15 +365,31 @@ export default class UserController extends AbstractController {
 		}
 
 		// Is user part of Patreon donors? (with caching)
-		if (premiumType == "") {
-			const [jsonP2T, jsonPMembers] = await Promise.all([
-				this.readCachedJsonFile<{ [key: string]: string }>(Config.twitch2Patreon, {}),
-				this.readCachedJsonFile<PatreonMember[]>(Config.patreonMembers, []),
-			]);
-			const patreonID = jsonP2T[uid];
-			if (patreonID && jsonPMembers.findIndex((v) => v.id === patreonID) > -1) {
+		const jsonP2T = await this.readCachedJsonFile<{ [key: string]: string }>(
+			Config.twitch2Patreon,
+			{},
+		);
+		const patreonID = jsonP2T[uid];
+		if (premiumType == "" && patreonID) {
+			const jsonPMembers = await this.readCachedJsonFile<PatreonMember[]>(
+				Config.patreonMembers,
+				[],
+			);
+			if (jsonPMembers.findIndex((v) => v.id === patreonID) > -1) {
 				premiumType = "patreon";
 			}
+		}
+
+		// if user isn't premium and not yet linked to a patreon member but has connected
+		// with patreon in twitchat. Consider they're pending complete linking with patreon
+		// membership
+		let patreonLinkPending = false;
+		if (premiumType == "" && !patreonID) {
+			const patreonTokens = await this.readCachedJsonFile<Record<string, string>>(
+				Config.twitch2PatreonToken,
+				{},
+			);
+			patreonLinkPending = patreonTokens.hasOwnProperty(uid);
 		}
 
 		// Get users's feature flags
@@ -394,6 +410,7 @@ export default class UserController extends AbstractController {
 			premiumType: PremiumStates;
 			lifetimePercent: number;
 			patreonLinked?: true;
+			patreonLinkPending?: true;
 			discordLinked?: true;
 			features?: Flag[];
 			has_api_key: boolean;
@@ -419,6 +436,10 @@ export default class UserController extends AbstractController {
 
 		if (patreonLinked) {
 			data.patreonLinked = true;
+		}
+
+		if (patreonLinkPending) {
+			data.patreonLinkPending = true;
 		}
 
 		if (features.length > 0) {

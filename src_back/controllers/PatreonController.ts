@@ -342,6 +342,8 @@ export default class PatreonController extends AbstractController {
 					patreonAuth.twitchUser.user_id,
 				);
 				let memberID = "";
+				//True if the twitch account just got linked to the patreon member
+				let linked = false;
 				let memberName =
 					json.data.attributes.first_name + " " + json.data.attributes.last_name;
 				let memberAvatar = json.data.attributes.image_url;
@@ -405,6 +407,7 @@ export default class PatreonController extends AbstractController {
 							//User just became premium, drop any cached state
 							super.clearPremiumCache(uid);
 							void this.notifyUpdateToDonorsService();
+							linked = true;
 						}
 					}
 
@@ -425,7 +428,7 @@ export default class PatreonController extends AbstractController {
 				response.send(
 					JSON.stringify({
 						success: true,
-						data: { isMember, memberName, memberAvatar, memberUrl },
+						data: { isMember, linked, memberName, memberAvatar, memberUrl },
 					}),
 				);
 			}
@@ -455,6 +458,7 @@ export default class PatreonController extends AbstractController {
 				message: "couldn't load campaigns",
 				errorCode: "CAMPAIGN_LOAD_FAILED",
 			});
+			return;
 		}
 		if (!campaign) {
 			campaign = {

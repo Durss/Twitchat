@@ -2895,8 +2895,9 @@ export interface IPatreonActions {
 	completeOAuthFlow(premiumContext?: boolean): Promise<boolean>;
 	/**
 	 * Get the user's data
+	 * @param background true for automatic checks the user didn't ask for
 	 */
-	loadMemberState(): Promise<void>;
+	loadMemberState(background?: boolean): Promise<void>;
 	/**
 	 * Loads user's member list
 	 */

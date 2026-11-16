@@ -7,6 +7,7 @@ import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IPatreonActions, IPatreonGetters, IPatreonState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
+import { toast } from "@/utils/toast/toast";
 
 let refreshTimeout: number = 0;
 let lastMemberListLoad = 0;
@@ -108,7 +109,7 @@ export const storePatreon = defineStore("patreon", {
 				false,
 			);
 			if (!csrf.success) {
-				StoreProxy.common.alert(csrf.message || "Patreon authentication failed");
+				toast(csrf.message || "Patreon authentication failed", { type: "error" });
 			} else {
 				try {
 					await this.authenticate(authParams.code, premiumContext);
@@ -116,7 +117,7 @@ export const storePatreon = defineStore("patreon", {
 					return true;
 				} catch (e: unknown) {
 					console.log(e);
-					StoreProxy.common.alert("Oops... something went wrong");
+					toast("Oops... something went wrong", { type: "error" });
 				}
 			}
 			return false;
@@ -142,12 +143,14 @@ export const storePatreon = defineStore("patreon", {
 
 		/**
 		 * Get the user's data
+		 * @param background true for automatic checks the user didn't ask for.
+		 * No alert is shown and the user's own campaign members aren't loaded.
 		 */
-		async loadMemberState(): Promise<void> {
+		async loadMemberState(background: boolean = false): Promise<void> {
 			const res = await ApiHelper.call("patreon/user/isMember", "GET");
 			if (res.status != 200) {
-				if (res.json.errorCode == "MAX_LINKED_ACCOUNTS") {
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.patreon_max_linked"));
+				if (!background && res.json.errorCode == "MAX_LINKED_ACCOUNTS") {
+					toast(StoreProxy.i18n.t("error.patreon_max_linked"), { type: "error" });
 				}
 			} else {
 				this.connected = true;
@@ -155,10 +158,14 @@ export const storePatreon = defineStore("patreon", {
 				this.userName = res.json.data?.memberName || "";
 				this.userAvatar = res.json.data?.memberAvatar || "";
 				this.userUrl = res.json.data?.memberUrl || "";
+				//Account just got linked to an active member, user is now premium
+				if (res.json.data?.linked === true && StoreProxy.auth.premiumType == "") {
+					StoreProxy.auth.premiumType = "patreon";
+				}
 				if (StoreProxy.auth.isPremium) {
 					StoreProxy.chat.cleanupDonationRelatedMessages();
 				}
-				void this.loadMemberList();
+				if (!background) void this.loadMemberList();
 			}
 		},
 
