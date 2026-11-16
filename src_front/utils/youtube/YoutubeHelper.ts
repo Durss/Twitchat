@@ -1273,9 +1273,11 @@ export default class YoutubeHelper {
 				if (v.index == undefined) return;
 				const sd = "/youtube/emotes/sd/" + this._emotes[key];
 				const hd = "/youtube/emotes/hd/" + this._emotes[key];
+				//matchAll() gives a UTF-16 index, the parser expects code points
+				const begin = TwitchUtils.toCodePointIndex(src, v.index);
 				emoteDefs.push({
-					begin: v.index,
-					end: v.index + key.length - 1,
+					begin,
+					end: begin + Array.from(v[0]).length - 1,
 					id: key,
 					sd,
 					hd,

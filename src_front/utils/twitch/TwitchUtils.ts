@@ -3827,6 +3827,14 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Converts a UTF-16 index to a code point which is what Twitch emote tags use and
+	 * what parseMessageToChunks() requires.
+	 */
+	public static toCodePointIndex(message: string, utf16Index: number): number {
+		return Array.from(message.slice(0, utf16Index)).length;
+	}
+
+	/**
 	 * Splits the message in chunks of type "text", "emote", "cheermote", "url", "highlight" and "user"
 	 */
 	public static parseMessageToChunks(
@@ -3898,9 +3906,11 @@ export default class TwitchUtils {
 							for (let j = 0; j < matches.length; j++) {
 								const start = matches[j]!.index as number;
 								const end = start + e.code.length - 1;
+								const tagStart = TwitchUtils.toCodePointIndex(message, start);
+								const tagEnd = tagStart + Array.from(matches[j]![0]).length - 1;
 								const range = getProtectedRange(fakeTag);
 
-								if (range[start] === true || range[end] === true) continue;
+								if (range[tagStart] === true || range[tagEnd] === true) continue;
 
 								const prevOK =
 									start == 0 || /[^0-9a-z]/i.test(message.charAt(start - 1));
@@ -3911,7 +3921,7 @@ export default class TwitchUtils {
 								//ignore it.
 								if (!prevOK || !nextOK) continue;
 								emoteCount++;
-								tmpTag += start + "-" + end;
+								tmpTag += tagStart + "-" + tagEnd;
 
 								if (j < matches.length - 1) tmpTag += ",";
 							}
@@ -4036,7 +4046,13 @@ export default class TwitchUtils {
 							"/default/light/3.0",
 					});
 				} else if (platform == "youtube") {
-					result.push({ type: "emote", value: code, emote: e.sd, emoteHD: e.hd });
+					//YouTube emote IDs are their code. If a bad position made the slice
+					//land on other text, keep that text as text instead of an emote name
+					if (code.toLowerCase() !== e.id.toLowerCase()) {
+						result.push({ type: "text", value: code });
+					} else {
+						result.push({ type: "emote", value: code, emote: e.sd, emoteHD: e.hd });
+					}
 				}
 				cursor = e.end + 1;
 			}

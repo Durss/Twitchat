@@ -31,17 +31,7 @@
 				(chunk.type == 'emote' || chunk.type == 'cheermote') &&
 				storeParams.appearance.showEmotes.value !== false
 			"
-			v-tooltip="
-				chunk.emoteHD
-					? '<center><img src=' +
-						chunk.emoteHD +
-						' width=\'' +
-						(largeEmote ? 150 : 112) +
-						'\' class=\'emote\'><br>' +
-						chunk.value +
-						'</center>'
-					: ''
-			"
+			v-tooltip="getEmoteTooltip(chunk)"
 		>
 			<img
 				:src="largeEmote ? chunk.emoteHD : chunk.emote"
@@ -67,6 +57,7 @@
 
 <script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { escapeHTML } from "@/utils/PlaceholderModifiers";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap";
 import { computed, type CSSProperties } from "vue";
@@ -127,6 +118,23 @@ const spoiledChunks = computed<TwitchatDataTypes.ParseMessageChunk[]>(() => {
 
 	return chunks;
 });
+
+/**
+ * Tooltips are rendered as HTML (allowHTML is on globally), and the emote
+ * name can come from message text, so every value is escaped
+ */
+function getEmoteTooltip(chunk: TwitchatDataTypes.ParseMessageChunk): string {
+	if (!chunk.emoteHD) return "";
+	return (
+		'<center><img src="' +
+		escapeHTML(chunk.emoteHD) +
+		'" width="' +
+		(props.largeEmote ? 150 : 112) +
+		'" class="emote"><br>' +
+		escapeHTML(chunk.value) +
+		"</center>"
+	);
+}
 
 function copyLink(e: MouseEvent, chunk: TwitchatDataTypes.ParseMessageChunk): void {
 	Utils.copyToClipboard(chunk.value);
