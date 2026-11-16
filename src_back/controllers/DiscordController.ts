@@ -764,6 +764,28 @@ export default class DiscordController extends AbstractController {
 
 		if (!(await this.channelGuard(response, data?.channelId, auth.guild.guildID))) return;
 
+		// Validate message ID and reaction as they endup in the REST URL.
+		const isInvalidMessageId =
+			(data.messageId !== undefined || data.reaction !== undefined) &&
+			!DiscordController.isSnowflake(data.messageId);
+		const isInvalidReaction =
+			data.reaction !== undefined &&
+			(typeof data.reaction !== "string" || ["", ".", ".."].includes(data.reaction));
+		if (isInvalidMessageId || isInvalidReaction) {
+			Logger.warn("[DISCORD] Refused answer with an invalid message ID or reaction");
+			response
+				.header("Content-Type", "application/json")
+				.status(400)
+				.send(
+					JSON.stringify({
+						message: "Invalid message ID or reaction",
+						errorCode: "INVALID_PARAMS",
+						success: false,
+					}),
+				);
+			return;
+		}
+
 		const body: any = { content: params.message };
 		if (data && data.messageId) {
 			body.message_reference = {
@@ -1347,6 +1369,13 @@ export default class DiscordController extends AbstractController {
 	}
 
 	/**
+	 * Discord IDs ("snowflakes") are digits only.
+	 */
+	private static isSnowflake(id: unknown): id is string {
+		return typeof id === "string" && /^\d{1,20}$/.test(id);
+	}
+
+	/**
 	 * Checks if given channel belongs to the given guild
 	 */
 	private async channelGuard(
@@ -1354,9 +1383,10 @@ export default class DiscordController extends AbstractController {
 		channelId: string,
 		guildID: string,
 	): Promise<boolean> {
-		let ownerGuildID = channelId ? this._channelToGuild.get(channelId) : undefined;
+		const isValidId = DiscordController.isSnowflake(channelId);
+		let ownerGuildID = isValidId ? this._channelToGuild.get(channelId) : undefined;
 
-		if (!ownerGuildID && channelId) {
+		if (!ownerGuildID && isValidId) {
 			try {
 				const channel = (await this._rest.get(Routes.channel(channelId))) as {
 					guild_id?: string;
