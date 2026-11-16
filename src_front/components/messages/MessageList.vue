@@ -18,7 +18,12 @@
 			@change="fullListRefresh()"
 		/>
 
-		<div class="messageHolder" ref="chatMessageHolder" @scroll.passive="onHolderScroll">
+		<div
+			class="messageHolder"
+			ref="chatMessageHolder"
+			@scroll.passive="onHolderScroll"
+			@pointerdown="onHolderPointerDown"
+		>
 			<div
 				v-for="m in filteredMessagesDeduped"
 				:key="m.id"
@@ -296,6 +301,7 @@ let scrollUpIndexOffset = -1;
 let holderOffsetY = -1;
 let virtualScrollY = -1;
 let currentScrollTop = 0;
+let mousePressedOnHolder = false;
 let updateDebounce = -1;
 let prevHeight = 0;
 let openConvTimeout: number = -1;
@@ -513,6 +519,9 @@ onBeforeMount(() => {
 		publicApiEventHandler,
 	);
 
+	window.addEventListener("pointerup", onPointerRelease);
+	window.addEventListener("pointercancel", onPointerRelease);
+
 	fullListRefresh();
 	rebuildChannelIdsHashmap();
 
@@ -522,6 +531,9 @@ onBeforeMount(() => {
 
 onBeforeUnmount(() => {
 	disposed = true;
+
+	window.removeEventListener("pointerup", onPointerRelease);
+	window.removeEventListener("pointercancel", onPointerRelease);
 
 	EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, addMessageHandler);
 	EventBus.instance.removeEventListener(GlobalEvent.DELETE_MESSAGE, deleteMessageHandler);
@@ -1633,8 +1645,8 @@ function onScroll(amount: number, event?: WheelEvent): void {
 }
 
 /**
- * Called when scrolling the list from the scroll thumb or keyboard.
- * Allows to disengage from the continuous auto scrolldown
+ * Called when the list scrolls.
+ * Allows to disengage from the continuous auto scrolldown with the scrollbar
  */
 function onHolderScroll(): void {
 	const el = chatMessageHolder.value;
@@ -1642,10 +1654,23 @@ function onHolderScroll(): void {
 	const scrollTop = el.scrollTop;
 	const movedUp = scrollTop < currentScrollTop - 1;
 	currentScrollTop = scrollTop;
+	// avoids pausing chat if sroll isn't user initiated
+	if (!mousePressedOnHolder) return;
 	if (props.lightMode || lockScroll.value || !movedUp) return;
 	if (el.scrollHeight - el.offsetHeight - scrollTop < 2) return;
 
 	lockScroll.value = true;
+}
+
+/**
+ * Pressing the holder itself mostly means pressing its scrollbar
+ */
+function onHolderPointerDown(event: PointerEvent): void {
+	if (event.target === event.currentTarget) mousePressedOnHolder = true;
+}
+
+function onPointerRelease(): void {
+	mousePressedOnHolder = false;
 }
 
 /**
