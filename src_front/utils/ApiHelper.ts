@@ -485,18 +485,6 @@ type ApiEndpoints = {
 			response: ServerConfig;
 		};
 	};
-	"spotify/auth": {
-		GET: {
-			parameters: void;
-			response: void;
-		};
-	};
-	"spotify/refresh_token": {
-		GET: {
-			parameters: void;
-			response: void;
-		};
-	};
 	"ulule/project": {
 		GET: {
 			parameters: {

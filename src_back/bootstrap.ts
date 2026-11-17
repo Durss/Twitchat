@@ -21,7 +21,6 @@ import PaypalController from "./controllers/PaypalController.js";
 import QuizController from "./controllers/QuizController.js";
 import RemoteModController from "./controllers/RemoteModController.js";
 import SSEController from "./controllers/SSEController.js";
-import SpotifyController from "./controllers/SpotifyController.js";
 import StreamelementsController from "./controllers/StreamelementsController.js";
 import StreamlabsController from "./controllers/StreamlabsController.js";
 import TiltifyController from "./controllers/TiltifyController.js";
@@ -142,7 +141,6 @@ new FileServeController(server).initialize().catch(bootError("FileServeControlle
 new BlueskyController(server).initialize().catch(bootError("BlueskyController"));
 new AuthController(server).initialize().catch(bootError("AuthController"));
 new DonorController(server).initialize().catch(bootError("DonorController"));
-new SpotifyController(server).initialize().catch(bootError("SpotifyController"));
 new AdminController(server).initialize().catch(bootError("AdminController"));
 new UluleController(server).initialize().catch(bootError("UluleController"));
 new PatreonController(server).initialize().catch(bootError("PatreonController"));
