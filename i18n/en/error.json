@@ -94,7 +94,7 @@
 		"youtube_no_broadcast": "Selected account is not allowed to live stream on YouTube.\nMake sure you connected with the right account!",
 		"youtube_no_credits": "All API credits allocated by YouTube have been used :(.\nYouTube will work again tomorrow.",
 		"youtube_chat_off": "Chat is not enabled on the selected YouTube live broadcast",
-		"youtube_chat_ended": "YouTube broadcast has ended. Open parameters => YouTube section to connect to a new live session.",
+		"youtube_chat_ended": "YouTube broadcast has ended. Twitchat will automatically connect to your next live.",
 		"youtube_chat_not_found": "Requested YouTube broadcast does not exist anymore.",
 		"youtube_unknown": "An unexpected error occured when requesting data from YouTube :(",
 		"youtube_connect": "An unexpected error occured when connecting with YouTube :(",

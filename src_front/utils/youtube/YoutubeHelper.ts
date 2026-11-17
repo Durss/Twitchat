@@ -15,6 +15,7 @@ import Utils from "../Utils";
 import TwitchUtils from "../twitch/TwitchUtils";
 import { type YoutubeScopesString } from "./YoutubeScopes";
 import StickerList from "./sticker_list.json";
+import { toast } from "../toast/toast";
 
 /**
  * Created : 28/11/2023
@@ -35,6 +36,8 @@ export default class YoutubeHelper {
 	private _lastMessageDate: number = -1;
 	private _lastMessageDelay: number = -1;
 	private _pollMessageTimeout: number = -1;
+	private _pollLiveTimeout: number = -1;
+	private _pollingMessages: boolean = false;
 	private _pollFollowersTimeout: number = -1;
 	private _pollSubscribersTimeout: number = -1;
 	private _refreshTimeout: number = -1;
@@ -43,6 +46,12 @@ export default class YoutubeHelper {
 	private _uidToBanID: { [key: string]: string } = {};
 	private _lastFollowerList: { [key: string]: boolean } = {};
 	private _liveIdToChanId: { [liveId: string]: string } = {};
+	/**
+	 * Live chats we've been connected to at some point.
+	 * The background check never connects to these by itself so a chat that got closed
+	 * after repeated errors, or that the user unselected, isn't forced back.
+	 */
+	private _knownLiveChatIds: { [liveId: string]: boolean } = {};
 	private _consecutiveApiFails: number = 0;
 	private _viewerCountInterval: number = -1;
 	private _giftBombs: { [giftId: string]: TwitchatDataTypes.MessageYoutubeSubgiftData } = {};
@@ -258,10 +267,17 @@ export default class YoutubeHelper {
 
 	/**
 	 * Get the current live broadcast
+	 *
+	 * @param isBackgroundCheck	true when called by the automatic check, false when requested by the user
 	 */
-	public async getCurrentLiveBroadcast(): Promise<YoutubeLiveBroadcast | null> {
+	public async getCurrentLiveBroadcast(
+		isBackgroundCheck: boolean = false,
+	): Promise<YoutubeLiveBroadcast | null> {
 		if (!this.connected.value) return null;
-		clearTimeout(this._pollMessageTimeout);
+		clearTimeout(this._pollLiveTimeout);
+		//Whatever happens below, the background check must keep going
+		//unless YouTube says there's no point trying again
+		let keepChecking = true;
 
 		this._creditsUsed++;
 		Logger.instance.log("youtube", {
@@ -354,16 +370,30 @@ export default class YoutubeHelper {
 					this._liveIdToChanId[v.snippet.liveChatId] = v.snippet.channelId;
 				});
 
-				//Get first item corresponding to a live running or coming.
+				//Get items corresponding to a live running or coming.
 				//Prioritise items with higher "live" status meaning
-				let item = items.find((v) => v.status.lifeCycleStatus == "live");
-				if (!item) item = items.find((v) => v.status.lifeCycleStatus == "liveStarting");
-				if (!item) item = items.find((v) => v.status.lifeCycleStatus == "ready");
-				if (!item) item = items.find((v) => v.status.lifeCycleStatus == "testing");
-				if (!item) item = items.find((v) => v.status.lifeCycleStatus == "testStarting");
+				const statusPriority: string[] = [
+					"live",
+					"liveStarting",
+					"ready",
+					"testing",
+					"testStarting",
+				];
+				const selectable = items
+					.filter((v) => statusPriority.includes(v.status.lifeCycleStatus))
+					.sort(
+						(a, b) =>
+							statusPriority.indexOf(a.status.lifeCycleStatus) -
+							statusPriority.indexOf(b.status.lifeCycleStatus),
+					);
+				//Background check only connects to lives it never connected to before
+				const item = selectable.find(
+					(v) => !isBackgroundCheck || !this._knownLiveChatIds[v.snippet.liveChatId],
+				);
 				if (item) {
 					const liveId = item.snippet.liveChatId;
 					this.liveFound = true;
+					this._knownLiveChatIds[liveId] = true;
 					if (this.currentLiveChatIds.value.indexOf(liveId) == -1) {
 						this.currentLiveChatIds.value.push(liveId);
 					}
@@ -395,6 +425,15 @@ export default class YoutubeHelper {
 						void this.refreshViewerCount();
 					}, 1000 * 60);
 					void this.refreshViewerCount();
+				} else if (selectable.length > 0) {
+					//Only lives whose chat got closed or unselected remain.
+					//Keep them listed so they can still be selected manually
+					Logger.instance.log("youtube", {
+						log: "No new live found",
+						credits: this._creditsUsed,
+						liveID: this.currentLiveChatIds.value,
+					});
+					this.availableLiveBroadcasts.value = items;
 				} else {
 					Logger.instance.log("youtube", {
 						log: "No live found matching required criterias",
@@ -404,11 +443,6 @@ export default class YoutubeHelper {
 					this.liveFound = false;
 					this.currentLiveChatIds.value = [];
 					this.availableLiveBroadcasts.value = [];
-					//Search again in 1min
-					this._pollMessageTimeout = window.setTimeout(
-						() => this.getCurrentLiveBroadcast(),
-						5000,
-					);
 				}
 				return json;
 			} else {
@@ -422,7 +456,7 @@ export default class YoutubeHelper {
 					});
 					if (await this.refreshToken()) {
 						await Utils.promisedTimeout(1000);
-						return this.getCurrentLiveBroadcast();
+						return this.getCurrentLiveBroadcast(isBackgroundCheck);
 					}
 				} else if (res.status == 403) {
 					try {
@@ -438,16 +472,21 @@ export default class YoutubeHelper {
 							liveID: this.currentLiveChatIds.value,
 						});
 						if (reason === "liveStreamingNotEnabled") {
-							StoreProxy.common.alert(
-								StoreProxy.i18n.t("error.youtube_no_broadcast"),
-							);
+							keepChecking = false;
+							toast(StoreProxy.i18n.t("error.youtube_no_broadcast"), {
+								type: "error",
+							});
 							return null;
 						}
 						if (reason == "quotaExceeded") {
-							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+							keepChecking = false;
+							toast(StoreProxy.i18n.t("error.youtube_no_credits"), { type: "error" });
 							return null;
 						}
-						StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_unknown"));
+						//Background check tries again by itself, don't spam the user
+						if (!isBackgroundCheck) {
+							toast(StoreProxy.i18n.t("error.youtube_unknown"), { type: "error" });
+						}
 					} catch (_error) {
 						Logger.instance.log("youtube", {
 							log:
@@ -460,9 +499,27 @@ export default class YoutubeHelper {
 						});
 					}
 					return null;
+				} else {
+					//Youtube API has random downs (404, 503, ...)
+					Logger.instance.log("youtube", {
+						log: "Failed loading current live broadcast (status: " + res.status + ")",
+						error: txt,
+						credits: this._creditsUsed,
+						liveID: this.currentLiveChatIds.value,
+					});
 				}
 			}
-		} catch (_error) {}
+		} catch (error) {
+			//Network error
+			Logger.instance.log("youtube", {
+				log: "Failed loading current live broadcast",
+				error: String(error),
+				credits: this._creditsUsed,
+				liveID: this.currentLiveChatIds.value,
+			});
+		} finally {
+			if (keepChecking) this.scheduleLiveCheck();
+		}
 		return null;
 	}
 
@@ -523,9 +580,26 @@ export default class YoutubeHelper {
 	 * Get latest messages of current live stream
 	 */
 	public async getMessages(): Promise<void> {
+		if (!this.connected.value) {
+			clearTimeout(this._pollMessageTimeout);
+			return;
+		}
+		//A poll is already running, it schedules the next one by itself.
+		//Running 2 in parallel would duplicate messages
+		if (this._pollingMessages) return;
 		clearTimeout(this._pollMessageTimeout);
-		if (!this.connected.value) return;
+		this._pollingMessages = true;
+		try {
+			await this.pollMessages();
+		} finally {
+			this._pollingMessages = false;
+		}
+	}
 
+	/**
+	 * Loads new messages of all connected lives and schedules next poll
+	 */
+	private async pollMessages(): Promise<void> {
 		// Cleanup live that do not exist anymore
 		for (let i = this.currentLiveChatIds.value.length - 1; i >= 0; i--) {
 			const liveId = this.currentLiveChatIds.value[i];
@@ -542,6 +616,7 @@ export default class YoutubeHelper {
 		for (let i = 0; i < this.currentLiveChatIds.value.length; i++) {
 			const liveId = this.currentLiveChatIds.value[i]!;
 			const pageToken = this._lastMessagePage[liveId]!;
+			this._knownLiveChatIds[liveId] = true;
 			if (!this.currentLiveChatIds.value) {
 				Logger.instance.log("youtube", {
 					log: "Tried to get messages but missing live broadcast ID.",
@@ -651,9 +726,12 @@ export default class YoutubeHelper {
 							if (errorCode == "backendError") {
 								//Just youtube failing
 							}
-							StoreProxy.common.alert(errorReason);
+							toast(errorReason, { type: "error" });
 							this.currentLiveChatIds.value.splice(i, 1);
 							i--;
+							//Start counting from scratch for the next live. Once no chat
+							//remains, background check starts looking for a new live
+							this._consecutiveApiFails = 0;
 						}
 					}
 				}
@@ -767,7 +845,7 @@ export default class YoutubeHelper {
 				if (res.status == 401) {
 					if (!(await this.refreshToken())) return [];
 				} else if (res.status == 403) {
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+					toast(StoreProxy.i18n.t("error.youtube_no_credits"), { type: "error" });
 					return [];
 				}
 			}
@@ -812,7 +890,7 @@ export default class YoutubeHelper {
 				if (res.status == 401) {
 					if (!(await this.refreshToken())) return [];
 				} else if (res.status == 403) {
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+					toast(StoreProxy.i18n.t("error.youtube_no_credits"), { type: "error" });
 					return [];
 				}
 			}
@@ -837,6 +915,7 @@ export default class YoutubeHelper {
 		this.currentLiveChatIds.value = [];
 		this.availableLiveBroadcasts.value = [];
 		clearTimeout(this._pollMessageTimeout);
+		clearTimeout(this._pollLiveTimeout);
 		clearTimeout(this._pollFollowersTimeout);
 		clearTimeout(this._pollSubscribersTimeout);
 		clearTimeout(this._refreshTimeout);
@@ -953,7 +1032,7 @@ export default class YoutubeHelper {
 				credits: this._creditsUsed,
 				liveID: this.currentLiveChatIds.value,
 			});
-			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_api_is_shit_unban"));
+			toast(StoreProxy.i18n.t("error.youtube_api_is_shit_unban"), { type: "error" });
 		}
 	}
 
@@ -984,7 +1063,7 @@ export default class YoutubeHelper {
 				credits: this._creditsUsed,
 				liveID: this.currentLiveChatIds.value,
 			});
-			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_message_delete"));
+			toast(StoreProxy.i18n.t("error.youtube_message_delete"), { type: "error" });
 		}
 		return false;
 	}
@@ -1086,7 +1165,7 @@ export default class YoutubeHelper {
 					credits: this._creditsUsed,
 					liveID: this.currentLiveChatIds.value,
 				});
-				StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_message_post"));
+				toast(StoreProxy.i18n.t("error.youtube_message_post"), { type: "error" });
 			}
 		}
 		return success;
@@ -1202,6 +1281,23 @@ export default class YoutubeHelper {
 	private initialize(): void {}
 
 	/**
+	 * Schedules next background check for a live to connect to.
+	 * Timer is kept alive as long as we're connected to YouTube, but it only
+	 * requests YouTube when no live chat is connected.
+	 */
+	private scheduleLiveCheck(): void {
+		clearTimeout(this._pollLiveTimeout);
+		this._pollLiveTimeout = window.setTimeout(() => {
+			if (!this.connected.value) return;
+			if (this.currentLiveChatIds.value.length > 0) {
+				this.scheduleLiveCheck();
+			} else {
+				void this.getCurrentLiveBroadcast(true);
+			}
+		}, 5000);
+	}
+
+	/**
 	 * Refresh the current token
 	 */
 	private async refreshToken(): Promise<boolean> {
@@ -1253,7 +1349,7 @@ export default class YoutubeHelper {
 				credits: this._creditsUsed,
 				liveID: this.currentLiveChatIds.value,
 			});
-			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_connect_expired"));
+			toast(StoreProxy.i18n.t("error.youtube_connect_expired"), { type: "error" });
 		}
 		this.connected.value = false;
 		return false;

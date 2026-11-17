@@ -94,7 +94,7 @@
 		"youtube_no_broadcast": "Le compte sélectionné n'est pas éligible au streaming live sur YouTube.\nAssurez-vous de vous êtres connecté·e avec le bon compte !",
 		"youtube_no_credits": "Tous les crédits d'API alloués par YouTube ont été dépensés :(.\nLe chat YouTube fonctionnera à nouveau demain.",
 		"youtube_chat_off": "Le tchat n'est pas activé sur la session de live YouTube sélectionnée",
-		"youtube_chat_ended": "La session de live YouTube est terminée. Ouvrez la section paramètres => YouTube pour vous connecter à une nouvelle sessions live.",
+		"youtube_chat_ended": "La session de live YouTube est terminée. Twitchat se connectera automatiquement à votre prochain live.",
 		"youtube_chat_not_found": "La session de live YouTube demandée n'existe plus.",
 		"youtube_unknown": "Une erreur innatendue est survenue lors de la récupération d'informations chez YouTube :(",
 		"youtube_connect": "Une erreur innatendue est survenue lors de la connexion à YouTube :(",
