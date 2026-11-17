@@ -174,6 +174,9 @@ export default class BingoGridController extends AbstractController {
 		try {
 			const content = await Utils.readFileAsync(file, "utf-8");
 			const data = JSON.parse(content) as IViewerGridCacheData;
+			const grid = BingoGridController.sanitizeGrid(data?.data, bingoId);
+			if (!grid) return undefined;
+			data.data = grid;
 			this.viewerGridCache.set(cacheViewerKey, data);
 			return data;
 		} catch {
@@ -1202,11 +1205,21 @@ export default class BingoGridController extends AbstractController {
 			const username = users && users.length > 0 ? users[0]!.display_name : "???";
 			const fileContent = await Utils.readFileAsync(userFilePath, { encoding: "utf8" });
 			const data = JSON.parse(fileContent) as {
-				bingoGrids: { gridList: IStreamerGridsCacheData["data"] };
+				bingoGrids?: { gridList?: IStreamerGridsCacheData["data"] };
 			};
 
 			if (!data.bingoGrids) {
 				return;
+			}
+
+			// Load grids and sanitize them before updating them
+			const rawList = data.bingoGrids.gridList;
+			const gridList: IGrid[] = [];
+			for (const raw of Array.isArray(rawList) ? rawList : []) {
+				const id: unknown = raw?.id;
+				if (typeof id !== "string" || !/^[a-zA-Z0-9_-]+$/.test(id)) continue;
+				const grid = BingoGridController.sanitizeGrid(raw, id);
+				if (grid) gridList.push(grid);
 			}
 
 			let cache: IStreamerGridsCacheData;
@@ -1216,39 +1229,19 @@ export default class BingoGridController extends AbstractController {
 					date: Date.now(),
 					ownerId: channelId,
 					ownerName: username,
-					data: data.bingoGrids.gridList
-						.filter((v) => v.enabled)
-						.map((g) => ({
-							id: g.id,
-							enabled: g.enabled,
-							title: g.title,
-							entries: g.entries,
-							rows: g.rows,
-							cols: g.cols,
-							additionalEntries: g.additionalEntries,
-						})),
+					data: gridList.filter((v) => v.enabled),
 				};
 				this.channelGridsCache.set(cacheKey, cache);
 				return cache;
 			}
 
-			const grid = data.bingoGrids.gridList.find((v) => v.id == gridId);
+			const grid = gridList.find((v) => v.id == gridId);
 			if (grid) {
 				cache = {
 					date: Date.now(),
 					ownerId: channelId,
 					ownerName: username,
-					data: [
-						{
-							id: gridId,
-							enabled: grid.enabled,
-							title: grid.title,
-							entries: grid.entries,
-							rows: grid.rows,
-							cols: grid.cols,
-							additionalEntries: grid.additionalEntries,
-						},
-					],
+					data: [grid],
 				};
 				this.channelGridsCache.set(cacheKey, cache);
 				return cache;
