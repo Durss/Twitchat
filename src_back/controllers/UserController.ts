@@ -118,6 +118,11 @@ export default class UserController extends AbstractController {
 	 * Failed gift code attempts per user, to throttle brute forcing
 	 */
 	private static readonly GIFT_CODE_MAX_ATTEMPTS = 5;
+
+	/**
+	 * Body limit of the encrypt route.
+	 */
+	private static readonly ENCRYPT_MAX_BODY_SIZE = 5 * 1024 * 1024;
 	private _giftCodeAttempts = new LRUCache<string, number>({
 		max: 1000,
 		ttl: 2000 * 60 * 60, // 1 hour
@@ -197,6 +202,7 @@ export default class UserController extends AbstractController {
 
 		this.server.post(
 			"/api/user/data/encrypt",
+			{ bodyLimit: UserController.ENCRYPT_MAX_BODY_SIZE },
 			async (request, response) => await this.encryptData(request, response),
 		);
 		this.server.post(
@@ -1070,7 +1076,19 @@ export default class UserController extends AbstractController {
 	private async encryptData(request: FastifyRequest, response: FastifyReply) {
 		const user = await this.twitchUserGuard(request, response);
 		if (!user) return;
-		const data = request.body as string;
+		const data = request.body;
+		if (typeof data !== "string") {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Body must be a string",
+					errorCode: "INVALID_BODY",
+				}),
+			);
+			return;
+		}
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(JSON.stringify({ success: true, data: Utils.encrypt(data) }));
