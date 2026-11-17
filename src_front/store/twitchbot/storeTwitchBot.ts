@@ -89,7 +89,7 @@ export const storeTwitchBot = defineStore("switchbot", {
 					//Recoverable failures are retried by scheduleRetry() below.
 					const res = await ApiHelper.call(
 						"auth/twitch/refreshtoken",
-						"GET",
+						"POST",
 						{ token: usedToken },
 						false,
 					);

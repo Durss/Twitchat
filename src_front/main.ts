@@ -101,6 +101,7 @@ import {
 	ORDINAL_CATEGORIES,
 	type OrdinalLabels,
 } from "./utils/PlaceholderModifiers";
+import { cleanupSentryEvent } from "./utils/SentryLogCleaner";
 import Utils from "./utils/Utils";
 
 window.setInitMessage("Booting app...");
@@ -380,6 +381,8 @@ function buildApp() {
 			],
 			environment: Config.instance.SENTRY_ENVIRONMENT,
 			initialScope: { tags: { app: "main" } },
+			beforeSend: (event) => cleanupSentryEvent(event),
+			beforeSendTransaction: (event) => cleanupSentryEvent(event),
 			tracesSampleRate: 1.0,
 			replaysSessionSampleRate: 0,
 			replaysOnErrorSampleRate: 0,

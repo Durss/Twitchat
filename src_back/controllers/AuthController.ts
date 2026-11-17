@@ -41,10 +41,22 @@ export default class AuthController extends AbstractController {
 			MaintenanceController.ROUTE_ALLOWED,
 			async (request, response) => await this.twitchAuth(request, response),
 		);
+		this.server.post(
+			"/api/auth/twitch/refreshtoken",
+			MaintenanceController.ROUTE_ALLOWED,
+			async (request, response) => {
+				const body = (request.body || {}) as { token?: unknown };
+				await this.refreshToken(body.token, response);
+			},
+		);
+		// Old version to remove after a few time
 		this.server.get(
 			"/api/auth/twitch/refreshtoken",
 			MaintenanceController.ROUTE_ALLOWED,
-			async (request, response) => await this.refreshToken(request, response),
+			async (request, response) => {
+				const query = request.query as { token?: unknown };
+				await this.refreshToken(query.token, response);
+			},
 		);
 		this.server.get(
 			"/api/auth/CSRFToken",
@@ -218,18 +230,13 @@ export default class AuthController extends AbstractController {
 	/**
 	 * Refresh a twitch access token
 	 *
-	 * @param {*} request
+	 * @param token refresh token sent by the client
 	 * @param {*} response
 	 */
-	private async refreshToken(
-		request: FastifyRequest,
-		response: FastifyReply,
-		logUser: boolean = false,
-	) {
-		const params = URL.parse(request.url, true).query as { token: string };
+	private async refreshToken(token: unknown, response: FastifyReply, logUser: boolean = false) {
 		//Someone's spamming endpoint with "undefined" token.
 		//I suspect them messing up with my API.
-		if (!params.token || params.token === "undefined") {
+		if (typeof token !== "string" || !token || token === "undefined") {
 			response.header("Content-Type", "application/json");
 			response.status(500);
 			response.send(JSON.stringify({ message: "error", success: false }));
@@ -239,7 +246,7 @@ export default class AuthController extends AbstractController {
 		const url = new globalThis.URL("https://id.twitch.tv/oauth2/token");
 		url.searchParams.set("client_id", Config.credentials.twitch_client_id);
 		url.searchParams.set("client_secret", Config.credentials.twitch_client_secret);
-		url.searchParams.set("refresh_token", params.token);
+		url.searchParams.set("refresh_token", token);
 		url.searchParams.set("grant_type", "refresh_token");
 
 		let json: { access_token?: string };

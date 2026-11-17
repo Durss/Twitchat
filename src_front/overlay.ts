@@ -14,6 +14,7 @@ import { SlowMo } from "gsap/all";
 import Config from "./utils/Config";
 import OverlayVersionChecker from "./utils/OverlayVersionChecker";
 import PublicAPI from "./utils/PublicAPI";
+import { cleanupSentryEvent } from "./utils/SentryLogCleaner";
 import Utils from "./utils/Utils";
 
 gsap.registerPlugin(ScrollToPlugin, CustomEase, CSSPlugin, SlowMo);
@@ -40,6 +41,8 @@ if (Config.instance.IS_PROD) {
 				obs_browser_source: window.obsstudio != undefined,
 			},
 		},
+		beforeSend: (event) => cleanupSentryEvent(event),
+		beforeSendTransaction: (event) => cleanupSentryEvent(event),
 		ignoreErrors: [
 			"[-]", //Custom tag to ignore errors coming from specific parts of the app
 			"OBS is not ready", //If trying to connect to OBS when OBS-ws is booting

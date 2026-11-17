@@ -175,7 +175,7 @@ type ApiEndpoints = {
 		};
 	};
 	"auth/twitch/refreshtoken": {
-		GET: {
+		POST: {
 			parameters: {
 				token: string;
 			};

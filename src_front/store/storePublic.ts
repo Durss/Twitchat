@@ -152,7 +152,7 @@ export const storePublic = defineStore("public", {
 			//Refresh token if it's going to expire within the next 5 minutes
 			if (twitchAuthResult && twitchAuthResult.refresh_token) {
 				try {
-					const res = await ApiHelper.call("auth/twitch/refreshtoken", "GET", {
+					const res = await ApiHelper.call("auth/twitch/refreshtoken", "POST", {
 						token: twitchAuthResult.refresh_token,
 					});
 					if (res.status != 200) throw "invalid refresh result";
