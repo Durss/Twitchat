@@ -150,6 +150,9 @@
 		},
 		"date": {
 			"day": "day | days",
+			"hour": "hour | hours",
+			"minute": "minute | minutes",
+			"second": "second | seconds",
 			"month": "month | months",
 			"year": "year | years"
 		},
