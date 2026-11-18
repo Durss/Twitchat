@@ -149,6 +149,9 @@
 		},
 		"date": {
 			"day": "jour | jours",
+			"hour": "heure | heures",
+			"minute": "minute | minutes",
+			"second": "seconde | secondes",
 			"month": "mois | mois",
 			"year": "an | ans"
 		},

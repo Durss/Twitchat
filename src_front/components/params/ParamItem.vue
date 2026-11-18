@@ -243,7 +243,7 @@
 					}"
 				/>
 
-				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<label :id="'label' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 
 				<Icon class="loader" name="loader" v-if="loading" />
 
@@ -262,6 +262,7 @@
 				<DurationForm
 					v-else-if="!paramData.noInput"
 					:id="'duration' + key"
+					:aria-labelledby="label ? 'label' + key : undefined"
 					v-model="paramData.value"
 					:allowMs="paramData.allowMs"
 					:autofocus="autofocus"
@@ -329,11 +330,12 @@
 					}"
 				/>
 
-				<label v-html="label" v-tooltip="tooltip"></label>
+				<label :for="'slider' + key" v-html="label" v-tooltip="tooltip"></label>
 
 				<Icon class="loader" name="loader" v-if="loading" />
 				<Slider
 					v-else
+					:id="'slider' + key"
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"

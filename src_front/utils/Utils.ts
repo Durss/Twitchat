@@ -53,12 +53,13 @@ export default class Utils {
 			el instanceof HTMLTextAreaElement ||
 			(el instanceof HTMLInputElement && Utils.TEXT_INPUT_TYPES.has(el.type)) ||
 			(el instanceof HTMLElement && el.isContentEditable);
+		if (!isTextField) return false;
 		let value = "";
 		if (el instanceof HTMLTextAreaElement) value = el.value;
 		if (el instanceof HTMLInputElement) value = el.value;
 		if (el instanceof HTMLElement && el.isContentEditable) value = el.textContent;
 		if ((value ?? "").trim().length == 0) return false;
-		if (isTextField) el.blur();
+		el.blur();
 		return true;
 	}
 
