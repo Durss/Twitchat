@@ -134,8 +134,13 @@ const i18n = createI18n<false>({
 
 //Keep the document language in sync with the UI locale so assistive
 //technologies (screen readers, braille displays) use the right voice.
+//If the locale has no labels (ex: "de"), the UI shows the fallback locale.
 watchEffect(() => {
-	document.documentElement.lang = i18n.global.locale.value;
+	const locale = i18n.global.locale.value;
+	const hasLabels = Object.keys(i18n.global.getLocaleMessage(locale)).length > 0;
+	document.documentElement.lang = hasLabels
+		? locale
+		: (i18n.global.fallbackLocale.value as string);
 });
 
 //Load labels before everything else so they are available when
