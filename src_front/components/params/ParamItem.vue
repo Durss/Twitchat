@@ -329,11 +329,12 @@
 					}"
 				/>
 
-				<label v-html="label" v-tooltip="tooltip"></label>
+				<label :for="'slider' + key" v-html="label" v-tooltip="tooltip"></label>
 
 				<Icon class="loader" name="loader" v-if="loading" />
 				<Slider
 					v-else
+					:id="'slider' + key"
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"
