@@ -1,54 +1,51 @@
 <template>
-	<div class="chattiktoksub chatMessage highlight"
-	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-		
-		<Icon name="sub" alt="sub" class="icon"/>
-		<Icon name="tiktok" alt="tiktok" class="icon"/>
+	<div
+		class="chattiktoksub chatMessage highlight"
+		ref="rootEl"
+		@contextmenu="onContextMenu($event, props.messageData, rootEl!)"
+	>
+		<Icon name="sub" alt="sub" class="icon" />
+		<Icon name="tiktok" alt="tiktok" class="icon" />
 
-		<i18n-t scope="global" keypath="chat.tiktok_sub.new" tag="span">
+		<i18n-t scope="global" keypath="chat.tiktok_sub.new" tag="span" class="messageWithTime">
 			<template #USER>
-				<a class="userlink"
-					:href="getProfilePage(messageData.user)"
+				<a
+					class="userlink"
+					:href="getProfilePage(props.messageData.user)"
 					target="_blank"
-					@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id, messageData.platform)">{{messageData.user.displayName}}</a>
+					@click.prevent="
+						openUserCard(
+							props.messageData.user,
+							props.messageData.channel_id,
+							props.messageData.platform,
+						)
+					"
+					>{{ props.messageData.user.displayName }}</a
+				>
 			</template>
 		</i18n-t>
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import Icon from '../Icon.vue';
-import AbstractChatMessage from './AbstractChatMessage';
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { useTemplateRef } from "vue";
+import Icon from "../Icon.vue";
 
-@Component({
-	components:{
-		Icon,
-	},
-	emits:[],
-})
-class ChatTikTokSub extends AbstractChatMessage {
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageTikTokSubData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
+}>();
 
-	@Prop
-	declare messageData:TwitchatDataTypes.MessageTikTokSubData;
+const emit = defineEmits<{ onRead: [] }>();
 
-	@Prop
-	declare childrenList:(TwitchatDataTypes.MessageTikTokSubData)[];
-
-	@Prop({type:Boolean, default:false})
-	declare lightMode:boolean;
-
-	@Prop({type:Number, default:0})
-	public colIndex!:number;
-
-}
-export default toNative(ChatTikTokSub);
+const rootEl = useTemplateRef("rootEl");
+const { openUserCard, onContextMenu, getProfilePage } = useChatMessage(props, emit, rootEl);
 </script>
 
 <style scoped lang="less">
-.chattiktoksub{
-	
+.chattiktoksub {
 }
 </style>

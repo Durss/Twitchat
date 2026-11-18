@@ -25,40 +25,40 @@ const path = require("path");
 const emoteFolder = path.join(__dirname, "../static/youtube/emotes");
 const secretEmotes = path.join(__dirname, "./secret_emotes.json");
 
-if(!fs.existsSync(emoteFolder)) {
-	fs.mkdirSync(emoteFolder, {recursive:true});
+if (!fs.existsSync(emoteFolder)) {
+	fs.mkdirSync(emoteFolder, { recursive: true });
 }
-if(!fs.existsSync(emoteFolder+"/sd")) fs.mkdirSync(emoteFolder+"/sd", {recursive:true});
-if(!fs.existsSync(emoteFolder+"/hd")) fs.mkdirSync(emoteFolder+"/hd", {recursive:true});
+if (!fs.existsSync(emoteFolder + "/sd")) fs.mkdirSync(emoteFolder + "/sd", { recursive: true });
+if (!fs.existsSync(emoteFolder + "/hd")) fs.mkdirSync(emoteFolder + "/hd", { recursive: true });
 
-(async() => {
+(async () => {
 	const json = fs.readFileSync(path.join(__dirname, "./emote_list.json"), "utf-8");
 	const emotelist = JSON.parse(json);
 
-	if(fs.existsSync(secretEmotes)) {
+	if (fs.existsSync(secretEmotes)) {
 		//Merge undocumented emotes to the global list
 		const emotes = JSON.parse(fs.readFileSync(secretEmotes, "utf-8"));
 		for (const key in emotes) {
 			emotelist[key] = emotes[key];
 		}
 	}
-	
+
 	const emoteMap = {};
 	for (const key in emotelist) {
 		//Ignore SVGs that are standard emotes probably handled by fonts
-		if(/.*\.svg/.test(emotelist[key])) continue;
+		if (/.*\.svg/.test(emotelist[key])) continue;
 
-		const fileName = key.replace(/\W/gi,"")+".png";
-		const filePathSD = path.join(emoteFolder, "/sd/"+fileName);
-		if(!fs.existsSync(filePathSD)) {
+		const fileName = key.replace(/\W/gi, "") + ".png";
+		const filePathSD = path.join(emoteFolder, "/sd/" + fileName);
+		if (!fs.existsSync(filePathSD)) {
 			const responseSD = await fetch(emotelist[key]);
 			const blobSD = await (await responseSD.blob()).arrayBuffer();
 			const bufferSD = Buffer.from(blobSD);
 			fs.writeFileSync(filePathSD, bufferSD);
 		}
-		
-		const filePathHD = path.join(emoteFolder, "/hd/"+fileName);
-		if(!fs.existsSync(filePathHD)) {
+
+		const filePathHD = path.join(emoteFolder, "/hd/" + fileName);
+		if (!fs.existsSync(filePathHD)) {
 			const responseHD = await fetch(emotelist[key].replace("w24-h24", "w112-h112"));
 			const blobHD = await (await responseHD.blob()).arrayBuffer();
 			const bufferHD = Buffer.from(blobHD);
@@ -67,6 +67,12 @@ if(!fs.existsSync(emoteFolder+"/hd")) fs.mkdirSync(emoteFolder+"/hd", {recursive
 
 		emoteMap[key] = fileName;
 	}
-	
-	fs.writeFileSync(path.join(emoteFolder, "../emote_list.json"), JSON.stringify(emoteMap), 'utf-8');
-})();
+
+	fs.writeFileSync(
+		path.join(emoteFolder, "../emote_list.json"),
+		JSON.stringify(emoteMap),
+		"utf-8",
+	);
+})().catch((err) => {
+	console.error(err);
+});

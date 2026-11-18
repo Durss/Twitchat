@@ -1,65 +1,66 @@
 <template>
 	<div class="volumebar">
 		<Icon name="volume" alt="volume" class="icon" />
-		<div class="holder"
-		ref="holder"
-		@mousedown="mousePressed = true"
-		@mousemove="onSeek($event)"
-		@click="onSeek($event, true)">
+		<div
+			class="holder"
+			ref="holder"
+			@mousedown="mousePressed = true"
+			@mousemove="onSeek($event)"
+			@click="onSeek($event, true)"
+		>
 			<div class="fill" :style="fillStyles"></div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import Icon from './Icon.vue';
+<script setup lang="ts">
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import Icon from "./Icon.vue";
 
-@Component({
-	components:{
-		Icon,
-	},
-	emits:["update:modelValue"]
-})
-class VolumeBar extends Vue {
-
-	@Prop({
-			type:Number,
-			default:.25,
-		})
-	public modelValue!:number;
-
-	public mousePressed = false;
-	public mouseUpHandler!:(e:MouseEvent) => void;
-
-	public get fillStyles():{[key:string]:string} {
-		return {
-			width: `${this.modelValue * 100}%`,
-		}
-	}
-
-	public mounted():void {
-		this.mouseUpHandler = () => this.mousePressed = false;
-		document.addEventListener("mouseup", this.mouseUpHandler);
-	}
-
-	public beforeUnmount():void {
-		document.removeEventListener("mouseup", this.mouseUpHandler);
-	}
-
-	public onSeek(e:MouseEvent, force = false):void {
-		if(!this.mousePressed && !force) return;
-		const bar = this.$refs.holder as HTMLDivElement;
-		const bounds = bar.getBoundingClientRect();
-		const percent = e.offsetX/bounds.width;
-		this.$emit("update:modelValue", percent);
-	}
+interface Props {
+	modelValue?: number;
 }
-export default toNative(VolumeBar);
+
+const props = withDefaults(defineProps<Props>(), {
+	modelValue: 0.25,
+});
+
+const emit = defineEmits<{
+	"update:modelValue": [value: number];
+}>();
+
+const mousePressed = ref(false);
+const holder = ref<HTMLDivElement>();
+
+let mouseUpHandler: () => void;
+
+const fillStyles = computed(() => {
+	return {
+		width: `${props.modelValue * 100}%`,
+	};
+});
+
+function onSeek(e: MouseEvent, force = false): void {
+	if (!mousePressed.value && !force) return;
+	const bar = holder.value;
+	if (!bar) return;
+	const bounds = bar.getBoundingClientRect();
+	const percent = e.offsetX / bounds.width;
+	emit("update:modelValue", percent);
+}
+
+onMounted(() => {
+	mouseUpHandler = () => (mousePressed.value = false);
+	document.addEventListener("mouseup", mouseUpHandler);
+});
+
+onBeforeUnmount(() => {
+	document.removeEventListener("mouseup", mouseUpHandler);
+});
 </script>
 
 <style scoped lang="less">
-.volumebar{
+.volumebar {
 	display: flex;
 	flex-direction: row;
 	min-width: 200px;
@@ -67,7 +68,7 @@ export default toNative(VolumeBar);
 
 	.icon {
 		height: 1em;
-		margin-right: .25em;
+		margin-right: 0.25em;
 	}
 
 	.holder {
@@ -79,7 +80,7 @@ export default toNative(VolumeBar);
 		&::before {
 			content: "";
 			width: 100%;
-			height: .25em;
+			height: 0.25em;
 			background-color: var(--color-light-fader);
 			position: absolute;
 			top: 50%;
@@ -89,8 +90,8 @@ export default toNative(VolumeBar);
 
 		.fill {
 			width: 50%;
-			height: .25em;
-			margin-top: .33em;
+			height: 0.25em;
+			margin-top: 0.33em;
 			background-color: var(--color-light);
 		}
 	}

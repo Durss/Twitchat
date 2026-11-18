@@ -80,19 +80,19 @@ interface SpeechRecognitionEvent extends Event {
 
 declare var SpeechRecognitionEvent: {
 	prototype: SpeechRecognitionEvent;
-	new(type: string, eventInitDict: SpeechRecognitionEventInit): SpeechRecognitionEvent;
+	new (type: string, eventInitDict: SpeechRecognitionEventInit): SpeechRecognitionEvent;
 };
 
 // https://wicg.github.io/speech-api/#enumdef-speechrecognitionerrorcode
 type SpeechRecognitionErrorCode =
-	| 'aborted'
-	| 'audio-capture'
-	| 'bad-grammar'
-	| 'language-not-supported'
-	| 'network'
-	| 'no-speech'
-	| 'not-allowed'
-	| 'service-not-allowed';
+	| "aborted"
+	| "audio-capture"
+	| "bad-grammar"
+	| "language-not-supported"
+	| "network"
+	| "no-speech"
+	| "not-allowed"
+	| "service-not-allowed";
 
 // https://wicg.github.io/speech-api/#dictdef-speechrecognitionerroreventinit
 interface SpeechRecognitionErrorEventInit extends EventInit {
@@ -108,7 +108,7 @@ interface SpeechRecognitionErrorEvent extends Event {
 
 declare var SpeechRecognitionErrorEvent: {
 	prototype: SpeechRecognitionErrorEvent;
-	new(type: string, eventInitDict: SpeechRecognitionErrorEventInit): SpeechRecognitionErrorEvent;
+	new (type: string, eventInitDict: SpeechRecognitionErrorEventInit): SpeechRecognitionErrorEvent;
 };
 
 // https://wicg.github.io/speech-api/#speechgrammar
@@ -119,7 +119,7 @@ interface SpeechGrammar {
 
 declare var SpeechGrammar: {
 	prototype: SpeechGrammar;
-	new(): SpeechGrammar;
+	new (): SpeechGrammar;
 };
 
 // https://wicg.github.io/speech-api/#speechgrammarlist
@@ -131,13 +131,4 @@ interface SpeechGrammarList {
 	[index: number]: SpeechGrammar;
 }
 
-declare var SpeechGrammarList: { prototype: SpeechGrammarList; new(): SpeechGrammarList };
-
-// prefixed global variables in Chrome; should match the equivalents above
-// https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#chrome_support
-declare let webkitSpeechRecognition: { prototype: SpeechRecognition; new(): SpeechRecognition; };
-declare let webkitSpeechGrammarList: { prototype: SpeechGrammarList; new(): SpeechGrammarList; };
-declare let webkitSpeechRecognitionEvent: {
-	prototype: SpeechRecognitionEvent;
-	new(type: string, eventInitDict: SpeechRecognitionEventInit): SpeechRecognitionEvent;
-};
+declare var SpeechGrammarList: { prototype: SpeechGrammarList; new (): SpeechGrammarList };

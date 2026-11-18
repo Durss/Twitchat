@@ -1,26 +1,26 @@
 {
-	"announcement":{
-		"title":"Annonce Twitchat",
-		"subtitle":"Envoyer une annonce aux utilisateur·ices Twitchat",
-		"param_title":"Titre",
-		"param_dateStart":"Date de début",
-		"param_dateEnd":"Date de fin (optionnel)",
-		"param_text":"Message",
-		"param_versionMax":"Version max de Twitchat (optionnel)",
-		"param_important":"Notification importante (sera envoyée aux personnes déjà en live)",
-		"param_donorsOnly":"Envoyer aux donateurices uniquement",
-		"param_premiumOnly":"Envoyer aux Premium uniquement",
-		"param_patreonOnly":"Envoyer aux membres Patreon uniquement",
-		"param_heatOnly":"Envoyer aux utilisateurices Heat uniquement",
-		"postBt":"Publier",
-		"list":"Liste des annonces",
-		"create_confirm":{
-			"title":"Publier l'annonce ?",
-			"description":"Les utilisateur·ices de Twitchat verront l'annonce appraître à partir de la date spécifiée."
+	"announcement": {
+		"title": "Annonce Twitchat",
+		"subtitle": "Envoyer une annonce aux utilisateur·ices Twitchat",
+		"param_title": "Titre",
+		"param_dateStart": "Date de début",
+		"param_dateEnd": "Date de fin (optionnel)",
+		"param_text": "Message",
+		"param_versionMax": "Version max de Twitchat (optionnel)",
+		"param_important": "Notification importante (sera envoyée aux personnes déjà en live)",
+		"param_donorsOnly": "Envoyer aux donateurices uniquement",
+		"param_premiumOnly": "Envoyer aux Premium uniquement",
+		"param_patreonOnly": "Envoyer aux membres Patreon uniquement",
+		"param_heatOnly": "Envoyer aux utilisateurices Heat uniquement",
+		"postBt": "Publier",
+		"list": "Liste des annonces",
+		"create_confirm": {
+			"title": "Publier l'annonce ?",
+			"description": "Les utilisateur·ices de Twitchat verront l'annonce appraître à partir de la date spécifiée."
 		},
-		"delete_confirm":{
-			"title":"Supprimer l'annonce ?",
-			"description":"Cette action est irreversible."
+		"delete_confirm": {
+			"title": "Supprimer l'annonce ?",
+			"description": "Cette action est irreversible."
 		}
 	}
 }
