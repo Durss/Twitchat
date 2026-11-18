@@ -1,10 +1,13 @@
 <template>
-	<div class="durationform input-field">
+	<div class="durationform input-field" role="group">
 		<ContentEditable
 			class="input"
 			v-if="showDays"
 			tag="span"
 			ref="inputD"
+			role="textbox"
+			:aria-label="$t('global.date.day', 2)"
+			:tabindex="tabindex"
 			v-model="days"
 			:contenteditable="true"
 			:no-nl="true"
@@ -18,13 +21,16 @@
 			"
 		/>
 
-		<p class="split days" v-if="showDays">{{ $t("global.date_days") }}</p>
+		<p class="split days" v-if="showDays" aria-hidden="true">{{ $t("global.date_days") }}</p>
 
 		<ContentEditable
 			class="input"
 			v-if="showHours"
 			tag="span"
 			ref="inputH"
+			role="textbox"
+			:aria-label="$t('global.date.hour', 2)"
+			:tabindex="tabindex"
 			v-model="hours"
 			:contenteditable="true"
 			:no-nl="true"
@@ -38,13 +44,16 @@
 			"
 		/>
 
-		<p class="split" v-if="showHours">h</p>
+		<p class="split" v-if="showHours" aria-hidden="true">h</p>
 
 		<ContentEditable
 			class="input"
 			v-if="showMinutes"
 			tag="span"
 			ref="inputM"
+			role="textbox"
+			:aria-label="$t('global.date.minute', 2)"
+			:tabindex="tabindex"
 			v-model="minutes"
 			:contenteditable="true"
 			:no-nl="true"
@@ -58,12 +67,15 @@
 			"
 		/>
 
-		<p class="split" v-if="showMinutes">m</p>
+		<p class="split" v-if="showMinutes" aria-hidden="true">m</p>
 
 		<ContentEditable
 			class="input"
 			tag="span"
 			ref="inputS"
+			role="textbox"
+			:aria-label="$t('global.date.second', 2)"
+			:tabindex="tabindex"
 			v-model="seconds"
 			v-autofocus="autofocus"
 			:contenteditable="true"
@@ -79,7 +91,7 @@
 			"
 		/>
 
-		<p class="split">s</p>
+		<p class="split" aria-hidden="true">s</p>
 	</div>
 </template>
 
@@ -96,6 +108,7 @@ const props = withDefaults(
 		max?: number;
 		autofocus?: boolean;
 		allowMs?: boolean;
+		tabindex?: number;
 	}>(),
 	{
 		id: "",
@@ -104,6 +117,7 @@ const props = withDefaults(
 		max: 23 * 3600 + 59 * 60 + 59,
 		autofocus: false,
 		allowMs: false,
+		tabindex: 0,
 	},
 );
 
