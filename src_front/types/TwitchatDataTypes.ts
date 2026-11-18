@@ -1735,10 +1735,6 @@ export namespace TwitchatDataTypes {
 		tags?: string[];
 		branded?: boolean;
 		labels?: { id: string; enabled: boolean }[];
-		/**
-		 * @deprecated Only here for typings on data migration. Removed in favor of the new "tags" prop
-		 */
-		tagIDs?: string[];
 	}
 
 	/**
@@ -2230,14 +2226,6 @@ export namespace TwitchatDataTypes {
 		meldStudioLayers: string[];
 		autoEnableOnShieldmode: boolean;
 		enableShieldMode: boolean;
-		/**
-		 * @deprecated Only here for typings on data migration. Removed in favor of manual blocking after disabling emergency mode
-		 */
-		autoBlockFollows?: boolean;
-		/**
-		 * @deprecated Only here for typings on data migration. Removed in favor of manual blocking after disabling emergency mode
-		 */
-		autoUnblockFollows?: boolean;
 	}
 
 	/**
