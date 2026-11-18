@@ -37,6 +37,7 @@
 			"send_chat_url_tt": "Envoyer en tchat",
 			"winners_placeholder": "Viewers ayant eu des bingos",
 			"add_cellBt": "Ajouter",
+			"additional_cells_limit": "Une grille peut avoir jusqu'à {MAX} cases, cases de la grille et cases additionnelles comprises.",
 			"chat_cmd_usage": "Utilisez la commande {CMD}",
 			"heat_usage": "@:heat.header",
 			"premium_limit": "Vous avez atteint le maximum de grilles de bingo que vous pouvez créer.",

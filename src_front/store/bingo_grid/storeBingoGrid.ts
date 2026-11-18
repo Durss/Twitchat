@@ -19,6 +19,18 @@ import StoreProxy, {
 	type IBingoGridState,
 } from "../StoreProxy";
 
+/**
+ * Max number of cells of a grid, grid cells and additional cells included.
+ */
+export const BINGO_GRID_MAX_CELLS = 200;
+
+/**
+ * Max number of additional cells given grid can have
+ */
+export function getBingoGridMaxAdditionalCells(grid: TwitchatDataTypes.BingoGridConfig): number {
+	return Math.max(0, BINGO_GRID_MAX_CELLS - grid.entries.length);
+}
+
 let saveCountPending: number = 0;
 let debounceSave: number = -1;
 let debounceShuffle: number = -1;
@@ -1189,17 +1201,19 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			}
 		},
 
-		addCustomCell(gridId: string): void {
+		addCustomCell(gridId: string, label: string = ""): boolean {
 			const grid = this.gridList.find((g) => g.id === gridId);
-			if (!grid) return;
+			if (!grid) return false;
 			if (!grid.additionalEntries) grid.additionalEntries = [];
+			if (grid.additionalEntries.length >= getBingoGridMaxAdditionalCells(grid)) return false;
 
 			grid.additionalEntries.push({
 				id: Utils.getUUID(),
 				check: false,
-				label: "",
+				label,
 				lock: false,
 			});
+			return true;
 		},
 
 		removeCustomCell(gridId: string, cellId: string): void {

@@ -325,11 +325,34 @@
 						</VueDraggable>
 
 						<ParamItem :paramData="param_additional_cells[bingo.id]!">
-							<template #custom
-								><TTButton @click="storeBingoGrid.addCustomCell(bingo.id)">{{
-									t("bingo_grid.form.add_cellBt")
-								}}</TTButton></template
-							>
+							<template #custom>
+								<div class="additionalCellsCtas">
+									<span
+										:class="{
+											additionalCellsCount: true,
+											full:
+												(bingo.additionalEntries || []).length >=
+												getBingoGridMaxAdditionalCells(bingo),
+										}"
+										v-tooltip="
+											t('bingo_grid.form.additional_cells_limit', {
+												MAX: BINGO_GRID_MAX_CELLS,
+											})
+										"
+										>{{ (bingo.additionalEntries || []).length }}/{{
+											getBingoGridMaxAdditionalCells(bingo)
+										}}</span
+									>
+									<TTButton
+										@click="storeBingoGrid.addCustomCell(bingo.id)"
+										:disabled="
+											(bingo.additionalEntries || []).length >=
+											getBingoGridMaxAdditionalCells(bingo)
+										"
+										>{{ t("bingo_grid.form.add_cellBt") }}</TTButton
+									>
+								</div>
+							</template>
 							<div class="additionalItemList">
 								<div
 									class="additionalItem"
@@ -438,7 +461,11 @@ import ContentEditable from "@/components/ContentEditable.vue";
 import { asset } from "@/composables/useAsset";
 import { useSidePanel } from "@/composables/useSidePanel";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
+import {
+	BINGO_GRID_MAX_CELLS,
+	getBingoGridMaxAdditionalCells,
+	storeBingoGrid as useStoreBingoGrid,
+} from "@/store/bingo_grid/storeBingoGrid";
 import { type TriggerActionBingoGridData, type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -1129,6 +1156,25 @@ function initParams(): void {
 		background-color: var(--grayout);
 		padding: 0.25em;
 		border-radius: var(--border-radius);
+	}
+
+	.additionalCellsCtas {
+		gap: 0.5em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		.additionalCellsCount {
+			font-size: 0.8em;
+			cursor: help;
+			white-space: nowrap;
+			padding: 0.25em 0.5em;
+			border-radius: var(--border-radius);
+			background-color: var(--grayout);
+			&.full {
+				color: var(--color-light);
+				background-color: var(--color-alert);
+			}
+		}
 	}
 
 	.additionalItemList {

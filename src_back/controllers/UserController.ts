@@ -123,6 +123,13 @@ export default class UserController extends AbstractController {
 	 * Body limit of the encrypt route.
 	 */
 	private static readonly ENCRYPT_MAX_BODY_SIZE = 5 * 1024 * 1024;
+
+	/**
+	 * Body limit of the user data routes. The data comes from the browser's
+	 * localStorage (capped around 5M chars) and the biggest real files are
+	 * ~0.5MB.
+	 */
+	private static readonly USER_DATA_MAX_BODY_SIZE = 6 * 1024 * 1024;
 	private _giftCodeAttempts = new LRUCache<string, number>({
 		max: 1000,
 		ttl: 2000 * 60 * 60, // 1 hour
@@ -165,12 +172,15 @@ export default class UserController extends AbstractController {
 			"/api/user/data/backup",
 			async (request, response) => await this.getUserData(request, response, true),
 		);
+		const userDataBodyLimit = { bodyLimit: UserController.USER_DATA_MAX_BODY_SIZE };
 		this.server.post(
 			"/api/user/data",
+			userDataBodyLimit,
 			async (request, response) => await this.postUserData(request, response),
 		);
 		this.server.post(
 			"/api/user/data/backup",
+			userDataBodyLimit,
 			async (request, response) => await this.postUserDataBackup(request, response),
 		);
 		this.server.post(
@@ -600,6 +610,18 @@ export default class UserController extends AbstractController {
 			);
 			return;
 		}
+		if (!data || typeof data !== "object" || Array.isArray(data)) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Missing or invalid data",
+					errorCode: "INVALID_DATA_FORMAT",
+				}),
+			);
+			return;
+		}
 		const userFilePath = Config.USER_DATA_PATH + uid + ".json";
 		const version = request.headers["app-version"];
 
@@ -680,30 +702,46 @@ export default class UserController extends AbstractController {
 				}
 			}
 
-			this._lastUserDataVersion.set(uid, data.saveVersion);
-
 			// Serialize before validation
 			const rawData = JSON.stringify(data);
 
+			// Invalid data is refused, server code reading these files (bingo,
+			// quiz, heat areas, Ko-fi...) relies on the schema.
 			const success = schemaValidator(data);
 			const errorsFilePath = Config.USER_DATA_PATH + uid + "_errors.json";
 			if (!success) {
+				// Only a few errors, they don't hold the invalid data ("verbose" is off)
+				const errors = (schemaValidator.errors ?? []).slice(0, 10);
+				const firstError = errors[0]
+					? errors[0].instancePath + " " + errors[0].message
+					: "unknown error";
 				Logger.error(
-					schemaValidator.errors?.length +
-						" validation error(s) for user " +
+					"Refused invalid data for user " +
 						userInfo.login +
-						"'s data (v" +
+						" (v" +
 						version +
-						")",
+						"): " +
+						firstError,
 				);
-				// Save schema errors if any (fire and forget)
+				// Save schema errors (fire and forget)
 				void fs.promises
-					.writeFile(errorsFilePath, JSON.stringify(schemaValidator.errors), "utf-8")
+					.writeFile(errorsFilePath, JSON.stringify(errors), "utf-8")
 					.catch(() => {});
-			} else {
-				// Remove old error file if exists (fire and forget)
-				void fs.promises.unlink(errorsFilePath).catch(() => {});
+				response.header("Content-Type", "application/json");
+				response.status(400);
+				response.send(
+					JSON.stringify({
+						success: false,
+						error: "Invalid data format: " + firstError,
+						errorCode: "INVALID_DATA_FORMAT",
+					}),
+				);
+				return;
 			}
+			// Remove old error file if exists (fire and forget)
+			void fs.promises.unlink(errorsFilePath).catch(() => {});
+
+			this._lastUserDataVersion.set(uid, data.saveVersion);
 
 			const cleanData = JSON.stringify(data);
 			await Utils.writeFileAtomic(userFilePath, cleanData);
@@ -762,15 +800,13 @@ export default class UserController extends AbstractController {
 		} catch (error) {
 			Logger.error("User data save failed for " + userInfo.login);
 			console.log(error);
-			const message = schemaValidator.errors;
-			Logger.log(message);
 			response.header("Content-Type", "application/json");
 			response.status(500);
 			response.send(
 				JSON.stringify({
 					success: false,
-					error: message,
-					errorCode: "INVALID_DATA_FORMAT",
+					error: "User data save failed",
+					errorCode: "DATA_SAVE_FAILED",
 				}),
 			);
 		}

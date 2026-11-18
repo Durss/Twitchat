@@ -23,6 +23,11 @@ export default class BingoGridController extends AbstractController {
 	public static readonly MAX_BODY_SIZE = 100 * 1024;
 
 	/**
+	 * Max number of cells of a grid, grid cells and additional cells included.
+	 */
+	private static readonly MAX_CELLS = 200;
+
+	/**
 	 * LRU cache for channel grids with automatic eviction
 	 * Key format: "[channelId]/[gridId]"
 	 */
@@ -1839,7 +1844,8 @@ export default class BingoGridController extends AbstractController {
 		if (grid.additionalEntries != undefined) {
 			const sanitized = BingoGridController.sanitizeEntries(grid.additionalEntries);
 			if (!sanitized) return null;
-			additionalEntries = sanitized;
+			const maxAdditional = Math.max(0, BingoGridController.MAX_CELLS - entries.length);
+			additionalEntries = sanitized.slice(Math.max(0, sanitized.length - maxAdditional));
 		}
 
 		return {

@@ -731,8 +731,9 @@ export interface IBingoGridActions {
 	handleChatCommand(message: TwitchatDataTypes.TranslatableMessage, cmd: string): Promise<void>;
 	/**
 	 * Adds a custom cell to the given grid
+	 * @returns false if the grid doesn't exist or has too many additional cells
 	 */
-	addCustomCell(gridId: string): void;
+	addCustomCell(gridId: string, label?: string): boolean;
 	/**
 	 * Remove given custom cell from the given grid
 	 */

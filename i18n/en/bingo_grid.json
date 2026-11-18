@@ -37,10 +37,11 @@
 			"send_chat_url_tt": "Send to chat",
 			"winners_placeholder": "Viewers that got bingos",
 			"add_cellBt": "Add",
+			"additional_cells_limit": "A grid can have up to {MAX} cells, grid cells and additional cells included.",
 			"chat_cmd_usage": "Use command {CMD}",
 			"heat_usage": "@:heat.header",
 			"premium_limit": "You reached the maximum bingo grid count you can create.",
-			"non_premium_limit": "@:bingo_grid.premium_limit \nBecome a premium member to create up to {MAX_PREMIUM} bingo grids.",
+			"non_premium_limit": "@:bingo_grid.form.premium_limit \nBecome a premium member to create up to {MAX_PREMIUM} bingo grids.",
 			"share": "Share this grid with your viewers",
 			"leaderBoard": {
 				"open_bt": "{COUNT} viewer|{COUNT} viewers",

@@ -3630,13 +3630,17 @@ const UserDataSchema = {
 	},
 };
 
+// "allErrors" and "verbose" are off: with them a small crafted body produced
+// 100k+ errors, each holding a copy of the invalid data and its schema.
+// Data that fails is refused anyway, and for data that passes the result is
+// the same (props removed by "removeAdditional" included).
 //@ts-ignore find a way to fix compile time error
 const ajv = new Ajv({
 	strictTuples: true,
-	verbose: true,
+	verbose: false,
 	removeAdditional: true,
 	discriminator: true,
-	allErrors: true,
+	allErrors: false,
 	strictNumbers: true,
 	strict: true,
 	allowUnionTypes: true,
