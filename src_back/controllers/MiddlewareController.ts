@@ -61,13 +61,12 @@ export default class MiddlewareController extends AbstractController {
 				"retry-after": false,
 			},
 			allowList: (request: FastifyRequest, _key: string) => {
-				//Apply stricter rate limit to auth endpoints
-				if (/\/api\/auth\/*/.test(request.url)) {
-					return false; //Force rate limiting on auth endpoints
-				}
 				// Apply rate limit only to API endpoints except /api/configs which
 				// actually only returns a static JSON.
-				return !/\/api\//.test(request.url) || request.url == "/api/configs";
+				return (
+					!MiddlewareController.isApiRequest(request) ||
+					request.routeOptions.url == "/api/configs"
+				);
 			},
 			onBanReach: (request: FastifyRequest, _key: string) => {
 				this.expandCustomRateLimitDuration(request);
@@ -221,6 +220,14 @@ export default class MiddlewareController extends AbstractController {
 	 * PRIVATE METHODS *
 	 *******************/
 	/**
+	 * Gets if a request targets the API.
+	 */
+	private static isApiRequest(request: FastifyRequest): boolean {
+		const route = request.routeOptions.url ?? "";
+		return route.startsWith("/api/") || /^\/api\//i.test(request.url);
+	}
+
+	/**
 	 * Refuses API calls and redirects page loads while maintenance is on
 	 * @returns true if a response has been sent
 	 */
@@ -229,7 +236,7 @@ export default class MiddlewareController extends AbstractController {
 		response: FastifyReply,
 	): Promise<boolean> {
 		const urlPath = request.url.split("?")[0] ?? "";
-		if (/^\/api\//i.test(urlPath)) {
+		if (MiddlewareController.isApiRequest(request)) {
 			//Refuse API calls once server is locked
 			if (!MaintenanceController.isServerLocked) return false;
 			if (await MaintenanceController.isApiCallAllowed(request)) return false;
