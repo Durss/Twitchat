@@ -112,6 +112,7 @@ const param_handleResolver = ref<TwitchatDataTypes.ParameterData<string>>({
 	labelKey: "bluesky.param_handleResolver",
 	icon: "internet",
 	longText: false,
+	maxLength: 100,
 });
 const param_autoLive = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",

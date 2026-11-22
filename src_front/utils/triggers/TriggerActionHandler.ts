@@ -4560,19 +4560,23 @@ export default class TriggerActionHandler {
 									src: label,
 									subEvent,
 								});
+								//Placeholders may have made it longer
+								label = label.substring(0, 60);
 								if (label) {
-									logStep.messages.push({
-										date: Date.now(),
-										value: '✔ Add additional cell "' + label + '"',
-									});
-									if (!grid.additionalEntries) grid.additionalEntries = [];
-									grid.additionalEntries.push({
-										lock: false,
-										check: false,
-										id: Utils.getUUID(),
-										label: label,
-									});
-									void StoreProxy.bingoGrid.saveData(grid.id);
+									if (StoreProxy.bingoGrid.addCustomCell(grid.id, label)) {
+										logStep.messages.push({
+											date: Date.now(),
+											value: '✔ Add additional cell "' + label + '"',
+										});
+										void StoreProxy.bingoGrid.saveData(grid.id);
+									} else {
+										logStep.messages.push({
+											date: Date.now(),
+											value: "❌ Cannot add additional cell, the grid already has the maximum number of cells (grid cells and additional cells included)",
+										});
+										log.error = true;
+										logStep.error = true;
+									}
 								} else {
 									logStep.messages.push({
 										date: Date.now(),

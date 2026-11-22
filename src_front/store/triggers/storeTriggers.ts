@@ -442,9 +442,10 @@ export const storeTriggers = defineStore("triggers", {
 			if (trigger) {
 				const clone: TriggerData = JSON.parse(JSON.stringify(trigger));
 				clone.id = Utils.getUUID();
-				let name = clone.name || TriggerUtils.getTriggerDisplayInfo(clone).label;
-				name += " (CLONE)";
-				clone.name = name;
+				const suffix = " (CLONE)";
+				const name = clone.name || TriggerUtils.getTriggerDisplayInfo(clone).label;
+				//Server refuses names longer than 100 chars, same as the trigger name field
+				clone.name = name.substring(0, 100 - suffix.length) + suffix;
 				clone.created_at = Date.now();
 
 				//Add trigger to requested folder if necessary

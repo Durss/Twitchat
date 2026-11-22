@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { LRUCache } from "lru-cache";
 import * as path from "path";
 import Config from "../utils/Config.js";
-import { schemaValidator } from "../utils/DataSchema.js";
+import { validateUserData } from "../utils/DataSchema.js";
 import DiffUtils from "../utils/DiffUtils.js";
 import Logger from "../utils/Logger.js";
 import Utils from "../utils/Utils.js";
@@ -705,41 +705,50 @@ export default class UserController extends AbstractController {
 			// Serialize before validation
 			const rawData = JSON.stringify(data);
 
-			// Invalid data is refused, server code reading these files (bingo,
-			// quiz, heat areas, Ko-fi...) relies on the schema.
-			const success = schemaValidator(data);
+			// Values that don't match the schema are dropped, the rest is saved.
+			// Server code reading these files (bingo, quiz, heat areas, Ko-fi...)
+			// relies on the schema, so nothing invalid is ever written.
+			const validation = validateUserData(data);
 			const errorsFilePath = Config.USER_DATA_PATH + uid + "_errors.json";
-			if (!success) {
-				// Only a few errors, they don't hold the invalid data ("verbose" is off)
-				const errors = (schemaValidator.errors ?? []).slice(0, 10);
-				const firstError = errors[0]
-					? errors[0].instancePath + " " + errors[0].message
-					: "unknown error";
+			if (validation.fixes.length > 0) {
+				const first = validation.fixes[0]!;
 				Logger.error(
-					"Refused invalid data for user " +
+					(validation.valid
+						? validation.fixes.length + " invalid value(s) dropped from "
+						: "Too many invalid values, refused ") +
 						userInfo.login +
-						" (v" +
+						"'s data (v" +
 						version +
-						"): " +
-						firstError,
+						"), first: " +
+						first.path +
+						" " +
+						first.message,
 				);
-				// Save schema errors (fire and forget)
+				// Save schema errors, 100 max but always the last one as it's the one
+				// that refused the data, if any (fire and forget)
+				const fixes = validation.fixes;
+				const saved = fixes.length > 100 ? [...fixes.slice(0, 99), fixes.at(-1)] : fixes;
 				void fs.promises
-					.writeFile(errorsFilePath, JSON.stringify(errors), "utf-8")
+					.writeFile(errorsFilePath, JSON.stringify(saved), "utf-8")
 					.catch(() => {});
+			} else {
+				// Remove old error file if exists (fire and forget)
+				void fs.promises.unlink(errorsFilePath).catch(() => {});
+			}
+			if (!validation.valid) {
+				const last = validation.fixes[validation.fixes.length - 1];
 				response.header("Content-Type", "application/json");
 				response.status(400);
 				response.send(
 					JSON.stringify({
 						success: false,
-						error: "Invalid data format: " + firstError,
+						error:
+							"Invalid data format" + (last ? ": " + last.path + " " + last.message : ""),
 						errorCode: "INVALID_DATA_FORMAT",
 					}),
 				);
 				return;
 			}
-			// Remove old error file if exists (fire and forget)
-			void fs.promises.unlink(errorsFilePath).catch(() => {});
 
 			this._lastUserDataVersion.set(uid, data.saveVersion);
 
@@ -770,10 +779,15 @@ export default class UserController extends AbstractController {
 				try {
 					const cleanupFilePath = Config.USER_DATA_PATH + uid + "_cleanup.json";
 					// Only diff if raw json do not match
-					const diff =
-						cleanData !== rawData
-							? DiffUtils.getDroppedProps(JSON.parse(rawData), data)
-							: [];
+					let diff: ReturnType<typeof DiffUtils.getDroppedProps> = [];
+					if (cleanData !== rawData) {
+						// Drop the invalid values from the raw data as well. They're
+						// listed in the errors file, and removing array items would
+						// shift indices the diff relies on.
+						const original = JSON.parse(rawData);
+						validation.replay(original);
+						diff = DiffUtils.getDroppedProps(original, data);
+					}
 					if (diff.length > 0) {
 						Logger.error(
 							"Invalid format, some data have been removed from " +

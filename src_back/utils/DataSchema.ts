@@ -1,4 +1,4 @@
-import Ajv from "ajv";
+import Ajv, { type ErrorObject, type ValidateFunction } from "ajv";
 
 /**
  * Data schema to make sure people don't send random or invalid data to the server
@@ -159,7 +159,7 @@ const UserDataSchema = {
 			type: "object",
 			additionalProperties: false,
 			properties: {
-				mode: { enum: ["chat", "sub", "manual", "values", "tips"] },
+				mode: { enum: ["chat", "sub", "manual", "values", "tips", "patreon"] },
 				command: { type: "string", maxLength: 100 },
 				reward_id: { type: "string", maxLength: 100 },
 				value_id: { type: "string", maxLength: 100 },
@@ -215,13 +215,13 @@ const UserDataSchema = {
 				tip_tipeee: { type: "boolean" },
 				tip_tiltify: { type: "boolean" },
 				tip_twitchCharity: { type: "boolean" },
-				tip_kofi_minAmount: { type: "integer", minimum: 0, maximum: 999999 },
-				tip_streamlabs_minAmount: { type: "integer", minimum: 0, maximum: 999999 },
-				tip_streamlabsCharity_minAmount: { type: "integer", minimum: 0, maximum: 999999 },
-				tip_streamelements_minAmount: { type: "integer", minimum: 0, maximum: 999999 },
-				tip_tipeee_minAmount: { type: "integer", minimum: 0, maximum: 999999 },
-				tip_tiltify_minAmount: { type: "integer", minimum: 0, maximum: 999999 },
-				tip_twitchCharity_minAmount: { type: "integer", minimum: 0, maximum: 999999 },
+				tip_kofi_minAmount: { type: "number", minimum: 0, maximum: 999999 },
+				tip_streamlabs_minAmount: { type: "number", minimum: 0, maximum: 999999 },
+				tip_streamlabsCharity_minAmount: { type: "number", minimum: 0, maximum: 999999 },
+				tip_streamelements_minAmount: { type: "number", minimum: 0, maximum: 999999 },
+				tip_tipeee_minAmount: { type: "number", minimum: 0, maximum: 999999 },
+				tip_tiltify_minAmount: { type: "number", minimum: 0, maximum: 999999 },
+				tip_twitchCharity_minAmount: { type: "number", minimum: 0, maximum: 999999 },
 				tip_kofi_ponderate: { type: "integer", minimum: 0, maximum: 999999 },
 				tip_streamlabs_ponderate: { type: "integer", minimum: 0, maximum: 999999 },
 				tip_streamlabsCharity_ponderate: { type: "integer", minimum: 0, maximum: 999999 },
@@ -372,7 +372,7 @@ const UserDataSchema = {
 						additionalProperties: false,
 						properties: {
 							platform: { type: "string", maxLength: 15 },
-							incices: {
+							indices: {
 								type: "array",
 								minItems: 0,
 								maxItems: 100,
@@ -738,21 +738,6 @@ const UserDataSchema = {
 								},
 								placeholder: { type: "string", maxLength: 50 },
 								outputPlaceholder: { type: "string", maxLength: 30 },
-								// TODO remove this later once everyone had move to v16.5.3+
-								outputPlaceholderList: {
-									type: "array",
-									minItems: 0,
-									maxItems: 50,
-									items: {
-										type: "object",
-										additionalProperties: false,
-										properties: {
-											type: { type: "string", maxLength: 20 },
-											path: { type: "string", maxLength: 500 },
-											placeholder: { type: "string", maxLength: 30 },
-										},
-									},
-								},
 								customBody: { type: "string", maxLength: 5000 },
 								min: {
 									anyOf: [
@@ -1333,6 +1318,17 @@ const UserDataSchema = {
 									},
 								},
 
+								bidWarData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										bidWarId: { type: "string", maxLength: 50 },
+										sideIndex: { enum: [0, 1] },
+										action: { enum: ["add", "del", "set"] },
+										value: { type: "string", maxLength: 1000 },
+									},
+								},
+
 								timerData: {
 									type: "object",
 									additionalProperties: false,
@@ -1420,7 +1416,7 @@ const UserDataSchema = {
 												"click",
 											],
 										},
-										rawConfig: { type: "string", maxLength: 1000 },
+										rawConfig: { type: "string", maxLength: 5000 },
 										waitForEnd: { type: "boolean" },
 										playOnOverlay: { type: "boolean" },
 										volume: { type: "number", minimum: 0, maximum: 100 },
@@ -1488,7 +1484,7 @@ const UserDataSchema = {
 									additionalProperties: false,
 									properties: {
 										action: { type: "string", maxLength: 50 },
-										postMessage: { type: "string", maxLength: 300 },
+										postMessage: { type: "string", maxLength: 1000 },
 										getPostPlaceholderMessage: {
 											type: "string",
 											maxLength: 30,
@@ -2327,10 +2323,15 @@ const UserDataSchema = {
 					minItems: 0,
 					maxItems: 10,
 					items: {
-						type: "array",
-						minItems: 0,
-						maxItems: 2,
-						items: { type: "string", maxLength: 30 },
+						anyOf: [
+							{
+								type: "array",
+								minItems: 0,
+								maxItems: 2,
+								items: { type: "string", maxLength: 30 },
+							},
+							{ type: "null" },
+						],
 					},
 				},
 				chatReadMarkSources: {
@@ -2699,7 +2700,7 @@ const UserDataSchema = {
 							additionalEntries: {
 								type: "array",
 								minItems: 0,
-								maxItems: 100,
+								maxItems: 200,
 								items: {
 									type: "object",
 									additionalProperties: false,
@@ -2822,7 +2823,6 @@ const UserDataSchema = {
 								],
 							},
 							enabled: { type: "boolean" },
-							ideDone: { type: "boolean" },
 							notifyTips: { type: "boolean" },
 							autoDisplay: { type: "boolean" },
 							hideDone: { type: "boolean" },
@@ -2875,7 +2875,7 @@ const UserDataSchema = {
 					entries: {
 						type: "array",
 						minItems: 0,
-						maxItems: 1000,
+						maxItems: 10000,
 						items: {
 							type: "object",
 							additionalProperties: false,
@@ -3632,8 +3632,9 @@ const UserDataSchema = {
 
 // "allErrors" and "verbose" are off: with them a small crafted body produced
 // 100k+ errors, each holding a copy of the invalid data and its schema.
-// Data that fails is refused anyway, and for data that passes the result is
-// the same (props removed by "removeAdditional" included).
+// Invalid values are dropped one by one by validateUserData() instead, and
+// for data that passes the result is the same (props removed by
+// "removeAdditional" included).
 //@ts-ignore find a way to fix compile time error
 const ajv = new Ajv({
 	strictTuples: true,
@@ -3647,3 +3648,466 @@ const ajv = new Ajv({
 });
 
 export const schemaValidator = ajv.compile(UserDataSchema);
+
+/**
+ * Max number of invalid values dropped from one save, and max time spent
+ * dropping them (compiling validators excluded, see getValidator()).
+ * Data still invalid after that is refused.
+ * Real data needs far less: in a snapshot of 31k users no file needed more
+ * than 15 values dropped.
+ */
+const MAX_FIXES = 10000;
+const MAX_FIX_DURATION = 500;
+
+/**
+ * An invalid value dropped from the data
+ */
+export interface UserDataFix {
+	// JSON pointer of the dropped or trimmed value, or of the array/object that got cut
+	path: string;
+	keyword: string;
+	message: string;
+	params: Record<string, unknown>;
+	fix: string;
+}
+
+type FixOperation =
+	| { kind: "remove"; path: string[] }
+	| { kind: "truncate"; path: string[]; length: number }
+	| { kind: "trim"; path: string[]; length: number }
+	| { kind: "deleteKeys"; path: string[]; keys: string[] };
+
+export interface UserDataValidation {
+	// true if the data is valid, after dropping invalid values if needed
+	valid: boolean;
+	// Dropped values. If data is still invalid, last entry is the error that stopped it
+	fixes: UserDataFix[];
+	/**
+	 * Drops the same values from another copy of the data, so it can be
+	 * diffed with the validated one (eg: the raw data received)
+	 */
+	replay: (target: unknown) => void;
+}
+
+/**
+ * A node of UserDataSchema and its location in it
+ */
+interface SchemaLocation {
+	node: Record<string, unknown>;
+	path: string[];
+}
+
+interface FixContext {
+	data: unknown;
+	fixes: UserDataFix[];
+	operations: FixOperation[];
+	// performance.now() value after which fixing stops, 0 until a fix is needed
+	deadline: number;
+}
+
+type FixResult = "valid" | "removed" | "refused";
+
+/**
+ * Keywords that make the schema of a child depend on more than its key
+ */
+const COMBINING_KEYWORDS = [
+	"$ref",
+	"anyOf",
+	"oneOf",
+	"allOf",
+	"not",
+	"if",
+	"then",
+	"else",
+	"discriminator",
+	"dependencies",
+	"dependentSchemas",
+	"unevaluatedProperties",
+	"unevaluatedItems",
+	"prefixItems",
+	"additionalItems",
+];
+
+/**
+ * Validators of parts of UserDataSchema, by location. null if it can't be compiled
+ */
+const partValidators = new Map<string, ValidateFunction | null>();
+const patternCache = new Map<string, RegExp>();
+
+/**
+ * Validates user data, and drops the values that don't match the schema
+ * instead of refusing the whole data.
+ * Data is modified in place: unknown props are removed ("removeAdditional"),
+ * strings too long are trimmed and other invalid values are dropped.
+ *
+ * Validation stops at the first error ("allErrors" is off), so each value
+ * dropped needs a new validation. To keep that cheap, an error inside a child
+ * is fixed by validating that child on its own (eg: one trigger), along with
+ * its siblings sharing the same schema (eg: all the triggers, so a field that
+ * is wrong in every trigger doesn't cost one validation of the whole data per
+ * trigger).
+ */
+export function validateUserData(data: unknown): UserDataValidation {
+	const ctx: FixContext = { data, fixes: [], operations: [], deadline: 0 };
+	const result = fixNode(ctx, [], { node: UserDataSchema, path: [] });
+	return {
+		valid: result != "refused",
+		fixes: ctx.fixes,
+		replay: (target: unknown) => {
+			for (const op of ctx.operations) applyFix(target, op);
+		},
+	};
+}
+
+/**
+ * Validates a node of the data and drops its invalid values
+ * @param path location of the node in the data
+ * @param schema schema of that node
+ * @param knownErrors errors of the node if it's already known to be invalid
+ */
+function fixNode(
+	ctx: FixContext,
+	path: string[],
+	schema: SchemaLocation,
+	knownErrors?: ErrorObject[],
+): FixResult {
+	const validate = getValidator(ctx, schema.path);
+	if (!validate) return "refused";
+	// Children checked on their own, by schema location: 1 = only the failing
+	// one, 2 = all those sharing that schema
+	const checkedGroups = new Map<string, number>();
+	let nextErrors = knownErrors;
+
+	for (;;) {
+		const value = resolvePath(ctx.data, path);
+		let errors = nextErrors;
+		nextErrors = undefined;
+		if (!errors) {
+			if (validate(value)) return "valid";
+			errors = validate.errors ?? [];
+		}
+		if (ctx.deadline == 0) ctx.deadline = performance.now() + MAX_FIX_DURATION;
+
+		// Without "allErrors" there's one error, plus the ones of each branch
+		// when it's inside an "anyOf". The deepest one is the most specific.
+		// Among branches failing on the same value, prefer a string too long
+		// (eg: "anyOf: [number, string]"), it can be trimmed instead of dropped.
+		let error = errors[0];
+		for (const e of errors) {
+			const depth = errorDepth(e);
+			const bestDepth = errorDepth(error!);
+			if (
+				depth > bestDepth ||
+				(depth == bestDepth &&
+					e.keyword == "maxLength" &&
+					error!.keyword != "maxLength" &&
+					e.instancePath == error!.instancePath)
+			) {
+				error = e;
+			}
+		}
+		if (!error) return "refused";
+
+		// Error inside a child: validate it on its own, a fix then only costs a
+		// validation of that child. If another child sharing its schema fails
+		// next (eg: a field wrong in every trigger), check all of them at once.
+		const childKey = parsePointer(error.instancePath)[0];
+		if (childKey !== undefined && value && typeof value == "object") {
+			const group = getChildSchema(schema, value, childKey);
+			const groupId = group?.path.join("/") ?? "";
+			const checked = checkedGroups.get(groupId) ?? 0;
+			if (group && checked < 2 && getValidator(ctx, group.path)) {
+				checkedGroups.set(groupId, checked + 1);
+				const result =
+					checked == 0
+						? fixNode(
+								ctx,
+								path.concat(childKey),
+								group,
+								getChildErrors(errors, childKey),
+							)
+						: fixChildren(ctx, path, schema, value, group);
+				if (result == "refused") return "refused";
+				continue;
+			}
+		}
+
+		// Error on this node, or children can't be checked on their own: drop
+		// what the error points at
+		const fix = getFix(value, error);
+		const op = fix ? ({ ...fix, path: path.concat(fix.path) } as FixOperation) : null;
+		const canFix =
+			op != null &&
+			!(op.kind == "remove" && op.path.length == 0) && // can't drop the root
+			ctx.fixes.length < MAX_FIXES &&
+			performance.now() < ctx.deadline;
+		ctx.fixes.push({
+			path: toPointer(path) + error.instancePath,
+			keyword: error.keyword,
+			message: error.message ?? "",
+			params: error.params,
+			fix: canFix ? describeFix(op) : "none, data refused",
+		});
+		if (!canFix) return "refused";
+		applyFix(ctx.data, op);
+		ctx.operations.push(op);
+		// This node itself got dropped
+		if (op.kind == "remove" && op.path.length == path.length) return "removed";
+	}
+}
+
+/**
+ * Validates on their own the children of a node whose schema is the given one
+ */
+function fixChildren(
+	ctx: FixContext,
+	path: string[],
+	schema: SchemaLocation,
+	value: object,
+	group: SchemaLocation,
+): "done" | "refused" {
+	const groupId = group.path.join("/");
+	if (Array.isArray(value)) {
+		// Backwards so dropping an item doesn't shift the ones left to check
+		for (let i = value.length - 1; i >= 0; i--) {
+			if (fixNode(ctx, path.concat(String(i)), group) == "refused") return "refused";
+		}
+		return "done";
+	}
+	for (const key of Object.keys(value)) {
+		if (getChildSchema(schema, value, key)?.path.join("/") !== groupId) continue;
+		if (fixNode(ctx, path.concat(key), group) == "refused") return "refused";
+	}
+	return "done";
+}
+
+/**
+ * Errors of a node about one of its children, relative to that child
+ */
+function getChildErrors(errors: ErrorObject[], key: string): ErrorObject[] | undefined {
+	const prefix = toPointer([key]);
+	const result = errors
+		.filter((e) => e.instancePath == prefix || e.instancePath.startsWith(prefix + "/"))
+		.map((e) => ({ ...e, instancePath: e.instancePath.substring(prefix.length) }));
+	return result.length > 0 ? result : undefined;
+}
+
+/**
+ * Gets the schema of a child, if it only depends on the child's key
+ * @param schema schema of the parent
+ * @param value parent
+ * @param key key or index of the child
+ */
+function getChildSchema(schema: SchemaLocation, value: object, key: string): SchemaLocation | null {
+	const node = schema.node;
+	if (COMBINING_KEYWORDS.some((k) => k in node)) return null;
+
+	if (Array.isArray(value)) {
+		const items = node["items"];
+		if (!isSchema(items)) return null;
+		return resolveRefs({ node: items, path: schema.path.concat("items") });
+	}
+
+	// A key can match several of these, it then has to pass all of them
+	const matches: SchemaLocation[] = [];
+	const properties = node["properties"];
+	if (isSchema(properties) && Object.hasOwn(properties, key) && isSchema(properties[key])) {
+		matches.push({ node: properties[key], path: schema.path.concat("properties", key) });
+	}
+	const patterns = node["patternProperties"];
+	if (isSchema(patterns)) {
+		for (const pattern in patterns) {
+			let regexp = patternCache.get(pattern);
+			if (!regexp) {
+				// Same flag as AJV ("unicodeRegExp" option)
+				regexp = new RegExp(pattern, "u");
+				patternCache.set(pattern, regexp);
+			}
+			const patternSchema = patterns[pattern];
+			if (regexp.test(key) && isSchema(patternSchema)) {
+				matches.push({
+					node: patternSchema,
+					path: schema.path.concat("patternProperties", pattern),
+				});
+			}
+		}
+	}
+	const additional = node["additionalProperties"];
+	if (matches.length == 0 && isSchema(additional)) {
+		matches.push({ node: additional, path: schema.path.concat("additionalProperties") });
+	}
+	return matches.length == 1 ? resolveRefs(matches[0]!) : null;
+}
+
+/**
+ * Follows "$ref" to the schema they point at
+ */
+function resolveRefs(location: SchemaLocation): SchemaLocation | null {
+	for (let i = 0; i < 10; i++) {
+		const ref = location.node["$ref"];
+		if (typeof ref != "string") return location;
+		// "$ref" next to other keywords
+		if (Object.keys(location.node).length > 1) return null;
+		const [base, fragment = ""] = ref.split("#");
+		if (base && base != "defs.json" && base != UserDataSchema.$id) return null;
+		const path = fragment
+			.split("/")
+			.slice(1)
+			.map((v) => decodeURIComponent(v).replace(/~1/g, "/").replace(/~0/g, "~"));
+		const node = resolvePath(UserDataSchema, path);
+		if (!isSchema(node)) return null;
+		location = { node, path };
+	}
+	return null;
+}
+
+/**
+ * Gets the validator of a part of UserDataSchema.
+ * Compiled on first use, as a fragment of UserDataSchema so the "$ref" in it
+ * resolve the same way. Compiling the part where an error is can take 100ms+
+ * (eg: a trigger) and only happens once, so it's not counted in the time
+ * allowed to fix data.
+ */
+function getValidator(ctx: FixContext, path: string[]): ValidateFunction | null {
+	if (path.length == 0) return schemaValidator;
+	const fragment = path
+		.map((v) => encodeURIComponent(v.replace(/~/g, "~0").replace(/\//g, "~1")))
+		.join("/");
+	let validate = partValidators.get(fragment);
+	if (validate === undefined) {
+		const start = performance.now();
+		try {
+			validate =
+				(ajv.getSchema(UserDataSchema.$id + "#/" + fragment) as ValidateFunction) ?? null;
+		} catch {
+			validate = null;
+		}
+		partValidators.set(fragment, validate);
+		if (ctx.deadline > 0) ctx.deadline += performance.now() - start;
+	}
+	return validate;
+}
+
+function isSchema(value: unknown): value is Record<string, unknown> {
+	return !!value && typeof value == "object" && !Array.isArray(value);
+}
+
+/**
+ * Depth of the value an error is about
+ */
+function errorDepth(error: ErrorObject): number {
+	const depth = error.instancePath.split("/").length;
+	return error.propertyName != undefined ? depth + 1 : depth;
+}
+
+/**
+ * Tells what to drop to get rid of given error
+ * @param data the validated value, paths are relative to it
+ */
+function getFix(data: unknown, error: ErrorObject): FixOperation | null {
+	const path = parsePointer(error.instancePath);
+	const target = resolvePath(data, path);
+	if (target === undefined) return null;
+
+	// Invalid key name ("propertyNames"), drop that key only
+	const propertyName = error.propertyName ?? error.params["propertyName"];
+	if (typeof propertyName === "string") {
+		return { kind: "deleteKeys", path, keys: [propertyName] };
+	}
+	const limit = Number(error.params["limit"]);
+	// String too long, keep its beginning
+	if (error.keyword == "maxLength" && typeof target == "string" && limit >= 0) {
+		return { kind: "trim", path, length: limit };
+	}
+	// Too many items, drop the extra ones only
+	if (error.keyword == "maxItems" && Array.isArray(target) && limit >= 0) {
+		return { kind: "truncate", path, length: limit };
+	}
+	if (error.keyword == "maxProperties" && target && typeof target == "object" && limit >= 0) {
+		return { kind: "deleteKeys", path, keys: Object.keys(target).slice(limit) };
+	}
+	return { kind: "remove", path };
+}
+
+function describeFix(op: FixOperation): string {
+	switch (op.kind) {
+		case "remove":
+			return "removed";
+		case "truncate":
+			return "truncated to " + op.length + " items";
+		case "trim":
+			return "trimmed to " + op.length + " characters";
+		case "deleteKeys":
+			return "removed " + op.keys.length + " key(s)";
+	}
+}
+
+function applyFix(root: unknown, op: FixOperation): void {
+	if (op.kind == "remove" || op.kind == "trim") {
+		const parent = resolvePath(root, op.path.slice(0, -1));
+		const key = op.path[op.path.length - 1]!;
+		if (!parent || typeof parent != "object") return;
+		const container = parent as Record<string, unknown>;
+		if (op.kind == "trim") {
+			const value = container[key];
+			if (typeof value == "string") container[key] = trimString(value, op.length);
+		} else if (Array.isArray(parent)) {
+			parent.splice(Number(key), 1);
+		} else {
+			delete container[key];
+		}
+		return;
+	}
+	const target = resolvePath(root, op.path);
+	if (op.kind == "truncate") {
+		if (Array.isArray(target)) target.splice(op.length);
+	} else if (target && typeof target == "object") {
+		for (const key of op.keys) delete (target as Record<string, unknown>)[key];
+	}
+}
+
+/**
+ * Keeps the beginning of a string, at most "max" code points long as that's
+ * how AJV counts "maxLength". Cuts between graphemes so an emoji made of
+ * several code points (eg: 👨‍👩‍👧) isn't cut in half.
+ */
+function trimString(value: string, max: number): string {
+	let result = "";
+	let length = 0;
+	for (const { segment } of new Intl.Segmenter().segment(value)) {
+		let size = 0;
+		for (const _codePoint of segment) size++;
+		if (length + size > max) break;
+		result += segment;
+		length += size;
+	}
+	return result;
+}
+
+/**
+ * Parses a JSON pointer as given by AJV ("/a/0/b~1c")
+ */
+function parsePointer(pointer: string): string[] {
+	if (!pointer) return [];
+	return pointer
+		.split("/")
+		.slice(1)
+		.map((v) => v.replace(/~1/g, "/").replace(/~0/g, "~"));
+}
+
+/**
+ * Builds a JSON pointer, same format as AJV's "instancePath"
+ */
+function toPointer(path: string[]): string {
+	return path.map((v) => "/" + v.replace(/~/g, "~0").replace(/\//g, "~1")).join("");
+}
+
+function resolvePath(root: unknown, path: string[]): unknown {
+	let node = root;
+	for (const key of path) {
+		if (!node || typeof node != "object") return undefined;
+		if (!Object.hasOwn(node, key)) return undefined;
+		node = (node as Record<string, unknown>)[key];
+	}
+	return node;
+}

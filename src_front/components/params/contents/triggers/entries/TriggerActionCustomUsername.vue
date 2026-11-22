@@ -35,6 +35,7 @@ const param_userSource = ref<TwitchatDataTypes.ParameterData<string, string>>({
 const param_username = ref<TwitchatDataTypes.ParameterData<string, string>>({
 	type: "string",
 	value: "",
+	maxLength: 50,
 	labelKey: "triggers.actions.customUsername.param_username",
 });
 

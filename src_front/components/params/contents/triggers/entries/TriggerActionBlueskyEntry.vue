@@ -69,11 +69,13 @@ const param_post = ref<TwitchatDataTypes.ParameterData<string>>({
 const param_getPostPlaceholderMessage = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "placeholder",
 	value: "",
+	maxLength: 30,
 	labelKey: "triggers.actions.bluesky.param_getPostPlaceholderMessage",
 });
 const param_getPostPlaceholderURL = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "placeholder",
 	value: "",
+	maxLength: 30,
 	labelKey: "triggers.actions.bluesky.param_getPostPlaceholderURL",
 });
 
