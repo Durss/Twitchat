@@ -60,7 +60,8 @@
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_overlays_quiz' }"
 			>
 				<img src="@/assets/img/overlays/quiz.jpg" alt="Quiz" />
-				<span>{{ getLabel("quiz") }}</span>
+				<span class="label">{{ getLabel("quiz") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -70,7 +71,8 @@
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_overlays_bidwar' }"
 			>
 				<img src="@/assets/img/overlays/bid_war.jpg" alt="Bid war" />
-				<span>{{ getLabel("bidwar") }}</span>
+				<span class="label">{{ getLabel("bidwar") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -80,7 +82,8 @@
 				v-newflag="{ date: 0, id: 'params_overlays_animatedText' }"
 			>
 				<img src="@/assets/img/overlays/animated_text.jpg" alt="Animated text" />
-				<span>{{ getLabel("animatedtext") }}</span>
+				<span class="label">{{ getLabel("animatedtext") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -90,7 +93,8 @@
 				v-newflag="{ date: 0, id: 'params_overlays_customTrain' }"
 			>
 				<img src="@/assets/img/overlays/custom_train.jpg" alt="Custom train" />
-				<span>{{ getLabel("customtrain") }}</span>
+				<span class="label">{{ getLabel("customtrain") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -103,7 +107,8 @@
 				}"
 			>
 				<img src="@/assets/img/overlays/donation_goals.jpg" alt="Goals" />
-				<span>{{ getLabel("donationgoals") }}</span>
+				<span class="label">{{ getLabel("donationgoals") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -113,7 +118,8 @@
 				v-newflag="{ date: 0, id: 'params_overlays_bingogrid' }"
 			>
 				<img src="@/assets/img/overlays/bingo_grids.jpg" alt="Bingo grid" />
-				<span>{{ getLabel("bingogrid") }}</span>
+				<span class="label">{{ getLabel("bingogrid") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -123,17 +129,8 @@
 				v-newflag="{ date: 0, id: 'params_overlays_poll' }"
 			>
 				<img src="@/assets/img/overlays/polls.jpg" alt="Polls" />
-				<span>{{ getLabel("polls") }}</span>
-			</button>
-			<button
-				class="item"
-				key="chatPoll"
-				v-if="matchesSearch('chatPoll')"
-				@click="subContent = 'chatPoll'"
-				v-newflag="{ date: 0, id: 'params_overlays_chatpoll' }"
-			>
-				<img src="@/assets/img/overlays/chat_poll.jpg" alt="Polls" />
-				<span>{{ getLabel("chatPoll") }}</span>
+				<span class="label">{{ getLabel("polls") }}</span>
+				<div class="platform twitch"><Icon name="twitch" /></div>
 			</button>
 			<button
 				class="item"
@@ -143,7 +140,19 @@
 				v-newflag="{ date: 0, id: 'params_overlays_prediction' }"
 			>
 				<img src="@/assets/img/overlays/predictions.jpg" alt="Predictions" />
-				<span>{{ getLabel("predictions") }}</span>
+				<span class="label">{{ getLabel("predictions") }}</span>
+				<div class="platform twitch"><Icon name="twitch" /></div>
+			</button>
+			<button
+				class="item"
+				key="chatPoll"
+				v-if="matchesSearch('chatPoll')"
+				@click="subContent = 'chatPoll'"
+				v-newflag="{ date: 0, id: 'params_overlays_chatpoll' }"
+			>
+				<img src="@/assets/img/overlays/chat_poll.jpg" alt="Polls" />
+				<span class="label">{{ getLabel("chatPoll") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -152,7 +161,8 @@
 				@click="subContent = 'wheel'"
 			>
 				<img src="@/assets/img/overlays/raffle.jpg" alt="wheel" />
-				<span>{{ getLabel("wheel") }}</span>
+				<span class="label">{{ getLabel("wheel") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -162,7 +172,8 @@
 				v-newflag="{ date: 0, id: 'overlay_bitswall' }"
 			>
 				<img src="@/assets/img/overlays/bits_wall.jpg" alt="Bits wall" />
-				<span>{{ getLabel("bitswall") }}</span>
+				<span class="label">{{ getLabel("bitswall") }}</span>
+				<div class="platform twitch"><Icon name="twitch" /></div>
 			</button>
 			<button
 				class="item"
@@ -172,7 +183,8 @@
 				v-newflag="{ date: 0, id: 'overlay_credits' }"
 			>
 				<img src="@/assets/img/overlays/ending_credits.jpg" alt="Ending Credits" />
-				<span>{{ getLabel("credits") }}</span>
+				<span class="label">{{ getLabel("credits") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -181,7 +193,8 @@
 				@click="subContent = 'music'"
 			>
 				<img src="@/assets/img/overlays/spotify.jpg" alt="music" />
-				<span>{{ getLabel("music") }}</span>
+				<span class="label">{{ getLabel("music") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -194,7 +207,8 @@
 					src="@/assets/img/overlays/interractive_distortions.jpg"
 					alt="Interactive distortions"
 				/>
-				<span>{{ getLabel("distort") }}</span>
+				<span class="label">{{ getLabel("distort") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -204,7 +218,8 @@
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'overlay_clickableareas' }"
 			>
 				<img src="@/assets/img/overlays/clickable_areas.jpg" alt="Clickable Areas" />
-				<span>{{ getLabel("clickableareas") }}</span>
+				<span class="label">{{ getLabel("clickableareas") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -214,7 +229,8 @@
 				v-newflag="{ date: 0, id: 'overlay_adbreak' }"
 			>
 				<img src="@/assets/img/overlays/ad_break.jpg" alt="Ad break indicator" />
-				<span>{{ getLabel("adbreak") }}</span>
+				<span class="label">{{ getLabel("adbreak") }}</span>
+				<div class="platform twitch"><Icon name="twitch" /></div>
 			</button>
 			<button
 				class="item"
@@ -223,7 +239,8 @@
 				@click="subContent = 'chathighlight'"
 			>
 				<img src="@/assets/img/overlays/highlights.jpg" alt="Chat highlight" />
-				<span>{{ getLabel("chathighlight") }}</span>
+				<span class="label">{{ getLabel("chathighlight") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -233,7 +250,8 @@
 				v-newflag="{ date: 0, id: 'params_overlays_labels' }"
 			>
 				<img src="@/assets/img/overlays/labels.jpg" alt="Labels" />
-				<span>{{ getLabel("labels") }}</span>
+				<span class="label">{{ getLabel("labels") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -242,7 +260,8 @@
 				@click="subContent = 'counter'"
 			>
 				<img src="@/assets/img/overlays/counters.jpg" alt="Counters" />
-				<span>{{ getLabel("counter") }}</span>
+				<span class="label">{{ getLabel("counter") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -252,7 +271,8 @@
 				v-newflag="{ date: 0, id: 'params_overlays_timers' }"
 			>
 				<img src="@/assets/img/overlays/timer.jpg" alt="Timers" />
-				<span>{{ getLabel("timer") }}</span>
+				<span class="label">{{ getLabel("timer") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 			<button
 				class="item"
@@ -261,7 +281,8 @@
 				@click="subContent = 'ulule'"
 			>
 				<img src="@/assets/img/overlays/ulule.jpg" alt="Ulule" />
-				<span>{{ getLabel("ulule") }}</span>
+				<span class="label">{{ getLabel("ulule") }}</span>
+				<div class="platform twitchat"><Icon name="twitchat" /></div>
 			</button>
 		</TransitionGroup>
 
@@ -408,6 +429,7 @@ import OverlayParamsSpotify from "./overlays/OverlayParamsSpotify.vue";
 import OverlayParamsTimer from "./overlays/OverlayParamsTimer.vue";
 import OverlayParamsUlule from "./overlays/OverlayParamsUlule.vue";
 import OverlayParamsClickableAreas from "./overlays/OverlayParamsClickableAreas.vue";
+import Icon from "@/components/Icon.vue";
 
 const { t, tm } = useI18n();
 const storeAuth = useStoreAuth();
@@ -548,17 +570,17 @@ defineExpose({ reload, onNavigateBack });
 		.item {
 			padding: 0;
 			margin: 0;
-			// aspect-ratio: 16/9;
+			aspect-ratio: 16/9;
 			transition:
 				filter 0.25s,
 				opacity 0.25s,
 				transform 0.25s;
 			border: none;
 			position: relative;
+			border-radius: var(--border-radius);
 			background-color: var(--background-color-fadest);
-			// overflow: hidden;
+			overflow: hidden;
 			img {
-				border-radius: var(--border-radius);
 				position: relative;
 				width: 100%;
 				z-index: 1;
@@ -566,13 +588,40 @@ defineExpose({ reload, onNavigateBack });
 			&:hover {
 				filter: brightness(1.5);
 			}
-			span {
+			.label {
 				position: absolute;
-				bottom: 1em;
-				left: 50%;
 				width: calc(100% - 2em);
 				color: var(--color-text);
 				transform: translateX(-50%);
+			}
+			.platform {
+				width: 2em;
+				height: 2em;
+				padding: 0.25em;
+				z-index: 1;
+				background-color: white;
+				top: 0;
+				left: 0;
+				position: absolute;
+				border-bottom-right-radius: calc(var(--border-radius) * 2);
+				.icon {
+					top: 0;
+					// left: 0;
+					width: 100%;
+					height: 100%;
+				}
+
+				&.twitch {
+					.icon {
+						color: #a970ff;
+					}
+				}
+
+				&.twitchat {
+					.icon {
+						color: black;
+					}
+				}
 			}
 		}
 		:deep(.newFlag) {
