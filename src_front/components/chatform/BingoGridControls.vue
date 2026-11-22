@@ -15,10 +15,9 @@
 			>
 				<div class="listMode">
 					<Checkbox
-						v-for="entry in grid.entries
-							.concat(grid.additionalEntries || [])
-							.filter((v) => new RegExp(search.trim(), 'gi').test(v.label))
-							.sort((a, b) => a.label.localeCompare(b.label))"
+						v-for="entry in filterEntries(grid).sort((a, b) =>
+							a.label.localeCompare(b.label),
+						)"
 						class="entry"
 						:key="entry.id"
 						v-model="entry.check"
@@ -27,15 +26,7 @@
 						<span class="label">{{ entry.label }}</span>
 					</Checkbox>
 				</div>
-				<div
-					class="noResult"
-					v-if="
-						grid.entries
-							.concat(grid.additionalEntries || [])
-							.filter((v) => new RegExp(search.trim(), 'gi').test(v.label)).length ==
-						0
-					"
-				>
+				<div class="noResult" v-if="filterEntries(grid).length == 0">
 					{{ t("global.no_result") }}
 				</div>
 			</template>
@@ -192,6 +183,7 @@ import TTButton from "../TTButton.vue";
 import Icon from "../Icon.vue";
 import ExtensionInstaller from "../params/contents/overlays/ExtensionInstaller.vue";
 import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
+import Utils from "@/utils/Utils";
 
 const { t } = useI18n();
 const storeUsers = useStoreUsers();
@@ -223,6 +215,17 @@ watch(
 		}
 	},
 );
+
+/**
+ * Returns grid's entries (including additional ones) matching the search,
+ * ignoring case and diacritics
+ */
+function filterEntries(grid: TwitchatDataTypes.BingoGridConfig) {
+	const query = search.value.trim();
+	return grid.entries
+		.concat(grid.additionalEntries || [])
+		.filter((v) => Utils.search(v.label, query));
+}
 
 /**
  * Opens up a user card
