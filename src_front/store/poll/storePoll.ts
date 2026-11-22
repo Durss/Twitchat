@@ -33,7 +33,7 @@ export const storePoll = defineStore("poll", {
 
 	actions: {
 		populateData(params?: PollOverlayParamStoreData): void {
-			if (!isFirstPopulate) {
+			if (isFirstPopulate) {
 				isFirstPopulate = false;
 				/**
 				 * Called when poll overlay request for its configs
