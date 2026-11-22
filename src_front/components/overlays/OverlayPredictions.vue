@@ -19,160 +19,123 @@
 	/>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useOverlayConnector } from "@/composables/useOverlayConnector";
 import type TwitchatEvent from "@/events/TwitchatEvent";
 import type { PredictionOverlayParamStoreData } from "@/store/prediction/storePrediction";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
-import { Component, toNative } from "vue-facing-decorator";
-import Icon from "../Icon.vue";
-import AbstractOverlay from "./AbstractOverlay";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import PollRenderer from "./poll/PollRenderer.vue";
-@Component({
-	components: {
-		Icon,
-		PollRenderer,
-	},
-	emits: [],
-})
-class OverlayPredictions extends AbstractOverlay {
-	public show: boolean = false;
-	public showWinner: boolean = false;
-	public prediction: TwitchatDataTypes.MessagePredictionData | null = null;
-	public parameters: PredictionOverlayParamStoreData = {
-		showTitle: true,
-		listMode: true,
-		listModeOnlyMore2: true,
-		showLabels: false,
-		showPercent: false,
-		showVoters: false,
-		showVotes: false,
-		showTimer: true,
-		showOnlyResult: false,
-		hideUntilResolved: true,
-		resultDuration_s: 5,
-		placement: "bl",
-	};
 
-	private parametersReceived: boolean = false;
-	private pendingData: TwitchatEvent<"ON_PREDICTION_PROGRESS"> | null = null;
-	private updatePredictionHandler!: (e: TwitchatEvent<"ON_PREDICTION_PROGRESS">) => void;
-	private updateParametersHandler!: (e: TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">) => void;
-	private requestPresenceHandler!: () => void;
+const show = ref(false);
+const showWinner = ref(false);
+const prediction = ref<TwitchatDataTypes.MessagePredictionData | null>(null);
+const parameters = ref<PredictionOverlayParamStoreData>({
+	showTitle: true,
+	listMode: true,
+	listModeOnlyMore2: true,
+	showLabels: false,
+	showPercent: false,
+	showVoters: false,
+	showVotes: false,
+	showTimer: true,
+	showOnlyResult: false,
+	hideUntilResolved: true,
+	resultDuration_s: 5,
+	placement: "bl",
+});
 
-	public get listMode(): boolean {
-		return (
-			this.parameters.listMode &&
-			(!this.parameters.listModeOnlyMore2 ||
-				(this.parameters.listModeOnlyMore2 && this.prediction!.outcomes.length > 2))
-		);
+let parametersReceived: boolean = false;
+let pendingData: TwitchatEvent<"ON_PREDICTION_PROGRESS"> | null = null;
+
+const listMode = computed<boolean>(() => {
+	return (
+		parameters.value.listMode &&
+		(!parameters.value.listModeOnlyMore2 ||
+			(parameters.value.listModeOnlyMore2 && prediction.value!.outcomes.length > 2))
+	);
+});
+
+useOverlayConnector(requestInfo);
+
+onMounted(() => {
+	PublicAPI.instance.broadcast("ON_PREDICTIONS_OVERLAY_PRESENCE");
+
+	PublicAPI.instance.addEventListener("ON_PREDICTION_PROGRESS", onUpdatePrediction);
+	PublicAPI.instance.addEventListener("ON_PREDICTION_OVERLAY_CONFIGS", onUpdateParams);
+	PublicAPI.instance.addEventListener("GET_PREDICTIONS_OVERLAY_PRESENCE", onRequestPresence);
+});
+
+onBeforeUnmount(() => {
+	PublicAPI.instance.removeEventListener("ON_PREDICTION_PROGRESS", onUpdatePrediction);
+	PublicAPI.instance.removeEventListener("ON_PREDICTION_OVERLAY_CONFIGS", onUpdateParams);
+	PublicAPI.instance.removeEventListener("GET_PREDICTIONS_OVERLAY_PRESENCE", onRequestPresence);
+});
+
+function onRequestPresence(): void {
+	PublicAPI.instance.broadcast("ON_PREDICTIONS_OVERLAY_PRESENCE");
+}
+
+function requestInfo(): void {
+	PublicAPI.instance.broadcast("GET_PREDICTIONS_OVERLAY_CONFIGS");
+}
+
+async function onUpdatePrediction(e: TwitchatEvent<"ON_PREDICTION_PROGRESS">): Promise<void> {
+	if (!parametersReceived) {
+		// overlay's parameters not received yet, put data aside
+		// onUpdatePrediction() will be called by onUpdateParams() afterwards
+		pendingData = e;
+		requestInfo();
+		return;
 	}
 
-	public get classes(): string[] {
-		let res: string[] = ["overlaypredictions", "position-" + this.parameters.placement];
-		if (this.showWinner) res.push("win");
-		return res;
+	const newPrediction = e.data?.prediction;
+	if (newPrediction && prediction.value && newPrediction.id != prediction.value.id) {
+		// New prediction started while another one is still active. Close previous one
+		showWinner.value = false;
+		show.value = false;
+		await Utils.promisedTimeout(1000);
 	}
-
-	public async mounted(): Promise<void> {
-		PublicAPI.instance.broadcast("ON_PREDICTIONS_OVERLAY_PRESENCE");
-
-		this.updateParametersHandler = (e: TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">) =>
-			this.onUpdateParams(e);
-		this.updatePredictionHandler = (e: TwitchatEvent<"ON_PREDICTION_PROGRESS">) =>
-			this.onUpdatePrediction(e);
-		this.requestPresenceHandler = () => {
-			PublicAPI.instance.broadcast("ON_PREDICTIONS_OVERLAY_PRESENCE");
-		};
-
-		PublicAPI.instance.addEventListener("ON_PREDICTION_PROGRESS", this.updatePredictionHandler);
-		PublicAPI.instance.addEventListener(
-			"ON_PREDICTION_OVERLAY_CONFIGS",
-			this.updateParametersHandler,
-		);
-		PublicAPI.instance.addEventListener(
-			"GET_PREDICTIONS_OVERLAY_PRESENCE",
-			this.requestPresenceHandler,
-		);
-	}
-
-	public beforeUnmount(): void {
-		super.beforeUnmount();
-		PublicAPI.instance.removeEventListener(
-			"ON_PREDICTION_PROGRESS",
-			this.updatePredictionHandler,
-		);
-		PublicAPI.instance.removeEventListener(
-			"ON_PREDICTION_OVERLAY_CONFIGS",
-			this.updateParametersHandler,
-		);
-		PublicAPI.instance.removeEventListener(
-			"GET_PREDICTIONS_OVERLAY_PRESENCE",
-			this.requestPresenceHandler,
-		);
-	}
-
-	public requestInfo(): void {
-		PublicAPI.instance.broadcast("GET_PREDICTIONS_OVERLAY_CONFIGS");
-	}
-
-	public async onUpdatePrediction(e: TwitchatEvent<"ON_PREDICTION_PROGRESS">): Promise<void> {
-		if (!this.parametersReceived) {
-			// overlay's parameters not received yet, put data aside
-			// onUpdatePrediction() will be called by onUpdateParams() afterwards
-			this.pendingData = e;
-			this.requestInfo();
-			return;
-		}
-
-		const prediction = e.data?.prediction;
-		if (prediction && this.prediction && prediction.id != this.prediction.id) {
-			// New prediction started while another one is still active. Close previous one
-			this.showWinner = false;
-			this.show = false;
+	if (!newPrediction) {
+		// Empty prediction received. Hide current prediction if any
+		if (prediction.value) {
+			const closingId = prediction.value.id;
+			showWinner.value = parameters.value.resultDuration_s > 0;
+			show.value = true;
+			await Utils.promisedTimeout(parameters.value.resultDuration_s * 1000);
+			// A new prediction started during the result display, leave it open
+			if (prediction.value?.id !== closingId) return;
+			show.value = false;
+			// Wait for close animation, then forget the prediction so it's not
+			// displayed back the next time configs are received
 			await Utils.promisedTimeout(1000);
+			if (prediction.value?.id === closingId) prediction.value = null;
 		}
-		if (!prediction) {
-			// Empty prediction received. Hide current prediction if any
-			if (this.prediction) {
-				const closingId = this.prediction.id;
-				this.showWinner = this.parameters.resultDuration_s > 0;
-				this.show = true;
-				await Utils.promisedTimeout(this.parameters.resultDuration_s * 1000);
-				// A new prediction started during the result display, leave it open
-				if (this.prediction?.id !== closingId) return;
-				this.show = false;
-				// Wait for close animation, then forget the prediction so it's not
-				// displayed back the next time configs are received
-				await Utils.promisedTimeout(1000);
-				if (this.prediction?.id === closingId) this.prediction = null;
-			}
-		} else {
-			this.show =
-				this.parameters.showOnlyResult !== true &&
-				(!prediction.pendingAnswer ||
-					(prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
-			this.showWinner = false;
-			this.prediction = prediction;
-		}
-	}
-
-	public async onUpdateParams(e: TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">): Promise<void> {
-		this.parameters = e.data.parameters;
-		this.parametersReceived = true;
-		if (this.pendingData) {
-			this.onUpdatePrediction(this.pendingData);
-			this.pendingData = null;
-		} else if (this.prediction && !this.showWinner) {
-			this.show =
-				this.parameters.showOnlyResult !== true &&
-				(!this.prediction.pendingAnswer ||
-					(this.prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
-		}
+	} else {
+		show.value =
+			parameters.value.showOnlyResult !== true &&
+			(!newPrediction.pendingAnswer ||
+				(newPrediction.pendingAnswer && parameters.value.hideUntilResolved === false));
+		showWinner.value = false;
+		prediction.value = newPrediction;
 	}
 }
-export default toNative(OverlayPredictions);
+
+async function onUpdateParams(e: TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">): Promise<void> {
+	parameters.value = e.data.parameters;
+	parametersReceived = true;
+	if (pendingData) {
+		onUpdatePrediction(pendingData);
+		pendingData = null;
+	} else if (prediction.value && !showWinner.value) {
+		show.value =
+			parameters.value.showOnlyResult !== true &&
+			(!prediction.value.pendingAnswer ||
+				(prediction.value.pendingAnswer && parameters.value.hideUntilResolved === false));
+	}
+}
 </script>
 
 <style scoped lang="less">

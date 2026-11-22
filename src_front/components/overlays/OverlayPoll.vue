@@ -18,141 +18,114 @@
 	/>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useOverlayConnector } from "@/composables/useOverlayConnector";
 import type TwitchatEvent from "@/events/TwitchatEvent";
 import type { PollOverlayParamStoreData } from "@/store/poll/storePoll";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
-import { Component, toNative } from "vue-facing-decorator";
-import Icon from "../Icon.vue";
-import AbstractOverlay from "./AbstractOverlay";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import PollRenderer from "./poll/PollRenderer.vue";
-@Component({
-	components: {
-		Icon,
-		PollRenderer,
-	},
-	emits: [],
-})
-class OverlayPoll extends AbstractOverlay {
-	public show: boolean = false;
-	public showWinner: boolean = false;
-	public poll: TwitchatDataTypes.MessagePollData | null = null;
-	public parameters: PollOverlayParamStoreData = {
-		showTitle: true,
-		listMode: true,
-		listModeOnlyMore2: true,
-		showLabels: false,
-		showPercent: false,
-		showVotes: false,
-		showTimer: true,
-		showOnlyResult: false,
-		resultDuration_s: 5,
-		placement: "bl",
-	};
 
-	private parametersReceived: boolean = false;
-	private pendingData: TwitchatEvent<"ON_POLL_PROGRESS"> | null = null;
-	private updatePollHandler!: (e: TwitchatEvent<"ON_POLL_PROGRESS">) => void;
-	private updateParametersHandler!: (e: TwitchatEvent<"ON_POLL_OVERLAY_CONFIGS">) => void;
-	private requestPresenceHandler!: () => void;
+const show = ref(false);
+const showWinner = ref(false);
+const poll = ref<TwitchatDataTypes.MessagePollData | null>(null);
+const parameters = ref<PollOverlayParamStoreData>({
+	showTitle: true,
+	listMode: true,
+	listModeOnlyMore2: true,
+	showLabels: false,
+	showPercent: false,
+	showVotes: false,
+	showTimer: true,
+	showOnlyResult: false,
+	resultDuration_s: 5,
+	placement: "bl",
+});
 
-	public get listMode(): boolean {
-		return (
-			this.parameters.listMode &&
-			(!this.parameters.listModeOnlyMore2 ||
-				(this.parameters.listModeOnlyMore2 && this.poll!.choices.length > 2))
-		);
+let parametersReceived: boolean = false;
+let pendingData: TwitchatEvent<"ON_POLL_PROGRESS"> | null = null;
+
+const listMode = computed<boolean>(() => {
+	return (
+		parameters.value.listMode &&
+		(!parameters.value.listModeOnlyMore2 ||
+			(parameters.value.listModeOnlyMore2 && poll.value!.choices.length > 2))
+	);
+});
+
+useOverlayConnector(requestInfo);
+
+onMounted(() => {
+	PublicAPI.instance.broadcast("ON_POLLS_OVERLAY_PRESENCE");
+
+	PublicAPI.instance.addEventListener("ON_POLL_PROGRESS", onUpdatePoll);
+	PublicAPI.instance.addEventListener("ON_POLL_OVERLAY_CONFIGS", onUpdateParams);
+	PublicAPI.instance.addEventListener("GET_POLLS_OVERLAY_PRESENCE", onRequestPresence);
+});
+
+onBeforeUnmount(() => {
+	PublicAPI.instance.removeEventListener("ON_POLL_PROGRESS", onUpdatePoll);
+	PublicAPI.instance.removeEventListener("ON_POLL_OVERLAY_CONFIGS", onUpdateParams);
+	PublicAPI.instance.removeEventListener("GET_POLLS_OVERLAY_PRESENCE", onRequestPresence);
+});
+
+function onRequestPresence(): void {
+	PublicAPI.instance.broadcast("ON_POLLS_OVERLAY_PRESENCE");
+}
+
+function requestInfo(): void {
+	PublicAPI.instance.broadcast("GET_POLLS_OVERLAY_CONFIGS");
+}
+
+async function onUpdatePoll(e: TwitchatEvent<"ON_POLL_PROGRESS">): Promise<void> {
+	if (!parametersReceived) {
+		// overlay's parameters not received yet, put data aside
+		// onUpdatePoll() will be called by onUpdateParams() afterwards
+		pendingData = e;
+		requestInfo();
+		return;
 	}
 
-	public async mounted(): Promise<void> {
-		PublicAPI.instance.broadcast("ON_POLLS_OVERLAY_PRESENCE");
-
-		this.updateParametersHandler = (e: TwitchatEvent<"ON_POLL_OVERLAY_CONFIGS">) =>
-			this.onUpdateParams(e);
-		this.updatePollHandler = (e: TwitchatEvent<"ON_POLL_PROGRESS">) => this.onUpdatePoll(e);
-		this.requestPresenceHandler = () => {
-			PublicAPI.instance.broadcast("ON_POLLS_OVERLAY_PRESENCE");
-		};
-
-		PublicAPI.instance.addEventListener("ON_POLL_PROGRESS", this.updatePollHandler);
-		PublicAPI.instance.addEventListener(
-			"ON_POLL_OVERLAY_CONFIGS",
-			this.updateParametersHandler,
-		);
-		PublicAPI.instance.addEventListener(
-			"GET_POLLS_OVERLAY_PRESENCE",
-			this.requestPresenceHandler,
-		);
+	const newPoll = e.data?.poll;
+	if (newPoll && poll.value && newPoll.id != poll.value.id) {
+		// New poll started while the previous one is still displayed
+		// first hide current poll, the show the new one
+		showWinner.value = false;
+		show.value = false;
+		await Utils.promisedTimeout(1000);
 	}
-
-	public beforeUnmount(): void {
-		super.beforeUnmount();
-		PublicAPI.instance.removeEventListener("ON_POLL_PROGRESS", this.updatePollHandler);
-		PublicAPI.instance.removeEventListener(
-			"ON_POLL_OVERLAY_CONFIGS",
-			this.updateParametersHandler,
-		);
-		PublicAPI.instance.removeEventListener(
-			"GET_POLLS_OVERLAY_PRESENCE",
-			this.requestPresenceHandler,
-		);
-	}
-
-	public requestInfo(): void {
-		PublicAPI.instance.broadcast("GET_POLLS_OVERLAY_CONFIGS");
-	}
-
-	public async onUpdatePoll(e: TwitchatEvent<"ON_POLL_PROGRESS">): Promise<void> {
-		if (!this.parametersReceived) {
-			// overlay's parameters not received yet, put data aside
-			// onUpdatePoll() will be called by onUpdateParams() afterwards
-			this.pendingData = e;
-			this.requestInfo();
-			return;
-		}
-
-		const poll = e.data?.poll;
-		if (poll && this.poll && poll.id != this.poll.id) {
-			// New poll started while the previous one is still displayed
-			// first hide current poll, the show the new one
-			this.showWinner = false;
-			this.show = false;
+	if (!newPoll) {
+		// No poll given when a poll was displayed, request close
+		if (poll.value) {
+			const closingId = poll.value.id;
+			showWinner.value = parameters.value.resultDuration_s > 0;
+			show.value = true;
+			await Utils.promisedTimeout(parameters.value.resultDuration_s * 1000);
+			// A new poll started during the result display, leave it open
+			if (poll.value?.id !== closingId) return;
+			show.value = false;
+			// Wait for close animation, then forget the poll so it's not
+			// displayed back the next time configs are received
 			await Utils.promisedTimeout(1000);
+			if (poll.value?.id === closingId) poll.value = null;
 		}
-		if (!poll) {
-			// No poll given when a poll was displayed, request close
-			if (this.poll) {
-				const closingId = this.poll.id;
-				this.showWinner = this.parameters.resultDuration_s > 0;
-				this.show = true;
-				await Utils.promisedTimeout(this.parameters.resultDuration_s * 1000);
-				// A new poll started during the result display, leave it open
-				if (this.poll?.id !== closingId) return;
-				this.show = false;
-				// Wait for close animation, then forget the poll so it's not
-				// displayed back the next time configs are received
-				await Utils.promisedTimeout(1000);
-				if (this.poll?.id === closingId) this.poll = null;
-			}
-		} else {
-			this.show = this.parameters.showOnlyResult !== true;
-			this.showWinner = false;
-			this.poll = poll;
-		}
-	}
-
-	public async onUpdateParams(e: TwitchatEvent<"ON_POLL_OVERLAY_CONFIGS">): Promise<void> {
-		this.parameters = e.data.parameters;
-		this.parametersReceived = true;
-		if (this.pendingData) {
-			this.onUpdatePoll(this.pendingData);
-			this.pendingData = null;
-		} else if (this.poll && !this.showWinner) {
-			this.show = this.parameters.showOnlyResult !== true;
-		}
+	} else {
+		show.value = parameters.value.showOnlyResult !== true;
+		showWinner.value = false;
+		poll.value = newPoll;
 	}
 }
-export default toNative(OverlayPoll);
+
+async function onUpdateParams(e: TwitchatEvent<"ON_POLL_OVERLAY_CONFIGS">): Promise<void> {
+	parameters.value = e.data.parameters;
+	parametersReceived = true;
+	if (pendingData) {
+		onUpdatePoll(pendingData);
+		pendingData = null;
+	} else if (poll.value && !showWinner.value) {
+		show.value = parameters.value.showOnlyResult !== true;
+	}
+}
 </script>
