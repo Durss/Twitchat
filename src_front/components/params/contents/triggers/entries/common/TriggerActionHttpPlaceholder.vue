@@ -50,9 +50,9 @@
 			<template #PLACEHOLDER>
 				<template v-for="(p, index) in props.placeholderList">
 					<mark v-click2Select>{{ "{" + p.placeholder.toUpperCase() + "}" }}</mark>
-					<template v-if="index < props.placeholderList.length - 1">{{
-						t("global.or")
-					}}</template>
+					<template v-if="index < props.placeholderList.length - 1"
+						>&nbsp;{{ t("global.or") }}&nbsp;</template
+					>
 				</template>
 			</template>
 		</i18n-t>
