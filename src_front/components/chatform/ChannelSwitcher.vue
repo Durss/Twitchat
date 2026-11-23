@@ -512,9 +512,11 @@ watch(
 			text-align: left;
 			flex: 1;
 			position: relative;
+			border-radius: 2em;
+			height: calc(25px + 4px);
 			.avatar {
-				width: 1.5em;
-				height: 1.5em;
+				width: 25px;
+				height: 25px;
 				border-radius: 50%;
 				border: 2px solid currentColor;
 			}
@@ -530,6 +532,9 @@ watch(
 					top: calc(50% - 0.75em);
 					left: calc(2px + 1.2em);
 				}
+			}
+			&.active {
+				outline: 1px solid var(--color-secondary);
 			}
 
 			.platformIcon {
