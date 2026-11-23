@@ -4,6 +4,7 @@ services:
             context: .
             dockerfile: Dockerfile
         image: ghcr.io/durss/twitchat:${TWITCHAT_TAG:-latest}
+        container_name: ${CONTAINER_NAME:-twitchat}
         healthcheck:
             # Runs inside the container, which always listens on 3018 (fixed internal port).
             test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3018/api"]
