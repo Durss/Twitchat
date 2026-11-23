@@ -1904,7 +1904,10 @@ export default class EventSub {
 			}
 			StoreProxy.users.pendingShoutouts[channel_id] = list;
 
-			if (StoreProxy.params.features.chatShoutout.value === true) {
+			if (
+				StoreProxy.params.features.chatShoutout.value === true &&
+				channel_id == StoreProxy.auth.twitch.user.id
+			) {
 				const message = replacePlaceholders(StoreProxy.chat.botMessages.shoutout.message, {
 					USER: user.displayNameOriginal,
 					URL: "twitch.tv/" + user.login,
