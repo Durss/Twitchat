@@ -8438,74 +8438,91 @@ export default class TriggerActionHandler {
 						}
 					}
 				} else if (step.type == "bid_war") {
-					const sideIndex = step.bidWarData.sideIndex;
-					logStep.messages.push({
-						date: Date.now(),
-						value:
-							'Execute action "' +
-							step.bidWarData.action +
-							'" on side #' +
-							(sideIndex + 1) +
-							' of bid war ID "' +
-							step.bidWarData.bidWarId +
-							'"',
-					});
-					const bidWar = StoreProxy.bidWar.bidWarList.find(
-						(v) => v.id == step.bidWarData.bidWarId,
-					);
-					if (!bidWar) {
+					if (!step.bidWarData) {
 						logStep.messages.push({
 							date: Date.now(),
-							value: "❌ Requested bid war not found",
+							value: "❌ Missing bidwar info",
 						});
 						log.error = true;
 						logStep.error = true;
 					} else {
-						const amount = await this.parsePlaceholders({
-							dynamicPlaceholders,
-							actionPlaceholders,
-							trigger,
-							message,
-							src: step.bidWarData.value.toString() || "0",
-							subEvent,
+						const sideIndex = step.bidWarData.sideIndex;
+						logStep.messages.push({
+							date: Date.now(),
+							value:
+								'Execute action "' +
+								step.bidWarData.action +
+								'" on side #' +
+								(sideIndex + 1) +
+								' of bid war ID "' +
+								step.bidWarData.bidWarId +
+								'"',
 						});
-						const amountNum = evalMath(amount);
-						if (amountNum == null) {
+						const bidWar = StoreProxy.bidWar.bidWarList.find(
+							(v) => v.id == step.bidWarData.bidWarId,
+						);
+						if (!bidWar) {
 							logStep.messages.push({
 								date: Date.now(),
-								value: '❌ Invalid amount "' + amount + '"',
+								value: "❌ Requested bid war not found",
 							});
 							log.error = true;
 							logStep.error = true;
 						} else {
-							switch (step.bidWarData.action) {
-								case "add": {
-									StoreProxy.bidWar.addAmount(
-										bidWar.id,
-										sideIndex,
-										amountNum,
-										// Don't let an "amount added" trigger execute itself indefinitely
-										trigger.type != TriggerTypes.BID_WAR_AMOUNT_ADDED,
-									);
-									break;
-								}
-								case "del": {
-									StoreProxy.bidWar.addAmount(bidWar.id, sideIndex, -amountNum);
-									break;
-								}
-								case "set": {
-									StoreProxy.bidWar.setAmount(bidWar.id, sideIndex, amountNum);
-									break;
-								}
-							}
-							logStep.messages.push({
-								date: Date.now(),
-								value:
-									"✔ Side #" +
-									(sideIndex + 1) +
-									" amount is now " +
-									bidWar.sides[sideIndex]?.amount,
+							const amount = await this.parsePlaceholders({
+								dynamicPlaceholders,
+								actionPlaceholders,
+								trigger,
+								message,
+								src: step.bidWarData.value.toString() || "0",
+								subEvent,
 							});
+							const amountNum = evalMath(amount);
+							if (amountNum == null) {
+								logStep.messages.push({
+									date: Date.now(),
+									value: '❌ Invalid amount "' + amount + '"',
+								});
+								log.error = true;
+								logStep.error = true;
+							} else {
+								switch (step.bidWarData.action) {
+									case "add": {
+										StoreProxy.bidWar.addAmount(
+											bidWar.id,
+											sideIndex,
+											amountNum,
+											// Don't let an "amount added" trigger execute itself indefinitely
+											trigger.type != TriggerTypes.BID_WAR_AMOUNT_ADDED,
+										);
+										break;
+									}
+									case "del": {
+										StoreProxy.bidWar.addAmount(
+											bidWar.id,
+											sideIndex,
+											-amountNum,
+										);
+										break;
+									}
+									case "set": {
+										StoreProxy.bidWar.setAmount(
+											bidWar.id,
+											sideIndex,
+											amountNum,
+										);
+										break;
+									}
+								}
+								logStep.messages.push({
+									date: Date.now(),
+									value:
+										"✔ Side #" +
+										(sideIndex + 1) +
+										" amount is now " +
+										bidWar.sides[sideIndex]?.amount,
+								});
+							}
 						}
 					}
 				} else if (step.type == "sfxr") {

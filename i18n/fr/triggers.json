@@ -573,7 +573,7 @@
 				"param_list_values": "Éléments sélectionnables",
 				"param_list_values_placeholder": "Saisissez un élément puis appuyez sur entrée...",
 				"type_string": "Texte",
-				"type_boolean": "Interrupteur",
+				"type_boolean": "Oui/Non",
 				"type_number": "Nombre",
 				"type_list": "Liste",
 				"type_duration": "Durée"

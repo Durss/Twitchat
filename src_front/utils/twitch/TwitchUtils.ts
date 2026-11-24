@@ -3377,7 +3377,7 @@ export default class TwitchUtils {
 				};
 				let data = resJson.data?.[0];
 				let errorCode = data?.drop_reason?.code;
-				console.log("Sent?", data);
+
 				if (data && !data.is_sent && errorCode !== "automod_held") {
 					if (!StoreProxy.i18n.te("error.message_send_fail_restrictions." + errorCode)) {
 						errorCode = "unknown";

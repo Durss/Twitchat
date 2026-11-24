@@ -573,7 +573,7 @@
 				"param_list_values": "Selectable items",
 				"param_list_values_placeholder": "Type an item then press enter...",
 				"type_string": "Text",
-				"type_boolean": "Toggle",
+				"type_boolean": "Yes/No",
 				"type_number": "Number",
 				"type_list": "List",
 				"type_duration": "Duration"
