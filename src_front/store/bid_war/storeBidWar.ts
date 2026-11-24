@@ -179,7 +179,6 @@ export const storeBidWar = defineStore("bidwar", {
 			 */
 			PublicAPI.instance.addEventListener("ON_BID_WAR_UPDATE", (event) => {
 				const data = event.data;
-				console.log(data);
 				if (!data) return;
 				const entry = this.bidWarList.find((v) => v.id === data.id);
 				if (!entry) return;

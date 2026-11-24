@@ -4,7 +4,7 @@
 		"title": "Nouveautés",
 		"companion_details": "{LINK} est une extensions Twitch permettant à vos viewers de jouer aux bingos, participer aux quiz ou cliquer sur votre stream.",
 		"companion_details_link": "Twitchat Companion",
-		"streamdeck_plugin": "Plugin Stream Deck",
+		"streamdeck_plugin": "Télécharger le plugin",
 		"streamsocket_plugin": "Installer l'extension StreamSocket",
 		"gift": "Pour te remercier de lire les mises à jour, utilise cette commande pour un cadeau: {COMMAND}",
 		"highlights": [
@@ -130,7 +130,7 @@
 			{
 				"i": "placeholder",
 				"l": "Triggers - Modificateurs",
-				"d": "Les placeholders peuvent être modifiés :<ul><li><strong>{USER.uppercase}</strong> => DURSS</li><li><strong>{AMOUNT.currency(EUR)}</strong> => 12,50 €</li><li><strong>{USER_FOLLOWAGE_MS.duration}</strong> => 1j 4h 12m 30s</li></ul>Près de 70 modificateurs sont disponibles pour formater du texte, des nombres, des dates, des durées ou des listes.\n\nIls fonctionnent dans les Triggers ainsi que sur l'overlay Labels.\n\nVoir la <a href=\"https://github.com/Durss/Twitchat/blob/refs/heads/beta/PLACEHOLDER_MODIFIERS.md\" target=\"_blank\">liste complète</a>."
+				"d": "Les placeholders peuvent être modifiés :<ul><li><strong>{USER<mark>.uppercase</mark>}</strong> => DURSS</li><li><strong>{AMOUNT<mark>.currency(EUR)</mark>}</strong> => 12,50 €</li><li><strong>{USER_FOLLOWAGE_MS<mark>.duration</mark>}</strong> => 1j 4h 12m 30s</li></ul>Près de 70 modificateurs sont disponibles pour formater du texte, des nombres, des dates, des durées ou des listes.\n\nIls fonctionnent dans les Triggers ainsi que sur l'overlay Labels.\n\nVoir la <a href=\"https://github.com/Durss/Twitchat/blob/refs/heads/beta/PLACEHOLDER_MODIFIERS.md\" target=\"_blank\">liste complète</a>."
 			},
 			{
 				"i": "chatCommand",

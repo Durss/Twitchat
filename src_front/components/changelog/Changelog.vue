@@ -123,15 +123,6 @@
 							<div class="description" v-html="item.html"></div>
 
 							<TTButton
-								type="link"
-								v-if="item.i == 'streamsocket'"
-								target="_blank"
-								href="https://dashboard.twitch.tv/extensions/1lpj3883m4u6exlgdwzuk627bvpabj"
-								icon="streamsocket"
-								>{{ t("changelog.streamsocket_plugin") }}</TTButton
-							>
-
-							<TTButton
 								v-if="item.a"
 								:icon="item.a.i ?? 'test'"
 								:light="item.p === true"
@@ -160,13 +151,20 @@
 								></video>
 							</div>
 
-							<div v-if="item.i == 'bidwar'" class="card-item">TODO</div>
+							<ChangelogBidwar
+								v-if="currentItem.i == 'bidwar' && item.i == 'bidwar'"
+							/>
+
+							<ChangelogStreamloots
+								v-if="currentItem.i == 'streamloots' && item.i == 'streamloots'"
+							/>
 
 							<RewardListItem
 								v-if="item.i == 'fear'"
 								class="reward"
 								:reward="fakeReward"
 								:manageable="true"
+								inert
 							/>
 
 							<TTButton
@@ -181,8 +179,12 @@
 							>
 
 							<MessageItem
-								class="card-item dark messageExample"
-								v-if="item.i == 'youtube_jewels' && jewelMessage"
+								class="messageExample"
+								v-if="
+									currentItem.i == 'youtube_jewels' &&
+									item.i == 'youtube_jewels' &&
+									jewelMessage
+								"
 								:messageData="jewelMessage"
 							/>
 
@@ -253,6 +255,8 @@ import SponsorTable from "../premium/SponsorTable.vue";
 import RewardListItem from "../chatform/RewardListItem.vue";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes.js";
 import { asset } from "@/composables/useAsset.js";
+import ChangelogBidwar from "./ChangelogBidwar.vue";
+import ChangelogStreamloots from "./ChangelogStreamloots.vue";
 
 const emit = defineEmits<{
 	close: [];
@@ -981,10 +985,6 @@ function skinPagination(): void {
 	}
 
 	.reward {
-		pointer-events: none;
-		* {
-			pointer-events: none;
-		}
 		:deep(.jumpscare) {
 			outline: 2px solid red;
 			padding: 0.25em 0.5em;

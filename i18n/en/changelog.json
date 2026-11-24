@@ -4,7 +4,7 @@
 		"title": "Latest updates",
 		"companion_details": "{LINK} is a Twitch extension allowing your viewers to play bingos, take part in quizzes or click on your stream.",
 		"companion_details_link": "Twitchat Companion",
-		"streamdeck_plugin": "Get Stream Deck plugin",
+		"streamdeck_plugin": "Download plugin",
 		"streamsocket_plugin": "Install StreamSocket extension",
 		"gift": "To thank you for reading updates, use this command for a gift: {COMMAND}",
 		"highlights": [
@@ -34,7 +34,7 @@
 			{
 				"i": "bidwar",
 				"l": "Bid war overlay",
-				"d": "Two choices, viewers tip one by adding its keyword to their tip message. The choix that earns the most wins.\n\nThis system is often used during charity events.",
+				"d": "Two choices, viewers tip for any by adding its keyword to their tip message. The choix that earns the most wins.\n\nThis system is often used during charity events.",
 				"a": {
 					"l": "Try",
 					"param": "overlays",
@@ -130,7 +130,7 @@
 			{
 				"i": "placeholder",
 				"l": "Triggers - Modifiers",
-				"d": "Placeholders can now be transformed:<ul><li><strong>{USER.uppercase}</strong> => DURSS</li><li><strong>{AMOUNT.currency(EUR)}</strong> => €12.50</li><li><strong>{USER_FOLLOWAGE_MS.duration}</strong> => 1d 4h 12m 30s</li></ul>Almost 70 modifiers are available to format text, numbers, dates, durations or lists.\n\nThey work on the Triggers as well as on the Labels overlay.\n\nSee the <a href=\"https://github.com/Durss/Twitchat/blob/refs/heads/beta/PLACEHOLDER_MODIFIERS.md\" target=\"_blank\">full list</a>."
+				"d": "Placeholders can now be transformed:<ul><li><strong>{USER<mark>.uppercase</mark>}</strong> => DURSS</li><li><strong>{AMOUNT<mark>.currency(EUR)</mark>}</strong> => €12.50</li><li><strong>{USER_FOLLOWAGE_MS<mark>.duration</mark>}</strong> => 1d 4h 12m 30s</li></ul>Almost 70 modifiers are available to format text, numbers, dates, durations or lists.\n\nThey work on the Triggers as well as on the Labels overlay.\n\nSee the <a href=\"https://github.com/Durss/Twitchat/blob/refs/heads/beta/PLACEHOLDER_MODIFIERS.md\" target=\"_blank\">full list</a>."
 			},
 			{
 				"i": "chatCommand",
