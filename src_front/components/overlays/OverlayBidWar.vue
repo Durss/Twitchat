@@ -13,11 +13,18 @@
 		</div>
 		<div class="bar" id="bidwar_bar" ref="bar">
 			<div class="fill" id="bidwar_bar_fill"></div>
+			<div class="fillB" id="bidwar_bar_fill_b"></div>
+			<div
+				v-for="(_, index) in params.sides"
+				:key="'fx_' + index"
+				:class="['fx', index == 0 ? 'left' : 'right', { winning: winner === index }]"
+				:id="'bidwar_side_' + index + '_fx'"
+			></div>
 			<div class="separator" id="bidwar_bar_separator"></div>
 			<div
 				v-for="(side, index) in params.sides"
 				:key="index"
-				:class="['side', index == 0 ? 'left' : 'right']"
+				:class="['side', index == 0 ? 'left' : 'right', { winning: winner === index }]"
 				:id="'bidwar_side_' + index"
 			>
 				<span class="keyword" :id="'bidwar_side_' + index + '_keyword'">{{
@@ -85,6 +92,32 @@ const splitPercent = computed<string>(() => {
 	const total = a + b;
 	const ratio = total > 0 ? a / total : 0.5;
 	return ratio * 100 + "%";
+});
+
+/**
+ * Index of the side currently leading.
+ * -1 on a tie, null when there's no bid war displayed.
+ */
+const winner = computed<number | null>(() => {
+	if (!params.value) return null;
+	const a = params.value.sides[0].amount;
+	const b = params.value.sides[1].amount;
+	if (a == b) return -1;
+	return a > b ? 0 : 1;
+});
+
+// Make the amount pop when a side takes the lead.
+// Skipped when the bid war is just being displayed.
+watch(winner, (index, prevIndex) => {
+	if (index == null || index < 0 || prevIndex == null) return;
+	const amount = document.getElementById("bidwar_side_" + index + "_amount");
+	if (!amount) return;
+	gsap.killTweensOf(amount);
+	gsap.fromTo(
+		amount,
+		{ scale: 1.4 },
+		{ scale: 1, duration: 0.6, ease: "elastic.out(1, 0.4)", clearProps: "transform" },
+	);
 });
 
 /**
@@ -248,11 +281,12 @@ function formatAmount(amount: number): string {
 	}
 
 	.bar {
+		// Shared by everything following the split so they stay in sync
+		@splitEase: cubic-bezier(0.3, 1.4, 0.5, 1);
 		position: relative;
 		height: 3em;
 		border-radius: 2em;
 		overflow: hidden;
-		background-color: var(--color-b);
 		z-index: 1;
 		overflow: hidden;
 		width: 100%;
@@ -264,7 +298,95 @@ function formatAmount(amount: number): string {
 			bottom: 0;
 			width: var(--split);
 			background-color: var(--color-a);
-			transition: width 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
+			transition: width 0.6s @splitEase;
+		}
+
+		// Right side's gradient, starting at the split instead of the bar's left edge
+		.fillB {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: var(--split);
+			right: 0;
+			background: var(--color-b);
+			transition: left 0.6s @splitEase;
+		}
+
+		// Glow + light sweeping toward the separator on the leading side
+		.fx {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			overflow: hidden;
+			opacity: 0;
+			box-shadow: inset 0 0 0.75em #ffffff80;
+			transition:
+				opacity 0.3s,
+				width 0.6s @splitEase,
+				left 0.6s @splitEase;
+			animation: bidwarGlow 1.5s ease-in-out infinite paused;
+
+			&::before {
+				content: "";
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(
+					var(--shine-angle),
+					transparent 35%,
+					#ffffff66 50%,
+					transparent 65%
+				);
+				transform: translateX(-100%);
+				animation: bidwarShine 1.5s ease-in-out infinite paused;
+			}
+
+			&.left {
+				--shine-angle: 105deg;
+				left: 0;
+				width: var(--split);
+				// Follow the bar's rounded end so the glow isn't cut off
+				border-radius: 2em 0 0 2em;
+			}
+
+			&.right {
+				--shine-angle: -105deg;
+				left: var(--split);
+				right: 0;
+				border-radius: 0 2em 2em 0;
+				&::before {
+					animation-direction: reverse;
+				}
+			}
+
+			&.winning {
+				opacity: 1;
+				animation-play-state: running;
+				&::before {
+					animation-play-state: running;
+				}
+			}
+
+			// Sweep across, then rest for the remaining 40% of the cycle
+			@keyframes bidwarShine {
+				0% {
+					transform: translateX(-100%);
+				}
+				60%,
+				100% {
+					transform: translateX(100%);
+				}
+			}
+			@keyframes bidwarGlow {
+				0% {
+					box-shadow: inset 0 0 0.25em #ffffff80;
+				}
+				50% {
+					box-shadow: inset 0 0 1em #ffffff80;
+				}
+				100% {
+					box-shadow: inset 0 0 0.25em #ffffff80;
+				}
+			}
 		}
 
 		.separator {
@@ -275,7 +397,7 @@ function formatAmount(amount: number): string {
 			width: 4px;
 			margin-left: -2px;
 			background-color: #ffffff;
-			transition: left 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
+			transition: left 0.6s @splitEase;
 		}
 
 		.side {
