@@ -98,12 +98,12 @@
 									<TTButton
 										:icon="item.i"
 										:premium="item.p"
-										@click="currentSlide = index + 1"
+										@click="selectSlide(index + 1)"
 										>{{ item.l }}
 									</TTButton>
 								</li>
 								<li>
-									<TTButton secondary @click="currentSlide = items.length - 1"
+									<TTButton secondary @click="selectSlide(items.length - 1)"
 										>🫶 🥺 🫶</TTButton
 									>
 								</li>
@@ -148,6 +148,7 @@
 									:src="item.v"
 									autoplay
 									loop
+									controls
 								></video>
 							</div>
 
@@ -157,6 +158,10 @@
 
 							<ChangelogStreamloots
 								v-if="currentItem.i == 'streamloots' && item.i == 'streamloots'"
+							/>
+
+							<ChangelogStreamPrefix
+								v-if="currentItem.i == 'edit' && item.i == 'edit'"
 							/>
 
 							<RewardListItem
@@ -257,6 +262,7 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes.js";
 import { asset } from "@/composables/useAsset.js";
 import ChangelogBidwar from "./ChangelogBidwar.vue";
 import ChangelogStreamloots from "./ChangelogStreamloots.vue";
+import ChangelogStreamPrefix from "./ChangelogStreamPrefix.vue";
 
 const emit = defineEmits<{
 	close: [];
@@ -563,6 +569,11 @@ function skinPagination(): void {
 		}
 	});
 }
+
+function selectSlide(index: number) {
+	currentSlide.value = index;
+	if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+}
 </script>
 
 <style scoped lang="less">
@@ -620,6 +631,7 @@ function skinPagination(): void {
 
 			.title {
 				padding-left: 0;
+				white-space: pre-line;
 			}
 		}
 
@@ -680,6 +692,7 @@ function skinPagination(): void {
 					font-size: 2.5em;
 					line-height: 1.25em;
 					text-align: center;
+					white-space: pre-line;
 				}
 
 				.description {

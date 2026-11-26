@@ -12,7 +12,7 @@
 				"i": "twitchat_companion",
 				"l": "Twitchat Companion",
 				"d": "A brand new Twitch extension made for Twitchat.\n\nYour viewers can now play Bingos, take part in Quizzes, click on your stream and even type on it, directly from Twitch, on desktop <strong>and mobile</strong>.",
-				"g": "update_images/companion.png",
+				"v": "update_images/twitchat_companion_small.mp4",
 				"a": {
 					"l": "Try",
 					"i": "extension",
@@ -44,9 +44,9 @@
 			{
 				"i": "bingo_grid",
 				"l": "Bingo grids",
-				"d": "Your viewers can now tick bingo grid cells right on your stream thanks to the new Twitchat Companion extension.\n\nPremium users can share their active grid with other streamers to play together.",
+				"d": "Viewers must now play bingo grid from  <a href=\"https://dashboard.twitch.tv/extensions/zo8hnik5ey8nv1zcb97hh65sol97a2\" target=\"_blank\">Twitchat Companion</a> extension.\n\nPremium users can share their active grid with other streamers to play together.",
 				"a": {
-					"l": "Essayer",
+					"l": "Try",
 					"param": "overlays",
 					"subparam": "bingogrid"
 				}
@@ -121,7 +121,7 @@
 			{
 				"i": "edit",
 				"l": "Stream prefix & suffix",
-				"d": "Define a prefix and/or a suffix that will automatically be added to your stream title anytime you update it from Twitchat.\n\n",
+				"d": "Define a prefix and/or a suffix that will automatically be added to your stream title anytime you update it from Twitchat.",
 				"a": {
 					"l": "Try",
 					"modal": "streamInfo"
@@ -129,12 +129,12 @@
 			},
 			{
 				"i": "placeholder",
-				"l": "Triggers - Modifiers",
+				"l": "Triggers\nModifiers",
 				"d": "Placeholders can now be transformed:<ul><li><strong>{USER<mark>.uppercase</mark>}</strong> => DURSS</li><li><strong>{AMOUNT<mark>.currency(EUR)</mark>}</strong> => €12.50</li><li><strong>{USER_FOLLOWAGE_MS<mark>.duration</mark>}</strong> => 1d 4h 12m 30s</li></ul>Almost 70 modifiers are available to format text, numbers, dates, durations or lists.\n\nThey work on the Triggers as well as on the Labels overlay.\n\nSee the <a href=\"https://github.com/Durss/Twitchat/blob/refs/heads/beta/PLACEHOLDER_MODIFIERS.md\" target=\"_blank\">full list</a>."
 			},
 			{
 				"i": "chatCommand",
-				"l": "Triggers - Command parameters",
+				"l": "Triggers\nCommand parameters",
 				"d": "The <strong>\"Optional command parameters\"</strong> can now extract information in a much more precise way.\n\nEither by defining a message format, or from a regular expression.",
 				"g": "update_images/comand-params.webp"
 			},

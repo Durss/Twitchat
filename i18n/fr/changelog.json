@@ -12,7 +12,7 @@
 				"i": "twitchat_companion",
 				"l": "Twitchat Companion",
 				"d": "Une toute nouvelle extension Twitch pensée pour Twitchat.\n\nVos viewers peuvent désormais jouer aux Bingos, participer aux Quiz, cliquer sur votre stream et même y écrire, directement depuis Twitch, sur ordinateur <strong>et sur mobile</strong>.",
-				"g": "update_images/companion.png",
+				"v": "update_images/twitchat_companion_small.mp4",
 				"a": {
 					"l": "Essayer",
 					"i": "extension",
@@ -44,7 +44,7 @@
 			{
 				"i": "bingo_grid",
 				"l": "Grilles de bingo",
-				"d": "Vos viewers peuvent désormais cocher les cases directement sur votre stream via la nouvelle extension <a href=\"https://dashboard.twitch.tv/extensions/zo8hnik5ey8nv1zcb97hh65sol97a2\" target=\"_blank\">Twitchat Companion</a>.\n\nLes abonné·es Premium peuvent temporairement partager leur grille de bingo currante avec d'autres streamers pour jouer avec.",
+				"d": "Vos viewers doivent maintenant jouer depuis l'extension <a href=\"https://dashboard.twitch.tv/extensions/zo8hnik5ey8nv1zcb97hh65sol97a2\" target=\"_blank\">Twitchat Companion</a>.\n\nDevenez Premium pour jouer à votre grille avec d'autres streamereuses",
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",
@@ -121,7 +121,7 @@
 			{
 				"i": "edit",
 				"l": "Préfixe & suffixe de stream",
-				"d": "Définissez un préfixe et/ou un suffixe automatiquement ajoutés au titre de votre stream chaque fois que vous le modifiez depuis Twitchat.\n\n",
+				"d": "Définissez un préfixe et/ou un suffixe automatiquement ajoutés au titre de votre stream chaque fois que vous le modifiez depuis Twitchat.",
 				"a": {
 					"l": "Essayer",
 					"modal": "streamInfo"
@@ -129,12 +129,12 @@
 			},
 			{
 				"i": "placeholder",
-				"l": "Triggers - Modificateurs",
+				"l": "Triggers\nModificateurs",
 				"d": "Les placeholders peuvent être modifiés :<ul><li><strong>{USER<mark>.uppercase</mark>}</strong> => DURSS</li><li><strong>{AMOUNT<mark>.currency(EUR)</mark>}</strong> => 12,50 €</li><li><strong>{USER_FOLLOWAGE_MS<mark>.duration</mark>}</strong> => 1j 4h 12m 30s</li></ul>Près de 70 modificateurs sont disponibles pour formater du texte, des nombres, des dates, des durées ou des listes.\n\nIls fonctionnent dans les Triggers ainsi que sur l'overlay Labels.\n\nVoir la <a href=\"https://github.com/Durss/Twitchat/blob/refs/heads/beta/PLACEHOLDER_MODIFIERS.md\" target=\"_blank\">liste complète</a>."
 			},
 			{
 				"i": "chatCommand",
-				"l": "Triggers - Paramètres de commande",
+				"l": "Triggers\nParamètres de commande",
 				"d": "Les <strong>\"Paramètres de commande optionnels\"</strong> permettent désormais d'extraire des informations de manière beaucoup plus fine.\n\nSoit en définissant un format de message, soit depuis une expression régulière.",
 				"g": "update_images/comand-params.webp"
 			},
