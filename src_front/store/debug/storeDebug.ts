@@ -402,7 +402,7 @@ export const storeDebug = defineStore("debug", {
 						allTimeHighTotal: 100000,
 						isAllTimeRecord: Math.random() > 0.5,
 						isSharedTrain: Math.random() > 0.5,
-						type: Utils.pickRand(["regular", "golden_kappa", "treasure"])!,
+						type: Utils.pickRand(["regular", "golden_kappa", "treasure", "mythic"])!,
 						sharedStates: {},
 					};
 					const m: TwitchatDataTypes.MessageHypeTrainEventData = {
@@ -573,7 +573,7 @@ export const storeDebug = defineStore("debug", {
 							allTimeHighTotal: 100000,
 							isAllTimeRecord: Math.random() > 0.5,
 							isSharedTrain: Math.random() > 0.5,
-							type: Utils.pickRand(["regular", "golden_kappa", "treasure"])!,
+							type: Utils.pickRand(["regular", "golden_kappa", "treasure", "mythic"])!,
 							state: "COMPLETED",
 							conductor_subs: {
 								user: conductor_subs,

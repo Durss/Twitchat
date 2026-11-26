@@ -489,7 +489,7 @@ export namespace TwitchEventSubDataTypes {
 			total: number;
 		}[];
 		is_shared_train: boolean;
-		type: "regular" | "treasure" | "golden_kappa";
+		type: "regular" | "treasure" | "golden_kappa" | "mythic";
 		started_at: string;
 		total: number;
 		level: number;

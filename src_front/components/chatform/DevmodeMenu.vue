@@ -251,6 +251,9 @@
 			<TTButton small @click="simulateHypeTrain('treasure')" icon="train"
 				>Treasure train</TTButton
 			>
+			<TTButton small @click="simulateHypeTrain('mythic')" icon="train"
+				>Mythic train</TTButton
+			>
 			<TTButton small @click="simulateEvent($event, 'hype_train_cooled_down')" icon="train"
 				>Hype train cooldown</TTButton
 			>

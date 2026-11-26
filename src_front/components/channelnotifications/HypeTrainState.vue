@@ -20,28 +20,13 @@
 		<div class="fill" :style="{ width: 100 - roundProgressPercent + '%' }"></div>
 
 		<div class="head" v-stickyTopShadow>
-			<template v-if="trainData.state == 'APPROACHING'">
-				<h1 v-if="trainData.type == 'treasure'">
-					<HypeTrainStateIcon />{{ $t("train.treasure_approaching") }}
-				</h1>
-				<h1 v-else-if="trainData.type == 'golden_kappa'">
-					<HypeTrainStateIcon />{{ $t("train.golden_approaching") }}
-				</h1>
-				<h1 v-else><HypeTrainStateIcon />{{ $t("train.hype_approaching") }}</h1>
-			</template>
+			<h1 v-if="trainData.state == 'APPROACHING'">
+				<HypeTrainStateIcon />{{ $t(i18nPrefix + "_approaching") }}
+			</h1>
 
 			<h1 v-else-if="trainProgress">
 				<HypeTrainStateIcon />
-				<i18n-t
-					scope="global"
-					:keypath="
-						trainData.type == 'treasure'
-							? 'train.treasure_progress'
-							: trainData.type == 'golden_kappa'
-								? 'train.golden_progress'
-								: 'train.hype_progress'
-					"
-				>
+				<i18n-t scope="global" :keypath="i18nPrefix + '_progress'">
 					<template #LEVEL>{{ trainData.level }}</template>
 					<template #PERCENT
 						><span class="percent">{{ roundProgressPercent }}%</span></template
@@ -51,11 +36,7 @@
 
 			<h1 v-else-if="trainData.state == 'COMPLETED'">
 				<HypeTrainStateIcon />
-				<span v-if="trainData.type == 'treasure'">{{ $t("train.treasure_complete") }}</span>
-				<span v-else-if="trainData.type == 'golden_kappa'">{{
-					$t("train.golden_complete")
-				}}</span>
-				<span v-else>{{ $t("train.hype_complete") }}</span>
+				<span>{{ $t(i18nPrefix + "_complete") }}</span>
 				<br />
 				<i18n-t
 					scope="global"
@@ -71,11 +52,7 @@
 
 			<template v-else-if="trainData.state == 'EXPIRED'">
 				<HypeTrainStateIcon />
-				<h1 v-if="trainData.type == 'treasure'">{{ $t("train.treasure_cancel") }}</h1>
-				<h1 v-else-if="trainData.type == 'golden_kappa'">
-					{{ $t("train.golden_cancel") }}
-				</h1>
-				<h1 v-else>{{ $t("train.hype_cancel") }}</h1>
+				<h1>{{ $t(i18nPrefix + "_cancel") }}</h1>
 			</template>
 
 			<ProgressBar
@@ -184,6 +161,19 @@ const trainProgress = computed<boolean>(() => {
 		trainData.value.state == "PROGRESS" ||
 		trainData.value.state == "LEVEL_UP"
 	);
+});
+
+const i18nPrefix = computed(() => {
+	switch (trainData.value.type) {
+		case "treasure":
+			return "train.treasure";
+		case "golden_kappa":
+			return "train.golden";
+		case "mythic":
+			return "train.mythic";
+		default:
+			return "train.hype";
+	}
 });
 
 const roundProgressPercent = computed(() => {
@@ -331,6 +321,10 @@ watch(
 			font-weight: normal;
 		}
 
+		& > .mythicIcon {
+			font-size: 1.5em;
+		}
+
 		& > .icon {
 			max-width: 1.5em;
 			height: 1.5em;
@@ -417,6 +411,36 @@ watch(
 			color: black !important;
 		}
 		background-image: linear-gradient(25-10deg, @c 0%, #e7ff4c 100%);
+	}
+
+	&.mythic {
+		// Same colors as on Twitch.
+		// Like on Twitch, the whole window acts as the progress bar: the head is
+		// left transparent so the dark ".fill" covers it as well.
+		// Once stuck, it gets the window's background back so the content doesn't
+		// show through it. The gradient being horizontal, it blends seamlessly.
+		@bg: linear-gradient(
+				90deg,
+				rgba(151, 103, 0, 0.5) 0%,
+				rgba(255, 215, 96, 0.5) 38.46%,
+				rgba(255, 249, 235, 0.5) 73.08%,
+				rgba(255, 215, 96, 0.5) 100%
+			),
+			#000000;
+		background: @bg;
+		.head {
+			background: transparent;
+			&.is-stuck {
+				background: @bg;
+			}
+		}
+		.fill {
+			background-color: #282318;
+		}
+		.head .percent {
+			color: #282318 !important;
+			background-color: #fff9eb;
+		}
 	}
 
 	.record {

@@ -4838,7 +4838,8 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 					values: [
 						{ label: "regular", value: "regular" },
 						{ label: "golden_kappa", value: "golden_kappa" },
-						{ labelKey: "treasure", value: "treasure" },
+						{ label: "treasure", value: "treasure" },
+						{ label: "mythic", value: "mythic" },
 					],
 				} as ITriggerPlaceholder<SafeHypeTrain>,
 			];

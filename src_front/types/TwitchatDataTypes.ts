@@ -1612,7 +1612,7 @@ export namespace TwitchatDataTypes {
 		updated_at: number;
 		ends_at: number;
 		state: "APPROACHING" | "START" | "PROGRESS" | "LEVEL_UP" | "COMPLETED" | "EXPIRED";
-		type: "regular" | "treasure" | "golden_kappa";
+		type: "regular" | "treasure" | "golden_kappa" | "mythic";
 		isSharedTrain: boolean;
 		isAllTimeRecord: boolean;
 		allTimeHighLevel: number;

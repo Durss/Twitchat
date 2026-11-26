@@ -281,6 +281,7 @@ export default class EventSub {
 			golden_kappa: train_goldenKappa,
 			regular: train_shared,
 			treasure: train_treasure,
+			mythic: train_mythic,
 		};
 		const train = JSON.parse(
 			JSON.stringify(typeToData[type])
@@ -5473,3 +5474,8 @@ const train_treasure: (string | HypeTrainEvent)[] = [
 		},
 	},
 ];
+
+// No real mythic train capture yet, replay the treasure train with the mythic type
+const train_mythic: (string | HypeTrainEvent)[] = train_treasure.map((entry) =>
+	typeof entry == "string" ? entry : { ...entry, data: { ...entry.data, type: "mythic" } },
+);
