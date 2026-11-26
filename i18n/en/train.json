@@ -17,6 +17,7 @@
 		"mythic_complete": "Mythic train complete",
 		"mythic_cancel": "Mythic train went away",
 		"hype_complete_details": "Level {LEVEL} reached",
+		"short_progress": "L{LEVEL} {PERCENT}%",
 		"conductor_subs": "{COUNT} sub | {COUNT} subs",
 		"conductor_subs_tt": "subs leader",
 		"conductor_bits": "{COUNT} bit | {COUNT} bits",

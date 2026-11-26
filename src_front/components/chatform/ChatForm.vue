@@ -294,7 +294,9 @@
 						}"
 						@click="openNotifications('train')"
 						v-if="storeStream.hypeTrain"
-					/>
+					>
+						<HypeTrainProgressInfo />
+					</ButtonNotification>
 				</transition>
 
 				<transition name="blink">
@@ -759,6 +761,7 @@ import ChatMessageChunksParser from "../messages/components/ChatMessageChunksPar
 import AutocompleteChatForm from "./AutocompleteChatForm.vue";
 import CommercialTimer from "./CommercialTimer.vue";
 import CommunityBoostInfo from "./CommunityBoostInfo.vue";
+import HypeTrainProgressInfo from "./HypeTrainProgressInfo.vue";
 import MessageExportIndicator from "./MessageExportIndicator.vue";
 import TimerCountDownInfo from "./TimerCountDownInfo.vue";
 import ChannelSwitcher from "./ChannelSwitcher.vue";
