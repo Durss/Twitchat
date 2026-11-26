@@ -63,75 +63,34 @@
 					<strong>{{
 						t("tiltify.campaign_list", storeTiltify.campaignList.length)
 					}}</strong>
-					<div class="campaignList">
-						<div
-							v-for="campaign in storeTiltify.campaignList"
+					<div class="campaignList" v-if="activeCampaigns.length > 0">
+						<TiltifyCampaignItem
+							v-for="campaign in activeCampaigns"
 							:key="campaign.id"
-							class="campaign"
-							:class="{ retired: getRetiredDate(campaign) }"
-						>
-							<img
-								v-if="campaign.avatar?.src"
-								class="avatar"
-								:src="campaign.avatar.src"
-								:alt="campaign.avatar.alt || campaign.name"
-							/>
-							<Icon v-else name="tiltify" class="avatar" />
-
-							<div class="details">
-								<div class="title">
-									<a class="name" :href="campaign.donate_url" target="_blank"
-										><Icon name="newtab" />{{ campaign.name }}</a
-									>
-									<Tag
-										v-if="getRetiredDate(campaign)"
-										v-tooltip="
-											t('tiltify.retired_tt', {
-												DATE: getRetiredDate(campaign),
-											})
-										"
-										>{{ t("tiltify.retired") }}</Tag
-									>
-								</div>
-
-								<template v-if="getGoal(campaign) > 0">
-									<div class="progress">
-										<div
-											class="fill"
-											:style="{
-												width: getPercent(campaign) + '%',
-											}"
-										></div>
-									</div>
-									<div class="amounts">
-										<strong>{{
-											formatAmount(
-												getRaised(campaign),
-												campaign.currency_code ||
-													campaign.amount_raised.currency,
-											)
-										}}</strong>
-										<span>{{
-											formatAmount(
-												getGoal(campaign),
-												campaign.currency_code ||
-													campaign.amount_raised.currency,
-											)
-										}}</span>
-									</div>
-								</template>
-							</div>
-
-							<TTButton
-								class="copyBt"
-								small
-								transparent
-								icon="id"
-								v-tooltip="t('tiltify.copy_id_tt')"
-								:copy="campaign.id"
+							:campaign="campaign"
+						/>
+					</div>
+					<ToggleBlock
+						v-if="retiredCampaigns.length > 0"
+						class="retiredList"
+						small
+						:open="activeCampaigns.length == 0"
+						:title="
+							t(
+								'tiltify.retired_list',
+								{ COUNT: retiredCampaigns.length },
+								retiredCampaigns.length,
+							)
+						"
+					>
+						<div class="campaignList">
+							<TiltifyCampaignItem
+								v-for="campaign in retiredCampaigns"
+								:key="campaign.id"
+								:campaign="campaign"
 							/>
 						</div>
-					</div>
+					</ToggleBlock>
 				</section>
 			</template>
 		</template>
@@ -148,7 +107,7 @@
 
 <script setup lang="ts">
 import MessageItem from "@/components/messages/MessageItem.vue";
-import Tag from "@/components/Tag.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
 import TTButton from "@/components/TTButton.vue";
 import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
@@ -157,10 +116,10 @@ import {
 	type TiltifyCampaign,
 } from "@/store/tiltify/storeTiltify";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Utils from "@/utils/Utils";
-import { onBeforeMount, ref } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import ProfileInfoCard from "../ProfileInfoCard.vue";
+import TiltifyCampaignItem from "./TiltifyCampaignItem.vue";
 
 const { t } = useI18n();
 const storeDebug = useStoreDebug();
@@ -171,6 +130,15 @@ const error = ref(false);
 const loading = ref(false);
 const oAuthURL = ref("");
 const fakeDonation = ref<TwitchatDataTypes.TiltifyDonationData | undefined>(undefined);
+
+/**
+ * Campaigns sorted from most recent to oldest
+ */
+const sortedCampaigns = computed(() =>
+	[...storeTiltify.campaignList].sort((a, b) => getStartTime(b) - getStartTime(a)),
+);
+const activeCampaigns = computed(() => sortedCampaigns.value.filter((v) => !isRetired(v)));
+const retiredCampaigns = computed(() => sortedCampaigns.value.filter((v) => isRetired(v)));
 
 onBeforeMount(() => {
 	if (!storeTiltify.connected) {
@@ -219,51 +187,17 @@ function openOverlay(): void {
 }
 
 /**
- * Get the formatted date at which the given campaign has been retired.
- * Returns an empty string if the campaign is still running.
+ * Get the timestamp at which the given campaign started
  */
-function getRetiredDate(campaign: TiltifyCampaign): string {
-	if (!campaign.retired_at) return "";
-	const date = new Date(campaign.retired_at);
-	if (isNaN(date.getTime())) return "";
-	return Utils.formatDate(date, false, false, false);
+function getStartTime(campaign: TiltifyCampaign): number {
+	return Date.parse(campaign.published_at || campaign.inserted_at) || 0;
 }
 
 /**
- * Get the amount raised so far on the given campaign
+ * Get if the given campaign has been retired
  */
-function getRaised(campaign: TiltifyCampaign): number {
-	return parseFloat(campaign.total_amount_raised?.value) || 0;
-}
-
-/**
- * Get the fundraising goal of the given campaign
- */
-function getGoal(campaign: TiltifyCampaign): number {
-	return parseFloat(campaign.goal?.value) || 0;
-}
-
-/**
- * Get the completion percent of the given campaign's goal
- */
-function getPercent(campaign: TiltifyCampaign): number {
-	const goal = getGoal(campaign);
-	if (goal <= 0) return 0;
-	return Math.max(0, Math.min(100, (getRaised(campaign) / goal) * 100));
-}
-
-/**
- * Formats an amount to the given currency
- */
-function formatAmount(amount: number, currency: string): string {
-	try {
-		return new Intl.NumberFormat(undefined, {
-			style: "currency",
-			currency,
-		}).format(amount);
-	} catch (e) {
-		return amount + " " + (currency || "");
-	}
+function isRetired(campaign: TiltifyCampaign): boolean {
+	return !isNaN(Date.parse(campaign.retired_at || ""));
 }
 
 /**
@@ -295,105 +229,9 @@ function loadAuthURL(): void {
 			gap: 0.5em;
 			display: flex;
 			flex-direction: column;
-			.campaign {
-				gap: 0.5em;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				padding: 0.5em;
-				border-radius: var(--border-radius);
-				background-color: var(--background-color-fader);
-				transition: background-color 0.2s;
-				position: relative;
-				&:hover {
-					background-color: var(--background-color-fadest);
-				}
-
-				&.retired {
-					opacity: 0.6;
-					transition:
-						background-color 0.2s,
-						opacity 0.2s;
-					.avatar {
-						filter: saturate(0%);
-					}
-					.progress .fill {
-						background-color: var(--color-text-fade);
-					}
-					&:hover {
-						opacity: 1;
-					}
-				}
-
-				.avatar {
-					width: 2.5em;
-					height: 2.5em;
-					margin: 0;
-					flex-shrink: 0;
-					object-fit: cover;
-					border-radius: var(--border-radius);
-				}
-
-				.details {
-					gap: 0.25em;
-					min-width: 0;
-					flex-grow: 1;
-					display: flex;
-					flex-direction: column;
-
-					.title {
-						gap: 0.5em;
-						display: flex;
-						flex-direction: row;
-						align-items: center;
-						flex-wrap: wrap;
-						padding-right: 1.5em;
-						.tag {
-							flex-shrink: 0;
-						}
-					}
-
-					.name {
-						font-weight: bold;
-						line-height: 1.2em;
-						overflow-wrap: anywhere;
-					}
-
-					.progress {
-						height: 4px;
-						overflow: hidden;
-						border-radius: 4px;
-						background-color: var(--color-text-fadest);
-						.fill {
-							height: 100%;
-							border-radius: 4px;
-							background-color: var(--color-primary-light);
-							transition: width 0.2s;
-						}
-					}
-
-					.amounts {
-						gap: 0.5em;
-						display: flex;
-						flex-direction: row;
-						justify-content: space-between;
-						font-size: 0.8em;
-						span {
-							font-style: italic;
-							color: var(--color-text-fade);
-						}
-					}
-				}
-
-				.copyBt {
-					flex-shrink: 0;
-					width: 2em;
-					height: 2em;
-					position: absolute;
-					top: 0;
-					right: 0;
-				}
-			}
+		}
+		.retiredList {
+			align-self: stretch;
 		}
 	}
 

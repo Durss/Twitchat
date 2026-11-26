@@ -7,7 +7,7 @@
 		"campaign_list": "Votre campagne Tiltify | Vos campagnes Tiltify",
 		"no_campaign": "Votre compte Tiltify n'est lié à aucune campagne de financement",
 		"copy_id_tt": "Copier l'ID de la campagne",
-		"retired": "Terminée",
-		"retired_tt": "Campagne terminée le {DATE}"
+		"retired_tt": "Campagne terminée le {DATE}",
+		"retired_list": "Campagne terminée ({COUNT}) | Campagnes terminées ({COUNT})"
 	}
 }

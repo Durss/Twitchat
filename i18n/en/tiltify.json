@@ -7,7 +7,7 @@
 		"campaign_list": "Your Tiltify campaign | Your Tiltify campaigns",
 		"no_campaign": "Your Tiltify profile is not associated with any fundraising campaign",
 		"copy_id_tt": "Copy campaign ID",
-		"retired": "Retired",
-		"retired_tt": "Campaign retired on {DATE}"
+		"retired_tt": "Campaign retired on {DATE}",
+		"retired_list": "Retired campaign ({COUNT}) | Retired campaigns ({COUNT})"
 	}
 }
