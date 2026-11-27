@@ -197,7 +197,7 @@ export const storeStreamerSongList = defineStore("streamersonglist", {
 			return result.json.success === true;
 		},
 
-		async loadInfos(): Promise<{ user: SSLUserInfo; queue: SSLQueueEntry[] }> {
+		async loadInfos(): Promise<{ user: SSLUserInfo | null; queue: SSLQueueEntry[] }> {
 			const infos = await ApiHelper.call(
 				"streamersonglist/info",
 				"GET",
@@ -205,8 +205,11 @@ export const storeStreamerSongList = defineStore("streamersonglist", {
 				false,
 				0,
 			);
-			this.user = infos.json.user;
-			this.queue = infos.json.queue || [];
+			if (infos.status == 200 && infos.json.success) {
+				this.user = infos.json.user;
+				this.streamerId = infos.json.user.streamerId ?? null;
+				this.queue = infos.json.queue || [];
+			}
 			return { user: this.user, queue: this.queue };
 		},
 
@@ -214,20 +217,10 @@ export const storeStreamerSongList = defineStore("streamersonglist", {
 			if (!this.token) return;
 			if (centrifuge) return; //Already connected/connecting
 
-			//Resolve streamer ID to the subscribe to their events
+			//Streamer ID is set by loadInfos(). Missing if the SSL account has no channel.
 			if (this.streamerId == null) {
-				try {
-					const res = await fetch(SSL_API_BASE + "/users/self", {
-						headers: { Authorization: "Bearer " + this.token.access_token },
-					});
-					if (!res.ok) throw new Error("HTTP " + res.status);
-					const self = (await res.json()) as { id?: number };
-					if (typeof self.id !== "number") throw new Error("Missing streamer ID");
-					this.streamerId = self.id;
-				} catch (error) {
-					console.error("[StreamerSongList] Could not resolve streamer ID", error);
-					return;
-				}
+				console.warn("[StreamerSongList] No streamer channel found, live events disabled");
+				return;
 			}
 
 			//Builds the common fields shared by every Twitchat trigger message.
@@ -274,7 +267,7 @@ export const storeStreamerSongList = defineStore("streamersonglist", {
 								note: details.note || "",
 							},
 						};
-						void TriggerActionHandler.instance.execute(message);
+						TriggerActionHandler.instance.execute(message);
 						break;
 					}
 
@@ -292,7 +285,7 @@ export const storeStreamerSongList = defineStore("streamersonglist", {
 								songTitle: removed?.songName || "",
 							},
 						};
-						void TriggerActionHandler.instance.execute(message);
+						TriggerActionHandler.instance.execute(message);
 						break;
 					}
 
@@ -305,7 +298,7 @@ export const storeStreamerSongList = defineStore("streamersonglist", {
 									type: TwitchatDataTypes.TwitchatMessageType
 										.STREAMERSONGLIST_QUEUE_UPDATE,
 								};
-							void TriggerActionHandler.instance.execute(message);
+							TriggerActionHandler.instance.execute(message);
 						});
 						break;
 					}
@@ -354,13 +347,22 @@ export interface SSLToken {
 }
 
 export interface SSLUserInfo {
-	amr: string[];
-	aud: string[];
-	auth_time: number;
-	iat: number;
-	iss: string;
-	rat: number;
-	sub: string;
+	/**
+	 * Songlist username, when known
+	 */
+	username?: string;
+	/**
+	 * Channel display name
+	 */
+	displayName?: string;
+	/**
+	 * Channel avatar
+	 */
+	avatar?: string;
+	/**
+	 * ID of the channel
+	 */
+	streamerId?: number;
 }
 
 export interface SSLQueueEntry {

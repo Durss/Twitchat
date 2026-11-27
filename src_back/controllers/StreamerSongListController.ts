@@ -36,8 +36,8 @@ export default class StreamerSongListController extends AbstractController {
 	 * PUBLIC METHODS *
 	 ******************/
 	public async initialize(): Promise<void> {
-		this.apiPath = "https://id.streamersonglist.com/";
-		this.authPath = this.apiPath + "/oauth2";
+		this.apiPath = "https://api.streamersonglist.com";
+		this.authPath = "https://id.streamersonglist.com/oauth2";
 
 		this.server.get(
 			"/api/streamersonglist/info",
@@ -170,8 +170,7 @@ export default class StreamerSongListController extends AbstractController {
 	}
 
 	/**
-	 * Loads the connected user's info from the OIDC userinfo endpoint.
-	 * Used to display who is connected and to confirm the token is valid.
+	 * Loads the connected user's info
 	 * @param request
 	 * @param response
 	 * @returns
@@ -196,19 +195,15 @@ export default class StreamerSongListController extends AbstractController {
 		}
 
 		try {
-			const url = this.apiPath + "/userinfo";
-			console.log(url);
-			const userRes = await fetch(url, {
-				method: "GET",
-				headers: { Authorization: "Bearer " + accessToken },
-			});
-			if (userRes.status != 200) {
-				const text = await userRes.text();
-				Logger.error("[SSL] Failed loading user info with status " + userRes.status);
+			const headers = { Authorization: "Bearer " + accessToken };
+			const validateRes = await fetch(this.apiPath + "/oauth2/validate", { headers });
+			if (validateRes.status != 200) {
+				const text = await validateRes.text();
+				Logger.error("[SSL] Failed loading user info with status " + validateRes.status);
 				console.log(text);
 				response
 					.header("Content-Type", "application/json")
-					.status(userRes.status)
+					.status(validateRes.status)
 					.send(
 						JSON.stringify({
 							success: false,
@@ -218,11 +213,34 @@ export default class StreamerSongListController extends AbstractController {
 					);
 				return;
 			}
-			const user = (await userRes.json()) as SSLUserInfo;
+			const validation = (await validateRes.json()) as SSLTokenValidation;
+			const user: SSLUserInfo = {
+				username: validation.username,
+				streamerId: validation.streamer_id,
+			};
 
-			//TODO load the user's song queue from the REST API
-			//(https://api.streamersonglist.com/docs/). Requires resolving the
-			//streamer id first, then GET /v1/streamers/{id}/queue. Stubbed for now.
+			// Load user info
+			if (validation.streamer_id != undefined) {
+				const url = new URL(this.apiPath + "/streamers");
+				url.searchParams.set("streamer_id", validation.streamer_id.toString());
+				const streamerRes = await fetch(url.href, { headers });
+				if (streamerRes.status == 200) {
+					const { platforms } = (await streamerRes.json()) as SSLStreamerDetails;
+					const platform =
+						platforms?.twitch ||
+						platforms?.youtube ||
+						platforms?.kick ||
+						platforms?.none;
+					if (platform) {
+						user.displayName = platform.displayName;
+						user.avatar = platform.profileImageUrl;
+					}
+				} else {
+					Logger.warn(
+						"[SSL] Failed loading streamer details with status " + streamerRes.status,
+					);
+				}
+			}
 
 			response
 				.header("Content-Type", "application/json")
@@ -302,11 +320,39 @@ interface SSLToken {
 	error_description?: string;
 }
 
+/**
+ * Response of GET /oauth2/validate (only the fields we use)
+ */
+interface SSLTokenValidation {
+	/** Songlist username of the token's user, when known */
+	username?: string;
+	/** Channel the token reaches, when there is one */
+	streamer_id?: number;
+}
+
+/**
+ * Response of GET /streamers (only the fields we use)
+ */
+interface SSLStreamerDetails {
+	platforms?: Partial<
+		Record<
+			"twitch" | "youtube" | "kick" | "none",
+			{
+				username: string;
+				displayName: string;
+				platformID: string;
+				profileImageUrl?: string;
+			}
+		>
+	>;
+}
+
+/**
+ * User info sent to the front. Mirror of SSLUserInfo in storeStreamerSongList.ts
+ */
 interface SSLUserInfo {
-	sub: string;
-	name?: string;
-	preferred_username?: string;
-	email?: string;
-	picture?: string;
-	[key: string]: unknown;
+	username?: string;
+	displayName?: string;
+	avatar?: string;
+	streamerId?: number;
 }

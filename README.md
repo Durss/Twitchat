@@ -202,7 +202,7 @@ Create a `data/credentials/credentials.json` file and set the following content 
 	"streamersonglist_client_id": "",
 	"streamersonglist_client_secret": "",
 	"streamersonglist_redirect_uri": "http://localhost:8081/oauth/ssl",
-	"streamersonglist_scopes": "streamer.song.* streamer.queue.* user.song-request.* offline_access"
+	"streamersonglist_scopes": "streamer.song.* streamer.queue.* streamer.settings.read user.song-request.* offline_access"
 }
 ```
 

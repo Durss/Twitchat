@@ -26,16 +26,15 @@
 			</div>
 		</section>
 
-		<template v-else>
-			<section>
-				<TTButton alert icon="offline" @click="disconnect()">
-					<div class="userInfo" v-if="storeStreamerSongList.user">
-						<span>{{ t("global.disconnect") }} </span>
-					</div>
-					<span v-else>{{ t("global.disconnect") }}</span>
-				</TTButton>
-			</section>
-		</template>
+		<section v-else>
+			<ProfileInfoCard
+				:avatar="storeStreamerSongList.user?.avatar"
+				:name="
+					storeStreamerSongList.user?.displayName || storeStreamerSongList.user?.username
+				"
+				@logout="disconnect()"
+			/>
+		</section>
 	</div>
 </template>
 
@@ -44,6 +43,7 @@ import TTButton from "@/components/TTButton.vue";
 import { storeStreamerSongList as useStoreStreamerSongList } from "@/store/streamersonglist/storeStreamerSongList";
 import { onBeforeMount, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import ProfileInfoCard from "../ProfileInfoCard.vue";
 
 const { t } = useI18n();
 const storeStreamerSongList = useStoreStreamerSongList();
@@ -93,18 +93,6 @@ function loadAuthURL(): void {
 
 <style scoped lang="less">
 .connectstreamersonglist {
-	.userInfo {
-		gap: 0.5em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		align-self: center;
-		img {
-			border-radius: 50%;
-			height: 2em;
-		}
-	}
-
 	.error {
 		cursor: pointer;
 		line-height: 1.2em;
@@ -113,4 +101,3 @@ function loadAuthURL(): void {
 	}
 }
 </style>
-

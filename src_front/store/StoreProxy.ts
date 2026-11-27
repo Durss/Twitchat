@@ -3907,7 +3907,7 @@ export interface IStreamerSongListActions {
 	/**
 	 * Loads info about the connected user and their song queue
 	 */
-	loadInfos(): Promise<{ user: SSLUserInfo; queue: SSLQueueEntry[] }>;
+	loadInfos(): Promise<{ user: SSLUserInfo | null; queue: SSLQueueEntry[] }>;
 	/**
 	 * Connect to SSL socket for live events
 	 */
