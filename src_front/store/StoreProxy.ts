@@ -4254,22 +4254,21 @@ export interface IGroqActions {
 	/**
 	 * Ask for a summary about the given messages
 	 * @param messagesList
-	 * @param preprompt
-	 * @param repromptEntry
+	 * @param preprompt custom question, replaces the default summary
 	 */
 	getSummary(
-		messagesList: TwitchatDataTypes.ChatMessageTypes[],
+		messagesList: TwitchatDataTypes.MessageChatData[],
 		preprompt?: string,
-		repromptEntry?: TwitchatDataTypes.GroqHistoryItem,
 	): Promise<string>;
 	/**
 	 * Removes an answer from DB
 	 */
 	removeAnswer(id: string): Promise<void>;
 	/**
-	 * Reprompt an history entry
+	 * Asks a follow-up question about an history entry
+	 * @returns false if no answer could be generated
 	 */
-	repromptHistoryEntry(id: string, prompt: string): Promise<void>;
+	repromptHistoryEntry(id: string, prompt: string): Promise<boolean>;
 	/**
 	 * Executes a query
 	 */

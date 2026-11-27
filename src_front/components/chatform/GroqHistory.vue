@@ -55,7 +55,10 @@ onMounted(() => {
 	watch(
 		() =>
 			entries.value.reduce(
-				(total, entry) => total + entry.answer.length,
+				(total, entry) =>
+					total +
+					entry.turns.length +
+					(entry.turns[entry.turns.length - 1]?.answer.length ?? 0),
 				entries.value.length,
 			),
 		() => {
