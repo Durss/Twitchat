@@ -18,9 +18,8 @@ import { useCloseOnEscape } from "@/composables/useCloseOnEscape.js";
 
 const storeChat = useStoreChat();
 const popin = useTemplateRef<HTMLDivElement>("popin");
-useCloseOnEscape(() => close());
-
 const expand = ref<boolean>(false);
+useCloseOnEscape(() => close(), undefined, expand);
 
 onBeforeMount(() => {
 	document.addEventListener("click", onClickDOM, true);
