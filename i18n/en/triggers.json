@@ -828,9 +828,9 @@
 				"model_default": "Default model",
 				"output_placeholder": "Store result in placeholder",
 				"jsonMode": "Get answer as JSON",
-				"jsonMode_hint": "{LINK} on how to make Groq answer a JSON",
-				"jsonMode_hint_link": "See instructions",
-				"json": "{'{'}\n\t\"myKey\": \"Expected Groq result example\",\n\t\"myOtherKey\": \"Another Groq result\"\n{'}'}",
+				"jsonMode_hint": "Write an example of the expected answer, each value describing what Groq should put there. Numbers, booleans, arrays and nested objects are kept as such.",
+				"jsonMode_not_strict": "This model may not follow this exact structure, these ones always do: {MODELS}",
+				"json": "{'{'}\n\t\"title\": \"A catchy title for the stream\",\n\t\"rating\": 5,\n\t\"tags\": [\"A tag describing the stream\"]\n{'}'}",
 				"jsonError": "Invalid JSON format:\n{ERROR}"
 			},
 			"timer": {

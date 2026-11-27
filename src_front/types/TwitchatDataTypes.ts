@@ -3761,25 +3761,34 @@ export namespace TwitchatDataTypes {
 		 */
 		id: string;
 		/**
-		 * Prompt used
+		 * Anonymized chat log the questions are about
 		 */
 		prompt: string;
-		/**
-		 * Answer from groq
-		 */
-		answer: string;
 		/**
 		 * Date of the prompt
 		 */
 		date: number;
 		/**
-		 * Preprompt used
+		 * Questions asked about the chat log and their answers, in order.
+		 * The first one is the custom preprompt, empty for the default summary.
 		 */
-		preprompt?: string;
+		turns: GroqHistoryTurn[];
 		/**
 		 * Contains anonymised username map
+		 * {"login":"anon"}
 		 */
-		userMap: { [anonName: string]: string };
+		userMap: { [login: string]: string };
+	}
+
+	export interface GroqHistoryTurn {
+		/**
+		 * Anonymized question
+		 */
+		question: string;
+		/**
+		 * Answer from groq
+		 */
+		answer: string;
 	}
 
 	/**

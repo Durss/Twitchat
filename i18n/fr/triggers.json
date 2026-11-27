@@ -828,9 +828,9 @@
 				"model_default": "Modèle par défaut",
 				"output_placeholder": "Stocker le résultat dans le placeholder",
 				"jsonMode": "Réponse au format JSON",
-				"jsonMode_hint": "{LINK} pour demander à Groq de renvoyer une réponse JSON dans le format que vous souhaitez",
-				"jsonMode_hint_link": "Voir les instructions",
-				"json": "Format JSON",
+				"jsonMode_hint": "Écrivez un exemple de la réponse attendue, chaque valeur décrivant ce que Groq doit y mettre. Les nombres, booléens, tableaux et objets imbriqués sont conservés tels quels.",
+				"jsonMode_not_strict": "Ce modèle peut ne pas respecter exactement cette structure, ceux-ci la respectent toujours : {MODELS}",
+				"json": "{'{'}\n\t\"titre\": \"Un titre pour le live\",\n\t\"note\": 5,\n\t\"tags\": [\"Un tag décrivant le live\"]\n{'}'}",
 				"jsonError": "Format JSON invalide:\n{ERROR}"
 			},
 			"timer": {

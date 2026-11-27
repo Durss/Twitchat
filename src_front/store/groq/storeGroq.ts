@@ -13,6 +13,7 @@ import StoreProxy from "../StoreProxy";
 let groq: Groq | null = null;
 const OPEN_TAG = "⟦";
 const CLOSE_TAG = "⟧";
+const CHAT_LOG_TAG = "chat_log";
 /**
  * Default model candidates by order of preference.
  * Groq regularly shuts models down: https://console.groq.com/docs/deprecations
@@ -48,6 +49,72 @@ const refreshDefaultModel = (): void => {
 };
 
 /**
+ * Models that can be forced to follow a JSON schema ("strict" structured outputs).
+ * Others only guarantee a valid JSON.
+ * https://console.groq.com/docs/structured-outputs
+ */
+export const STRICT_JSON_MODELS = [
+	"openai/gpt-oss-20b",
+	"openai/gpt-oss-120b",
+	"qwen/qwen3.8-27b",
+	"meta-models/muse-spark-open",
+];
+
+/**
+ * Tells if the error is caused by a model that has been shut down
+ */
+const isModelGoneError = (error: unknown): boolean => {
+	const body = error instanceof Groq.APIError ? error.error : undefined;
+	const code = (body as { error?: { code?: string } } | undefined)?.error?.code;
+	return code === "model_decommissioned" || code === "model_not_found";
+};
+
+/**
+ * Builds a strict JSON schema with the structure of the given example.
+ * Strict mode requires all properties and forbids additional ones.
+ * The example's values tell what to put in them, they're given in the prompt.
+ */
+const schemaFromExample = (example: unknown): { [key: string]: unknown } => {
+	if (Array.isArray(example)) {
+		return {
+			type: "array",
+			items: example.length > 0 ? schemaFromExample(example[0]) : { type: "string" },
+		};
+	}
+	if (example !== null && typeof example === "object") {
+		const properties: { [key: string]: unknown } = {};
+		for (const [key, value] of Object.entries(example)) {
+			properties[key] = schemaFromExample(value);
+		}
+		return {
+			type: "object",
+			properties,
+			required: Object.keys(properties),
+			additionalProperties: false,
+		};
+	}
+	if (typeof example === "number") return { type: "number" };
+	if (typeof example === "boolean") return { type: "boolean" };
+	return { type: "string" };
+};
+
+/**
+ * Gets the strict schema of a JSON example, null if it can't have one
+ */
+const getStrictSchema = (jsonExample: string): { [key: string]: unknown } | null => {
+	let example: unknown;
+	try {
+		example = JSON.parse(jsonExample);
+	} catch (_error) {
+		return null;
+	}
+	// The answer must be an object
+	if (example === null || typeof example !== "object" || Array.isArray(example)) return null;
+	if (Object.keys(example).length === 0) return null;
+	return schemaFromExample(example);
+};
+
+/**
  * Sends a request and, if its model has been shut down, sends it again with
  * the default model.
  * Checking the models list isn't enough as it may still advertise that model.
@@ -59,9 +126,7 @@ const withFallbackModel = async <T>(
 	try {
 		return await request(model);
 	} catch (error) {
-		const body = error instanceof Groq.APIError ? error.error : undefined;
-		const code = (body as { error?: { code?: string } } | undefined)?.error?.code;
-		if (code !== "model_decommissioned" && code !== "model_not_found") throw error;
+		if (!isModelGoneError(error)) throw error;
 
 		const store = StoreProxy.groq;
 		store.availableModels = store.availableModels.filter((m) => m.id !== model);
@@ -95,14 +160,155 @@ const getCompletionParams = (
 const stripReasoning = (text: string): string =>
 	text.replace(/<think>[\s\S]*?(<\/think>\s*|$)/g, "");
 
-const getAnonUserName = (login: string, userMap: { [login: string]: string }): string => {
+type UserMap = TwitchatDataTypes.GroqHistoryItem["userMap"];
+
+/**
+ * Entries saved before follow-up questions were sent with their history.
+ * A follow-up question replaced the preprompt and its answer the previous one.
+ */
+type LegacyGroqHistoryItem = Omit<TwitchatDataTypes.GroqHistoryItem, "turns"> & {
+	turns?: TwitchatDataTypes.GroqHistoryTurn[];
+	preprompt?: string;
+	answer?: string;
+};
+
+const toCurrentHistoryItem = (entry: LegacyGroqHistoryItem): TwitchatDataTypes.GroqHistoryItem => {
+	if (entry.turns) return entry as TwitchatDataTypes.GroqHistoryItem;
+	const { preprompt = "", answer = "", ...rest } = entry;
+	return { ...rest, turns: [{ question: preprompt, answer }] };
+};
+
+/**
+ * Gets the anonymized name of a user, creates it if missing
+ */
+const getAnonUserName = (login: string, userMap: UserMap): string => {
 	const key = Object.keys(userMap).find((v) => v.toLowerCase() === login.toLowerCase());
-	let username = userMap[key || ""]!;
-	if (!key) {
-		username = OPEN_TAG + Object.keys(userMap).length + CLOSE_TAG;
-		userMap[login] = username;
-	}
+	if (key) return userMap[key]!;
+	// Count names, not keys, as a user may have an alias
+	const username = OPEN_TAG + new Set(Object.values(userMap)).size + CLOSE_TAG;
+	userMap[login] = username;
 	return username;
+};
+
+const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Replaces mentions and names of known users with their anonymized version.
+ * Mentions of unknown users are added to the map.
+ */
+const anonymize = (text: string, userMap: UserMap): string => {
+	text = text.replace(/@(\w+)/g, (_, mention: string) => "@" + getAnonUserName(mention, userMap));
+	// Longest first so a name containing another one is replaced entirely
+	const names = Object.keys(userMap)
+		.sort((a, b) => b.length - a.length)
+		.map(escapeRegExp);
+	if (names.length === 0) return text;
+	// Whole words only, a user called "lol" shouldn't alter "lolilol"
+	const nameRegex = new RegExp(
+		`(?<![\\p{L}\\p{N}_])(?:${names.join("|")})(?![\\p{L}\\p{N}_])`,
+		"giu",
+	);
+	return text.replace(nameRegex, (name) => getAnonUserName(name, userMap));
+};
+
+/**
+ * Builds an anonymized chat log of the given messages, one line per user.
+ * Fills the given user map.
+ */
+const buildChatLog = (messages: TwitchatDataTypes.MessageChatData[], userMap: UserMap): string => {
+	const sortedList = [...messages].sort((a, b) => a.date - b.date);
+	// Register all users first so their names are anonymized wherever they appear
+	for (const m of sortedList) {
+		const anonUser = getAnonUserName(m.user.displayNameOriginal, userMap);
+		// Mentions use the login, which may differ from the display name
+		if (!Object.keys(userMap).some((v) => v.toLowerCase() === m.user.login.toLowerCase())) {
+			userMap[m.user.login] = anonUser;
+		}
+	}
+
+	const lines: string[] = [];
+	let currentUser = "";
+	// Merge consecutive messages from same users to reduce token usage
+	const splitter = " — ";
+	for (const m of sortedList) {
+		const anonUser = getAnonUserName(m.user.displayNameOriginal, userMap);
+		// A message shouldn't be able to close the chat log and add instructions after it
+		const message = m.message.replace(new RegExp(`</?${CHAT_LOG_TAG}>`, "gi"), "");
+		if (currentUser != anonUser) {
+			currentUser = anonUser;
+			lines.push(anonUser + ": " + message);
+		} else {
+			lines[lines.length - 1] += splitter + message;
+		}
+	}
+	return anonymize(lines.join("\n"), userMap);
+};
+
+/**
+ * Builds the messages sent to Groq for the last question of the given entry.
+ * The system message only gives rules, each question is a user message and
+ * the previous answers are sent back so follow-up questions have the context.
+ */
+const buildConversation = (
+	entry: TwitchatDataTypes.GroqHistoryItem,
+): Groq.Chat.Completions.ChatCompletionMessageParam[] => {
+	const messages: Groq.Chat.Completions.ChatCompletionMessageParam[] = [
+		{ role: "system", content: StoreProxy.i18n.t("groq.conversation_preprompt") },
+	];
+	entry.turns.forEach((turn, index) => {
+		let question = turn.question.trim() || StoreProxy.i18n.t("groq.summary_task");
+		// The question comes after the chat log, so that's what the model answers
+		if (index === 0) {
+			question = `<${CHAT_LOG_TAG}>\n${entry.prompt.trim()}\n</${CHAT_LOG_TAG}>\n\n${question}`;
+		}
+		messages.push({ role: "user", content: question });
+		if (turn.answer) messages.push({ role: "assistant", content: turn.answer });
+	});
+	return messages;
+};
+
+/**
+ * Streams the answer to the given turn, which must be the last one of the entry
+ * @returns the answer, empty if none could be generated
+ */
+const streamAnswer = async (
+	client: Groq,
+	entry: TwitchatDataTypes.GroqHistoryItem,
+	turn: TwitchatDataTypes.GroqHistoryTurn,
+): Promise<string> => {
+	let rawAnswer = "";
+	const updateAnswer = () => {
+		turn.answer = stripReasoning(rawAnswer);
+	};
+	try {
+		const messages = buildConversation(entry);
+		const stream = await withFallbackModel(StoreProxy.groq.defaultModel, (model) =>
+			client.chat.completions.create({
+				...getCompletionParams(messages, model),
+				stream: true,
+			}),
+		);
+
+		let lastUpdate = 0;
+		for await (const chunk of stream) {
+			rawAnswer += chunk.choices[0]?.delta?.content || "";
+			if (Date.now() - lastUpdate < ANSWER_UPDATE_INTERVAL) continue;
+			lastUpdate = Date.now();
+			updateAnswer();
+		}
+		updateAnswer();
+		if (!turn.answer) throw new Error("Empty answer");
+	} catch (error) {
+		console.error(error);
+		updateAnswer();
+		toast(
+			StoreProxy.i18n.t("groq.generation_error", {
+				ERROR: (error as Error).message,
+			}),
+			{ type: "error" },
+		);
+	}
+	return turn.answer;
 };
 
 export const storeGroq = defineStore("groq", {
@@ -139,7 +345,7 @@ export const storeGroq = defineStore("groq", {
 		async preloadMessageHistory(): Promise<void> {
 			void Database.instance.getGroqHistoryList().then((res) => {
 				if (res.length === 0) return;
-				this.answerHistory = res;
+				this.answerHistory = (res as LegacyGroqHistoryItem[]).map(toCurrentHistoryItem);
 			});
 		},
 
@@ -184,150 +390,35 @@ export const storeGroq = defineStore("groq", {
 
 		async getSummary(
 			messagesList: TwitchatDataTypes.MessageChatData[],
-			preprompt?: string,
-			repromptEntry?: TwitchatDataTypes.GroqHistoryItem,
+			preprompt: string = "",
 		): Promise<string> {
 			if (!groq) await this.connect();
-			if (!groq || !this.connected) return Promise.resolve("");
-			const client = groq;
+			if (!groq || !this.connected) return "";
 
-			const historyEntry: (typeof this.answerHistory)[number] = repromptEntry
-				? repromptEntry
-				: reactive({
-						id: Utils.getUUID(),
-						date: Date.now(),
-						prompt: "",
-						answer: "",
-						userMap: {},
-					});
-			const prompt: Groq.Chat.Completions.ChatCompletionMessageParam[] = [];
-			if (!repromptEntry) {
-				prompt.push({
-					role: "system",
-					content: StoreProxy.i18n.t("groq.conversation_preprompt"),
-				});
-			}
-
-			if (preprompt) {
-				if (repromptEntry) {
-					const userMap = repromptEntry.userMap || {};
-
-					//Replace usernames of the usermap with their anon equivalent
-					for (const key in userMap) {
-						preprompt = preprompt.replace(key, userMap[key]!);
-					}
-
-					// Replace mentions in the form of @xxx with anonymized versions
-					const mentionRegex = /@(\w+)/g;
-					preprompt = preprompt.replace(mentionRegex, (_, mention: string) => {
-						return getAnonUserName(mention, userMap);
-					});
-				}
-				prompt.push({
-					role: "system",
-					content: preprompt,
-				});
-				historyEntry.preprompt = preprompt;
-			}
-
-			let mainPrompt = "";
-			if (repromptEntry) {
-				mainPrompt = repromptEntry.prompt;
-			} else {
-				const sortedList = messagesList.sort((a, b) => a.date - b.date);
-				let currentUser = "";
-				let split = false;
-				// User name to anon name map
-				// {"login":"anon"}
-				let userMap: { [login: string]: string } = {};
-				// Merge consecutive messages from same users to reduce token usage
-				const splitter = " — ";
-				for (const m of sortedList) {
-					let anonUser = getAnonUserName(m.user.displayNameOriginal, userMap);
-					if (currentUser != anonUser) {
-						currentUser = anonUser;
-						mainPrompt += "\n" + currentUser + ": ";
-						split = false;
-					}
-					if (split) mainPrompt += splitter;
-					mainPrompt += m.message;
-					split = true;
-				}
-
-				//Replace usernames of the usermap with their anon equivalent
-				for (const key in userMap) {
-					mainPrompt = mainPrompt.replace(key, userMap[key]!);
-				}
-
-				// Replace mentions in the form of @xxx with anonymized versions
-				const mentionRegex = /@(\w+)/g;
-				mainPrompt = mainPrompt.replace(mentionRegex, (_, mention: string) => {
-					return getAnonUserName(mention, userMap);
-				});
-
-				historyEntry.userMap = userMap;
-			}
-
-			prompt.push({
-				role: "user",
-				content: mainPrompt,
+			const userMap: UserMap = {};
+			const prompt = buildChatLog(messagesList, userMap);
+			const historyEntry: TwitchatDataTypes.GroqHistoryItem = reactive({
+				id: Utils.getUUID(),
+				date: Date.now(),
+				prompt,
+				userMap,
+				turns: [{ question: anonymize(preprompt.trim(), userMap), answer: "" }],
 			});
-
-			historyEntry.prompt = mainPrompt;
-			if (!repromptEntry) this.answerHistory.push(historyEntry);
+			this.answerHistory.push(historyEntry);
 			StoreProxy.params.openModal("groqHistory", true);
 
-			let answer = "";
-			let rawAnswer = "";
-			const updateAnswer = () => {
-				answer = stripReasoning(rawAnswer);
-				// Keeps previous answer of a reprompted entry until there's a new one
-				if (answer) historyEntry.answer = answer;
-			};
-			try {
-				const stream = await withFallbackModel(this.defaultModel, (model) =>
-					client.chat.completions.create({
-						...getCompletionParams(prompt, model),
-						stream: true,
-					}),
+			const answer = await streamAnswer(groq, historyEntry, historyEntry.turns[0]!);
+			if (!answer) {
+				// Don't leave a new entry loading forever
+				this.answerHistory = this.answerHistory.filter(
+					(entry) => entry.id !== historyEntry.id,
 				);
-
-				let lastUpdate = 0;
-				for await (const chunk of stream) {
-					rawAnswer += chunk.choices[0]?.delta?.content || "";
-					if (Date.now() - lastUpdate < ANSWER_UPDATE_INTERVAL) continue;
-					lastUpdate = Date.now();
-					updateAnswer();
-				}
-				updateAnswer();
-				if (!answer) throw new Error("Empty answer");
-			} catch (error) {
-				console.error(error);
-				updateAnswer();
-				toast(
-					StoreProxy.i18n.t("groq.generation_error", {
-						ERROR: (error as Error).message,
-					}),
-					{ type: "error" },
-				);
-				if (!answer) {
-					// Don't leave a new entry loading forever
-					if (!repromptEntry) {
-						this.answerHistory = this.answerHistory.filter(
-							(entry) => entry.id !== historyEntry.id,
-						);
-						if (this.answerHistory.length === 0) StoreProxy.params.closeModal();
-					}
-					return "";
-				}
+				if (this.answerHistory.length === 0) StoreProxy.params.closeModal();
+				return "";
 			}
 
-			if (!repromptEntry) {
-				await Database.instance.addGroqHistory(historyEntry);
-			} else {
-				await Database.instance.updateGroqHistory(historyEntry);
-			}
-			return historyEntry.answer;
+			await Database.instance.addGroqHistory(historyEntry);
+			return answer;
 		},
 
 		async removeAnswer(id: string): Promise<void> {
@@ -351,17 +442,35 @@ export const storeGroq = defineStore("groq", {
 			});
 		},
 
-		async repromptHistoryEntry(id: string, prompt: string): Promise<void> {
+		async repromptHistoryEntry(id: string, prompt: string): Promise<boolean> {
 			const entry = this.answerHistory.find((entry) => entry.id === id);
-			if (!entry) return;
-			await this.getSummary([], prompt, entry);
+			if (!entry || !prompt.trim()) return false;
+			if (!groq) await this.connect();
+			if (!groq || !this.connected) return false;
+
+			const index =
+				entry.turns.push({
+					question: anonymize(prompt.trim(), entry.userMap),
+					answer: "",
+				}) - 1;
+			// Reactive version so the answer is displayed while it's streamed
+			const turn = entry.turns[index]!;
+			const answer = await streamAnswer(groq, entry, turn);
+			if (!answer) {
+				// Don't leave the question loading forever
+				entry.turns.splice(entry.turns.indexOf(turn), 1);
+				return false;
+			}
+
+			await Database.instance.updateGroqHistory(entry);
+			return true;
 		},
 
 		async executeQuery(
 			preprompt: string,
 			prompt: string,
 			model: string = "",
-			jsonSchema?: string,
+			jsonExample?: string,
 		): Promise<string | false> {
 			if (!groq) await this.connect();
 			if (!groq || !this.connected) return Promise.resolve("");
@@ -369,11 +478,15 @@ export const storeGroq = defineStore("groq", {
 
 			const promptList: Groq.Chat.Completions.ChatCompletionMessageParam[] = [];
 
-			// JSON mode requires the messages to ask for JSON, even without preprompt
-			if (jsonSchema) {
-				const jsonPrompt = StoreProxy.i18n.t("groq.json_preprompt", { SCHEMA: jsonSchema });
+			// JSON mode requires the messages to ask for JSON, even without preprompt.
+			// The schema only enforces the structure, the example tells what to write.
+			if (jsonExample) {
+				const jsonPrompt = StoreProxy.i18n.t("groq.json_preprompt", {
+					EXAMPLE: jsonExample,
+				});
 				preprompt = preprompt ? preprompt + "\n" + jsonPrompt : jsonPrompt;
 			}
+			const schema = jsonExample ? getStrictSchema(jsonExample) : null;
 
 			if (preprompt) {
 				promptList.push({
@@ -397,12 +510,36 @@ export const storeGroq = defineStore("groq", {
 			try {
 				const result = await withFallbackModel(
 					isAvailable ? model : this.defaultModel,
-					(targetModel) =>
-						client.chat.completions.create({
-							...getCompletionParams(promptList, targetModel),
-							stream: false,
-							response_format: jsonSchema ? { type: "json_object" } : undefined,
-						}),
+					async (targetModel) => {
+						const create = (
+							response_format?:
+								| Groq.Chat.Completions.CompletionCreateParams.ResponseFormatJsonSchema
+								| Groq.Chat.Completions.CompletionCreateParams.ResponseFormatJsonObject,
+						) =>
+							client.chat.completions.create({
+								...getCompletionParams(promptList, targetModel),
+								stream: false,
+								response_format,
+							});
+						if (!jsonExample) return create();
+
+						if (schema && STRICT_JSON_MODELS.includes(targetModel)) {
+							try {
+								return await create({
+									type: "json_schema",
+									json_schema: { name: "answer", schema, strict: true },
+								});
+							} catch (error) {
+								// The models list may be outdated, or strict mode may not
+								// support something in the schema.
+								if (!(error instanceof Groq.BadRequestError) || isModelGoneError(error)) {
+									throw error;
+								}
+								console.warn("[Groq] Structured output failed, using JSON mode", error);
+							}
+						}
+						return create({ type: "json_object" });
+					},
 				);
 				return stripReasoning(result.choices[0]?.message.content || "") || false;
 			} catch (error) {

@@ -5,18 +5,17 @@
 		:class="{ isNew: entry.date > Date.now() - 10000 }"
 	>
 		<div class="wrapper">
-			<ToggleBlock v-if="entry.preprompt" :open="false" title="Preprompt" small>
-				<div class="preprompt">{{ deanonymizeUsers(entry.preprompt.trim()) }}</div>
+			<ToggleBlock v-if="entry.turns[0]?.question" :open="false" title="Preprompt" small>
+				<div class="preprompt">{{ deanonymizeUsers(entry.turns[0].question.trim()) }}</div>
 			</ToggleBlock>
 			<ToggleBlock v-if="entry.prompt" :open="false" title="Prompt" small>
 				<div class="prompt">{{ deanonymizeUsers(entry.prompt.trim()) }}</div>
 			</ToggleBlock>
-			<img
-				v-if="entry.answer.length < 2 || reprompting"
-				class="loader"
-				src="@/assets/icons/loader.svg"
-			/>
-			<div class="answer" v-else>{{ deanonymizeUsers(entry.answer) }}</div>
+			<template v-for="(turn, index) in entry.turns" :key="index">
+				<div class="question" v-if="index > 0">{{ deanonymizeUsers(turn.question) }}</div>
+				<img v-if="turn.answer.length < 2" class="loader" src="@/assets/icons/loader.svg" />
+				<div class="answer" v-else>{{ deanonymizeUsers(turn.answer) }}</div>
+			</template>
 			<div class="date">{{ date }}</div>
 
 			<form class="form" @submit.prevent="onSubmit">
@@ -94,10 +93,15 @@ function onEnter(e: KeyboardEvent): void {
  * Submits form for new prompt
  */
 async function onSubmit(): Promise<void> {
+	const prompt = newPrompt.value;
+	if (reprompting.value || !prompt.trim()) return;
 	reprompting.value = true;
-	await storeGroq.repromptHistoryEntry(props.entry.id, newPrompt.value);
-	reprompting.value = false;
+	// The question is displayed in the thread while it's answered
 	newPrompt.value = "";
+	const success = await storeGroq.repromptHistoryEntry(props.entry.id, prompt);
+	// Give the question back so it can be sent again
+	if (!success && !newPrompt.value) newPrompt.value = prompt;
+	reprompting.value = false;
 }
 
 /**
@@ -191,6 +195,12 @@ function formatDate(ts: number): string {
 		.loader {
 			width: 1.5em;
 			margin: 0 auto;
+		}
+
+		.question {
+			font-weight: bold;
+			white-space: pre-line;
+			margin-top: 0.5em;
 		}
 
 		.answer {

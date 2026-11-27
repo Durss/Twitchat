@@ -13,20 +13,14 @@
 				:error="jsonError != ''"
 				:errorMessage="jsonError"
 			/>
-			<i18n-t
-				scope="global"
-				class="infos"
-				tag="div"
-				keypath="triggers.actions.groq.jsonMode_hint"
-			>
-				<template #LINK>
-					<a
-						href="https://console.groq.com/docs/structured-outputs#json-object-mode"
-						target="_blank"
-						>{{ $t("triggers.actions.groq.jsonMode_hint_link") }}</a
-					>
-				</template>
-			</i18n-t>
+			<div class="infos">{{ $t("triggers.actions.groq.jsonMode_hint") }}</div>
+			<div class="infos" v-if="strictModelsSuggestion">
+				{{
+					$t("triggers.actions.groq.jsonMode_not_strict", {
+						MODELS: strictModelsSuggestion,
+					})
+				}}
+			</div>
 		</ParamItem>
 
 		<ParamItem
@@ -60,6 +54,7 @@ import type {
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ParamItem from "@/components/params/ParamItem.vue";
+import { STRICT_JSON_MODELS } from "@/store/groq/storeGroq";
 
 @Component({
 	components: {
@@ -111,6 +106,18 @@ class TriggerActionGroqEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare triggerData: TriggerData;
+
+	/**
+	 * Available models that always follow the JSON structure, if the selected one doesn't
+	 */
+	public get strictModelsSuggestion(): string {
+		const groq = this.$store.groq;
+		const model = this.action.groqData?.model || groq.defaultModel;
+		if (STRICT_JSON_MODELS.includes(model)) return "";
+		return STRICT_JSON_MODELS.filter((id) => groq.availableModels.some((m) => m.id === id))
+			.map((id) => id.replace(/-/g, " "))
+			.join(", ");
+	}
 
 	public beforeMount(): void {
 		if (!this.action.groqData)
