@@ -16,9 +16,9 @@
 				v-if="!currentTriggerData"
 			>
 				<template #CMD
-					><mark v-click2Select>{{
+					><a class="logsLink" href="#" @click.stop="openLogs()">{{
 						storeChat.commands.find((v) => v.id == "triggerlogs")?.cmd
-					}}</mark></template
+					}}</a></template
 				>
 			</i18n-t>
 		</div>
@@ -421,6 +421,13 @@ function onSelectTrigger(triggerData: TriggerData): void {
 	storeTriggers.openTriggerEdition(triggerData);
 	showForm.value = false;
 	createFolderTarget.value = "";
+}
+
+/**
+ * Opens trigger logs
+ */
+function openLogs(): void {
+	storeParams.openModal("triggersLogs");
 }
 
 /**
@@ -964,6 +971,9 @@ defineExpose({
 
 <style scoped lang="less">
 .paramstriggers {
+	.logsLink {
+		font-weight: bold;
+	}
 	.createBt {
 		margin: auto;
 	}
