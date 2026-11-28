@@ -3,64 +3,65 @@
 		<div class="gradient"></div>
 
 		<div class="logo" ref="logo">
-			<img src="@/assets/logo.svg" alt="Twitchat">
+			<img src="@/assets/logo.svg" alt="Twitchat" />
 		</div>
 
 		<div class="lang">
 			<select v-model="$i18n.locale">
-				<option :value="lang" v-for="lang in enabledLocales" :key="lang">{{ $t('global.lang_label', 1, {locale:lang})}}</option>
+				<option :value="lang" v-for="lang in enabledLocales" :key="lang">
+					{{ $t("global.lang_label", 1, { locale: lang }) }}
+				</option>
 			</select>
 		</div>
 
-		<Button icon="back" ref="backBt" primary class="backBt" :to="{name:'home_forced'}">
-			{{ $t('global.back') }}
-		</Button>
+		<TTButton icon="back" ref="backBt" primary class="backBt" :to="{ name: 'home_forced' }">
+			{{ $t("global.back") }}
+		</TTButton>
 
 		<ParamsSponsor class="content" ref="content" animate />
 	</div>
 </template>
 
-<script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
-import { gsap } from 'gsap';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../components/TTButton.vue';
-import ParamsSponsor from '../components/params/contents/ParamsSponsor.vue';
-import type { ComponentPublicInstance } from 'vue';
+<script setup lang="ts">
+import StoreProxy from "@/store/StoreProxy";
+import { gsap } from "gsap";
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import TTButton from "../components/TTButton.vue";
+import ParamsSponsor from "../components/params/contents/ParamsSponsor.vue";
 
-@Component({
-	components:{
-		Button: TTButton,
-		ParamsSponsor,
-	}
-})
-class Sponsor extends Vue {
+const { availableLocales } = useI18n();
 
-	public get enabledLocales():string[] {
-		return this.$i18n.availableLocales.filter(v=> {
-			let root:any = StoreProxy.i18n.getLocaleMessage(v);
-			if(!root.global) return false;
-			return root.global.lang_enabled;
-		})
-	}
+const backBt = ref<InstanceType<typeof TTButton> | null>(null);
 
-	public async mounted():Promise<void> {
-		const refs = ["backBt"];
-		for (let i = 0; i < refs.length; i++) {
-			let el = this.$refs[refs[i]!] as HTMLElement | ComponentPublicInstance;
-			if((el as ComponentPublicInstance).$el) el = (el as ComponentPublicInstance).$el as HTMLElement;
-			const delay = i*.1+.5;
-			gsap.fromTo(el, {opacity:0, y:-20, scale:.85},
-							{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});
-		}
-	}
+const enabledLocales = computed<string[]>(() => {
+	return availableLocales.filter((v) => {
+		let root: any = StoreProxy.i18n.getLocaleMessage(v);
+		if (!root.global) return false;
+		return root.global.lang_enabled;
+	});
+});
 
-}
-export default toNative(Sponsor);
+onMounted(() => {
+	const el = backBt.value!.$el as HTMLElement;
+	gsap.fromTo(
+		el,
+		{ opacity: 0, y: -20, scale: 0.85 },
+		{
+			duration: 0.5,
+			scale: 1,
+			opacity: 1,
+			y: 0,
+			clearProps: "all",
+			ease: "back.out",
+			delay: 0.5,
+		},
+	);
+});
 </script>
 
 <style scoped lang="less">
-.sponsor{
+.sponsor {
 	text-align: center;
 	color: var(--color-light);
 	min-height: 100%;
@@ -71,18 +72,21 @@ export default toNative(Sponsor);
 	overflow: hidden;
 
 	.gradient {
-		background: linear-gradient(180deg, var(--color-primary-fadest) 0%, var(--color-secondary-transparent) 100%);
+		background: linear-gradient(
+			180deg,
+			var(--color-primary-fadest) 0%,
+			var(--color-secondary-transparent) 100%
+		);
 		background-size: 100% 100vh;
 		background-repeat: no-repeat;
 		background-position: top center;
 		width: 100%;
 		height: 100vh;
 		position: absolute;
-		top:0;
-		left:0;
+		top: 0;
+		left: 0;
 		z-index: -1;
 	}
-
 
 	.logo {
 		width: 80vw;
@@ -107,8 +111,8 @@ export default toNative(Sponsor);
 		position: absolute;
 		top: 10px;
 		right: 10px;
-		font-size: .8em;
-		select{
+		font-size: 0.8em;
+		select {
 			color: var(--color-light);
 			background: none;
 			border: none;

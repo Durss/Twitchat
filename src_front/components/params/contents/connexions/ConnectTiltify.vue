@@ -10,44 +10,93 @@
 			</i18n-t>
 		</div>
 
-		<section v-if="!$store.tiltify.connected">
-			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{ $t("global.connect") }}</TTButton>
-			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.tiltify_connect_failed") }}</div>
+		<section v-if="!storeTiltify.connected">
+			<TTButton
+				type="link"
+				:href="oAuthURL"
+				target="_self"
+				:loading="loading"
+				icon="online"
+				>{{ t("global.connect") }}</TTButton
+			>
+			<div class="card-item alert error" v-if="error" @click="error = false">
+				{{ t("error.tiltify_connect_failed") }}
+			</div>
 		</section>
 
 		<template v-else>
 			<section>
-				<TTButton alert @click="disconnect()">
-					<div class="userInfo" v-if="$store.tiltify.user">
-						<span>{{ $t("global.disconnect") }} </span>
-						<img :src="$store.tiltify.user.avatar.src" alt="avatar">
-						<h2>{{ $store.tiltify.user.username }}</h2>
-					</div>
-				</TTButton>
+				<ProfileInfoCard
+					:avatar="storeTiltify.user?.avatar.src"
+					:name="storeTiltify.user?.username"
+					:url="'https://tiltify.com' + storeTiltify.user?.url"
+					@logout="disconnect()"
+				/>
 			</section>
 
-			<section class="card-item secondary noCampaign" v-if="$store.tiltify.campaignList.length == 0">
+			<section
+				class="card-item secondary noCampaign"
+				v-if="storeTiltify.campaignList.length == 0"
+			>
 				<Icon name="alert" />
-				<span>{{ $t("tiltify.no_campaign") }}</span>
-				<TTButton type="link" href="https://tiltify.com/start" target="_blank" icon="newtab" light secondary>{{ $t("global.start") }}</TTButton>
+				<div class="content">
+					<span>{{ t("tiltify.no_campaign") }}</span>
+					<TTButton
+						type="link"
+						href="https://tiltify.com/start"
+						target="_blank"
+						icon="newtab"
+						light
+						secondary
+						>{{ t("tiltify.start_bt") }}</TTButton
+					>
+				</div>
 			</section>
 			<template v-else>
+				<section>
+					<TTButton primary @click="openOverlay()" icon="overlay">{{
+						t("tiltify.create_donation_goals")
+					}}</TTButton>
+				</section>
+
 				<section class="card-item infos">
-					<strong>{{ $t("tiltify.campaign_list", $store.tiltify.campaignList.length) }}</strong>
-					<div class="campaignList">
-						<div v-for="campaign in $store.tiltify.campaignList" class="campaign">
-							<a :href="campaign.donate_url" target="_blank"><Icon name="newtab" />{{campaign.name}}</a>
-							<TTButton clear icon="copy" v-tooltip="$t('tiltify.copy_id_tt')" @click="copyId(campaign.id)">#ID</TTButton>
-						</div>
+					<strong>{{
+						t("tiltify.campaign_list", storeTiltify.campaignList.length)
+					}}</strong>
+					<div class="campaignList" v-if="activeCampaigns.length > 0">
+						<TiltifyCampaignItem
+							v-for="campaign in activeCampaigns"
+							:key="campaign.id"
+							:campaign="campaign"
+						/>
 					</div>
-					<span class="spaceAbove">{{ $t("tiltify.create_donation_goals") }}</span>
-					<TTButton @click="openOverlay()" icon="add">{{ $t("global.create") }}</TTButton>
+					<ToggleBlock
+						v-if="retiredCampaigns.length > 0"
+						class="retiredList"
+						small
+						:open="activeCampaigns.length == 0"
+						:title="
+							t(
+								'tiltify.retired_list',
+								{ COUNT: retiredCampaigns.length },
+								retiredCampaigns.length,
+							)
+						"
+					>
+						<div class="campaignList">
+							<TiltifyCampaignItem
+								v-for="campaign in retiredCampaigns"
+								:key="campaign.id"
+								:campaign="campaign"
+							/>
+						</div>
+					</ToggleBlock>
 				</section>
 			</template>
 		</template>
 
 		<section class="examples">
-			<h2><Icon name="whispers"/>{{$t("tiltify.examples")}}</h2>
+			<h2><Icon name="whispers" />{{ t("tiltify.examples") }}</h2>
 			<Icon name="loader" v-if="!fakeDonation" />
 			<template v-else>
 				<MessageItem :messageData="fakeDonation" />
@@ -56,135 +105,133 @@
 	</div>
 </template>
 
-<script lang="ts">
-import MessageItem from '@/components/messages/MessageItem.vue';
-import TTButton from '@/components/TTButton.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+<script setup lang="ts">
+import MessageItem from "@/components/messages/MessageItem.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import TTButton from "@/components/TTButton.vue";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import {
+	storeTiltify as useStoreTiltify,
+	type TiltifyCampaign,
+} from "@/store/tiltify/storeTiltify";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import ProfileInfoCard from "../ProfileInfoCard.vue";
+import TiltifyCampaignItem from "./TiltifyCampaignItem.vue";
 
-@Component({
-	components:{
-		TTButton,
-		MessageItem,
-	},
-	emits:[],
-})
-class ConnectTiltify extends Vue {
+const { t } = useI18n();
+const storeDebug = useStoreDebug();
+const storeParams = useStoreParams();
+const storeTiltify = useStoreTiltify();
 
-	public error = false;
-	public loading = false;
-	public oAuthURL = "";
-	public fakeDonation:TwitchatDataTypes.TiltifyDonationData|undefined = undefined;
+const error = ref(false);
+const loading = ref(false);
+const oAuthURL = ref("");
+const fakeDonation = ref<TwitchatDataTypes.TiltifyDonationData | undefined>(undefined);
 
-	public beforeMount():void {
-		if(!this.$store.tiltify.connected) {
-			if(this.$store.tiltify.authResult.code) {
-				//Complete oauth process
-				this.loading = true
-				this.$store.tiltify.getAccessToken()
-				.then(success => {
-					this.error = !success;
-					this.loading = false;
-					if(this.error) {
-						this.loadAuthURL();
-					}
-				})
-			}else{
-				//Preload oAuth URL
-				this.loadAuthURL();
-			}
+/**
+ * Campaigns sorted from most recent to oldest
+ */
+const sortedCampaigns = computed(() =>
+	[...storeTiltify.campaignList].sort((a, b) => getStartTime(b) - getStartTime(a)),
+);
+const activeCampaigns = computed(() => sortedCampaigns.value.filter((v) => !isRetired(v)));
+const retiredCampaigns = computed(() => sortedCampaigns.value.filter((v) => isRetired(v)));
+
+onBeforeMount(() => {
+	if (!storeTiltify.connected) {
+		if (storeTiltify.authResult.code) {
+			//Complete oauth process
+			loading.value = true;
+			storeTiltify.getAccessToken().then((success) => {
+				error.value = !success;
+				loading.value = false;
+				if (error.value) {
+					loadAuthURL();
+				}
+			});
+		} else {
+			//Preload oAuth URL
+			loadAuthURL();
 		}
-		this.$store.debug.simulateMessage<TwitchatDataTypes.TiltifyDonationData>(TwitchatDataTypes.TwitchatMessageType.TILTIFY, (mess) => {
+	}
+	storeDebug.simulateMessage<TwitchatDataTypes.TiltifyDonationData>(
+		TwitchatDataTypes.TwitchatMessageType.TILTIFY,
+		(mess) => {
 			mess.eventType = "donation";
-			this.fakeDonation = mess;
-		}, false);
-				// this.$store.tiltify.connect()
-				// .then(res => {
-				// 	console.log(res)
-				// });
-	}
+			fakeDonation.value = mess;
+		},
+		false,
+	);
+	// storeTiltify.connect()
+	// .then(res => {
+	// 	console.log(res)
+	// });
+});
 
-	/**
-	 * Disconnects from streamlabs
-	 */
-	public disconnect():void{
-		this.$store.tiltify.disconnect();
-		this.loadAuthURL();
-	}
-
-	/**
-	 * Open donation goal overlay section
-	 */
-	public openOverlay():void{
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "donationgoals")
-	}
-
-	/**
-	 * Copies ID to clipboard
-	 */
-	public copyId(id:string):void{
-		Utils.copyToClipboard(id);
-	}
-
-	/**
-	 * initiliaze the auth url
-	 */
-	private loadAuthURL():void{
-		this.loading = true;
-		this.$store.tiltify.getOAuthURL().then(res => {
-			this.oAuthURL = res;
-			this.loading = false;
-		});
-	}
-
+/**
+ * Disconnects from streamlabs
+ */
+function disconnect(): void {
+	storeTiltify.disconnect();
+	loadAuthURL();
 }
-export default toNative(ConnectTiltify);
+
+/**
+ * Open donation goal overlay section
+ */
+function openOverlay(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "donationgoals");
+}
+
+/**
+ * Get the timestamp at which the given campaign started
+ */
+function getStartTime(campaign: TiltifyCampaign): number {
+	return Date.parse(campaign.published_at || campaign.inserted_at) || 0;
+}
+
+/**
+ * Get if the given campaign has been retired
+ */
+function isRetired(campaign: TiltifyCampaign): boolean {
+	return !isNaN(Date.parse(campaign.retired_at || ""));
+}
+
+/**
+ * initiliaze the auth url
+ */
+function loadAuthURL(): void {
+	loading.value = true;
+	storeTiltify.getOAuthURL().then((res) => {
+		oAuthURL.value = res;
+		loading.value = false;
+	});
+}
 </script>
 
 <style scoped lang="less">
-.connecttiltify{
-	.userInfo {
-		gap: .5em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		align-self: center;
-		img {
-			border-radius: 50%;
-			height: 2em;
-		}
-	}
-
-	.infos{
-		gap:.5em;
+.connecttiltify {
+	.infos {
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		.icon {
 			height: 1em;
 			vertical-align: middle;
-			margin-right: .25em;
+			margin-right: 0.25em;
 		}
-		.campaignList{
+		.campaignList {
 			align-self: stretch;
-			gap: .25em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: column;
-			.campaign {
-				display: flex;
-				flex-direction: row;
-				justify-content: space-between;
-				align-items: center;
-				padding-left: .5em;
-				border-radius: var(--border-radius);
-				&:hover {
-					background-color: var(--background-color-fadest)
-				}
-			}
 		}
-		.spaceAbove {
-			margin-top: .5em
+		.retiredList {
+			align-self: stretch;
 		}
 	}
 
@@ -201,16 +248,23 @@ export default toNative(ConnectTiltify);
 		align-items: center;
 		.icon {
 			height: 1.5em;
+			flex-shrink: 0;
+		}
+		.content {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
 		}
 	}
 
 	.examples {
 		.icon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 			vertical-align: middle;
 		}
-		.chatMessage  {
+		.chatMessage {
 			font-size: 1em;
 		}
 	}

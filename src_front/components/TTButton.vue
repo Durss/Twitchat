@@ -1,14 +1,14 @@
 <template>
 	<component
-	:class="classes"
-	:is="nodeType"
-	:type="type"
-	:target="target"
-	:to="to"
-	:href="type=='link'? to : null"
-	@click="onClick($event)"
-	@mouseup="onRelease($event)"
-	v-model="modelValue">
+		:class="classes"
+		:is="nodeType"
+		:type="type"
+		:target="target"
+		:to="to"
+		:href="type == 'link' ? to : null"
+		@click="onClick($event)"
+		@mouseup="onRelease($event)"
+	>
 		<span class="background"></span>
 		<Icon v-if="copySuccess" name="checkmark" />
 
@@ -20,174 +20,158 @@
 			<Icon v-if="icon && loading" name="loader" />
 
 			<Icon class="icon" v-if="icon && !loading" :name="icon" alt="icon" />
-			<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
-			<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
+			<span class="icon" v-if="!isEmptySlot(slots.icon)"><slot name="icon" /></span>
+			<span class="label" ref="label" v-if="!isEmptySlot(slots.default)"><slot /></span>
 
 			<div class="clickArea"></div>
 
-			<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
+			<input
+				type="file"
+				v-if="type == 'file'"
+				class="browse"
+				:accept="accept"
+				ref="browse"
+				@change="onBrowseFile()"
+			/>
 		</template>
 	</component>
 </template>
 
-<script lang="ts">
-import { watch } from '@vue/runtime-core';
-import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import Icon from './Icon.vue';
-import Utils from '@/utils/Utils';
+<script setup lang="ts">
+import Utils from "@/utils/Utils";
+import { gsap } from "gsap/gsap-core";
+import { computed, getCurrentInstance, ref, Text, useSlots, useTemplateRef } from "vue";
+import Icon from "./Icon.vue";
+import { useEmptySlot } from "@/composables/useEmptySlot";
 
-@Component({
-	components:{
-		Icon,
+const props = withDefaults(
+	defineProps<{
+		icon?: string;
+		loading?: boolean;
+		type?: "link" | "button" | "file" | "submit" | "reset";
+		target?: string;
+		to?: unknown;
+		big?: boolean;
+		small?: boolean;
+		primary?: boolean;
+		secondary?: boolean;
+		alert?: boolean;
+		premium?: boolean;
+		twitch?: boolean;
+		light?: boolean;
+		transparent?: boolean;
+		selected?: boolean;
+		disabled?: boolean;
+		modelValue?: boolean;
+		noBounce?: boolean;
+		accept?: string;
+		copy?: string;
+		file?: string;
+	}>(),
+	{
+		loading: false,
+		type: "button",
+		big: false,
+		small: false,
+		primary: false,
+		secondary: false,
+		alert: false,
+		premium: false,
+		twitch: false,
+		light: false,
+		transparent: false,
+		selected: false,
+		disabled: false,
+		modelValue: false,
+		noBounce: false,
+		accept: "image/*",
+		copy: "",
 	},
-	emits: ['click', 'update:modelValue', 'update:file'],
-	expose: ['value'],
-})
-export class TTButton extends Vue {
+);
 
-	@Prop
-	public icon!:string;
+const emit = defineEmits<{
+	click: [event: MouseEvent];
+	"update:file": [file: File];
+}>();
 
-	@Prop({type:Boolean, default: false})
-	public loading!:boolean;
+const slots = useSlots();
+const instance = getCurrentInstance();
+const { isEmptySlot } = useEmptySlot();
 
-	@Prop({type:String, default:'button'})
-	public type!:string;
+const copySuccess = ref(false);
+const copyFail = ref(false);
+const browseRef = useTemplateRef("browse");
 
-	@Prop
-	public target!:string;
+const nodeType = computed(() => {
+	if (props.to) return "router-link";
+	if (props.type == "link") return "a";
+	return "button";
+});
 
-	@Prop
-	public to!:unknown;
+const classes = computed(() => {
+	let list = ["button", "type-" + props.type];
+	if (isEmptySlot(slots.default)) list.push("noTitle");
+	if (props.primary !== false || copySuccess.value) list.push("primary");
+	if (props.twitch !== false) list.push("twitch");
+	if (props.secondary !== false) list.push("secondary");
+	if (props.alert !== false) list.push("alert");
+	if (props.premium !== false) list.push("premium");
+	if (props.light !== false) list.push("light");
+	if (props.transparent !== false) list.push("transparent");
+	if (props.big !== false) list.push("big");
+	if (props.small !== false) list.push("small");
+	if (props.selected !== false) list.push("selected");
+	if (props.loading !== false) list.push("disabled", "loading");
+	else if (props.disabled !== false) list.push("disabled");
+	return list;
+});
 
-	@Prop({type:Boolean, default: false})
-	public big!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public small!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public primary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public premium!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public twitch!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public light!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public transparent!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public selected!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public disabled!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public modelValue!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public noBounce!:boolean;
-
-	@Prop({type:String, default: "image/*"})
-	public accept!:string;
-
-	@Prop({type:String, default: ""})
-	public copy!:string;
-
-	@Prop
-	public file!:string;
-
-	public checked = false;
-	public copySuccess = false;
-	public copyFail = false;
-
-	public get nodeType():string {
-		if(this.to) return "router-link";
-		if(this.type == "link") return "a";
-		return "button";
+function onBrowseFile(): void {
+	let input = browseRef.value;
+	if (input?.files && input.files[0]) {
+		emit("update:file", input.files[0]);
 	}
-
-	public get classes():string[] {
-		let list =  ["button"]
-		if(!this.$slots.default) list.push("noTitle");
-		if(this.primary !== false) list.push("primary");
-		if(this.twitch !== false) list.push("twitch");
-		if(this.secondary !== false) list.push("secondary");
-		if(this.alert !== false) list.push("alert");
-		if(this.premium !== false) list.push("premium");
-		if(this.light !== false) list.push("light");
-		if(this.transparent !== false) list.push("transparent");
-		if(this.big !== false) list.push("big");
-		if(this.small !== false) list.push("small");
-		if(this.selected !== false) list.push("selected");
-		if(this.loading !== false) list.push("disabled", "loading");
-		else if(this.disabled !== false) list.push("disabled");
-		return list;
-	}
-
-	public beforeMount():void {
-		this.checked = this.modelValue;
-
-		watch(() => this.checked, (val:boolean) => {
-			this.$emit("update:modelValue", val);
-		});
-
-		watch(() => this.modelValue, (val:boolean) => {
-			this.checked = val;
-		});
-	}
-
-	public onBrowseFile():void {
-		let input:HTMLInputElement = this.$refs.browse as HTMLInputElement;
-		if(input.files) {
-			this.$emit('update:file', input.files[0])
-		}
-	}
-
-	public resetBrowse():void {
-		(this.$refs.browse as HTMLFormElement).value = null;
-	}
-
-	public async onClick(event:MouseEvent):Promise<void> {
-		if(this.disabled !== false || this.loading) {
-			event.preventDefault();
-			event.stopPropagation();
-			return;
-		}
-		this.$emit("click", event);
-
-		if(this.copy) {
-			try {
-				await Utils.copyToClipboard(this.copy);
-				this.copySuccess = true;
-			}catch(e) {
-				this.copyFail = true;
-			}
-			await Utils.promisedTimeout(3000);
-			this.copySuccess = false;
-			this.copyFail = false;
-		}
-	}
-
-	public onRelease(event:MouseEvent):void {
-		if(this.disabled || this.loading || this.noBounce !== false) return;
-		gsap.fromTo(this.$el, {translateY:-3, scaleY:1.1}, {duration:.5, translateY:0, scaleY:1, clearProps:"all", ease:"elastic.out(1.5)", delay:.05});
-	}
-
 }
-export default toNative(TTButton);
+
+async function onClick(event: MouseEvent): Promise<void> {
+	if (props.disabled !== false || props.loading) {
+		event.preventDefault();
+		event.stopPropagation();
+		return;
+	}
+	emit("click", event);
+
+	if (props.copy) {
+		try {
+			await Utils.copyToClipboard(props.copy);
+			copySuccess.value = true;
+		} catch (e) {
+			copyFail.value = true;
+		}
+		await Utils.promisedTimeout(2000);
+		copySuccess.value = false;
+		copyFail.value = false;
+	}
+}
+
+function onRelease(_event: MouseEvent): void {
+	if (props.disabled || props.loading || props.noBounce !== false) return;
+	const el = instance?.proxy?.$el;
+	if (el) {
+		gsap.fromTo(
+			el,
+			{ translateY: -3, scaleY: 1.1 },
+			{
+				duration: 0.5,
+				translateY: 0,
+				scaleY: 1,
+				clearProps: "all",
+				ease: "elastic.out(1.5)",
+				delay: 0.05,
+			},
+		);
+	}
+}
 </script>
 
 <style lang="less" scoped>
@@ -199,9 +183,9 @@ export default toNative(TTButton);
 	flex-direction: row;
 	position: relative;
 	flex-wrap: wrap;
-	padding: .3em .7em;
+	padding: 0.3em 0.7em;
 	row-gap: 0;
-	column-gap: .5em;
+	column-gap: 0.5em;
 	align-items: center;
 	justify-content: center;
 	text-decoration: none;
@@ -209,6 +193,10 @@ export default toNative(TTButton);
 	text-decoration: none !important;
 	font-size: 1rem;
 	color: var(--color-text);
+
+	&:not(.type-file) > * {
+		pointer-events: none;
+	}
 
 	.clickArea {
 		position: absolute;
@@ -228,32 +216,42 @@ export default toNative(TTButton);
 		left: -@offset;
 		border-radius: inherit;
 		background-color: var(--color-button);
-		background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,.7) 40%, rgba(255,255,255,.7) 60%, rgba(255,255,255,0) 65%);
+		background-image: linear-gradient(
+			20deg,
+			rgba(255, 255, 255, 0) 35%,
+			rgba(255, 255, 255, 0.7) 40%,
+			rgba(255, 255, 255, 0.7) 60%,
+			rgba(255, 255, 255, 0) 65%
+		);
 		background-repeat: repeat-x;
-		background-size:  200% 100%;
+		background-size: 200% 100%;
 		width: calc(100% + @offset*2);
 		height: calc(100% + @offset*2);
 		animation: glowing 1s linear infinite;
 
 		@keyframes glowing {
-			0% { background-position: 200% 0; }
-			100% { background-position: 0 0; }
+			0% {
+				background-position: 200% 0;
+			}
+			100% {
+				background-position: 0 0;
+			}
 		}
 	}
 
 	.background {
 		border-radius: inherit;
 		position: absolute;
-		top:0;
-		left:0;
+		top: 0;
+		left: 0;
 		width: 100%;
 		height: 100%;
-		transition: all .15s;
+		transition: all 0.15s;
 		background-color: var(--color-button);
 	}
 
 	&.disabled {
-		opacity: .5;
+		opacity: 0.5;
 		cursor: not-allowed;
 	}
 	&.loading {
@@ -266,26 +264,29 @@ export default toNative(TTButton);
 		}
 	}
 
-	&:not(.disabled){
+	&:not(.disabled) {
 		&:hover {
 			.background {
 				background-color: var(--color-button-light);
 			}
 		}
 
-		&:active{
+		&:active {
 			transform: translateY(2px);
-			.clickArea{
+			.clickArea {
 				top: -2px;
 			}
 			.background {
 				background-color: var(--color-button-dark);
-				box-shadow: 0px 0px 0px rgba(255, 255, 255, 0), 0px 0px 0px rgba(0, 0, 0, 0);
+				box-shadow:
+					0px 0px 0px rgba(255, 255, 255, 0),
+					0px 0px 0px rgba(0, 0, 0, 0);
 			}
 		}
 	}
-	.icon, .label {
-		transition: all .25s;
+	.icon,
+	.label {
+		transition: all 0.25s;
 		z-index: 0;
 	}
 	.label {
@@ -296,8 +297,8 @@ export default toNative(TTButton);
 		text-overflow: ellipsis;
 		overflow: hidden;
 		display: block;
-		line-height: 1.25em;//Makes sure letters like g or p are not cut on the bottom
-		text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+		line-height: 1.25em; //Makes sure letters like g or p are not cut on the bottom
+		text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 		&:empty {
 			display: none;
 		}
@@ -309,7 +310,7 @@ export default toNative(TTButton);
 		left: -1em;
 		width: calc(100% + 1em);
 		height: calc(100% + 1em);
-		opacity: .01;
+		opacity: 0.01;
 		&::file-selector-button {
 			cursor: pointer;
 			width: 200%;
@@ -333,11 +334,11 @@ export default toNative(TTButton);
 	}
 
 	&.small {
-		font-size: .8rem;
+		font-size: 0.8rem;
 	}
 
 	&.noTitle {
-		padding: .3em;
+		padding: 0.3em;
 	}
 
 	&.primary {
@@ -345,7 +346,7 @@ export default toNative(TTButton);
 		.background {
 			background-color: var(--color-primary);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-primary-light);
@@ -365,12 +366,12 @@ export default toNative(TTButton);
 	&.secondary {
 		color: var(--color-light);
 		.label {
-			text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+			text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 		}
 		.background {
 			background-color: var(--color-secondary);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-secondary-light);
@@ -390,12 +391,12 @@ export default toNative(TTButton);
 	&.twitch {
 		color: var(--color-light);
 		.label {
-			text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+			text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 		}
 		.background {
 			background-color: var(--color-twitch);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-twitch-light);
@@ -420,7 +421,7 @@ export default toNative(TTButton);
 		.background {
 			background-color: var(--color-alert);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-alert-light);
@@ -449,7 +450,7 @@ export default toNative(TTButton);
 		.background {
 			background-color: var(--color-premium);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-premium-light);
@@ -483,7 +484,7 @@ export default toNative(TTButton);
 		.background {
 			background-color: var(--color-light);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-light-dark);
@@ -518,7 +519,7 @@ export default toNative(TTButton);
 		.background {
 			background-color: transparent;
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-text-fadest);
@@ -538,54 +539,54 @@ export default toNative(TTButton);
 			font-weight: bold;
 			text-shadow: unset;
 		}
-		.background{
+		.background {
 			background-color: var(--color-button-extralight);
 		}
 		&:active {
-			.background{
+			.background {
 				background-color: var(--color-button);
 			}
 		}
 		&.primary {
 			color: var(--color-dark);
-			.background{
+			.background {
 				background-color: var(--color-primary-extralight);
 			}
 			&:active {
-				.background{
+				.background {
 					background-color: var(--color-primary);
 				}
 			}
 		}
 		&.secondary {
 			color: var(--color-dark);
-			.background{
+			.background {
 				background-color: var(--color-secondary-extralight);
 			}
 			&:active {
-				.background{
+				.background {
 					background-color: var(--color-secondary);
 				}
 			}
 		}
 		&.alert {
 			color: var(--color-dark);
-			.background{
+			.background {
 				background-color: var(--color-alert-extralight);
 			}
 			&:active {
-				.background{
+				.background {
 					background-color: var(--color-alert);
 				}
 			}
 		}
 		&.premium {
 			color: var(--color-dark);
-			.background{
+			.background {
 				background-color: var(--color-premium-extralight);
 			}
 			&:active {
-				.background{
+				.background {
 					background-color: var(--color-premium);
 				}
 			}
@@ -595,22 +596,27 @@ export default toNative(TTButton);
 
 @media only screen and (max-width: 500px) {
 	.button {
-		&.noTitle.big, &.big {
-			padding: .5em;
+		&.noTitle.big,
+		&.big {
+			padding: 0.5em;
 			font-size: 1.2rem;
-			min-height: calc(1.2em + .5em);
+			min-height: calc(1.2em + 0.5em);
 		}
 	}
 }
 </style>
 
-
-
 <style lang="less">
 body.light {
 	.button {
 		.loadingBorder {
-			background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%) !important;
+			background-image: linear-gradient(
+				20deg,
+				rgba(255, 255, 255, 0) 35%,
+				rgba(255, 255, 255, 1) 40%,
+				rgba(255, 255, 255, 1) 60%,
+				rgba(255, 255, 255, 0) 65%
+			) !important;
 		}
 		&.selected {
 			color: var(--color-text);

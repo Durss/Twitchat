@@ -1,18 +1,22 @@
 # Connecter Twitchat avec Spotify
+
 Rendez-vous sur ce lien et connectez-vous avec votre compte Spotify :
 https://developer.spotify.com/dashboard
 
 Une fois que vous avez accepté les conditions d'utilisation, vous serez sur votre tableau de bord développeur.
 
 Il y a maintenant deux options :
+
 <details>
   <summary>Vous avez déjà une application Spotify existante</summary>
 
 Ouvrez l'application existante, cliquez sur "`Modifier`" en bas.\
 Trouvez la section `Redirect URIs` et ajoutez cette URL :
+
 ```
 https://twitchat.fr/spotify/auth
 ```
+
 </details>
 <br>
 <details>
@@ -33,9 +37,11 @@ Cliquez dessus pour révéler la valeur du secret client.
 Avant de mettre ces valeurs sur Twitchat, il y a une dernière chose à faire.\
 Cliquez sur le bouton "`Modifier`" en bas de la page.\
 Faites défiler jusqu'à la section "`Redirect URIs`" et ajoutez l'URL suivante :
+
 ```
 https://twitchat.fr/spotify/auth
 ```
+
 ![image](https://user-images.githubusercontent.com/721001/231935570-fc532ecb-30c1-41b3-bf2e-8ec6a0885a7a.png)
 <br>
 

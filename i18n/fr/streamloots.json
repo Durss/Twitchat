@@ -1,0 +1,11 @@
+{
+	"streamloots": {
+		"header": "Connectez {LINK} pour recevoir les cartes utilisées, les packs achetés et offerts, les réactions et les emotes",
+		"instructions": "Sur votre tableau de bord Streamloots, ouvrez \"Alertes et widgets\", copiez l'URL de vos alertes et collez-la ci-dessous",
+		"param_url": "URL des alertes",
+		"error_messages": {
+			"INVALID_URL": "URL invalide.\nElle devrait ressembler à https://widgets.streamloots.com/alerts/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+			"CONNECT_FAILED": "Échec de connexion à Streamloots.\nVérifiez que l'URL des alertes est valide."
+		}
+	}
+}

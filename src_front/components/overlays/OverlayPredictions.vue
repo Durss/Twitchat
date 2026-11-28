@@ -1,5 +1,6 @@
 <template>
-	<PollRenderer v-if="prediction && parameters"
+	<PollRenderer
+		v-if="prediction && parameters"
 		:open="show"
 		:showTimer="parameters.showTimer"
 		:showLabels="parameters.showLabels"
@@ -7,145 +8,138 @@
 		:showVoters="parameters.showVoters"
 		:showVotes="parameters.showVotes"
 		:showWinner="showWinner"
-		:title="parameters.showTitle? prediction.title : ''"
+		:title="parameters.showTitle ? prediction.title : ''"
 		:duration="prediction.duration_s * 1000"
 		:startedAt="prediction.started_at"
 		:resultDuration_s="parameters.resultDuration_s"
 		:placement="parameters.placement"
-		:mode="listMode? 'list' : 'line'"
+		:mode="listMode ? 'list' : 'line'"
 		:entries="prediction.outcomes"
 		:winningId="prediction.winner?.id"
-		/>
+	/>
 </template>
 
-<script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
-import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
-import { Component, toNative } from 'vue-facing-decorator';
-import Icon from '../Icon.vue';
-import AbstractOverlay from './AbstractOverlay';
-import PollRenderer from './poll/PollRenderer.vue';
-@Component({
-	components:{
-		Icon,
-		PollRenderer,
-	},
-	emits:[],
-})
-class OverlayPredictions extends AbstractOverlay {
+<script setup lang="ts">
+import { useOverlayConnector } from "@/composables/useOverlayConnector";
+import type TwitchatEvent from "@/events/TwitchatEvent";
+import type { PredictionOverlayParamStoreData } from "@/store/prediction/storePrediction";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import PollRenderer from "./poll/PollRenderer.vue";
 
-	public show:boolean = false;
-	public showWinner:boolean = false;
-	public prediction:TwitchatDataTypes.MessagePredictionData | null = null;
-	public parameters:PredictionOverlayParamStoreData = {
-		showTitle:true,
-		listMode:true,
-		listModeOnlyMore2:true,
-		showLabels:false,
-		showPercent:false,
-		showVoters:false,
-		showVotes:false,
-		showTimer:true,
-		showOnlyResult:false,
-		hideUntilResolved:true,
-		resultDuration_s:5,
-		placement:"bl",
-	};
+const show = ref(false);
+const showWinner = ref(false);
+const prediction = ref<TwitchatDataTypes.MessagePredictionData | null>(null);
+const parameters = ref<PredictionOverlayParamStoreData>({
+	showTitle: true,
+	listMode: true,
+	listModeOnlyMore2: true,
+	showLabels: false,
+	showPercent: false,
+	showVoters: false,
+	showVotes: false,
+	showTimer: true,
+	showOnlyResult: false,
+	hideUntilResolved: true,
+	resultDuration_s: 5,
+	placement: "bl",
+});
 
-	private parametersReceived:boolean = false;
-	private pendingData:TwitchatEvent|null = null;
-	private updatePredictionHandler!:(e:TwitchatEvent)=>void;
-	private updateParametersHandler!:(e:TwitchatEvent)=>void;
-	private requestPresenceHandler!:(e:TwitchatEvent)=>void;
+let parametersReceived: boolean = false;
+let pendingData: TwitchatEvent<"ON_PREDICTION_PROGRESS"> | null = null;
 
-	public get listMode():boolean {
-		return this.parameters.listMode
-		&& (!this.parameters.listModeOnlyMore2 || (this.parameters.listModeOnlyMore2 && this.prediction!.outcomes.length > 2))
+const listMode = computed<boolean>(() => {
+	return (
+		parameters.value.listMode &&
+		(!parameters.value.listModeOnlyMore2 ||
+			(parameters.value.listModeOnlyMore2 && prediction.value!.outcomes.length > 2))
+	);
+});
+
+useOverlayConnector(requestInfo);
+
+onMounted(() => {
+	PublicAPI.instance.broadcast("ON_PREDICTIONS_OVERLAY_PRESENCE");
+
+	PublicAPI.instance.addEventListener("ON_PREDICTION_PROGRESS", onUpdatePrediction);
+	PublicAPI.instance.addEventListener("ON_PREDICTION_OVERLAY_CONFIGS", onUpdateParams);
+	PublicAPI.instance.addEventListener("GET_PREDICTIONS_OVERLAY_PRESENCE", onRequestPresence);
+});
+
+onBeforeUnmount(() => {
+	PublicAPI.instance.removeEventListener("ON_PREDICTION_PROGRESS", onUpdatePrediction);
+	PublicAPI.instance.removeEventListener("ON_PREDICTION_OVERLAY_CONFIGS", onUpdateParams);
+	PublicAPI.instance.removeEventListener("GET_PREDICTIONS_OVERLAY_PRESENCE", onRequestPresence);
+});
+
+function onRequestPresence(): void {
+	PublicAPI.instance.broadcast("ON_PREDICTIONS_OVERLAY_PRESENCE");
+}
+
+function requestInfo(): void {
+	PublicAPI.instance.broadcast("GET_PREDICTIONS_OVERLAY_CONFIGS");
+}
+
+async function onUpdatePrediction(e: TwitchatEvent<"ON_PREDICTION_PROGRESS">): Promise<void> {
+	if (!parametersReceived) {
+		// overlay's parameters not received yet, put data aside
+		// onUpdatePrediction() will be called by onUpdateParams() afterwards
+		pendingData = e;
+		requestInfo();
+		return;
 	}
 
-	public get classes():string[] {
-		let res:string[] = [
-			"overlaypredictions",
-			"position-"+this.parameters.placement
-		];
-		if(this.showWinner) res.push("win");
-		return res;
+	const newPrediction = e.data?.prediction;
+	if (newPrediction && prediction.value && newPrediction.id != prediction.value.id) {
+		// New prediction started while another one is still active. Close previous one
+		showWinner.value = false;
+		show.value = false;
+		await Utils.promisedTimeout(1000);
 	}
-
-	public async mounted():Promise<void> {
-		PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PRESENCE);
-
-		this.updateParametersHandler = (e:TwitchatEvent)=>this.onUpdateParams(e);
-		this.updatePredictionHandler = (e:TwitchatEvent)=>this.onUpdatePrediction(e);
-		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PRESENCE); }
-
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_PROGRESS, this.updatePredictionHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, this.updateParametersHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PRESENCE, this.requestPresenceHandler);
-	}
-
-	public beforeUnmount():void {
-		super.beforeUnmount();
-		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_PROGRESS, this.updatePredictionHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, this.updateParametersHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PRESENCE, this.requestPresenceHandler);
-	}
-
-	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS);
-	}
-
-	public async onUpdatePrediction(e:TwitchatEvent):Promise<void> {
-		if(!this.parametersReceived) {
-			// overlay's parameters not received yet, put data aside
-			// onUpdatePrediction() will be called by onUpdateParams() afterwards
-			this.pendingData = e;
-			this.requestInfo();
-			return;
-		}
-
-		const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
-		if(prediction && this.prediction && prediction.id != this.prediction.id) {
-			// New prediction started while another one is still active. Close previous one
-			this.showWinner = false;
-			this.show = false;
+	if (!newPrediction) {
+		// Empty prediction received. Hide current prediction if any
+		if (prediction.value) {
+			const closingId = prediction.value.id;
+			showWinner.value = parameters.value.resultDuration_s > 0;
+			show.value = true;
+			await Utils.promisedTimeout(parameters.value.resultDuration_s * 1000);
+			// A new prediction started during the result display, leave it open
+			if (prediction.value?.id !== closingId) return;
+			show.value = false;
+			// Wait for close animation, then forget the prediction so it's not
+			// displayed back the next time configs are received
 			await Utils.promisedTimeout(1000);
+			if (prediction.value?.id === closingId) prediction.value = null;
 		}
-		if(!prediction) {
-			// Empty prediction received. Hide current prediction if any
-			if(this.prediction) {
-				this.showWinner = this.parameters.resultDuration_s > 0;
-				this.show = true;
-				await Utils.promisedTimeout(this.parameters.resultDuration_s * 1000);
-				this.show = false;
-			}
-		}else{
-			this.show		= this.parameters.showOnlyResult !== true && (!prediction.pendingAnswer || (prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
-			this.showWinner	= false;
-			this.prediction	= prediction;
-		}
-	}
-
-	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
-		this.parameters = ((e.data as unknown) as {parameters:PredictionOverlayParamStoreData}).parameters;
-		this.parametersReceived = true;
-		if(this.pendingData) {
-			this.onUpdatePrediction(this.pendingData);
-			this.pendingData = null;
-		}else{
-			this.show = this.parameters.showOnlyResult !== true && (!this.prediction?.pendingAnswer || (this.prediction?.pendingAnswer && this.parameters.hideUntilResolved === false));
-		}
+	} else {
+		show.value =
+			parameters.value.showOnlyResult !== true &&
+			(!newPrediction.pendingAnswer ||
+				(newPrediction.pendingAnswer && parameters.value.hideUntilResolved === false));
+		showWinner.value = false;
+		prediction.value = newPrediction;
 	}
 }
-export default toNative(OverlayPredictions);
 
+async function onUpdateParams(e: TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">): Promise<void> {
+	parameters.value = e.data.parameters;
+	parametersReceived = true;
+	if (pendingData) {
+		onUpdatePrediction(pendingData);
+		pendingData = null;
+	} else if (prediction.value && !showWinner.value) {
+		show.value =
+			parameters.value.showOnlyResult !== true &&
+			(!prediction.value.pendingAnswer ||
+				(prediction.value.pendingAnswer && parameters.value.hideUntilResolved === false));
+	}
+}
 </script>
 
 <style scoped lang="less">
-.overlaypredictions{
+.overlaypredictions {
 	background-color: var(--color-light);
 	position: absolute;
 	padding: 1em;
@@ -160,7 +154,7 @@ export default toNative(OverlayPredictions);
 
 	.progress {
 		width: 100%;
-		height: .5em;
+		height: 0.5em;
 		background-color: #387aff;
 		position: absolute;
 		top: 0;
@@ -169,7 +163,7 @@ export default toNative(OverlayPredictions);
 
 	h1 {
 		text-align: center;
-		margin-bottom: .25em;
+		margin-bottom: 0.25em;
 	}
 
 	.battle {
@@ -179,7 +173,7 @@ export default toNative(OverlayPredictions);
 		.labels {
 			display: flex;
 			flex-direction: row;
-			margin-bottom: .25em;
+			margin-bottom: 0.25em;
 			text-align: center;
 			.outcomeTitle {
 				display: block;
@@ -187,7 +181,9 @@ export default toNative(OverlayPredictions);
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				min-width: 2px;
-				transition: flex-basis .3s, opacity .5s;
+				transition:
+					flex-basis 0.3s,
+					opacity 0.5s;
 			}
 			.outcomeTitle:first-child:nth-last-child(2),
 			.outcomeTitle:first-child:nth-last-child(2) ~ .outcomeTitle {
@@ -211,13 +207,15 @@ export default toNative(OverlayPredictions);
 			transform-origin: top center;
 			.chunk {
 				flex: 1;
-				transition: flex-basis .3s, opacity .5s;
+				transition:
+					flex-basis 0.3s,
+					opacity 0.5s;
 				display: flex;
 				flex-direction: row;
 				align-items: center;
 				justify-content: center;
 				overflow: hidden;
-				padding: .5em 0;
+				padding: 0.5em 0;
 				&:nth-child(odd) {
 					background-color: #387aff;
 				}
@@ -238,12 +236,12 @@ export default toNative(OverlayPredictions);
 			overflow: hidden;
 			transform-origin: top center;
 			margin: auto;
-			transition: opacity .5s;
+			transition: opacity 0.5s;
 			&:not(:last-child) {
-				margin-bottom: .75em;
+				margin-bottom: 0.75em;
 			}
 			h2 {
-				margin-bottom: .25em;
+				margin-bottom: 0.25em;
 				white-space: nowrap;
 				overflow: hidden;
 				text-overflow: ellipsis;
@@ -252,11 +250,11 @@ export default toNative(OverlayPredictions);
 				min-height: 1em;
 				flex-grow: 1;
 				border-radius: var(--border-radius);
-				padding: .25em .5em;
+				padding: 0.25em 0.5em;
 				font-size: 1em;
 				color: var(--color-light);
 				@c: #387aff;
-				transition: background-size .3s;
+				transition: background-size 0.3s;
 				background: linear-gradient(to right, @c 100%, @c 100%);
 				background-color: fade(#387aff, 20%);
 				background-repeat: no-repeat;
@@ -269,7 +267,7 @@ export default toNative(OverlayPredictions);
 		.choice:first-child:nth-last-child(2) ~ .choice {
 			.bar {
 				@c: #f50e9b;
-				transition: background-size .3s;
+				transition: background-size 0.3s;
 				background: linear-gradient(to right, @c 100%, @c 100%);
 				background-color: fade(#f50e9b, 20%);
 				background-repeat: no-repeat;
@@ -277,30 +275,32 @@ export default toNative(OverlayPredictions);
 		}
 	}
 
-	.details{
+	.details {
 		display: flex;
 		flex-direction: row;
-		color:var(--color-light);
+		color: var(--color-light);
 		justify-content: center;
 
-		.percent, .votes, .points {
+		.percent,
+		.votes,
+		.points {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-			padding: .4em .5em;
+			padding: 0.4em 0.5em;
 			border-radius: var(--border-radius);
-			background-color: rgba(0, 0, 0, .5);
-			font-size: .8em;
+			background-color: rgba(0, 0, 0, 0.5);
+			font-size: 0.8em;
 			flex-shrink: 0;
 			font-variant-numeric: tabular-nums;
 
 			&:not(:last-child) {
-				margin-right: .25em;
+				margin-right: 0.25em;
 			}
 
 			.icon {
 				height: 1em;
-				margin-right: .25em;
+				margin-right: 0.25em;
 			}
 		}
 	}
@@ -359,7 +359,7 @@ export default toNative(OverlayPredictions);
 	&.win {
 		.list {
 			.choice {
-				opacity: .5;
+				opacity: 0.5;
 				.bar {
 					background-color: fade(#387aff, 20%);
 				}
@@ -376,12 +376,10 @@ export default toNative(OverlayPredictions);
 			}
 		}
 
-
-
 		.battle {
 			.labels {
 				.outcomeTitle {
-					opacity: .5;
+					opacity: 0.5;
 					&.win {
 						opacity: 1;
 					}
@@ -390,7 +388,7 @@ export default toNative(OverlayPredictions);
 
 			.chunks {
 				.chunk {
-					opacity: .5;
+					opacity: 0.5;
 					&.win {
 						opacity: 1;
 					}

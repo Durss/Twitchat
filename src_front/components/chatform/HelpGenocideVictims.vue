@@ -3,121 +3,136 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<h1 class="head">
-				<span class="title">{{ $t('gaza.title') }}</span>
+				<span class="title">{{ t("gaza.title") }}</span>
 				<ClearButton @click="close()" />
 			</h1>
 			<div class="content">
-				<p v-for="e in $tm('gaza.description')">{{ e }}</p>
+				<p v-for="e in descriptionLines">{{ e }}</p>
 
-				<div class="ctas" v-newflag="{date:1759253466000, id:'gaza:araborg'}">
+				<div class="ctas">
 					<div class="head">
-						<a href="https://arab.org/click-to-help/palestine/" target="_blank"><strong>Arab.org <Icon name="newtab"/></strong></a>
-						<i>{{ $t("gaza.araborg_head") }}</i>
+						<a href="https://arab.org/click-to-help/palestine/" target="_blank"
+							><strong>Arab.org <Icon name="newtab" /></strong
+						></a>
+						<i>{{ t("gaza.araborg_head") }}</i>
 					</div>
-					<TTButton icon="whispers"
+					<TTButton
+						icon="whispers"
 						:loading="sendingAraborg"
 						v-if="!sentAraborg"
-						@click="sendOnChat('https://arab.org/click-to-help/palestine')">{{ $t("gaza.send_bt") }}</TTButton>
-						<div v-else class="card-item thanks">{{ $t("gaza.thanks") }}</div>
+						@click="sendOnChat('https://arab.org/click-to-help/palestine')"
+						>{{ t("gaza.send_bt") }}</TTButton
+					>
+					<div v-else class="card-item thanks">{{ t("gaza.thanks") }}</div>
 				</div>
 
 				<div class="ctas">
-					
 					<div class="head">
-						<a href="https://gazafunds.com" target="_blank"><strong>Gazafunds.com <Icon name="newtab"/></strong></a>
-						<i>{{ $t("gaza.gazafunds_head") }}</i>
+						<a href="https://gazafunds.com" target="_blank"
+							><strong>Gazafunds.com <Icon name="newtab" /></strong
+						></a>
+						<i>{{ t("gaza.gazafunds_head") }}</i>
 					</div>
 
-					<TTButton icon="whispers"
+					<TTButton
+						icon="whispers"
 						:loading="sendingGazafunds"
 						v-if="!sentGazafunds"
-						@click="sendOnChat('https://gazafunds.com')">{{ $t("gaza.send_bt") }}</TTButton>
-						<div v-else class="card-item thanks">{{ $t("gaza.thanks") }}</div>
-					
+						@click="sendOnChat('https://gazafunds.com')"
+						>{{ t("gaza.send_bt") }}</TTButton
+					>
+					<div v-else class="card-item thanks">{{ t("gaza.thanks") }}</div>
 
-					<TTButton type="link"
-						icon="newtab" transparent secondary
+					<TTButton
+						type="link"
+						icon="newtab"
+						transparent
+						secondary
 						href="https://docs.google.com/spreadsheets/d/1-DDMFyn-ttboPXrz1bB3MFk7BlzCwfugh4259Wh7U1s/htmlview"
-						target="_blank">{{ $t("gaza.allFunds_bt") }}</TTButton>
+						target="_blank"
+						>{{ t("gaza.allFunds_bt") }}</TTButton
+					>
 				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import ParamItem from '@/components/params/ParamItem.vue';
-import MessengerProxy from '@/messaging/MessengerProxy';
-import Utils from '@/utils/Utils';
-import { gsap } from 'gsap/gsap-core';
-import { Component, toNative, Vue } from 'vue-facing-decorator';
-import ClearButton from '../ClearButton.vue';
-import Icon from '../Icon.vue';
-import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
-import Splitter from '../Splitter.vue';
-import TTButton from '../TTButton.vue';
+<script setup lang="ts">
+import MessengerProxy from "@/messaging/MessengerProxy";
+import Utils from "@/utils/Utils";
+import { gsap } from "gsap/gsap-core";
+import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import ClearButton from "../ClearButton.vue";
+import Icon from "../Icon.vue";
+import TTButton from "../TTButton.vue";
 
-@Component({
-	components:{
-		Icon,
-		TTButton,
-		Splitter,
-		ParamItem,
-		ClearButton,
-		OverlayInstaller,
-	},
-	emits:["close"]
-})
-class HelpGenocideVictims extends Vue {
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	public sentGazafunds:boolean = false;
-	public sendingGazafunds:boolean = false;
-	public sentAraborg:boolean = false;
-	public sendingAraborg:boolean = false;
+const { t, tm } = useI18n();
+const dimmer = useTemplateRef<HTMLElement>("dimmer");
+const holder = useTemplateRef<HTMLElement>("holder");
 
-	public mounted():void {
-		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
-		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
-	}
+const sentGazafunds = ref<boolean>(false);
+const sendingGazafunds = ref<boolean>(false);
+const sentAraborg = ref<boolean>(false);
+const sendingAraborg = ref<boolean>(false);
 
-	public async close():Promise<void> {
-		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
-		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
-		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		}});
-	}
+const descriptionLines = computed(() => tm("gaza.description") as string[]);
 
-	public async sendOnChat(url:string):Promise<void> {
-		let message = "";
-		if(url.indexOf("arab.org") > -1) {
-			this.sentAraborg = false;
-			this.sendingAraborg = true;
-			message = this.$t("gaza.araborg_message");
-		} else {
-			this.sentGazafunds = false;
-			this.sendingGazafunds = true;
-			message = this.$t("gaza.gazafunds_message");
-		}
-		MessengerProxy.instance.sendMessage(message + url);
-		await Utils.promisedTimeout(500);
-		if(url.indexOf("arab.org") > -1) {
-			this.sentAraborg = true;
-			this.sendingAraborg = false;
-		} else {
-			this.sentGazafunds = true;
-			this.sendingGazafunds = false;
-		}
-	}
+onMounted(() => {
+	gsap.set(holder.value!, { marginTop: 0, opacity: 1 });
+	gsap.to(dimmer.value!, { duration: 0.25, opacity: 1 });
+	gsap.from(holder.value!, {
+		duration: 0.25,
+		marginTop: -100,
+		opacity: 0,
+		ease: "back.out",
+	});
+});
 
+async function close(): Promise<void> {
+	gsap.killTweensOf([holder.value, dimmer.value]);
+	gsap.to(dimmer.value!, { duration: 0.25, opacity: 0, ease: "sine.in" });
+	gsap.to(holder.value!, {
+		duration: 0.25,
+		marginTop: -100,
+		opacity: 0,
+		ease: "back.in",
+		onComplete: () => {
+			emit("close");
+		},
+	});
 }
-export default toNative(HelpGenocideVictims);
+
+async function sendOnChat(url: string): Promise<void> {
+	let message = "";
+	if (url.indexOf("arab.org") > -1) {
+		sentAraborg.value = false;
+		sendingAraborg.value = true;
+		message = t("gaza.araborg_message");
+	} else {
+		sentGazafunds.value = false;
+		sendingGazafunds.value = true;
+		message = t("gaza.gazafunds_message");
+	}
+	MessengerProxy.instance.sendMessage(message + url);
+	await Utils.promisedTimeout(500);
+	if (url.indexOf("arab.org") > -1) {
+		sentAraborg.value = true;
+		sendingAraborg.value = false;
+	} else {
+		sentGazafunds.value = true;
+		sendingGazafunds.value = false;
+	}
+}
 </script>
 
 <style scoped lang="less">
-.helpgenocidevictims{
-	
+.helpgenocidevictims {
 	z-index: 2;
 
 	.holder {
@@ -134,7 +149,7 @@ export default toNative(HelpGenocideVictims);
 
 		.ctas {
 			margin-top: 1em;
-			gap:.5em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;
@@ -144,7 +159,7 @@ export default toNative(HelpGenocideVictims);
 			border-radius: var(--border-radius);
 
 			&.newFlag {
-				padding: .5em;
+				padding: 0.5em;
 			}
 
 			.head {
@@ -171,7 +186,7 @@ export default toNative(HelpGenocideVictims);
 	}
 
 	.installer {
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 
 	.splitter {

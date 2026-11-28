@@ -1,46 +1,39 @@
 <template>
 	<div class="premiumlocklayer" v-if="!$store.auth.isPremium">
 		<Icon name="premium" class="icon" />
-		<Button icon="premium" @click="openPremium()" premium>{{$t('premium.become_premiumBt')}}</Button>
+		<TTButton icon="premium" @click="openPremium()" light premium>{{
+			$t("premium.become_premiumBt")
+		}}</TTButton>
 	</div>
 </template>
 
-<script lang="ts">
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from './TTButton.vue';
-import Icon from './Icon.vue';
+<script lang="ts" setup>
+import { storeParams } from "@/store/params/storeParams";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TTButton from "./TTButton.vue";
 
-@Component({
-	components:{
-		Icon,
-		Button: TTButton,
-	},
-	emits:[],
-})
-class PremiumLockLayer extends Vue {
-
-	/**
-	 * Open premium section
-	 */
-	 public openPremium():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
+const store = storeParams();
+function openPremium(): void {
+	store.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 }
-export default toNative(PremiumLockLayer);
 </script>
 
 <style scoped lang="less">
-.premiumlocklayer{
-	// outline: 1px solid red;
+.premiumlocklayer {
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
 	z-index: 1;
-	// background-color: var(--color-premium-fadest);
+	background-color: transparent;
+	background-image: repeating-linear-gradient(
+		-45deg,
+		var(--color-premium-fadest),
+		var(--color-premium-fadest) 10px,
+		transparent 10px,
+		transparent 20px
+	);
 	cursor: not-allowed;
 	& > * {
 		position: absolute;
@@ -50,24 +43,25 @@ export default toNative(PremiumLockLayer);
 	}
 	.button {
 		opacity: 0;
-		transition: opacity .25s;
+		transition: opacity 0.25s;
 		&:active {
 			//Make sure button stays centered.
 			//Button natively translateY() itself when active
-			transform: translate(-50%, calc( -50% + 2px));
+			transform: translate(-50%, calc(-50% + 2px));
 		}
 	}
-	&>.icon {
+	& > .icon {
+		color: var(--color-light);
 		height: 1.75em;
 		width: 1.75em;
-		transition: opacity .25s;
+		transition: opacity 0.25s;
 		filter: drop-shadow(0 0 10px #000000);
 	}
 	&:hover {
 		.button {
 			opacity: 1;
 		}
-		&>.icon {
+		& > .icon {
 			opacity: 0;
 		}
 	}
