@@ -27,6 +27,7 @@
 				<ContentEditable
 					ref="titleEditRef"
 					tag="h2"
+					:id="titleId"
 					class="titleText"
 					:class="{ default: !localTitle }"
 					:contenteditable="isEditingTitle"
@@ -40,7 +41,7 @@
 					@mouseover="isEditingTitle = true"
 				/>
 				<Icon name="edit" class="editIcon" />
-				<h3 v-if="subtitle" class="subtitle">{{ subtitle }}</h3>
+				<h3 v-if="subtitle" class="subtitle" :id="subtitleId">{{ subtitle }}</h3>
 			</div>
 
 			<div
@@ -49,8 +50,8 @@
 				class="titleSection"
 				:class="{ singleLine: isSingleLineMode }"
 			>
-				<h2 class="titleText">{{ title || titleDefault }}</h2>
-				<h3 v-if="subtitle" class="subtitle">{{ subtitle }}</h3>
+				<h2 class="titleText" :id="titleId">{{ title || titleDefault }}</h2>
+				<h3 v-if="subtitle" class="subtitle" :id="subtitleId">{{ subtitle }}</h3>
 			</div>
 
 			<div class="titleSection" v-else-if="!isEmptySlot(slots.right_actions)"></div>
@@ -79,11 +80,15 @@
 				<Icon name="settings" />
 			</button>
 
+			<!-- With noArrow, the button is only shown on keyboard focus -->
 			<button
-				v-if="!noArrow && !noToggle"
+				v-if="!noToggle"
 				type="button"
 				class="arrow right"
-				:class="{ open: isOpen && !isClosing }"
+				:class="{ open: isOpen && !isClosing, noArrow }"
+				:aria-expanded="isOpen && !isClosing"
+				:aria-controls="contentVisible ? contentId : undefined"
+				:aria-labelledby="arrowLabelledBy"
 			>
 				<Icon name="arrowRight" />
 			</button>
@@ -103,6 +108,7 @@
 			v-if="contentVisible && (!isEmptySlot(slots.default) || !isEmptySlot(slots.content))"
 			ref="contentRef"
 			class="content"
+			:id="contentId"
 		>
 			<slot v-if="!isEmptySlot(slots.default)" />
 			<slot v-if="!isEmptySlot(slots.content)" name="content" />
@@ -121,6 +127,7 @@ import {
 	onUnmounted,
 	ref,
 	useSlots,
+	useId,
 	useTemplateRef,
 	watch,
 	type CSSProperties,
@@ -179,6 +186,9 @@ const rightActionsRef = useTemplateRef("rightActionsRef");
 const titleRef = useTemplateRef("titleRef");
 const titleMeasureRef = useTemplateRef("titleMeasureRef");
 const titleEditRef = useTemplateRef<InstanceType<typeof ContentEditable>>("titleEditRef");
+const titleId = useId();
+const subtitleId = useId();
+const contentId = useId();
 
 const isOpen = ref(props.noToggle || props.open);
 const isClosing = ref(false);
@@ -212,6 +222,13 @@ const displayIcons = computed(() => {
 	const icons = [...props.icons];
 	if (props.error) icons.push("automod");
 	return icons;
+});
+
+// The arrow button is named after the block title (and subtitle)
+const arrowLabelledBy = computed(() => {
+	const hasTitle = props.editableTitle || props.title || props.titleDefault;
+	const ids = [hasTitle && titleId, props.subtitle && subtitleId].filter(Boolean);
+	return ids.length > 0 ? ids.join(" ") : undefined;
 });
 
 const displayTitle = computed(() => {
@@ -498,6 +515,13 @@ onUnmounted(() => {
 		}
 		&.open .icon {
 			transform: rotate(90deg);
+		}
+		&.noArrow:not(:focus-visible) {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
 		}
 		&.right {
 			margin-left: -0.5em;
